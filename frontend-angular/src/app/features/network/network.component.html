@@ -1,0 +1,199 @@
+<div class="network-container">
+  <!-- Header Section -->
+  <div class="header-section app-card">
+    <div class="header-text">
+      <h1>Annuaire du Réseau AfriDev</h1>
+      <p>Découvrez et connectez-vous avec les meilleurs Développeurs et Recruteurs d'Afrique. Suivez leurs contributions et leur réputation.</p>
+    </div>
+
+    <!-- Counters Badge -->
+    <div class="stats-pills">
+      <div class="stat-pill">
+        <span class="stat-val">{{ users.length }}</span>
+        <span class="stat-lbl">Membres Actifs</span>
+      </div>
+      <div class="stat-pill highlight" *ngIf="suggestions.length > 0">
+        <span class="stat-val">{{ suggestions.length }}</span>
+        <span class="stat-lbl">Recommandés pour vous ✨</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filter Navigation & Search Bar -->
+  <div class="controls-card app-card">
+    <div class="tabs-group">
+      <button 
+        (click)="setTab('ALL')" 
+        [class.active]="activeTab === 'ALL'" 
+        class="tab-btn">
+        👥 Tous les Membres
+      </button>
+      <button 
+        (click)="setTab('DEVELOPER')" 
+        [class.active]="activeTab === 'DEVELOPER'" 
+        class="tab-btn">
+        👨‍💻 Développeurs
+      </button>
+      <button 
+        (click)="setTab('RECRUITER')" 
+        [class.active]="activeTab === 'RECRUITER'" 
+        class="tab-btn">
+        👔 Recruteurs
+      </button>
+      <button 
+        *ngIf="isLoggedIn()"
+        (click)="setTab('SUGGESTIONS')" 
+        [class.active]="activeTab === 'SUGGESTIONS'" 
+        class="tab-btn tab-ai">
+        ✨ Recommandations IA
+      </button>
+    </div>
+
+    <!-- Search inputs -->
+    <div class="search-bar-row" *ngIf="activeTab !== 'SUGGESTIONS'">
+      <div class="input-with-icon">
+        <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
+        </svg>
+        <input 
+          type="text" 
+          [(ngModel)]="searchQuery" 
+          (ngModelChange)="onSearchChange()" 
+          placeholder="Rechercher par nom, titre ou email..." 
+          class="form-input">
+      </div>
+
+      <input 
+        type="text" 
+        [(ngModel)]="selectedSkill" 
+        (ngModelChange)="onSearchChange()" 
+        placeholder="Filtrer par techno (ex: Angular, Java)..." 
+        class="form-input mini-input">
+
+      <input 
+        type="text" 
+        [(ngModel)]="selectedCountry" 
+        (ngModelChange)="onSearchChange()" 
+        placeholder="Pays..." 
+        class="form-input mini-input">
+    </div>
+  </div>
+
+  <!-- AI Suggestions Tab View -->
+  <div *ngIf="activeTab === 'SUGGESTIONS'" class="suggestions-view">
+    <div class="ai-banner app-card">
+      <div class="ai-banner-content">
+        <h3>✨ Suggestions Intelligentes</h3>
+        <p>Moteur de recommandation analysant vos compétences communes, la synergie de rôle et les réputations certifiées.</p>
+      </div>
+      <span class="badge badge-emerald">Recommandations Personnalisées</span>
+    </div>
+
+    <div class="users-grid" *ngIf="suggestions.length > 0; else emptySuggestions">
+      <div *ngFor="let sug of suggestions" class="app-card user-card suggestion-card">
+        <div class="match-badge">
+          <span>{{ sug.matchPercentage | number:'1.0-0' }}% Match</span>
+        </div>
+
+        <div class="card-header">
+          <div class="user-avatar">
+            {{ (sug.user.fullName || sug.user.email).charAt(0).toUpperCase() }}
+          </div>
+          <div class="user-main-info">
+            <a [routerLink]="['/profile', sug.user.id]" class="user-name">{{ sug.user.fullName }}</a>
+            <span class="user-title">{{ sug.user.title || 'Membre AfriDev' }}</span>
+            <div class="user-meta-row">
+              <span class="badge" [ngClass]="sug.user.role === 'RECRUITER' ? 'badge-blue' : 'badge-emerald'">
+                {{ sug.user.role === 'RECRUITER' ? '👔 Recruteur' : '👨‍💻 Développeur' }}
+              </span>
+              <span class="rep-score" *ngIf="sug.user.reputationScore > 0">
+                ⭐ {{ sug.user.reputationScore | number:'1.1-1' }}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <p class="ai-reason">
+          💡 {{ sug.reason }}
+        </p>
+
+        <div class="skills-list" *ngIf="sug.user.skills && sug.user.skills.length > 0">
+          <span *ngFor="let skill of sug.user.skills.slice(0, 4)" class="skill-pill">
+            {{ skill }}
+          </span>
+        </div>
+
+        <div class="card-footer">
+          <div class="counts-info">
+            <span>{{ sug.user.followersCount }} abonné(s)</span>
+          </div>
+          <button 
+            (click)="toggleFollowSuggestion(sug)" 
+            class="btn btn-sm"
+            [ngClass]="sug.user.isFollowedByCurrentUser ? 'btn-outline' : 'btn-emerald'">
+            {{ sug.user.isFollowedByCurrentUser ? '✓ Suivi' : '+ Suivre' }}
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <ng-template #emptySuggestions>
+      <div class="empty-box app-card">
+        Aucune suggestion disponible pour le moment.
+      </div>
+    </ng-template>
+  </div>
+
+  <!-- Standard User Directory Grid (ALL / DEVELOPER / RECRUITER) -->
+  <div *ngIf="activeTab !== 'SUGGESTIONS'" class="directory-view">
+    <div class="users-grid" *ngIf="!isLoading && users.length > 0; else emptyOrLoading">
+      <div *ngFor="let u of users" class="app-card user-card">
+        <div class="card-header">
+          <div class="user-avatar" [ngClass]="u.role === 'RECRUITER' ? 'avatar-recruiter' : 'avatar-dev'">
+            {{ (u.fullName || u.email).charAt(0).toUpperCase() }}
+          </div>
+          <div class="user-main-info">
+            <a [routerLink]="['/profile', u.id]" class="user-name">{{ u.fullName }}</a>
+            <span class="user-title">{{ u.title || 'Membre AfriDev Hub' }}</span>
+            <div class="user-meta-row">
+              <span class="badge" [ngClass]="u.role === 'RECRUITER' ? 'badge-blue' : 'badge-emerald'">
+                {{ u.role === 'RECRUITER' ? '👔 Recruteur' : '👨‍💻 Développeur' }}
+              </span>
+              <span class="geo-tag" *ngIf="u.country">📍 {{ u.city ? u.city + ', ' : '' }}{{ u.country }}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="skills-list" *ngIf="u.skills && u.skills.length > 0">
+          <span *ngFor="let s of u.skills.slice(0, 4)" class="skill-pill">
+            {{ s }}
+          </span>
+        </div>
+
+        <div class="card-footer">
+          <div class="user-stats-mini">
+            <span class="rep-badge" *ngIf="u.reputationScore > 0">⭐ {{ u.reputationScore | number:'1.1-1' }}/5</span>
+            <span class="followers-count">{{ u.followersCount }} abonné(s)</span>
+          </div>
+
+          <button 
+            *ngIf="isLoggedIn()"
+            (click)="toggleFollow(u)" 
+            class="btn btn-sm"
+            [ngClass]="u.isFollowedByCurrentUser ? 'btn-outline' : 'btn-emerald'">
+            {{ u.isFollowedByCurrentUser ? '✓ Suivi' : '+ Suivre' }}
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <ng-template #emptyOrLoading>
+      <div class="empty-box app-card" *ngIf="!isLoading && users.length === 0">
+        Aucun membre correspondant aux critères de recherche actuels.
+      </div>
+      <div class="empty-box app-card" *ngIf="isLoading">
+        Chargement de l'annuaire...
+      </div>
+    </ng-template>
+  </div>
+</div>

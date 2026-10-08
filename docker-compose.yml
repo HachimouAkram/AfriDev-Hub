@@ -1,0 +1,48 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: afridev-postgres
+    restart: always
+    environment:
+      POSTGRES_DB: afridev_db
+      POSTGRES_USER: afridev
+      POSTGRES_PASSWORD: afridev_secret
+    ports:
+      - "15432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./docker/init.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U afridev -d afridev_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - afridev-network
+
+  redis:
+    image: redis:7-alpine
+    container_name: afridev-redis
+    restart: always
+    command: redis-server --requirepass redis_secret
+    ports:
+      - "6380:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "redis_secret", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - afridev-network
+
+volumes:
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local
+
+networks:
+  afridev-network:
+    driver: bridge

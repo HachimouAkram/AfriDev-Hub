@@ -1,0 +1,176 @@
+<div class="opportunities-container">
+  <!-- Header Banner -->
+  <div class="header-section app-card">
+    <div class="header-text">
+      <h1>Tableau des Opportunités Panafricaines</h1>
+      <p>Emplois vérifiés, missions freelance et collaborations open source pour développeurs et talents africains.</p>
+    </div>
+    <button *ngIf="isLoggedIn()" (click)="openCreateModal()" class="btn btn-emerald">
+      <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+      </svg>
+      Publier une Opportunité
+    </button>
+  </div>
+
+  <!-- Type Filter Tabs -->
+  <div class="filter-tabs">
+    <button class="filter-btn" [class.active]="selectedType === 'ALL'" (click)="filterByType('ALL')">Toutes</button>
+    <button class="filter-btn" [class.active]="selectedType === 'JOB'" (click)="filterByType('JOB')">CDI / CDD</button>
+    <button class="filter-btn" [class.active]="selectedType === 'FREELANCE'" (click)="filterByType('FREELANCE')">Freelance</button>
+    <button class="filter-btn" [class.active]="selectedType === 'COLLABORATION'" (click)="filterByType('COLLABORATION')">Collaboration Open Source</button>
+    <button class="filter-btn" [class.active]="selectedType === 'INTERNSHIP'" (click)="filterByType('INTERNSHIP')">Stage</button>
+  </div>
+
+  <!-- Opportunities Grid -->
+  <div class="opportunities-grid" *ngIf="!isLoading; else loadingState">
+    <div *ngFor="let opt of opportunities" class="app-card opt-card">
+      <div class="opt-header">
+        <div class="badge-group">
+          <span class="badge badge-emerald">{{ opt.type }}</span>
+          <span *ngIf="opt.isRemote" class="badge badge-gray">Remote</span>
+        </div>
+        <span class="budget-tag" *ngIf="opt.budget">{{ opt.budget }}</span>
+      </div>
+
+      <div class="opt-body">
+        <h3 class="opt-title">{{ opt.title }}</h3>
+        <p class="publisher-info">
+          Publié par <strong>{{ opt.publisher?.profile?.fullName || opt.publisher?.email || 'Recruteur' }}</strong> &bull; 
+          <span>📍 {{ opt.location }}</span>
+        </p>
+        <p class="opt-desc">{{ opt.description }}</p>
+
+        <div class="stack-list" *ngIf="opt.stack && opt.stack.length">
+          <span *ngFor="let tech of opt.stack" class="badge badge-gray">{{ tech }}</span>
+        </div>
+      </div>
+
+      <div class="opt-footer">
+        <span class="date-text">Offre vérifiée &bull; {{ opt.createdAt | date:'mediumDate' }}</span>
+        <button (click)="openApplyModal(opt)" class="btn btn-emerald btn-sm">
+          Postuler
+          <svg class="icon-svg icon-svg-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+          </svg>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <ng-template #loadingState>
+    <div class="loading-box app-card">Chargement des opportunités...</div>
+  </ng-template>
+
+  <!-- APPLY MODAL -->
+  <div class="modal-overlay" *ngIf="showApplyModal && selectedOpportunity" (click)="closeApplyModal()">
+    <div class="app-card modal-card" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>Candidater à : {{ selectedOpportunity.title }}</h3>
+        <button (click)="closeApplyModal()" class="btn-icon">
+          <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+
+      <form (ngSubmit)="onSubmitApplication()" class="modal-form">
+        <p class="modal-info">Votre profil AfriDev Hub certifié sera automatiquement transmis avec votre candidature.</p>
+
+        <div class="form-group">
+          <label for="msg" class="form-label">Message de motivation (Max 1000 caractères)</label>
+          <textarea 
+            id="msg" 
+            [(ngModel)]="applicationMessage" 
+            name="applicationMessage" 
+            rows="4" 
+            placeholder="Présentez brièvement vos réalisations clés et votre intérêt pour cette opportunité..." 
+            required 
+            class="form-textarea"></textarea>
+        </div>
+
+        <div class="form-group">
+          <label for="cv" class="form-label">Lien CV / Portfolio PDF (Optionnel)</label>
+          <input 
+            type="url" 
+            id="cv" 
+            [(ngModel)]="cvUrl" 
+            name="cvUrl" 
+            placeholder="https://drive.google.com/your-cv.pdf" 
+            class="form-input">
+        </div>
+
+        <div *ngIf="applyErrorMessage" class="error-box">{{ applyErrorMessage }}</div>
+        <div *ngIf="applySuccessMessage" class="success-box">{{ applySuccessMessage }}</div>
+
+        <div class="modal-footer">
+          <button type="button" (click)="closeApplyModal()" class="btn btn-outline">Annuler</button>
+          <button type="submit" [disabled]="isApplying" class="btn btn-emerald">
+            <span *ngIf="!isApplying">Envoyer ma candidature</span>
+            <span *ngIf="isApplying">Envoi...</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- CREATE OPPORTUNITY MODAL -->
+  <div class="modal-overlay" *ngIf="showCreateModal" (click)="closeCreateModal()">
+    <div class="app-card modal-card" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>Publier une Opportunité</h3>
+        <button (click)="closeCreateModal()" class="btn-icon">
+          <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+
+      <form (ngSubmit)="onSubmitOpportunity()" class="modal-form">
+        <div class="form-group">
+          <label for="oTitle" class="form-label">Titre du poste ou de la mission</label>
+          <input type="text" id="oTitle" [(ngModel)]="optTitle" name="optTitle" required class="form-input">
+        </div>
+
+        <div class="form-row">
+          <div class="form-group flex-1">
+            <label for="oType" class="form-label">Type d'opportunité</label>
+            <select id="oType" [(ngModel)]="optType" name="optType" class="form-select">
+              <option value="JOB">Emploi (CDI / CDD)</option>
+              <option value="FREELANCE">Mission Freelance</option>
+              <option value="COLLABORATION">Collaboration Open Source</option>
+              <option value="INTERNSHIP">Stage</option>
+            </select>
+          </div>
+
+          <div class="form-group flex-1">
+            <label for="oLoc" class="form-label">Localisation / Pays</label>
+            <input type="text" id="oLoc" [(ngModel)]="optLocation" name="optLocation" required class="form-input">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="oDesc" class="form-label">Description détaillée</label>
+          <textarea id="oDesc" [(ngModel)]="optDescription" name="optDescription" rows="4" required class="form-textarea"></textarea>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group flex-1">
+            <label for="oBudget" class="form-label">Budget / Rémunération</label>
+            <input type="text" id="oBudget" [(ngModel)]="optBudget" name="optBudget" class="form-input">
+          </div>
+
+          <div class="form-group flex-1">
+            <label for="oStack" class="form-label">Stack requise</label>
+            <input type="text" id="oStack" [(ngModel)]="optStack" name="optStack" class="form-input">
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" (click)="closeCreateModal()" class="btn btn-outline">Annuler</button>
+          <button type="submit" [disabled]="isSubmitting" class="btn btn-emerald">Publier l'offre</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,159 @@
+<div class="auth-container">
+  <div class="app-card auth-card">
+    <div class="auth-header">
+      <div class="auth-icon-badge">
+        <svg class="icon-svg icon-svg-lg text-emerald" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 21a9.004 9.004 0 008.716-6.747M12 21a9.004 9.004 0 01-8.716-6.747M12 21c2.485 0 4.5-4.03 4.5-9S14.485 3 12 3m0 18c-2.485 0-4.5-4.03-4.5-9S9.515 3 12 3m0 0a8.997 8.997 0 017.843 4.582M12 3a8.997 8.997 0 00-7.843 4.582m15.686 0A11.953 11.953 0 0112 10.5c-2.998 0-5.74-1.1-7.843-2.918m15.686 0A8.959 8.959 0 0121 12c0 .778-.099 1.533-.284 2.253m-15.432-4.5A8.959 8.959 0 003 12c0 .778.099 1.533.284 2.253" />
+        </svg>
+      </div>
+      <h2>Créer votre profil AfriDev Hub</h2>
+      <p>Rejoignez la plateforme de réputation certifiée des développeurs africains</p>
+    </div>
+
+    <!-- Stepper Indicator -->
+    <div class="stepper">
+      <div class="step-item" [class.active]="step === 1" [class.completed]="step > 1">
+        <span class="step-num">1</span>
+        <span class="step-label">Compte & Sécurité</span>
+      </div>
+      <div class="step-line"></div>
+      <div class="step-item" [class.active]="step === 2">
+        <span class="step-num">2</span>
+        <span class="step-label">Profil & Compétences</span>
+      </div>
+    </div>
+
+    <!-- Error Alert -->
+    <div *ngIf="errorMessage" class="alert alert-error">
+      <svg class="icon-svg text-red" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
+      </svg>
+      <span>{{ errorMessage }}</span>
+    </div>
+
+    <!-- STEP 1 FORM -->
+    <form *ngIf="step === 1" (ngSubmit)="goToStep2()" class="auth-form">
+      <div class="form-group">
+        <label for="fullName">Nom complet / Pseudo</label>
+        <input 
+          type="text" 
+          id="fullName" 
+          [(ngModel)]="fullName" 
+          name="fullName" 
+          placeholder="Ex: Aminata Diallo" 
+          required 
+          class="form-control">
+      </div>
+
+      <div class="form-group">
+        <label for="email">Adresse Email</label>
+        <input 
+          type="email" 
+          id="email" 
+          [(ngModel)]="email" 
+          name="email" 
+          placeholder="aminata@dev.africa" 
+          required 
+          class="form-control">
+      </div>
+
+      <div class="form-group">
+        <label for="password">Mot de passe (Min 8 caractères)</label>
+        <input 
+          type="password" 
+          id="password" 
+          [(ngModel)]="password" 
+          name="password" 
+          placeholder="••••••••" 
+          required 
+          class="form-control">
+      </div>
+
+      <button type="submit" class="btn btn-emerald btn-full">
+        <span>Continuer (Étape 2/2)</span>
+        <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+        </svg>
+      </button>
+    </form>
+
+    <!-- STEP 2 FORM -->
+    <form *ngIf="step === 2" (ngSubmit)="onSubmitRegister()" class="auth-form">
+      <div class="form-row">
+        <div class="form-group flex-1">
+          <label for="country">Pays de résidence</label>
+          <select id="country" [(ngModel)]="country" name="country" class="form-control">
+            <option *ngFor="let c of africanCountries" [value]="c">{{ c }}</option>
+          </select>
+        </div>
+
+        <div class="form-group flex-1">
+          <label for="city">Ville</label>
+          <input 
+            type="text" 
+            id="city" 
+            [(ngModel)]="city" 
+            name="city" 
+            placeholder="Ex: Dakar, Lagos, Nairobi..." 
+            required 
+            class="form-control">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="title">Titre professionnel</label>
+        <input 
+          type="text" 
+          id="title" 
+          [(ngModel)]="title" 
+          name="title" 
+          placeholder="Ex: Développeur Full-Stack, Data Engineer..." 
+          required 
+          class="form-control">
+      </div>
+
+      <div class="form-group">
+        <label for="skills">Compétences techniques (séparées par des virgules)</label>
+        <input 
+          type="text" 
+          id="skills" 
+          [(ngModel)]="skillsInput" 
+          name="skillsInput" 
+          placeholder="Angular, Spring Boot, FastAPI, PostgreSQL" 
+          class="form-control">
+      </div>
+
+      <div class="form-group">
+        <label for="bio">Bio rapide (optionnel)</label>
+        <textarea 
+          id="bio" 
+          [(ngModel)]="bio" 
+          name="bio" 
+          rows="3" 
+          placeholder="Passionné par le développement cloud et open source en Afrique..." 
+          class="form-control"></textarea>
+      </div>
+
+      <div class="btn-row">
+        <button type="button" (click)="goToStep1()" class="btn btn-outline">
+          <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
+          </svg>
+          <span>Retour</span>
+        </button>
+        <button type="submit" [disabled]="isLoading" class="btn btn-emerald flex-1">
+          <svg *ngIf="!isLoading" class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+          </svg>
+          <span *ngIf="!isLoading">Créer mon profil</span>
+          <span *ngIf="isLoading">Création en cours...</span>
+        </button>
+      </div>
+    </form>
+
+    <div class="auth-footer">
+      <p>Déjà un compte ? <a routerLink="/login" class="link">Se connecter</a></p>
+    </div>
+  </div>
+</div>
+

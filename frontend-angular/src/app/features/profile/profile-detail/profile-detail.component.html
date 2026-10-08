@@ -1,0 +1,495 @@
+<div class="profile-container" *ngIf="profile">
+  <!-- Profile Header Card -->
+  <div class="app-card profile-header-card">
+    <div class="header-main">
+      <div class="avatar-large">
+        {{ profile.fullName ? profile.fullName.charAt(0).toUpperCase() : 'P' }}
+      </div>
+      <div class="header-details">
+        <div class="name-badge-row">
+          <h1>{{ profile.fullName }}</h1>
+          <span class="badge badge-emerald">
+            <svg class="icon-svg icon-svg-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" />
+              <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" />
+            </svg>
+            {{ profile.country }} ({{ profile.city }})
+          </span>
+          <span *ngIf="profile.mobileMoneyVerified" class="badge badge-emerald">
+            <svg class="icon-svg icon-svg-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            Vérifié Mobile Money
+          </span>
+        </div>
+        <p class="profile-title">{{ profile.title }}</p>
+        <p class="profile-bio" *ngIf="profile.bio">{{ profile.bio }}</p>
+
+        <!-- Follower stats badge -->
+        <div class="follow-stats-row" *ngIf="followStats">
+          <span class="follow-stat clickable" (click)="openFollowersModal()" title="Cliquer pour voir la liste des abonnés">
+            <strong>{{ followStats.followersCount }}</strong> abonnés
+          </span>
+          <span class="follow-stat clickable" (click)="openFollowingModal()" title="Cliquer pour voir la liste des abonnements">
+            <strong>{{ followStats.followingCount }}</strong> abonnements
+          </span>
+        </div>
+
+        <!-- Social Links -->
+        <div class="social-links">
+          <a *ngIf="profile.githubUrl" [href]="profile.githubUrl" target="_blank" class="btn btn-outline btn-sm">
+            <svg class="icon-svg icon-svg-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M17.25 6.75L22.5 12l-5.25 5.25m-10.5 0L1.5 12l5.25-5.25m7.5-3l-4.5 16.5" />
+            </svg>
+            GitHub
+          </a>
+          <a *ngIf="profile.linkedinUrl" [href]="profile.linkedinUrl" target="_blank" class="btn btn-outline btn-sm">
+            <svg class="icon-svg icon-svg-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M20.25 14.15v4.25c0 1.094-.787 2.036-1.872 2.18-2.087.277-4.216.42-6.378.42s-4.291-.143-6.378-.42c-1.085-.144-1.872-1.086-1.872-2.18v-4.25m16.5 0a2.18 2.18 0 00.75-1.661V8.706c0-1.081-.768-2.015-1.837-2.175a48.114 48.114 0 00-3.413-.387M3.75 14.15a2.18 2.18 0 01-.75-1.661V8.706c0-1.081.768-2.015 1.837-2.175a48.111 48.111 0 013.413-.387m4.5 8.006h4.5" />
+            </svg>
+            LinkedIn
+          </a>
+          <a *ngIf="profile.zindiUrl" [href]="profile.zindiUrl" target="_blank" class="btn btn-outline btn-sm">
+            <svg class="icon-svg icon-svg-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 3v11.25A2.25 2.25 0 006 16.5h2.25M3.75 3h-1.5m1.5 0h16.5m0 0h1.5m-1.5 0v11.25A2.25 2.25 0 0118 16.5h-2.25m-7.5 0h7.5m-7.5 0l-1.5-3m9 3l1.5-3" />
+            </svg>
+            Zindi
+          </a>
+          <a *ngIf="profile.portfolioUrl" [href]="profile.portfolioUrl" target="_blank" class="btn btn-outline btn-sm">
+            <svg class="icon-svg icon-svg-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 21a9 9 0 100-18 9 9 0 000 18zM3.6 9h16.8M3.6 15h16.8M12 3a14.25 14.25 0 000 18 14.25 14.25 0 000-18z" />
+            </svg>
+            Portfolio
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Action Bar for Own vs Other Profile -->
+    <div class="header-actions" *ngIf="isOwnProfile; else peerActions">
+      <button (click)="openGithubModal()" class="btn btn-emerald">
+        <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
+        </svg>
+        Synchroniser GitHub
+      </button>
+      <button *ngIf="!profile.mobileMoneyVerified" (click)="onVerifyMobileMoney()" [disabled]="isVerifyingMm" class="btn btn-outline">
+        Vérifier Mobile Money
+      </button>
+    </div>
+
+    <ng-template #peerActions>
+      <div class="header-actions">
+        <button 
+          (click)="toggleFollow()" 
+          [disabled]="isTogglingFollow" 
+          class="btn" 
+          [ngClass]="{
+            'btn-friends': followStats?.followedByCurrentUser && followStats?.followsCurrentUser,
+            'btn-follow-back': !followStats?.followedByCurrentUser && followStats?.followsCurrentUser,
+            'btn-outline': followStats?.followedByCurrentUser && !followStats?.followsCurrentUser,
+            'btn-emerald': !followStats?.followedByCurrentUser && !followStats?.followsCurrentUser
+          }">
+          <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M19 7.5v3m0 0v3m0-3h3m-3 0h-3m-2.25-4.125a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zM4 19.235v-.11a6.375 6.375 0 0112.75 0v.109A12.318 12.318 0 0110.374 21c-2.331 0-4.512-.645-6.374-1.766z" />
+          </svg>
+          <span *ngIf="followStats?.followedByCurrentUser && followStats?.followsCurrentUser">🤝 Amis</span>
+          <span *ngIf="!followStats?.followedByCurrentUser && followStats?.followsCurrentUser">↩️ Suivre en retour</span>
+          <span *ngIf="followStats?.followedByCurrentUser && !followStats?.followsCurrentUser">✓ Abonné(e)</span>
+          <span *ngIf="!followStats?.followedByCurrentUser && !followStats?.followsCurrentUser">Suivre ce membre</span>
+        </button>
+
+        <button (click)="openChatModal()" class="btn btn-outline">
+          <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M8.625 12a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H8.25m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H12m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0h-.375M21 12c0 4.556-4.03 8.25-9 8.25a9.764 9.764 0 01-2.555-.337A5.972 5.972 0 015.41 20.97a.598.598 0 01-.743-.598l.147-1.44a5.962 5.962 0 01-1.814-4.432C3 10.444 7.03 6.75 12 6.75s9 3.694 9 8.25z" />
+          </svg>
+          Envoyer un message
+        </button>
+      </div>
+    </ng-template>
+  </div>
+
+  <div *ngIf="mmSuccessMessage" class="success-box">
+    {{ mmSuccessMessage }}
+  </div>
+
+  <!-- Activity & Info Summary Bar -->
+  <div class="stats-overview-bar">
+    <div class="app-card stat-card">
+      <div class="stat-icon icon-emerald">⭐</div>
+      <div class="stat-info">
+        <span class="stat-value">{{ reputationScore && reputationScore.overallReputationScore ? (reputationScore.overallReputationScore | number:'1.1-1') + '/5.0' : (userEvaluations.length > 0 ? '5.0/5.0' : 'Non noté') }}</span>
+        <span class="stat-label">Score de Réputation</span>
+      </div>
+    </div>
+
+    <div class="app-card stat-card">
+      <div class="stat-icon icon-blue">🚀</div>
+      <div class="stat-info">
+        <span class="stat-value">{{ userProjects.length }}</span>
+        <span class="stat-label">Projets Publiés</span>
+      </div>
+    </div>
+
+    <div class="app-card stat-card">
+      <div class="stat-icon icon-purple">🤝</div>
+      <div class="stat-info">
+        <span class="stat-value">{{ userEvaluations.length }}</span>
+        <span class="stat-label">Évaluations Reçues</span>
+      </div>
+    </div>
+
+    <div class="app-card stat-card">
+      <div class="stat-icon icon-amber">🔥</div>
+      <div class="stat-info">
+        <span class="stat-value">{{ parsedGithubStats ? parsedGithubStats.total_contributions_last_year : '0' }}</span>
+        <span class="stat-label">Contributions GitHub</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Grid Content: Sidebar Info + Tabs Activity -->
+  <div class="profile-content-grid">
+    <!-- Left Sidebar: About & Skills -->
+    <div class="profile-sidebar">
+      <div class="app-card section-card">
+        <h3>Compétences & Disponibilité</h3>
+        <div class="info-row">
+          <span class="label">Disponibilité :</span>
+          <span class="badge badge-emerald">{{ profile.availability || 'OPEN' }}</span>
+        </div>
+
+        <div class="skills-block" *ngIf="profile.skills && profile.skills.length">
+          <span class="label">Technologies maîtrisées :</span>
+          <div class="skills-grid">
+            <span *ngFor="let skill of profile.skills" class="badge badge-gray">
+              {{ skill }}
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Main Column: Tabs for User Activities -->
+    <div class="profile-activities-container">
+      <!-- Nav Tabs -->
+      <div class="tabs-nav app-card">
+        <button 
+          class="tab-btn" 
+          [class.active]="activeTab === 'projects'" 
+          (click)="activeTab = 'projects'">
+          🚀 Projets ({{ userProjects.length }})
+        </button>
+        <button 
+          class="tab-btn" 
+          [class.active]="activeTab === 'evaluations'" 
+          (click)="activeTab = 'evaluations'">
+          ⭐ Évaluations ({{ userEvaluations.length }})
+        </button>
+        <button 
+          class="tab-btn" 
+          [class.active]="activeTab === 'github'" 
+          (click)="activeTab = 'github'">
+          📊 Contributions GitHub
+        </button>
+      </div>
+
+      <!-- Tab Content: Projects -->
+      <div *ngIf="activeTab === 'projects'" class="tab-content">
+        <div *ngIf="userProjects.length > 0; else noProjects" class="projects-list-grid">
+          <div *ngFor="let proj of userProjects" class="app-card project-card-item">
+            <div class="proj-header">
+              <h4>{{ proj.title }}</h4>
+              <span class="badge badge-emerald">⭐ {{ proj.recognitionsCount }} reconnaissances</span>
+            </div>
+            <p class="proj-desc">{{ proj.description }}</p>
+            
+            <div class="proj-stack" *ngIf="proj.stack && proj.stack.length">
+              <span *ngFor="let tech of proj.stack" class="badge badge-gray">{{ tech }}</span>
+            </div>
+
+            <div class="proj-actions">
+              <a *ngIf="proj.repoUrl" [href]="proj.repoUrl" target="_blank" class="btn btn-outline btn-sm">GitHub Repo</a>
+              <a *ngIf="proj.demoUrl" [href]="proj.demoUrl" target="_blank" class="btn btn-emerald btn-sm">Voir Démo</a>
+            </div>
+          </div>
+        </div>
+
+        <ng-template #noProjects>
+          <div class="app-card empty-tab-box">
+            <p class="text-muted">Aucun projet publié par {{ profile.fullName }} pour le moment.</p>
+          </div>
+        </ng-template>
+      </div>
+
+      <!-- Tab Content: Peer Evaluations -->
+      <div *ngIf="activeTab === 'evaluations'" class="tab-content">
+        <!-- Reputation Breakdown Card -->
+        <div *ngIf="reputationScore || userEvaluations.length > 0" class="app-card score-breakdown-card">
+          <h4>Détail des Notes ({{ reputationScore?.totalEvaluations || userEvaluations.length }} évaluation(s) certifiée(s))</h4>
+          <div class="dimensions-grid">
+            <div class="dimension-box">
+              <div class="dim-head">
+                <span class="dim-label">Qualité du Code</span>
+                <span class="dim-val">{{ (reputationScore?.codeQualityAvg | number:'1.1-1') || '5.0' }}/5</span>
+              </div>
+              <div class="progress-bar"><div class="progress-fill" [style.width.%]="(reputationScore?.codeQualityAvg || 5) * 20"></div></div>
+            </div>
+
+            <div class="dimension-box">
+              <div class="dim-head">
+                <span class="dim-label">Collaboration & Esprit d'équipe</span>
+                <span class="dim-val">{{ (reputationScore?.collaborationAvg | number:'1.1-1') || '5.0' }}/5</span>
+              </div>
+              <div class="progress-bar"><div class="progress-fill" [style.width.%]="(reputationScore?.collaborationAvg || 5) * 20"></div></div>
+            </div>
+
+            <div class="dimension-box">
+              <div class="dim-head">
+                <span class="dim-label">Compétence Technique & Architecture</span>
+                <span class="dim-val">{{ (reputationScore?.technicalDepthAvg | number:'1.1-1') || '4.0' }}/5</span>
+              </div>
+              <div class="progress-bar"><div class="progress-fill" [style.width.%]="(reputationScore?.technicalDepthAvg || 4) * 20"></div></div>
+            </div>
+
+            <div class="dimension-box">
+              <div class="dim-head">
+                <span class="dim-label">Fiabilité & Respect des Délais</span>
+                <span class="dim-val">{{ (reputationScore?.reliabilityAvg | number:'1.1-1') || '5.0' }}/5</span>
+              </div>
+              <div class="progress-bar"><div class="progress-fill" [style.width.%]="(reputationScore?.reliabilityAvg || 5) * 20"></div></div>
+            </div>
+          </div>
+        </div>
+
+
+        <!-- Evaluations list -->
+        <div *ngIf="userEvaluations.length > 0; else noEvals" class="evaluations-list">
+          <div *ngFor="let ev of userEvaluations" class="app-card evaluation-item">
+            <div class="eval-header">
+              <div class="evaluator-info">
+                <div class="user-avatar-sm">
+                  {{ (ev.evaluator?.profile?.fullName || ev.evaluator?.email || 'E').charAt(0).toUpperCase() }}
+                </div>
+                <div>
+                  <strong>{{ ev.evaluator?.profile?.fullName || ev.evaluator?.email }}</strong>
+                  <span class="eval-date"> &bull; {{ ev.createdAt | date:'mediumDate' }}</span>
+                </div>
+              </div>
+              <span class="badge badge-emerald">Évaluation Certifiée par Pair (Poids x{{ ev.weight }})</span>
+            </div>
+
+            <p class="eval-feedback" *ngIf="ev.feedback">" {{ ev.feedback }} "</p>
+
+            <div class="eval-ratings-row">
+              <span class="mini-rating">💻 Code: {{ ev.codeQuality }}/5</span>
+              <span class="mini-rating">🤝 Collab: {{ ev.collaborationRating }}/5</span>
+              <span class="mini-rating">⚡ Tech: {{ ev.technicalDepth }}/5</span>
+              <span class="mini-rating">🎯 Fiabilité: {{ ev.reliability }}/5</span>
+            </div>
+          </div>
+        </div>
+
+        <ng-template #noEvals>
+          <div class="app-card empty-tab-box">
+            <p class="text-muted">Aucune évaluation certifiée reçue pour le moment par {{ profile.fullName }}.</p>
+          </div>
+        </ng-template>
+      </div>
+
+      <!-- Tab Content: GitHub Contributions -->
+      <div *ngIf="activeTab === 'github'" class="tab-content">
+        <div class="app-card section-card">
+          <div class="card-title-row">
+            <h3>Carte de Contribution GitHub</h3>
+            <span *ngIf="parsedGithubStats?.cached" class="badge badge-emerald">Statistiques Synchronisées</span>
+          </div>
+
+          <div *ngIf="parsedGithubStats; else noGithubStats" class="github-stats-body">
+            <div class="stats-metrics-grid">
+              <div class="metric-box app-card">
+                <span class="metric-val">{{ parsedGithubStats.public_repos }}</span>
+                <span class="metric-lbl">Dépôts Publics</span>
+              </div>
+              <div class="metric-box app-card">
+                <span class="metric-val">{{ parsedGithubStats.total_stars }}</span>
+                <span class="metric-lbl">Étoiles Totales</span>
+              </div>
+              <div class="metric-box app-card">
+                <span class="metric-val">{{ parsedGithubStats.total_contributions_last_year }}</span>
+                <span class="metric-lbl">Contributions (12m)</span>
+              </div>
+            </div>
+
+            <!-- Languages Breakdown -->
+            <div class="languages-block" *ngIf="parsedGithubStats.top_languages.length > 0">
+              <span class="label">Langages Principaux :</span>
+              <div class="lang-bar-container">
+                <div 
+                  *ngFor="let lang of parsedGithubStats.top_languages" 
+                  class="lang-bar-segment" 
+                  [style.width.%]="lang.percentage" 
+                  [style.background-color]="lang.color"
+                  [title]="lang.name + ' (' + lang.percentage + '%)'">
+                </div>
+              </div>
+              <div class="lang-legend">
+                <span *ngFor="let lang of parsedGithubStats.top_languages" class="legend-item">
+                  <span class="dot" [style.background-color]="lang.color"></span>
+                  {{ lang.name }} ({{ lang.percentage }}%)
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <ng-template #noGithubStats>
+            <div class="empty-stats">
+              <p class="text-muted">Aucune statistique GitHub synchronisée pour le moment.</p>
+              <button *ngIf="isOwnProfile" (click)="openGithubModal()" class="btn btn-outline btn-sm">
+                Synchroniser mes contributions GitHub
+              </button>
+            </div>
+          </ng-template>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DIRECT MESSAGING CHAT MODAL -->
+  <div class="modal-overlay" *ngIf="showChatModal" (click)="closeChatModal()">
+    <div class="app-card modal-card chat-modal" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <div class="chat-header-info">
+          <h3>Discussion avec {{ profile.fullName }}</h3>
+          <span class="subtext">{{ profile.title }}</span>
+        </div>
+        <button (click)="closeChatModal()" class="btn-icon">
+          <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+
+      <div class="chat-body">
+        <div class="chat-history" *ngIf="chatMessages.length > 0; else emptyChat">
+          <div 
+            *ngFor="let msg of chatMessages" 
+            class="chat-bubble"
+            [class.outgoing]="msg.sender.id === currentUser()?.id"
+            [class.incoming]="msg.sender.id !== currentUser()?.id">
+            <p>{{ msg.content }}</p>
+            <span class="chat-time">{{ msg.createdAt | date:'shortTime' }}</span>
+          </div>
+        </div>
+
+        <ng-template #emptyChat>
+          <div class="empty-chat-box">
+            <p>Aucun message échangé pour le moment. Envoyez votre premier message à {{ profile.fullName }} !</p>
+          </div>
+        </ng-template>
+
+        <div class="chat-input-row">
+          <input 
+            type="text" 
+            [(ngModel)]="newChatMessage" 
+            (keyup.enter)="sendChatMessage()"
+            placeholder="Écrivez votre message..." 
+            class="form-input flex-1">
+          <button 
+            (click)="sendChatMessage()" 
+            [disabled]="isSendingMessage || !newChatMessage.trim()" 
+            class="btn btn-emerald">
+            <span>Envoyer</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- GITHUB SYNC MODAL -->
+  <div class="modal-overlay" *ngIf="showGithubModal" (click)="closeGithubModal()">
+    <div class="app-card modal-card" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>Synchronisation GitHub</h3>
+        <button (click)="closeGithubModal()" class="btn-icon">
+          <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <p class="modal-info">Entrez votre pseudo GitHub pour récupérer vos contributions des 12 derniers mois.</p>
+        
+        <div class="form-group">
+          <label for="ghUser" class="form-label">Nom d'utilisateur GitHub</label>
+          <input 
+            type="text" 
+            id="ghUser" 
+            [(ngModel)]="githubUsernameInput" 
+            placeholder="Ex: octocat" 
+            class="form-input">
+        </div>
+
+        <div *ngIf="syncErrorMessage" class="error-box">{{ syncErrorMessage }}</div>
+        <div *ngIf="syncSuccessMessage" class="success-box">{{ syncSuccessMessage }}</div>
+      </div>
+
+      <div class="modal-footer">
+        <button (click)="closeGithubModal()" class="btn btn-outline">Annuler</button>
+        <button (click)="onSyncGithub()" [disabled]="isSyncing" class="btn btn-emerald">
+          <span *ngIf="!isSyncing">Lancer la synchro</span>
+          <span *ngIf="isSyncing">Synchronisation...</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- FOLLOWERS / FOLLOWING LIST MODAL -->
+  <div class="modal-overlay" *ngIf="showFollowersModal" (click)="closeFollowModal()">
+    <div class="app-card modal-card" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>{{ followModalTitle }}</h3>
+        <button (click)="closeFollowModal()" class="btn-icon">
+          <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <div *ngIf="isLoadingFollowList" class="loading-box">Chargement de la liste...</div>
+
+        <div *ngIf="!isLoadingFollowList && followUserList.length > 0" class="follow-user-list">
+          <div *ngFor="let uItem of followUserList" class="follow-user-item">
+            <div class="follow-user-left">
+              <div class="user-avatar-sm">
+                {{ (uItem.profile?.fullName || uItem.email || 'U').charAt(0).toUpperCase() }}
+              </div>
+              <div class="user-meta-sm">
+                <a [routerLink]="['/profile', uItem.profile?.id || uItem.id]" (click)="closeFollowModal()" class="user-name-link">
+                  {{ uItem.profile?.fullName || uItem.email || 'Membre' }}
+                </a>
+                <span class="user-sub-info">
+                  {{ uItem.profile?.title || 'Membre AfriDev' }} &bull; 📍 {{ uItem.profile?.country || 'Afrique' }}
+                </span>
+              </div>
+            </div>
+
+            <a [routerLink]="['/profile', uItem.profile?.id || uItem.id]" (click)="closeFollowModal()" class="btn btn-outline btn-sm">
+              Voir Profil
+            </a>
+          </div>
+        </div>
+
+        <div *ngIf="!isLoadingFollowList && followUserList.length === 0" class="empty-box">
+          Aucun membre trouvé dans cette liste.
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button (click)="closeFollowModal()" class="btn btn-outline">Fermer</button>
+      </div>
+    </div>
+  </div>
+</div>

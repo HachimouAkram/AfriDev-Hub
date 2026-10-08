@@ -1,0 +1,285 @@
+<div class="evaluations-container">
+  <!-- Header Banner -->
+  <div class="header-section app-card">
+    <div class="header-text">
+      <h1>Système d'Évaluation par les Pairs</h1>
+      <p>Infrastructure de réputation transférable et certifiée basée sur des preuves de collaboration réelles.</p>
+    </div>
+
+    <div class="action-btns" *ngIf="isLoggedIn()">
+      <button (click)="openCollabModal()" class="btn btn-outline">
+        <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
+        </svg>
+        Déclarer une Collaboration
+      </button>
+      <button (click)="openEvalModal(evaluateeId)" class="btn btn-emerald">
+        <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 00-.182.557l1.285 5.385a.562.562 0 01-.84.61l-4.725-2.885a.563.563 0 00-.586 0L6.982 20.54a.562.562 0 01-.84-.61l1.285-5.386a.562.562 0 00-.182-.557l-4.204-3.602a.563.563 0 01.321-.988l5.518-.442a.563.563 0 00.475-.345L11.48 3.5z" />
+        </svg>
+        Évaluer un Pair
+      </button>
+    </div>
+  </div>
+
+  <!-- Score Summary Widget -->
+  <div class="app-card score-summary-card" *ngIf="reputationScore">
+    <div class="score-overall-box">
+      <div class="score-badge-circle">
+        <span class="score-val">{{ reputationScore.overallReputationScore | number:'1.1-1' }}</span>
+        <span class="score-max">/ 5.0</span>
+      </div>
+      <div class="score-meta">
+        <h3>Score de Réputation Vérifié</h3>
+        <p>Basé sur {{ reputationScore.totalEvaluations }} évaluation(s) certifiée(s) par des pairs.</p>
+        <span class="badge badge-emerald">Système de Vérification Anti-Collusion</span>
+      </div>
+    </div>
+
+    <!-- 4 Criteria Bars Breakdown -->
+    <div class="dimensions-grid">
+      <div *ngFor="let dim of reputationScore.dimensions" class="dimension-item">
+        <div class="dim-header">
+          <span class="dim-name">{{ dim.dimension }}</span>
+          <span class="dim-score">{{ dim.score | number:'1.1-1' }} / 5.0</span>
+        </div>
+        <div class="dim-bar-bg">
+          <div class="dim-bar-fill" [style.width.%]="(dim.score / 5) * 100"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- My Collaborations / Partner Confirmation Section -->
+  <div class="reviews-section" *ngIf="isLoggedIn() && myCollaborations.length > 0">
+    <div class="section-title">
+      <h2>Collaborations associées à votre compte ({{ myCollaborations.length }})</h2>
+    </div>
+
+    <div class="reviews-grid">
+      <div *ngFor="let col of myCollaborations" class="app-card review-card">
+        <div class="review-header">
+          <div class="evaluator-info">
+            <div class="evaluator-avatar">
+              {{ (col.initiator?.profile?.fullName || col.initiator?.email || 'C').charAt(0).toUpperCase() }}
+            </div>
+            <div class="evaluator-details">
+              <span class="evaluator-name">
+                {{ col.initiator?.profile?.fullName || col.initiator?.email }} ↔ {{ col.partner?.profile?.fullName || col.partner?.email }}
+              </span>
+              <span class="evaluator-title">
+                Type : {{ col.type }} &bull; Preuve : <a [href]="col.proofUrl" target="_blank">{{ col.proofUrl }}</a>
+              </span>
+            </div>
+          </div>
+
+          <div class="review-meta">
+            <span *ngIf="col.evaluatedByCurrentUser" class="badge badge-emerald">✓ Collaboration Évaluée par vous</span>
+            <ng-container *ngIf="col.verified && !col.evaluatedByCurrentUser">
+              <span class="badge badge-emerald">✓ Collaboration Confirmée</span>
+              <button 
+                (click)="openEvalModal(col)" 
+                class="btn btn-emerald btn-sm" style="margin-left: 0.5rem;">
+                ⭐ Évaluer
+              </button>
+            </ng-container>
+            <button 
+              *ngIf="!col.verified && col.partner?.id === currentUser()?.id" 
+              (click)="onVerifyCollab(col.id)" 
+              class="btn btn-emerald btn-sm">
+              ✓ Valider & Confirmer
+            </button>
+            <span *ngIf="!col.verified && col.initiator?.id === currentUser()?.id" class="badge badge-gray">
+              ⏳ En attente de validation du partenaire
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Evaluator Reviews List -->
+  <div class="reviews-section">
+    <div class="section-title">
+      <h2>Évaluations & Avis Reçus</h2>
+    </div>
+
+    <div class="reviews-grid" *ngIf="evaluations.length > 0; else emptyReviews">
+      <div *ngFor="let ev of evaluations" class="app-card review-card">
+        <div class="review-header">
+          <div class="evaluator-info">
+            <div class="evaluator-avatar">
+              {{ (ev.evaluator?.profile?.fullName || ev.evaluator?.email || 'E').charAt(0).toUpperCase() }}
+            </div>
+            <div class="evaluator-details">
+              <a [routerLink]="['/profile', ev.evaluator?.profile?.id || ev.evaluator?.id]" class="evaluator-name">
+                {{ ev.evaluator?.profile?.fullName || ev.evaluator?.email || 'Évaluateur' }}
+              </a>
+              <span class="evaluator-title" *ngIf="ev.evaluator?.profile">
+                {{ ev.evaluator?.profile?.title }} &bull; 📍 {{ ev.evaluator?.profile?.country }}
+              </span>
+            </div>
+          </div>
+
+          <div class="review-meta">
+            <span *ngIf="ev.evaluator?.profile?.mobileMoneyVerified" class="badge badge-emerald">
+              Vérifié
+            </span>
+            <span class="badge badge-gray">Poids : {{ ev.weight }}x</span>
+          </div>
+        </div>
+
+        <p class="review-feedback" *ngIf="ev.feedback">
+          « {{ ev.feedback }} »
+        </p>
+
+        <!-- Ratings Mini Grid -->
+        <div class="ratings-mini-grid">
+          <span class="mini-rating">Code: <strong>{{ ev.codeQuality }}/5</strong></span>
+          <span class="mini-rating">Tech: <strong>{{ ev.technicalDepth }}/5</strong></span>
+          <span class="mini-rating">Fiabilité: <strong>{{ ev.reliability }}/5</strong></span>
+          <span class="mini-rating">Collab: <strong>{{ ev.collaborationRating }}/5</strong></span>
+        </div>
+
+        <div class="proof-footer">
+          <span class="proof-link">Preuve : <a [href]="ev.collaboration.proofUrl" target="_blank">{{ ev.collaboration.proofUrl }}</a></span>
+          <span class="review-date">{{ ev.createdAt | date:'mediumDate' }}</span>
+        </div>
+      </div>
+    </div>
+
+    <ng-template #emptyReviews>
+      <div class="empty-box app-card">Aucune évaluation enregistrée pour le moment.</div>
+    </ng-template>
+  </div>
+
+  <!-- DECLARE COLLABORATION MODAL -->
+  <div class="modal-overlay" *ngIf="showCollabModal" (click)="closeCollabModal()">
+    <div class="app-card modal-card" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>Déclarer une Collaboration avec un Pair</h3>
+        <button (click)="closeCollabModal()" class="btn-icon">
+          <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+
+      <form (ngSubmit)="onSubmitCollab()" class="modal-form">
+        <div class="form-group">
+          <label for="pId" class="form-label">ID / Email du Partenaire</label>
+          <input type="text" id="pId" [(ngModel)]="partnerId" name="partnerId" placeholder="Ex: partner-user-id" required class="form-input">
+        </div>
+
+        <div class="form-group">
+          <label for="cType" class="form-label">Type de Collaboration</label>
+          <select id="cType" [(ngModel)]="collabType" name="collabType" class="form-select">
+            <option value="COMMON_REPO">Dépôt Commun (Co-auteurs)</option>
+            <option value="PR_REVIEW">Revue de Pull Request</option>
+            <option value="JOINT_PROJECT">Projet Conjoint</option>
+            <option value="MENTORSHIP">Mentorat</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="pUrl" class="form-label">Lien de la preuve technique (Lien PR GitHub / Repo / Commit)</label>
+          <input type="url" id="pUrl" [(ngModel)]="proofUrl" name="proofUrl" placeholder="https://github.com/org/repo/pull/42" required class="form-input">
+        </div>
+
+        <div *ngIf="collabErrorMessage" class="error-box">{{ collabErrorMessage }}</div>
+        <div *ngIf="collabSuccessMessage" class="success-box">{{ collabSuccessMessage }}</div>
+
+        <div class="modal-footer">
+          <button type="button" (click)="closeCollabModal()" class="btn btn-outline">Annuler</button>
+          <button type="submit" [disabled]="isDeclaring" class="btn btn-emerald">Soumettre la preuve</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- SUBMIT EVALUATION MODAL (4 CRITERIA) -->
+  <div class="modal-overlay" *ngIf="showEvalModal" (click)="closeEvalModal()">
+    <div class="app-card modal-card" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>Évaluer un Pair (Formulaire 4 Critères)</h3>
+        <button (click)="closeEvalModal()" class="btn-icon">
+          <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+
+      <form (ngSubmit)="onSubmitEval()" class="modal-form">
+        <!-- Collaboration Dropdown Selection -->
+        <div class="form-group" *ngIf="getPendingEvaluationsCollaborations().length > 0">
+          <label for="collabSelect" class="form-label">Sélectionner la Collaboration à Évaluer</label>
+          <select 
+            id="collabSelect" 
+            [(ngModel)]="selectedCollabId" 
+            (change)="onCollabSelected()" 
+            name="selectedCollabId" 
+            class="form-select">
+            <option *ngFor="let c of getPendingEvaluationsCollaborations()" [value]="c.id">
+              {{ getEvaluateeName(c) }} — {{ c.type }} (✓ Vérifiée)
+            </option>
+          </select>
+        </div>
+
+        <div class="info-box" *ngIf="getPendingEvaluationsCollaborations().length === 0">
+          ℹ️ Toutes vos collaborations confirmées ont déjà été évaluées par vous, ou aucune collaboration n'est encore vérifiée.
+        </div>
+
+        <!-- Selected Partner Summary Card -->
+        <div class="app-card target-partner-card" *ngIf="getSelectedCollab() as collab">
+          <div class="partner-card-header">
+            <div class="partner-avatar">
+              {{ getEvaluateeName(collab).charAt(0).toUpperCase() }}
+            </div>
+            <div class="partner-info">
+              <h4>Évaluation de : <strong>{{ getEvaluateeName(collab) }}</strong></h4>
+              <p class="partner-sub">Relation : <strong>{{ collab.type }}</strong> • Preuve : <a [href]="collab.proofUrl" target="_blank">{{ collab.proofUrl }}</a></p>
+            </div>
+          </div>
+          <div class="partner-status">
+            <span *ngIf="collab.verified" class="badge badge-emerald">✓ Collaboration Certifiée</span>
+            <span *ngIf="!collab.verified" class="badge badge-gray">⏳ En attente de confirmation du partenaire</span>
+          </div>
+        </div>
+
+        <!-- 4 Criteria Selectors -->
+        <div class="form-group">
+          <label class="form-label">1. Qualité du Code (1 à 5) : <strong>{{ codeQuality }}/5</strong></label>
+          <input type="range" min="1" max="5" [(ngModel)]="codeQuality" name="codeQuality" class="slider-input">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">2. Profondeur Technique (1 à 5) : <strong>{{ technicalDepth }}/5</strong></label>
+          <input type="range" min="1" max="5" [(ngModel)]="technicalDepth" name="technicalDepth" class="slider-input">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">3. Fiabilité & Délais (1 à 5) : <strong>{{ reliability }}/5</strong></label>
+          <input type="range" min="1" max="5" [(ngModel)]="reliability" name="reliability" class="slider-input">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">4. Collaboration & Communication (1 à 5) : <strong>{{ collaborationRating }}/5</strong></label>
+          <input type="range" min="1" max="5" [(ngModel)]="collaborationRating" name="collaborationRating" class="slider-input">
+        </div>
+
+        <div class="form-group">
+          <label for="fText" class="form-label">Commentaire / Feedback détaillé</label>
+          <textarea id="fText" [(ngModel)]="feedback" name="feedback" rows="3" placeholder="Expliquez la qualité du travail accompli et les forces techniques..." class="form-textarea"></textarea>
+        </div>
+
+        <div *ngIf="evalErrorMessage" class="error-box">{{ evalErrorMessage }}</div>
+        <div *ngIf="evalSuccessMessage" class="success-box">{{ evalSuccessMessage }}</div>
+
+        <div class="modal-footer">
+          <button type="button" (click)="closeEvalModal()" class="btn btn-outline">Annuler</button>
+          <button type="submit" [disabled]="isSubmittingEval" class="btn btn-emerald">Valider l'Évaluation</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
