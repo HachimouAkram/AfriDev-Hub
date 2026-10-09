@@ -23,39 +23,50 @@
   </div>
 
   <!-- Opportunities Grid -->
-  <div class="opportunities-grid" *ngIf="!isLoading; else loadingState">
-    <div *ngFor="let opt of opportunities" class="app-card opt-card">
-      <div class="opt-header">
-        <div class="badge-group">
-          <span class="badge badge-emerald">{{ opt.type }}</span>
-          <span *ngIf="opt.isRemote" class="badge badge-gray">Remote</span>
+  <div *ngIf="!isLoading; else loadingState">
+    <div class="opportunities-grid" *ngIf="opportunities.length > 0; else emptyState">
+      <div *ngFor="let opt of opportunities" class="app-card opt-card">
+        <div class="opt-header">
+          <div class="badge-group">
+            <span class="badge badge-emerald">{{ opt.type }}</span>
+            <span *ngIf="opt.isRemote" class="badge badge-gray">Remote</span>
+          </div>
+          <span class="budget-tag" *ngIf="opt.budget">{{ opt.budget }}</span>
         </div>
-        <span class="budget-tag" *ngIf="opt.budget">{{ opt.budget }}</span>
-      </div>
 
-      <div class="opt-body">
-        <h3 class="opt-title">{{ opt.title }}</h3>
-        <p class="publisher-info">
-          Publié par <strong>{{ opt.publisher?.profile?.fullName || opt.publisher?.email || 'Recruteur' }}</strong> &bull; 
-          <span>📍 {{ opt.location }}</span>
-        </p>
-        <p class="opt-desc">{{ opt.description }}</p>
+        <div class="opt-body">
+          <h3 class="opt-title">{{ opt.title }}</h3>
+          <p class="publisher-info">
+            Publié par <strong>{{ opt.publisher?.profile?.fullName || opt.publisher?.email || 'Recruteur' }}</strong> &bull; 
+            <span>📍 {{ opt.location }}</span>
+          </p>
+          <p class="opt-desc">{{ opt.description }}</p>
 
-        <div class="stack-list" *ngIf="opt.stack && opt.stack.length">
-          <span *ngFor="let tech of opt.stack" class="badge badge-gray">{{ tech }}</span>
+          <div class="stack-list" *ngIf="opt.stack && opt.stack.length">
+            <span *ngFor="let tech of opt.stack" class="badge badge-gray">{{ tech }}</span>
+          </div>
         </div>
-      </div>
 
-      <div class="opt-footer">
-        <span class="date-text">Offre vérifiée &bull; {{ opt.createdAt | date:'mediumDate' }}</span>
-        <button (click)="openApplyModal(opt)" class="btn btn-emerald btn-sm">
-          Postuler
-          <svg class="icon-svg icon-svg-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
-          </svg>
-        </button>
+        <div class="opt-footer">
+          <span class="date-text">Offre vérifiée &bull; {{ opt.createdAt | date:'mediumDate' }}</span>
+          <button (click)="openApplyModal(opt)" class="btn btn-emerald btn-sm">
+            Postuler
+            <svg class="icon-svg icon-svg-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+            </svg>
+          </button>
+        </div>
       </div>
     </div>
+
+    <ng-template #emptyState>
+      <div class="empty-opportunities-card app-card">
+        <div class="empty-icon">📢</div>
+        <h3>Aucune opportunité disponible pour le moment</h3>
+        <p class="text-muted">Aucune offre ne correspond actuellement à ce filtre. Soyez le premier à publier une opportunité pour la communauté !</p>
+        <button *ngIf="isLoggedIn()" (click)="openCreateModal()" class="btn btn-emerald btn-sm">+ Publier une Opportunité</button>
+      </div>
+    </ng-template>
   </div>
 
   <ng-template #loadingState>

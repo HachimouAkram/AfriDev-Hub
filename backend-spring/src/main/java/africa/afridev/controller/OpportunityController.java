@@ -98,4 +98,32 @@ public class OpportunityController {
         List<ApplicationDto> applications = opportunityService.getApplicationsForOpportunity(authentication.getName(), id);
         return ResponseEntity.ok(ApiResponse.ok(applications));
     }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<ApiResponse<OpportunityDto>> updateOpportunity(
+            @PathVariable String id,
+            Authentication authentication,
+            @Valid @RequestBody OpportunityCreateRequest request
+    ) {
+        OpportunityDto opportunity = opportunityService.updateOpportunity(authentication.getName(), id, request);
+        return ResponseEntity.ok(ApiResponse.ok(opportunity));
+    }
+
+    @PatchMapping("/{id}/toggle-status")
+    public ResponseEntity<ApiResponse<OpportunityDto>> toggleOpportunityStatus(
+            @PathVariable String id,
+            Authentication authentication
+    ) {
+        OpportunityDto opportunity = opportunityService.toggleOpportunityStatus(authentication.getName(), id);
+        return ResponseEntity.ok(ApiResponse.ok(opportunity));
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<ApiResponse<Void>> deleteOpportunity(
+            @PathVariable String id,
+            Authentication authentication
+    ) {
+        opportunityService.deleteOpportunity(authentication.getName(), id);
+        return ResponseEntity.ok(ApiResponse.ok(null));
+    }
 }

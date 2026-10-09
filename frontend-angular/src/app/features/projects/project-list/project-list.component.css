@@ -6,6 +6,9 @@
   flex-direction: column;
   gap: 2rem;
   position: relative;
+  width: 100%;
+  box-sizing: border-box;
+  overflow-x: hidden;
 }
 
 /* Toast notification */
@@ -50,8 +53,9 @@
 
 .projects-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
   gap: 1.5rem;
+  width: 100%;
 }
 
 .project-card {
@@ -62,6 +66,10 @@
   padding: 1.5rem;
   cursor: pointer;
   transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+  min-width: 0;
+  box-sizing: border-box;
+  overflow: hidden;
+  word-wrap: break-word;
 }
 
 .project-card:hover {
@@ -74,12 +82,15 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
 }
 
 .author-info {
   display: flex;
   align-items: center;
   gap: 0.75rem;
+  min-width: 0;
 }
 
 .author-avatar {
@@ -93,6 +104,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-shrink: 0;
 }
 
 .author-avatar.lg {
@@ -105,6 +117,7 @@
 .author-meta {
   display: flex;
   flex-direction: column;
+  min-width: 0;
 }
 
 .author-name {
@@ -112,6 +125,9 @@
   color: var(--text-main);
   text-decoration: none;
   font-size: 0.925rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .author-name:hover {
@@ -130,12 +146,14 @@
   display: flex;
   flex-direction: column;
   gap: 0.6rem;
+  min-width: 0;
 }
 
 .project-title {
   font-size: 1.2rem;
   font-weight: 700;
   color: var(--text-main);
+  word-break: break-word;
 }
 
 .project-desc {
@@ -146,6 +164,7 @@
   -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
+  word-break: break-word;
 }
 
 .stack-list {
@@ -162,12 +181,24 @@
   border-top: 1px solid var(--border-color);
   padding-top: 1rem;
   margin-top: 0.5rem;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+  min-width: 0;
 }
 
 .project-actions-left, .project-actions-right {
   display: flex;
   align-items: center;
   gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.icon-only-btn {
+  padding: 0.45rem 0.6rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
 }
 
 .loading-box {
@@ -191,6 +222,7 @@
   display: flex;
   align-items: center;
   gap: 0.75rem;
+  flex-wrap: wrap;
 }
 
 .modal-header h2 {
@@ -220,12 +252,14 @@
   background: rgba(255, 255, 255, 0.03);
   border-radius: 12px;
   border: 1px solid var(--border-color);
+  flex-wrap: wrap;
 }
 
 .detail-author-left {
   display: flex;
   align-items: center;
   gap: 0.85rem;
+  min-width: 0;
 }
 
 .detail-author-right {
@@ -283,6 +317,7 @@
   font-size: 0.95rem;
   line-height: 1.6;
   color: var(--text-main);
+  word-break: break-word;
 }
 
 .detail-actions-bar {
@@ -297,12 +332,14 @@
 .left-links {
   display: flex;
   gap: 0.5rem;
+  flex-wrap: wrap;
 }
 
 .share-buttons {
   display: flex;
   align-items: center;
   gap: 0.4rem;
+  flex-wrap: wrap;
 }
 
 .share-label {
@@ -401,12 +438,15 @@
   display: flex;
   flex-direction: column;
   gap: 0.35rem;
+  min-width: 0;
 }
 
 .comment-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  flex-wrap: wrap;
+  gap: 0.25rem;
 }
 
 .comment-author-name {
@@ -424,6 +464,7 @@
   font-size: 0.875rem;
   line-height: 1.45;
   color: var(--text-main);
+  word-break: break-word;
 }
 
 .no-comments-text {
@@ -471,4 +512,60 @@
   gap: 0.75rem;
   margin-top: 0.5rem;
 }
+
+@media (max-width: 768px) {
+  .projects-container {
+    padding: 1rem 0.75rem 3rem;
+  }
+  .projects-header {
+    padding: 1.25rem;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .header-text h1 {
+    font-size: 1.5rem;
+  }
+  .projects-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+  .project-card {
+    padding: 1rem;
+  }
+  .card-bottom {
+    padding-top: 0.75rem;
+    gap: 0.5rem;
+  }
+  .project-actions-left, .project-actions-right {
+    gap: 0.35rem;
+  }
+  .project-actions-left .btn, .project-actions-right .btn {
+    padding: 0.45rem 0.65rem;
+    font-size: 0.8rem;
+  }
+  .form-row {
+    flex-direction: column;
+  }
+  .modal-card {
+    margin: 0.5rem;
+    padding: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .card-bottom {
+    justify-content: space-between;
+  }
+  .project-actions-left {
+    flex: 1 1 auto;
+  }
+  .project-actions-right {
+    flex: 0 0 auto;
+  }
+  .project-actions-left .btn, .project-actions-right .btn {
+    padding: 0.4rem 0.55rem;
+    font-size: 0.775rem;
+  }
+}
+
 

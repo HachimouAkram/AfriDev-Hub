@@ -167,6 +167,68 @@ public class OpportunityService {
         return mapToApplicationDto(saved);
     }
 
+    @Transactional
+    public OpportunityDto updateOpportunity(String userEmail, String id, OpportunityCreateRequest request) {
+        UserEntity user = userRepository.findByEmail(userEmail)
+                .orElseThrow(() -> new IllegalArgumentException("Utilisateur non trouvé."));
+
+        OpportunityEntity opportunity = opportunityRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Opportunité introuvable."));
+
+        if (!opportunity.getPublisher().getId().equals(user.getId())) {
+            throw new IllegalStateException("Vous n'êtes pas le propriétaire de cette opportunité.");
+        }
+
+        opportunity.setTitle(request.getTitle());
+        opportunity.setDescription(request.getDescription());
+        if (request.getType() != null) opportunity.setType(request.getType());
+        opportunity.setLocation(request.getLocation());
+        if (request.getIsRemote() != null) opportunity.setIsRemote(request.getIsRemote());
+        if (request.getStack() != null) opportunity.setStack(request.getStack());
+        opportunity.setBudget(request.getBudget());
+        opportunity.setDeadline(request.getDeadline());
+
+        OpportunityEntity saved = opportunityRepository.save(opportunity);
+        return mapToOpportunityDto(saved);
+    }
+
+    @Transactional
+    public OpportunityDto toggleOpportunityStatus(String userEmail, String id) {
+        UserEntity user = userRepository.findByEmail(userEmail)
+                .orElseThrow(() -> new IllegalArgumentException("Utilisateur non trouvé."));
+
+        OpportunityEntity opportunity = opportunityRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Opportunité introuvable."));
+
+        if (!opportunity.getPublisher().getId().equals(user.getId())) {
+            throw new IllegalStateException("Vous n'êtes pas le propriétaire de cette opportunité.");
+        }
+
+        if (opportunity.getStatus() == ContentStatus.PUBLISHED) {
+            opportunity.setStatus(ContentStatus.HIDDEN);
+        } else {
+            opportunity.setStatus(ContentStatus.PUBLISHED);
+        }
+
+        OpportunityEntity saved = opportunityRepository.save(opportunity);
+        return mapToOpportunityDto(saved);
+    }
+
+    @Transactional
+    public void deleteOpportunity(String userEmail, String id) {
+        UserEntity user = userRepository.findByEmail(userEmail)
+                .orElseThrow(() -> new IllegalArgumentException("Utilisateur non trouvé."));
+
+        OpportunityEntity opportunity = opportunityRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Opportunité introuvable."));
+
+        if (!opportunity.getPublisher().getId().equals(user.getId())) {
+            throw new IllegalStateException("Vous n'êtes pas le propriétaire de cette opportunité.");
+        }
+
+        opportunityRepository.delete(opportunity);
+    }
+
     private OpportunityDto mapToOpportunityDto(OpportunityEntity opportunity) {
         return OpportunityDto.builder()
                 .id(opportunity.getId())

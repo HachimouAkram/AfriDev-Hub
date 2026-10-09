@@ -147,6 +147,7 @@ public class AuthService {
     public ProfileDto mapToProfileDto(ProfileEntity profile) {
         return ProfileDto.builder()
                 .id(profile.getId())
+                .userId(profile.getUser() != null ? profile.getUser().getId() : null)
                 .fullName(profile.getFullName())
                 .country(profile.getCountry())
                 .city(profile.getCity())

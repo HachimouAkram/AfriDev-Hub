@@ -54,8 +54,28 @@ export class ProjectService {
     return this.http.get<ApiResponse<Project>>(`${this.apiUrl}/${id}`);
   }
 
+  getMyProjects(page = 0, size = 50): Observable<ApiResponse<any>> {
+    const params = new HttpParams()
+      .set('page', page.toString())
+      .set('size', size.toString());
+
+    return this.http.get<ApiResponse<any>>(`${this.apiUrl}/my-projects`, { params });
+  }
+
   createProject(data: any): Observable<ApiResponse<Project>> {
     return this.http.post<ApiResponse<Project>>(this.apiUrl, data);
+  }
+
+  updateProject(id: string, data: any): Observable<ApiResponse<Project>> {
+    return this.http.put<ApiResponse<Project>>(`${this.apiUrl}/${id}`, data);
+  }
+
+  toggleProjectStatus(id: string): Observable<ApiResponse<Project>> {
+    return this.http.patch<ApiResponse<Project>>(`${this.apiUrl}/${id}/toggle-status`, {});
+  }
+
+  deleteProject(id: string): Observable<ApiResponse<any>> {
+    return this.http.delete<ApiResponse<any>>(`${this.apiUrl}/${id}`);
   }
 
   recognizeProject(id: string): Observable<ApiResponse<Project>> {

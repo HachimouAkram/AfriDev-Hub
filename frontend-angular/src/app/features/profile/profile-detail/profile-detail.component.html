@@ -67,7 +67,13 @@
 
     <!-- Action Bar for Own vs Other Profile -->
     <div class="header-actions" *ngIf="isOwnProfile; else peerActions">
-      <button (click)="openGithubModal()" class="btn btn-emerald">
+      <button (click)="openEditModal()" class="btn btn-emerald">
+        <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" />
+        </svg>
+        Éditer mon Profil
+      </button>
+      <button (click)="openGithubModal()" class="btn btn-outline">
         <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
         </svg>
@@ -91,17 +97,17 @@
             'btn-emerald': !followStats?.followedByCurrentUser && !followStats?.followsCurrentUser
           }">
           <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M19 7.5v3m0 0v3m0-3h3m-3 0h-3m-2.25-4.125a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zM4 19.235v-.11a6.375 6.375 0 0112.75 0v.109A12.318 12.318 0 0110.374 21c-2.331 0-4.512-.645-6.374-1.766z" />
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7.5v3m0 0v3m0-3h3m-3 0h-3m-2.25-4.125a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zM4 19.235v-.11a6.375 6.375 0 0112.75 0v.109A12.318 12.318 0 0110.374 21c-2.331 0-4.512-.645-6.374-1.766z" />
           </svg>
-          <span *ngIf="followStats?.followedByCurrentUser && followStats?.followsCurrentUser">🤝 Amis</span>
-          <span *ngIf="!followStats?.followedByCurrentUser && followStats?.followsCurrentUser">↩️ Suivre en retour</span>
-          <span *ngIf="followStats?.followedByCurrentUser && !followStats?.followsCurrentUser">✓ Abonné(e)</span>
+          <span *ngIf="followStats?.followedByCurrentUser && followStats?.followsCurrentUser">Amis</span>
+          <span *ngIf="!followStats?.followedByCurrentUser && followStats?.followsCurrentUser">Suivre en retour</span>
+          <span *ngIf="followStats?.followedByCurrentUser && !followStats?.followsCurrentUser">Abonné(e)</span>
           <span *ngIf="!followStats?.followedByCurrentUser && !followStats?.followsCurrentUser">Suivre ce membre</span>
         </button>
 
         <button (click)="openChatModal()" class="btn btn-outline">
           <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M8.625 12a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H8.25m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H12m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0h-.375M21 12c0 4.556-4.03 8.25-9 8.25a9.764 9.764 0 01-2.555-.337A5.972 5.972 0 015.41 20.97a.598.598 0 01-.743-.598l.147-1.44a5.962 5.962 0 01-1.814-4.432C3 10.444 7.03 6.75 12 6.75s9 3.694 9 8.25z" />
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.625 12a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H8.25m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H12m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0h-.375M21 12c0 4.556-4.03 8.25-9 8.25a9.764 9.764 0 01-2.555-.337A5.972 5.972 0 015.41 20.97a.598.598 0 01-.743-.598l.147-1.44a5.962 5.962 0 01-1.814-4.432C3 10.444 7.03 6.75 12 6.75s9 3.694 9 8.25z" />
           </svg>
           Envoyer un message
         </button>
@@ -113,10 +119,30 @@
     {{ mmSuccessMessage }}
   </div>
 
+  <!-- Profile Completion Progress Banner -->
+  <div class="completion-card app-card" *ngIf="isOwnProfile">
+    <div class="completion-header">
+      <div class="completion-info">
+        <h4>Complétion de votre Profil : {{ profile.completionScore || 0 }}%</h4>
+        <p class="text-muted">Un profil complété vous permet d'apparaître en priorité dans l'annuaire des Développeurs d'Élite !</p>
+      </div>
+      <button (click)="openEditModal()" class="btn btn-emerald btn-sm">
+        Compléter mon Profil
+      </button>
+    </div>
+    <div class="progress-bar">
+      <div class="progress-fill" [style.width.%]="profile.completionScore || 0"></div>
+    </div>
+  </div>
+
   <!-- Activity & Info Summary Bar -->
   <div class="stats-overview-bar">
     <div class="app-card stat-card">
-      <div class="stat-icon icon-emerald">⭐</div>
+      <div class="stat-icon icon-emerald">
+        <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 00-.182.557l1.285 5.385a.562.562 0 01-.84.61l-4.725-2.885a.563.563 0 00-.586 0L6.982 20.54a.562.562 0 01-.84-.61l1.285-5.386a.562.562 0 00-.182-.557l-4.204-3.602c-.38-.325-.178-.948.32-.988l5.518-.442a.563.563 0 00.475-.345L11.48 3.5z" />
+        </svg>
+      </div>
       <div class="stat-info">
         <span class="stat-value">{{ reputationScore && reputationScore.overallReputationScore ? (reputationScore.overallReputationScore | number:'1.1-1') + '/5.0' : (userEvaluations.length > 0 ? '5.0/5.0' : 'Non noté') }}</span>
         <span class="stat-label">Score de Réputation</span>
@@ -124,7 +150,11 @@
     </div>
 
     <div class="app-card stat-card">
-      <div class="stat-icon icon-blue">🚀</div>
+      <div class="stat-icon icon-blue">
+        <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.59 14.37a6 6 0 01-5.84 7.38v-4.8m5.84-2.58a14.98 14.98 0 006.16-12.12A14.98 14.98 0 009.631 8.41m5.96 5.96a14.926 14.926 0 01-5.841 2.58m-.119-8.54a6 6 0 00-7.381 5.84h4.8m2.581-5.84a14.927 14.927 0 00-2.58 5.84m2.699 2.7c-.103.021-.207.041-.311.06a15.09 15.09 0 01-2.448-2.448 14.9 14.9 0 01.06-.312m-2.24 2.24A4.5 4.5 0 003.75 20.25l2.25-2.25m.93-1.68l.93-.93" />
+        </svg>
+      </div>
       <div class="stat-info">
         <span class="stat-value">{{ userProjects.length }}</span>
         <span class="stat-label">Projets Publiés</span>
@@ -132,7 +162,11 @@
     </div>
 
     <div class="app-card stat-card">
-      <div class="stat-icon icon-purple">🤝</div>
+      <div class="stat-icon icon-purple">
+        <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+      </div>
       <div class="stat-info">
         <span class="stat-value">{{ userEvaluations.length }}</span>
         <span class="stat-label">Évaluations Reçues</span>
@@ -140,7 +174,11 @@
     </div>
 
     <div class="app-card stat-card">
-      <div class="stat-icon icon-amber">🔥</div>
+      <div class="stat-icon icon-amber">
+        <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z" />
+        </svg>
+      </div>
       <div class="stat-info">
         <span class="stat-value">{{ parsedGithubStats ? parsedGithubStats.total_contributions_last_year : '0' }}</span>
         <span class="stat-label">Contributions GitHub</span>
@@ -156,7 +194,13 @@
         <h3>Compétences & Disponibilité</h3>
         <div class="info-row">
           <span class="label">Disponibilité :</span>
-          <span class="badge badge-emerald">{{ profile.availability || 'OPEN' }}</span>
+          <span class="badge badge-emerald" [ngSwitch]="profile.availability">
+            <span *ngSwitchCase="'FULL_TIME'">Temps Plein (CDI)</span>
+            <span *ngSwitchCase="'PART_TIME'">Temps Partiel</span>
+            <span *ngSwitchCase="'FREELANCE_ONLY'">Freelance</span>
+            <span *ngSwitchCase="'NOT_AVAILABLE'">Non disponible</span>
+            <span *ngSwitchDefault>Disponible</span>
+          </span>
         </div>
 
         <div class="skills-block" *ngIf="profile.skills && profile.skills.length">
@@ -178,19 +222,28 @@
           class="tab-btn" 
           [class.active]="activeTab === 'projects'" 
           (click)="activeTab = 'projects'">
-          🚀 Projets ({{ userProjects.length }})
+          <svg class="icon-svg icon-svg-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.25 12.75V12A2.25 2.25 0 014.5 9.75h15A2.25 2.25 0 0121.75 12v.75m-19.5 0A2.25 2.25 0 004.5 15h15a2.25 2.25 0 002.25-2.25m-19.5 0v.243a2.25 2.25 0 001.07 1.916l7.5 4.615a2.25 2.25 0 002.36 0l7.5-4.615a2.25 2.25 0 001.07-1.916V12.75" />
+          </svg>
+          Projets ({{ userProjects.length }})
         </button>
         <button 
           class="tab-btn" 
           [class.active]="activeTab === 'evaluations'" 
           (click)="activeTab = 'evaluations'">
-          ⭐ Évaluations ({{ userEvaluations.length }})
+          <svg class="icon-svg icon-svg-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 00-.182.557l1.285 5.385a.562.562 0 01-.84.61l-4.725-2.885a.563.563 0 00-.586 0L6.982 20.54a.562.562 0 01-.84-.61l1.285-5.386a.562.562 0 00-.182-.557l-4.204-3.602c-.38-.325-.178-.948.32-.988l5.518-.442a.563.563 0 00.475-.345L11.48 3.5z" />
+          </svg>
+          Évaluations ({{ userEvaluations.length }})
         </button>
         <button 
           class="tab-btn" 
           [class.active]="activeTab === 'github'" 
           (click)="activeTab = 'github'">
-          📊 Contributions GitHub
+          <svg class="icon-svg icon-svg-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.25 6.75L22.5 12l-5.25 5.25m-10.5 0L1.5 12l5.25-5.25m7.5-3l-4.5 16.5" />
+          </svg>
+          Contributions GitHub
         </button>
       </div>
 
@@ -200,7 +253,12 @@
           <div *ngFor="let proj of userProjects" class="app-card project-card-item">
             <div class="proj-header">
               <h4>{{ proj.title }}</h4>
-              <span class="badge badge-emerald">⭐ {{ proj.recognitionsCount }} reconnaissances</span>
+              <span class="badge badge-emerald">
+                <svg class="icon-svg icon-svg-xs" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 00-.182.557l1.285 5.385a.562.562 0 01-.84.61l-4.725-2.885a.563.563 0 00-.586 0L6.982 20.54a.562.562 0 01-.84-.61l1.285-5.386a.562.562 0 00-.182-.557l-4.204-3.602c-.38-.325-.178-.948.32-.988l5.518-.442a.563.563 0 00.475-.345L11.48 3.5z" />
+                </svg>
+                {{ proj.recognitionsCount }} reconnaissances
+              </span>
             </div>
             <p class="proj-desc">{{ proj.description }}</p>
             
@@ -282,10 +340,22 @@
             <p class="eval-feedback" *ngIf="ev.feedback">" {{ ev.feedback }} "</p>
 
             <div class="eval-ratings-row">
-              <span class="mini-rating">💻 Code: {{ ev.codeQuality }}/5</span>
-              <span class="mini-rating">🤝 Collab: {{ ev.collaborationRating }}/5</span>
-              <span class="mini-rating">⚡ Tech: {{ ev.technicalDepth }}/5</span>
-              <span class="mini-rating">🎯 Fiabilité: {{ ev.reliability }}/5</span>
+              <span class="mini-rating">
+                <svg class="icon-svg icon-svg-xs" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.25 6.75L22.5 12l-5.25 5.25m-10.5 0L1.5 12l5.25-5.25m7.5-3l-4.5 16.5" /></svg>
+                Code: {{ ev.codeQuality }}/5
+              </span>
+              <span class="mini-rating">
+                <svg class="icon-svg icon-svg-xs" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z" /></svg>
+                Collab: {{ ev.collaborationRating }}/5
+              </span>
+              <span class="mini-rating">
+                <svg class="icon-svg icon-svg-xs" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z" /></svg>
+                Tech: {{ ev.technicalDepth }}/5
+              </span>
+              <span class="mini-rating">
+                <svg class="icon-svg icon-svg-xs" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                Fiabilité: {{ ev.reliability }}/5
+              </span>
             </div>
           </div>
         </div>
@@ -489,6 +559,122 @@
 
       <div class="modal-footer">
         <button (click)="closeFollowModal()" class="btn btn-outline">Fermer</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- EDIT PROFILE MODAL -->
+  <div class="modal-overlay" *ngIf="showEditModal" (click)="closeEditModal()">
+    <div class="app-card modal-card edit-profile-modal" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>Modifier & Compléter mon Profil</h3>
+        <button (click)="closeEditModal()" class="btn-icon">
+          <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <form (ngSubmit)="onSaveProfile()" class="edit-profile-form">
+          <div class="grid-2">
+            <div class="form-group">
+              <label class="form-label">Nom Complet *</label>
+              <input type="text" [(ngModel)]="editForm.fullName" name="fullName" required placeholder="Ex: Amadou Diallo" class="form-input">
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Titre / Rôle Principal *</label>
+              <input type="text" [(ngModel)]="editForm.title" name="title" required placeholder="Ex: Senior Full-Stack Engineer" class="form-input">
+            </div>
+          </div>
+
+          <div class="grid-2">
+            <div class="form-group">
+              <label class="form-label">Pays *</label>
+              <input type="text" [(ngModel)]="editForm.country" name="country" required placeholder="Ex: Sénégal" class="form-input">
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Ville *</label>
+              <input type="text" [(ngModel)]="editForm.city" name="city" required placeholder="Ex: Dakar" class="form-input">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Présentation / Bio</label>
+            <textarea [(ngModel)]="editForm.bio" name="bio" rows="3" placeholder="Présentez votre parcours, vos passions et vos projets phares..." class="form-textarea"></textarea>
+          </div>
+
+          <div class="grid-2">
+            <div class="form-group">
+              <label class="form-label">Compétences clés (séparées par des virgules)</label>
+              <input type="text" [(ngModel)]="editForm.skillsInput" name="skillsInput" placeholder="Ex: Angular, Spring Boot, PostgreSQL, Docker" class="form-input">
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Langues parlées (séparées par des virgules)</label>
+              <input type="text" [(ngModel)]="editForm.languagesInput" name="languagesInput" placeholder="Ex: Français, Anglais" class="form-input">
+            </div>
+          </div>
+
+          <div class="grid-3">
+            <div class="form-group">
+              <label class="form-label">Années d'expérience</label>
+              <input type="number" [(ngModel)]="editForm.yearsExperience" name="yearsExperience" min="0" placeholder="Ex: 5" class="form-input">
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Disponibilité</label>
+              <select [(ngModel)]="editForm.availability" name="availability" class="form-select">
+                <option value="OPEN">Disponible / Ouvert aux opportunités</option>
+                <option value="FULL_TIME">Temps Plein (CDI)</option>
+                <option value="PART_TIME">Temps Partiel</option>
+                <option value="FREELANCE_ONLY">Freelance / Missions uniquement</option>
+                <option value="NOT_AVAILABLE">Non disponible actuellement</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Taux horaire ($ / h)</label>
+              <input type="number" [(ngModel)]="editForm.hourlyRate" name="hourlyRate" min="0" placeholder="Ex: 45" class="form-input">
+            </div>
+          </div>
+
+          <h4 class="section-subtitle">Liens Professionnels & Réseaux</h4>
+          <div class="grid-2">
+            <div class="form-group">
+              <label class="form-label">URL Profil GitHub</label>
+              <input type="text" [(ngModel)]="editForm.githubUrl" name="githubUrl" placeholder="https://github.com/votre-pseudo" class="form-input">
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">URL Profil LinkedIn</label>
+              <input type="text" [(ngModel)]="editForm.linkedinUrl" name="linkedinUrl" placeholder="https://linkedin.com/in/votre-nom" class="form-input">
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">URL Profil Zindi</label>
+              <input type="text" [(ngModel)]="editForm.zindiUrl" name="zindiUrl" placeholder="https://zindi.africa/user/votre-pseudo" class="form-input">
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Portfolio / Site Web</label>
+              <input type="text" [(ngModel)]="editForm.portfolioUrl" name="portfolioUrl" placeholder="https://votre-portfolio.com" class="form-input">
+            </div>
+          </div>
+
+          <div *ngIf="editErrorMessage" class="error-box">{{ editErrorMessage }}</div>
+          <div *ngIf="editSuccessMessage" class="success-box">{{ editSuccessMessage }}</div>
+
+          <div class="modal-footer-inside">
+            <button type="button" (click)="closeEditModal()" class="btn btn-outline">Annuler</button>
+            <button type="submit" [disabled]="isSavingProfile" class="btn btn-emerald">
+              <span *ngIf="!isSavingProfile">Enregistrer les modifications</span>
+              <span *ngIf="isSavingProfile">Enregistrement...</span>
+            </button>
+          </div>
+        </form>
       </div>
     </div>
   </div>

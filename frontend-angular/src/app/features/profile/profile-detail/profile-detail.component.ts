@@ -1,7 +1,7 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { ActivatedRoute, RouterLink } from '@angular/router';
+import { Router, ActivatedRoute, RouterLink } from '@angular/router';
 import { AuthService, Profile, User } from '../../../core/services/auth.service';
 import { ProfileService, GitHubStats } from '../../../core/services/profile.service';
 import { FollowService, FollowStats } from '../../../core/services/follow.service';
@@ -24,13 +24,14 @@ export class ProfileDetailComponent implements OnInit {
   private projectService = inject(ProjectService);
   private evaluationService = inject(EvaluationService);
   private route = inject(ActivatedRoute);
+  private router = inject(Router);
 
   profile: Profile | null = null;
   targetUserId: string | null = null;
   parsedGithubStats: GitHubStats | null = null;
 
   currentUser = this.authService.currentUser;
-  isLoggedIn = this.authService.isLoggedIn;
+  isLoggedIn = () => this.authService.isLoggedIn();
   isOwnProfile = false;
 
   // Activities & Reputation
@@ -85,10 +86,11 @@ export class ProfileDetailComponent implements OnInit {
   loadProfile(id: string): void {
     this.profileService.getProfileById(id).subscribe({
       next: (res) => {
-        if (res.success) {
+        if (res.success && res.data) {
           this.profile = res.data;
-          this.targetUserId = (res.data as any).userId || id;
-          this.isOwnProfile = this.currentUser()?.profile?.id === this.profile?.id;
+          this.targetUserId = res.data.userId || (res.data as any).userId || id;
+          this.isOwnProfile = (this.currentUser()?.profile?.id === this.profile?.id) ||
+                             (this.currentUser()?.id === this.targetUserId);
           this.parseGithubStats();
           if (this.targetUserId) {
             this.loadFollowStats(this.targetUserId);
@@ -225,9 +227,7 @@ export class ProfileDetailComponent implements OnInit {
 
   openChatModal(): void {
     if (!this.targetUserId || !this.isLoggedIn()) return;
-    this.showChatModal = true;
-    this.newChatMessage = '';
-    this.loadConversation();
+    this.router.navigate(['/messages'], { queryParams: { user: this.targetUserId } });
   }
 
   closeChatModal(): void {
@@ -317,8 +317,106 @@ export class ProfileDetailComponent implements OnInit {
         this.isVerifyingMm = false;
         if (res.success) {
           this.profile = res.data;
+          this.authService.updateProfileInUser(res.data);
           this.mmSuccessMessage = 'Identité vérifiée via Mobile Money ! Badge activé sur votre profil.';
         }
+      }
+    });
+  }
+
+  // Edit Profile Modal State
+  showEditModal = false;
+  isSavingProfile = false;
+  editSuccessMessage = '';
+  editErrorMessage = '';
+
+  editForm = {
+    fullName: '',
+    title: '',
+    bio: '',
+    country: '',
+    city: '',
+    skillsInput: '',
+    languagesInput: '',
+    yearsExperience: null as number | null,
+    availability: 'OPEN',
+    hourlyRate: null as number | null,
+    githubUrl: '',
+    linkedinUrl: '',
+    zindiUrl: '',
+    portfolioUrl: ''
+  };
+
+  openEditModal(): void {
+    if (!this.profile) return;
+    this.editForm = {
+      fullName: this.profile.fullName || '',
+      title: this.profile.title || '',
+      bio: this.profile.bio || '',
+      country: this.profile.country || '',
+      city: this.profile.city || '',
+      skillsInput: (this.profile.skills || []).join(', '),
+      languagesInput: (this.profile.languages || []).join(', '),
+      yearsExperience: this.profile.yearsExperience || null,
+      availability: this.profile.availability || 'OPEN',
+      hourlyRate: (this.profile as any).hourlyRate || null,
+      githubUrl: this.profile.githubUrl || '',
+      linkedinUrl: this.profile.linkedinUrl || '',
+      zindiUrl: this.profile.zindiUrl || '',
+      portfolioUrl: this.profile.portfolioUrl || ''
+    };
+    this.editSuccessMessage = '';
+    this.editErrorMessage = '';
+    this.showEditModal = true;
+  }
+
+  closeEditModal(): void {
+    this.showEditModal = false;
+  }
+
+  onSaveProfile(): void {
+    this.isSavingProfile = true;
+    this.editSuccessMessage = '';
+    this.editErrorMessage = '';
+
+    const skills = this.editForm.skillsInput
+      ? this.editForm.skillsInput.split(',').map(s => s.trim()).filter(s => s.length > 0)
+      : [];
+
+    const languages = this.editForm.languagesInput
+      ? this.editForm.languagesInput.split(',').map(l => l.trim()).filter(l => l.length > 0)
+      : [];
+
+    const payload = {
+      fullName: this.editForm.fullName,
+      title: this.editForm.title,
+      bio: this.editForm.bio,
+      country: this.editForm.country,
+      city: this.editForm.city,
+      skills: skills,
+      languages: languages,
+      yearsExperience: this.editForm.yearsExperience,
+      availability: this.editForm.availability,
+      hourlyRate: this.editForm.hourlyRate,
+      githubUrl: this.editForm.githubUrl,
+      linkedinUrl: this.editForm.linkedinUrl,
+      zindiUrl: this.editForm.zindiUrl,
+      portfolioUrl: this.editForm.portfolioUrl
+    };
+
+    this.profileService.updateProfile(payload).subscribe({
+      next: (res) => {
+        this.isSavingProfile = false;
+        if (res.success && res.data) {
+          this.profile = res.data;
+          this.authService.updateProfileInUser(res.data);
+          this.editSuccessMessage = 'Profil mis à jour avec succès !';
+          setTimeout(() => this.closeEditModal(), 1500);
+        }
+      },
+      error: (err) => {
+        this.isSavingProfile = false;
+        this.editErrorMessage = err.error?.error?.message || 'Erreur lors de la mise à jour du profil.';
       }
     });
   }

@@ -19,17 +19,23 @@ public class FollowService {
 
     private final FollowRepository followRepository;
     private final UserRepository userRepository;
+    private final africa.afridev.repository.ProfileRepository profileRepository;
     private final AuthService authService;
     private final RedisCacheService redisCacheService;
+
+    private UserEntity resolveUser(String idOrEmailOrProfileId) {
+        return userRepository.findById(idOrEmailOrProfileId)
+                .or(() -> userRepository.findByEmail(idOrEmailOrProfileId))
+                .or(() -> profileRepository.findById(idOrEmailOrProfileId).map(africa.afridev.model.entity.ProfileEntity::getUser))
+                .orElseThrow(() -> new IllegalArgumentException("Utilisateur introuvable pour ID: " + idOrEmailOrProfileId));
+    }
 
     @Transactional
     public FollowStatsDto followUser(String currentUserEmail, String targetUserId) {
         UserEntity follower = userRepository.findByEmail(currentUserEmail)
                 .orElseThrow(() -> new IllegalArgumentException("Utilisateur suiveur non trouvé."));
 
-        UserEntity target = userRepository.findById(targetUserId)
-                .or(() -> userRepository.findByEmail(targetUserId))
-                .orElseThrow(() -> new IllegalArgumentException("Utilisateur cible non trouvé."));
+        UserEntity target = resolveUser(targetUserId);
 
         if (follower.getId().equals(target.getId())) {
             throw new IllegalArgumentException("Vous ne pouvez pas vous suivre vous-même.");
@@ -44,7 +50,7 @@ public class FollowService {
             redisCacheService.addFollow(follower.getId(), target.getId());
         }
 
-        return getFollowStats(currentUserEmail, targetUserId);
+        return getFollowStats(currentUserEmail, target.getId());
     }
 
     @Transactional
@@ -52,19 +58,24 @@ public class FollowService {
         UserEntity follower = userRepository.findByEmail(currentUserEmail)
                 .orElseThrow(() -> new IllegalArgumentException("Utilisateur suiveur non trouvé."));
 
-        followRepository.findByFollowerIdAndFollowingId(follower.getId(), targetUserId)
+        UserEntity target = resolveUser(targetUserId);
+
+        followRepository.findByFollowerIdAndFollowingId(follower.getId(), target.getId())
                 .ifPresent(f -> {
                     followRepository.delete(f);
-                    redisCacheService.removeFollow(follower.getId(), targetUserId);
+                    redisCacheService.removeFollow(follower.getId(), target.getId());
                 });
 
-        return getFollowStats(currentUserEmail, targetUserId);
+        return getFollowStats(currentUserEmail, target.getId());
     }
 
     @Transactional(readOnly = true)
     public FollowStatsDto getFollowStats(String currentUserEmail, String targetUserId) {
-        long followers = followRepository.countByFollowingId(targetUserId);
-        long following = followRepository.countByFollowerId(targetUserId);
+        UserEntity target = resolveUser(targetUserId);
+        String resolvedTargetId = target.getId();
+
+        long followers = followRepository.countByFollowingId(resolvedTargetId);
+        long following = followRepository.countByFollowerId(resolvedTargetId);
 
         boolean followedByCurrent = false;
         boolean followsCurrentUser = false;
@@ -72,8 +83,8 @@ public class FollowService {
             var currUserOpt = userRepository.findByEmail(currentUserEmail);
             if (currUserOpt.isPresent()) {
                 String currId = currUserOpt.get().getId();
-                followedByCurrent = followRepository.existsByFollowerIdAndFollowingId(currId, targetUserId);
-                followsCurrentUser = followRepository.existsByFollowerIdAndFollowingId(targetUserId, currId);
+                followedByCurrent = followRepository.existsByFollowerIdAndFollowingId(currId, resolvedTargetId);
+                followsCurrentUser = followRepository.existsByFollowerIdAndFollowingId(resolvedTargetId, currId);
             }
         }
 
@@ -87,14 +98,16 @@ public class FollowService {
 
     @Transactional(readOnly = true)
     public List<UserDto> getFollowers(String userId) {
-        return followRepository.findByFollowingId(userId).stream()
+        String resolvedId = resolveUser(userId).getId();
+        return followRepository.findByFollowingId(resolvedId).stream()
                 .map(f -> authService.mapToUserDto(f.getFollower()))
                 .collect(Collectors.toList());
     }
 
     @Transactional(readOnly = true)
     public List<UserDto> getFollowing(String userId) {
-        return followRepository.findByFollowerId(userId).stream()
+        String resolvedId = resolveUser(userId).getId();
+        return followRepository.findByFollowerId(resolvedId).stream()
                 .map(f -> authService.mapToUserDto(f.getFollowing()))
                 .collect(Collectors.toList());
     }

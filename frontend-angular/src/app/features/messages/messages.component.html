@@ -1,0 +1,281 @@
+<div class="messenger-container">
+  <!-- Messenger App Layout -->
+  <div class="messenger-card app-card" [class.has-active-partner]="!!activePartner">
+    
+    <!-- LEFT PANEL: CONVERSATIONS SIDEBAR -->
+    <div class="conversations-sidebar" [class.hidden-mobile]="!!activePartner">
+      <div class="sidebar-header">
+        <div class="sidebar-title-row">
+          <h2>Discussions</h2>
+          <button (click)="openNewChatModal()" class="btn btn-emerald btn-sm btn-icon-text" title="Nouveau message">
+            <svg class="icon-svg icon-svg-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+            </svg>
+            <span class="btn-text">Nouveau</span>
+          </button>
+        </div>
+
+        <!-- Search input -->
+        <div class="search-input-box">
+          <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
+          </svg>
+          <input 
+            type="text" 
+            [(ngModel)]="searchQuery" 
+            (ngModelChange)="applyFilter()" 
+            placeholder="Rechercher une discussion..." 
+            class="form-input search-input">
+        </div>
+      </div>
+
+      <!-- Conversations List -->
+      <div class="conversations-list" *ngIf="!isLoadingConversations; else loadingConversationsTpl">
+        <div 
+          *ngFor="let conv of filteredConversations" 
+          class="conversation-item"
+          [class.active]="activePartner?.id === conv.partner.id"
+          (click)="selectConversation(conv.partner)">
+          
+          <div class="partner-avatar">
+            {{ (conv.partner.profile?.fullName || conv.partner.email).charAt(0).toUpperCase() }}
+            <span class="status-dot"></span>
+          </div>
+
+          <div class="conversation-details">
+            <div class="conv-top-row">
+              <span class="partner-name">{{ conv.partner.profile?.fullName || conv.partner.email }}</span>
+              <span class="conv-time">{{ conv.lastMessageTime | date:'shortTime' }}</span>
+            </div>
+            <p class="last-message-snippet">
+              <span *ngIf="conv.isLastMessageFromMe" class="me-tag">Vous : </span>
+              {{ conv.lastMessage }}
+            </p>
+          </div>
+        </div>
+
+        <div *ngIf="filteredConversations.length === 0" class="empty-sidebar-box">
+          <p class="text-muted">Aucune discussion trouvée.</p>
+          <button (click)="openNewChatModal()" class="btn btn-outline btn-sm">Démarrer un échange</button>
+        </div>
+      </div>
+
+      <ng-template #loadingConversationsTpl>
+        <div class="loading-sidebar-box">
+          Chargement des discussions...
+        </div>
+      </ng-template>
+    </div>
+
+    <!-- RIGHT PANEL: MESSENGER CHAT WINDOW -->
+    <div class="chat-window" [class.hidden-mobile]="!activePartner">
+      <!-- Active Chat Header -->
+      <div class="chat-window-header" *ngIf="activePartner; else noPartnerHeader">
+        <div class="active-partner-info">
+          <!-- Mobile Back Button -->
+          <button (click)="deselectPartner()" class="mobile-back-btn mobile-only" title="Retour aux discussions">
+            <svg class="icon-svg icon-svg-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h16.5" />
+            </svg>
+          </button>
+
+          <div class="partner-avatar-lg">
+            {{ (activePartner.profile?.fullName || activePartner.email).charAt(0).toUpperCase() }}
+            <span class="status-dot"></span>
+          </div>
+          <div class="partner-meta">
+            <div class="partner-name-row">
+              <h3>{{ activePartner.profile?.fullName || activePartner.email }}</h3>
+              <span class="badge" [ngClass]="activePartner.role === 'RECRUITER' ? 'badge-blue' : 'badge-emerald'" [title]="activePartner.role === 'RECRUITER' ? 'Recruteur' : 'Développeur'">
+                {{ activePartner.role === 'RECRUITER' ? '👔' : '👨‍💻' }}
+                <span class="role-text-desktop">{{ activePartner.role === 'RECRUITER' ? ' Recruteur' : ' Développeur' }}</span>
+              </span>
+            </div>
+            <div class="partner-sub-bar desktop-only-flex">
+              <span class="sub-text" *ngIf="activePartner.profile?.title">{{ activePartner.profile?.title }}</span>
+              <span class="sub-text" *ngIf="activePartner.profile?.country">📍 {{ cleanText(activePartner.profile?.country) }}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="header-right-actions">
+          <a [routerLink]="['/profile', activePartner.profile?.id || activePartner.id]" class="btn btn-outline btn-sm" title="Voir le Profil">
+            <svg class="icon-svg icon-svg-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
+            </svg>
+            <span class="btn-text">Voir le Profil</span>
+          </a>
+        </div>
+      </div>
+
+      <ng-template #noPartnerHeader>
+        <div class="chat-window-header empty-header">
+          <h3>Messagerie Instantanée AfriDev</h3>
+        </div>
+      </ng-template>
+
+      <!-- Active Chat History Body -->
+      <div class="chat-history-container" #chatHistoryContainer *ngIf="activePartner; else noPartnerBody">
+        <div *ngIf="!isLoadingMessages; else loadingMessagesTpl">
+          <div *ngIf="activeMessages.length > 0; else emptyMessagesTpl" class="messages-stack">
+            <div 
+              *ngFor="let msg of activeMessages" 
+              class="message-row"
+              [class.row-outgoing]="msg.sender.id === currentUser()?.id"
+              [class.row-incoming]="msg.sender.id !== currentUser()?.id">
+              
+              <div class="msg-avatar" *ngIf="msg.sender.id !== currentUser()?.id">
+                {{ (msg.sender.profile?.fullName || msg.sender.email).charAt(0).toUpperCase() }}
+              </div>
+
+              <div class="bubble-wrapper">
+                <div class="message-bubble">
+                  <!-- Quoted Reply Box -->
+                  <div class="reply-quoted-box" *ngIf="isReplyMessage(msg.content)">
+                    <span class="reply-quoted-sender">↩️ {{ parseReplySender(msg.content) }}</span>
+                    <p class="reply-quoted-text">{{ parseReplyQuote(msg.content) }}</p>
+                  </div>
+
+                  <p class="msg-text">{{ isReplyMessage(msg.content) ? parseReplyText(msg.content) : msg.content }}</p>
+                  <span class="msg-time">{{ msg.createdAt | date:'shortTime' }}</span>
+                </div>
+
+                <!-- Hover Reply Action Button -->
+                <button (click)="setReplyTo(msg)" class="reply-action-btn" title="Répondre à ce message">
+                  <svg class="icon-svg icon-svg-xs" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 15L3 9m0 0l6-6m-6 6h12a6 6 0 016 6v3" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <ng-template #emptyMessagesTpl>
+            <div class="empty-history-box">
+              <div class="empty-icon">💬</div>
+              <h4>Discussion avec {{ activePartner.profile?.fullName || activePartner.email }}</h4>
+              <p class="text-muted">Aucun message pour l'instant. Dites bonjour pour lancer la conversation !</p>
+            </div>
+          </ng-template>
+        </div>
+
+        <ng-template #loadingMessagesTpl>
+          <div class="loading-messages-box">
+            Chargement des messages...
+          </div>
+        </ng-template>
+      </div>
+
+      <ng-template #noPartnerBody>
+        <div class="chat-history-container empty-selection-box">
+          <div class="empty-icon">⚡</div>
+          <h3>Vos Discussions Messenger</h3>
+          <p class="text-muted">Sélectionnez une conversation dans le panneau de gauche ou démarrez un nouvel échange direct avec un membre du réseau.</p>
+          <button (click)="openNewChatModal()" class="btn btn-emerald">Démarrer une discussion</button>
+        </div>
+      </ng-template>
+
+      <!-- Active Chat Input Footer -->
+      <div class="chat-input-footer" *ngIf="activePartner">
+        <!-- Reply Preview Banner -->
+        <div class="reply-preview-banner" *ngIf="replyingToMessage">
+          <div class="reply-preview-left">
+            <span class="reply-preview-label">
+              ↩️ En réponse à <strong>{{ replyingToMessage.sender.profile?.fullName || replyingToMessage.sender.email }}</strong>
+            </span>
+            <p class="reply-preview-snippet">{{ parseReplyText(replyingToMessage.content) }}</p>
+          </div>
+          <button (click)="cancelReply()" class="reply-close-btn" title="Annuler la réponse">&times;</button>
+        </div>
+
+        <!-- Quick Emoji Shortcuts Bar -->
+        <div class="emoji-quick-bar">
+          <button (click)="insertEmoji('👍')" class="emoji-btn">👍</button>
+          <button (click)="insertEmoji('🚀')" class="emoji-btn">🚀</button>
+          <button (click)="insertEmoji('👏')" class="emoji-btn">👏</button>
+          <button (click)="insertEmoji('😊')" class="emoji-btn">😊</button>
+          <button (click)="insertEmoji('💻')" class="emoji-btn">💻</button>
+          <button (click)="insertEmoji('🔥')" class="emoji-btn">🔥</button>
+        </div>
+
+        <div class="input-form-row">
+          <textarea 
+            [(ngModel)]="newMessageContent" 
+            (keydown)="onTextareaKeyDown($event)"
+            placeholder="Écrivez votre message..." 
+            class="form-input messenger-textarea"
+            rows="1">
+          </textarea>
+          
+          <button 
+            (click)="sendMessage()" 
+            [disabled]="isSending || !newMessageContent.trim()" 
+            class="btn btn-emerald send-btn"
+            title="Envoyer">
+            <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5" />
+            </svg>
+            <span class="btn-text">Envoyer</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- NEW CHAT SELECTION MODAL -->
+  <div class="modal-overlay" *ngIf="showNewChatModal" (click)="closeNewChatModal()">
+    <div class="app-card modal-card new-chat-modal" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>Nouvelle Discussion</h3>
+        <button (click)="closeNewChatModal()" class="btn-icon">
+          <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <div class="search-input-box">
+          <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
+          </svg>
+          <input 
+            type="text" 
+            [(ngModel)]="memberSearchQuery" 
+            (ngModelChange)="applyMemberFilter()" 
+            placeholder="Rechercher par nom, rôle ou technologie..." 
+            class="form-input">
+        </div>
+
+        <div *ngIf="isLoadingMembers" class="loading-box">Chargement de l'annuaire...</div>
+
+        <div *ngIf="!isLoadingMembers && filteredMembers.length > 0" class="members-selection-list">
+          <div 
+            *ngFor="let member of filteredMembers" 
+            class="member-select-item"
+            (click)="startChatWithMember(member)">
+            <div class="member-left">
+              <div class="user-avatar-sm">
+                {{ (member.fullName || member.email).charAt(0).toUpperCase() }}
+              </div>
+              <div class="member-meta">
+                <span class="member-name">{{ member.fullName || member.email }}</span>
+                <span class="member-sub">{{ member.title || 'Membre AfriDev' }} &bull; 📍 {{ member.country || 'Afrique' }}</span>
+              </div>
+            </div>
+            <button class="btn btn-outline btn-sm">Message</button>
+          </div>
+        </div>
+
+        <div *ngIf="!isLoadingMembers && filteredMembers.length === 0" class="empty-box">
+          Aucun membre trouvé.
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button (click)="closeNewChatModal()" class="btn btn-outline">Fermer</button>
+      </div>
+    </div>
+  </div>
+</div>

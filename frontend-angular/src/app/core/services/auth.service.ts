@@ -4,6 +4,7 @@ import { Observable, tap } from 'rxjs';
 
 export interface Profile {
   id: string;
+  userId?: string;
   fullName: string;
   country: string;
   city: string;
@@ -112,6 +113,15 @@ export class AuthService {
     localStorage.setItem('afridev_user', JSON.stringify(authData.user));
     this.token.set(authData.token);
     this.currentUser.set(authData.user);
+  }
+
+  updateProfileInUser(profile: Profile): void {
+    const user = this.currentUser();
+    if (user) {
+      user.profile = profile;
+      localStorage.setItem('afridev_user', JSON.stringify(user));
+      this.currentUser.set({ ...user });
+    }
   }
 
   private getStoredUser(): User | null {

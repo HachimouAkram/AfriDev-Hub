@@ -1,0 +1,526 @@
+<div class="offers-dashboard-page animate-fade-in">
+  
+  <!-- Header Card -->
+  <div class="header-card app-card">
+    <div class="header-left">
+      <h2>Opportunités que vous avez publiées</h2>
+      <p class="subtext">Publiez de nouvelles opportunités (Emploi, Freelance, Mission, Stage), gérez vos annonces et évaluez les candidatures reçues.</p>
+    </div>
+
+    <a routerLink="/opportunities" class="btn btn-emerald btn-icon-text">
+      <svg class="icon-svg icon-svg-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.5v15m7.5-7.5h-15" />
+      </svg>
+      <span>+ Publier une offre</span>
+    </a>
+  </div>
+
+  <!-- Published Offers Table Card -->
+  <div class="table-container-card app-card">
+    <div *ngIf="loading()" class="loading-state">
+      <div class="spinner"></div>
+      <p>Chargement de vos opportunités...</p>
+    </div>
+
+    <div *ngIf="!loading() && myPostedOpportunities().length > 0" class="table-responsive">
+      <table class="offers-table">
+        <thead>
+          <tr>
+            <th>Offre</th>
+            <th>Type</th>
+            <th>Budget / Tarif</th>
+            <th>Statut</th>
+            <th>Date</th>
+            <th class="text-right">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let opp of myPostedOpportunities()" [class.row-disabled]="opp.status === 'HIDDEN'">
+            <!-- Offer Title -->
+            <td class="col-title">
+              <div class="offer-identity">
+                <div class="type-icon-badge" [ngClass]="{
+                  'badge-job': opp.type === 'JOB',
+                  'badge-freelance': opp.type === 'FREELANCE',
+                  'badge-internship': opp.type === 'INTERNSHIP',
+                  'badge-collab': opp.type === 'COLLABORATION'
+                }">
+                  {{ opp.type === 'JOB' ? '💼' : (opp.type === 'FREELANCE' ? '⚡' : (opp.type === 'INTERNSHIP' ? '🎓' : '🤝')) }}
+                </div>
+                <span class="offer-name">{{ opp.title }}</span>
+              </div>
+            </td>
+
+            <!-- Type Badge -->
+            <td class="col-type">
+              <span class="badge" [ngClass]="{
+                'badge-blue': opp.type === 'JOB',
+                'badge-emerald': opp.type === 'FREELANCE',
+                'badge-purple': opp.type === 'INTERNSHIP',
+                'badge-amber': opp.type === 'COLLABORATION'
+              }">
+                {{ opp.type }}
+              </span>
+            </td>
+
+            <!-- Budget -->
+            <td class="col-budget">
+              <span class="budget-text" *ngIf="opp.budget">💰 {{ opp.budget }}</span>
+              <span class="text-muted text-sm" *ngIf="!opp.budget">N/A</span>
+            </td>
+
+            <!-- Status -->
+            <td class="col-status">
+              <span class="status-badge" [ngClass]="opp.status === 'PUBLISHED' ? 'status-published' : 'status-disabled'">
+                <span class="dot"></span>
+                {{ opp.status === 'PUBLISHED' ? 'Publiée' : 'Désactivée' }}
+              </span>
+            </td>
+
+            <!-- Date -->
+            <td class="col-date">
+              <span class="date-text">{{ opp.createdAt | date:'shortDate' }}</span>
+            </td>
+
+            <!-- Action Buttons with Distinct Icons -->
+            <td class="col-actions text-right">
+              <div class="action-buttons-group">
+                
+                <!-- 1. Voir Détail + Candidats -->
+                <button 
+                  (click)="openDetailModal(opp)" 
+                  class="action-btn btn-view" 
+                  title="Voir le détail et les candidats pour cette offre">
+                  <svg class="action-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.573 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                  </svg>
+                </button>
+
+                <!-- 2. Modifier -->
+                <button 
+                  (click)="openEditModal(opp)" 
+                  class="action-btn btn-edit" 
+                  title="Modifier l'offre">
+                  <svg class="action-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" />
+                  </svg>
+                </button>
+
+                <!-- 3. Désactiver / Activer -->
+                <button 
+                  (click)="toggleStatus(opp)" 
+                  class="action-btn btn-toggle" 
+                  [class.is-disabled-state]="opp.status === 'HIDDEN'"
+                  [title]="opp.status === 'PUBLISHED' ? 'Désactiver la publication' : 'Activer et publier'">
+                  <svg *ngIf="opp.status === 'PUBLISHED'" class="action-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.75 5.25v13.5m-7.5-13.5v13.5" />
+                  </svg>
+                  <svg *ngIf="opp.status !== 'PUBLISHED'" class="action-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.348a1.125 1.125 0 010 1.971l-11.54 6.347a1.125 1.125 0 01-1.667-.985V5.653z" />
+                  </svg>
+                </button>
+
+                <!-- 4. Supprimer -->
+                <button 
+                  (click)="confirmDelete(opp)" 
+                  class="action-btn btn-delete" 
+                  title="Supprimer définitivement cette offre">
+                  <svg class="action-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
+                  </svg>
+                </button>
+
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Empty Posted State -->
+    <div *ngIf="!loading() && myPostedOpportunities().length === 0" class="empty-state-box">
+      <div class="empty-icon">📢</div>
+      <h4>Aucune offre publiée pour le moment</h4>
+      <p class="text-muted">Publiez une offre d'emploi ou de projet pour commencer à recevoir des candidatures qualifiées.</p>
+      <a routerLink="/opportunities" class="btn btn-emerald btn-sm">Publier ma première offre</a>
+    </div>
+  </div>
+
+  <!-- Received Applications Global Section -->
+  <div class="header-card app-card mt-6">
+    <div>
+      <h2>Toutes les candidatures reçues sur vos offres ({{ myReceivedApplications().length }})</h2>
+      <p class="subtext">Évaluez les candidats, acceptez ou refusez les propositions, signalez les abus ou entamez une discussion directe.</p>
+    </div>
+  </div>
+
+  <div class="received-list" *ngIf="myReceivedApplications().length > 0; else noReceivedApps">
+    <div *ngFor="let app of myReceivedApplications()" class="app-card candidate-card">
+      <div class="candidate-header">
+        <div class="candidate-user">
+          <div class="candidate-avatar">
+            {{ (app.applicant?.profile?.fullName || app.applicant?.email || 'C').charAt(0).toUpperCase() }}
+          </div>
+          <div class="candidate-info">
+            <div class="candidate-name-row">
+              <a [routerLink]="['/profile', app.applicant?.profile?.id || app.applicant?.id]" class="candidate-name">
+                {{ app.applicant?.profile?.fullName || app.applicant?.email || 'Candidat' }}
+              </a>
+              <span class="badge badge-emerald" *ngIf="app.applicant?.profile?.country">
+                {{ cleanText(app.applicant?.profile?.country) }}
+              </span>
+              <span *ngIf="app.applicant?.profile?.mobileMoneyVerified" class="badge badge-emerald">Vérifié</span>
+            </div>
+            <span class="candidate-title">{{ app.applicant?.profile?.title || 'Développeur AfriDev' }}</span>
+          </div>
+        </div>
+
+        <div class="target-offer-badge">
+          Offre : <strong>{{ app.opportunityTitle }}</strong>
+        </div>
+      </div>
+
+      <div class="candidate-body">
+        <div class="message-box">
+          <span class="lbl">Message de motivation :</span>
+          <p>« {{ app.message }} »</p>
+        </div>
+
+        <div class="candidate-links" *ngIf="app.cvUrl">
+          <a [href]="app.cvUrl" target="_blank" class="btn btn-outline btn-sm">
+            <svg class="icon-svg icon-svg-xs" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
+            </svg>
+            Consulter le CV / Portfolio
+          </a>
+        </div>
+      </div>
+
+      <div class="candidate-actions-footer">
+        <div class="status-indicator">
+          Statut : 
+          <span class="status-badge-app" [ngClass]="{
+            'status-pending': app.status === 'PENDING',
+            'status-accepted': app.status === 'ACCEPTED',
+            'status-rejected': app.status === 'REJECTED'
+          }">
+            {{ app.status === 'ACCEPTED' ? 'Acceptée' : (app.status === 'REJECTED' ? 'Refusée' : 'En attente') }}
+          </span>
+        </div>
+
+        <div class="action-buttons">
+          <button 
+            (click)="onUpdateStatus(app, 'ACCEPTED')" 
+            [disabled]="app.status === 'ACCEPTED'"
+            class="btn btn-emerald btn-sm">
+            Accepter
+          </button>
+
+          <button 
+            (click)="onUpdateStatus(app, 'REJECTED')" 
+            [disabled]="app.status === 'REJECTED'"
+            class="btn btn-outline btn-sm">
+            Refuser
+          </button>
+
+          <button (click)="openChatModal(app.applicant)" class="btn btn-emerald btn-sm">
+            <svg class="icon-svg icon-svg-xs" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.625 12a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H8.25m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H12m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0h-.375M21 12c0 4.556-4.03 8.25-9 8.25a9.764 9.764 0 01-2.555-.337A5.972 5.972 0 015.41 20.97a.598.598 0 01-.743-.598l.147-1.44a5.962 5.962 0 01-1.814-4.432C3 10.444 7.03 6.75 12 6.75s9 3.694 9 8.25z" />
+            </svg>
+            Discuter
+          </button>
+
+          <button (click)="openReportModal(app)" class="btn btn-outline btn-sm btn-report">
+            <svg class="icon-svg icon-svg-xs" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
+            </svg>
+            Signaler
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <ng-template #noReceivedApps>
+    <div class="empty-state-box app-card">
+      <p class="text-muted">Aucune candidature reçue pour vos opportunités pour le moment.</p>
+    </div>
+  </ng-template>
+
+  <!-- 1. MODAL DE DÉTAILS D'UNE OFFRE + GESTION DES CANDIDATURES DU PROJET -->
+  <div class="modal-overlay" *ngIf="showDetailModal && selectedOpportunity" (click)="closeDetailModal()">
+    <div class="app-card modal-card detail-offer-modal" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <div class="detail-header-left">
+          <h3>{{ selectedOpportunity.title }}</h3>
+          <span class="badge badge-emerald">{{ selectedOpportunity.type }}</span>
+          <span class="status-badge" [ngClass]="selectedOpportunity.status === 'PUBLISHED' ? 'status-published' : 'status-disabled'">
+            {{ selectedOpportunity.status === 'PUBLISHED' ? 'Publiée' : 'Désactivée' }}
+          </span>
+        </div>
+        <button (click)="closeDetailModal()" class="close-btn">&times;</button>
+      </div>
+
+      <div class="modal-body scrollable-modal-body">
+        
+        <!-- Offer Details Section -->
+        <div class="offer-full-details-box">
+          <p class="detail-desc">{{ selectedOpportunity.description }}</p>
+          
+          <div class="details-chips-grid">
+            <div class="chip-item">
+              <span class="chip-lbl">📍 Localisation :</span>
+              <strong>{{ cleanText(selectedOpportunity.location) || 'Non spécifié' }}</strong>
+            </div>
+            <div class="chip-item" *ngIf="selectedOpportunity.budget">
+              <span class="chip-lbl">💰 Budget :</span>
+              <strong>{{ selectedOpportunity.budget }}</strong>
+            </div>
+            <div class="chip-item" *ngIf="selectedOpportunity.isRemote">
+              <span class="chip-lbl">🏠 Télétravail :</span>
+              <strong>Oui</strong>
+            </div>
+            <div class="chip-item">
+              <span class="chip-lbl">📅 Date de publication :</span>
+              <strong>{{ selectedOpportunity.createdAt | date:'shortDate' }}</strong>
+            </div>
+          </div>
+
+          <div class="stack-box" *ngIf="selectedOpportunity.stack && selectedOpportunity.stack.length > 0">
+            <span class="chip-lbl">Tech Stack :</span>
+            <div class="stack-tags">
+              <span *ngFor="let s of selectedOpportunity.stack" class="tech-tag">{{ s }}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="divider-line"></div>
+
+        <!-- Applicants Section for THIS Specific Offer -->
+        <div class="modal-applicants-section">
+          <div class="section-title-row">
+            <h4>👥 Candidats ayant postulé à cette offre ({{ opportunityApplicants.length }})</h4>
+            <span class="subtext-sm">Gérez les demandes directement pour cette offre</span>
+          </div>
+
+          <div *ngIf="loadingApplicants" class="loading-state-sm">
+            <div class="spinner-sm"></div>
+            <span>Chargement des candidats...</span>
+          </div>
+
+          <div *ngIf="!loadingApplicants && opportunityApplicants.length > 0" class="applicants-stack">
+            <div *ngFor="let app of opportunityApplicants" class="modal-candidate-card">
+              <div class="cand-header">
+                <div class="cand-user">
+                  <div class="cand-avatar">
+                    {{ (app.applicant?.profile?.fullName || app.applicant?.email || 'C').charAt(0).toUpperCase() }}
+                  </div>
+                  <div class="cand-meta">
+                    <span class="cand-name">{{ app.applicant?.profile?.fullName || app.applicant?.email }}</span>
+                    <span class="cand-sub">{{ app.applicant?.profile?.title || 'Développeur' }} &bull; 📍 {{ cleanText(app.applicant?.profile?.country) || 'Afrique' }}</span>
+                  </div>
+                </div>
+
+                <span class="status-badge-app" [ngClass]="{
+                  'status-pending': app.status === 'PENDING',
+                  'status-accepted': app.status === 'ACCEPTED',
+                  'status-rejected': app.status === 'REJECTED'
+                }">
+                  {{ app.status === 'ACCEPTED' ? 'Acceptée' : (app.status === 'REJECTED' ? 'Refusée' : 'En attente') }}
+                </span>
+              </div>
+
+              <div class="cand-body">
+                <p class="cand-msg">« {{ app.message }} »</p>
+                <div class="cand-cv" *ngIf="app.cvUrl">
+                  <a [href]="app.cvUrl" target="_blank" class="btn btn-outline btn-xs">📄 Consulter CV</a>
+                </div>
+              </div>
+
+              <div class="cand-actions">
+                <button (click)="onUpdateStatus(app, 'ACCEPTED')" [disabled]="app.status === 'ACCEPTED'" class="btn btn-emerald btn-xs">Accepter</button>
+                <button (click)="onUpdateStatus(app, 'REJECTED')" [disabled]="app.status === 'REJECTED'" class="btn btn-outline btn-xs">Refuser</button>
+                <button (click)="openChatModal(app.applicant)" class="btn btn-emerald btn-xs">💬 Discuter</button>
+                <button (click)="openReportModal(app)" class="btn btn-outline btn-xs btn-report">⚠️ Signaler</button>
+              </div>
+            </div>
+          </div>
+
+          <div *ngIf="!loadingApplicants && opportunityApplicants.length === 0" class="empty-applicants-box">
+            <p>Aucun candidat n'a encore postulé à cette offre.</p>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="modal-footer">
+        <button (click)="closeDetailModal()" class="btn btn-outline">Fermer</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. MODAL DE MODIFICATION D'UNE OFFRE -->
+  <div class="modal-overlay" *ngIf="showEditModal && selectedOpportunity" (click)="closeEditModal()">
+    <div class="app-card modal-card" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>Modifier l'Offre</h3>
+        <button (click)="closeEditModal()" class="close-btn">&times;</button>
+      </div>
+
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label">Titre de l'offre *</label>
+          <input type="text" [(ngModel)]="offerForm.title" class="form-input">
+        </div>
+
+        <div class="form-row-2">
+          <div class="form-group">
+            <label class="form-label">Type d'opportunité *</label>
+            <select [(ngModel)]="offerForm.type" class="form-input">
+              <option value="JOB">💼 Emploi (Job)</option>
+              <option value="FREELANCE">⚡ Freelance / Mission</option>
+              <option value="INTERNSHIP">🎓 Stage</option>
+              <option value="COLLABORATION">🤝 Collaboration</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Localisation (Ville, Pays)</label>
+            <input type="text" [(ngModel)]="offerForm.location" class="form-input">
+          </div>
+        </div>
+
+        <div class="form-row-2">
+          <div class="form-group">
+            <label class="form-label">Budget / Rémunération</label>
+            <input type="text" [(ngModel)]="offerForm.budget" placeholder="Ex: 500 000 FCFA / mois" class="form-input">
+          </div>
+
+          <div class="form-group checkbox-align">
+            <label class="custom-checkbox-label">
+              <input type="checkbox" [(ngModel)]="offerForm.isRemote">
+              <span>Poste en Télétravail (Remote)</span>
+            </label>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Technologies (séparées par une virgule)</label>
+          <input type="text" [(ngModel)]="offerForm.stackInput" placeholder="React, Node.js, Spring Boot" class="form-input">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Description détaillée *</label>
+          <textarea [(ngModel)]="offerForm.description" rows="5" class="form-textarea"></textarea>
+        </div>
+
+        <div *ngIf="editErrorMessage" class="error-box">{{ editErrorMessage }}</div>
+      </div>
+
+      <div class="modal-footer">
+        <button (click)="closeEditModal()" class="btn btn-outline">Annuler</button>
+        <button (click)="submitEdit()" [disabled]="isSubmittingEdit" class="btn btn-emerald">
+          <span *ngIf="!isSubmittingEdit">Enregistrer les modifications</span>
+          <span *ngIf="isSubmittingEdit">Enregistrement...</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3. MODAL DE SUPPRESSION D'UNE OFFRE -->
+  <div class="modal-overlay" *ngIf="showDeleteModal && opportunityToDelete" (click)="closeDeleteModal()">
+    <div class="app-card modal-card delete-modal" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3 class="danger-title">Supprimer l'offre ?</h3>
+        <button (click)="closeDeleteModal()" class="close-btn">&times;</button>
+      </div>
+
+      <div class="modal-body">
+        <p>Êtes-vous sûr de vouloir supprimer définitivement l'offre <strong>« {{ opportunityToDelete.title }} »</strong> ?</p>
+        <p class="text-muted text-sm">Cette action est irréversible et supprimera également les candidatures associées.</p>
+      </div>
+
+      <div class="modal-footer">
+        <button (click)="closeDeleteModal()" class="btn btn-outline">Annuler</button>
+        <button (click)="executeDelete()" class="btn btn-danger">Supprimer définitivement</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 4. DIRECT MESSAGING CHAT MODAL -->
+  <div class="modal-overlay" *ngIf="showChatModal" (click)="closeChatModal()">
+    <div class="app-card modal-card chat-modal" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>Discussion directe {{ chatRecipient?.profile?.fullName ? 'avec ' + chatRecipient?.profile?.fullName : '' }}</h3>
+        <button (click)="closeChatModal()" class="close-btn">&times;</button>
+      </div>
+
+      <div class="modal-body chat-body-modal">
+        <div class="chat-messages-container">
+          <div *ngIf="chatMessages.length === 0" class="empty-chat-box">
+            Aucun message échangé pour l'instant. Envoyez un message de prise de contact.
+          </div>
+          <div *ngFor="let msg of chatMessages" class="chat-bubble" [class.my-msg]="msg.sender?.id === user()?.id">
+            <p>{{ msg.content }}</p>
+            <span class="chat-time">{{ msg.createdAt | date:'shortTime' }}</span>
+          </div>
+        </div>
+
+        <div class="chat-input-row">
+          <input 
+            type="text" 
+            [(ngModel)]="newChatMessage" 
+            (keyup.enter)="sendChatMessage()" 
+            placeholder="Écrivez un message..." 
+            class="form-input flex-1" />
+          <button (click)="sendChatMessage()" [disabled]="isSendingMessage || !newChatMessage.trim()" class="btn btn-emerald">
+            Envoyer
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 5. REPORT CANDIDATE MODAL -->
+  <div class="modal-overlay" *ngIf="showReportModal" (click)="closeReportModal()">
+    <div class="app-card modal-card" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>Signaler un Abus ou Problème</h3>
+        <button (click)="closeReportModal()" class="close-btn">&times;</button>
+      </div>
+
+      <div class="modal-body" *ngIf="reportTargetApplication as target">
+        <p class="modal-info">Ce signalement sera transmis au registre d'audit et au panneau de modération pour examen par un administrateur.</p>
+        
+        <div class="form-group">
+          <label class="form-label">Candidat : <strong>{{ target.applicant?.profile?.fullName || target.applicant?.email }}</strong></label>
+          <label class="form-label">Offre : <strong>{{ target.opportunityTitle }}</strong></label>
+        </div>
+
+        <div class="form-group">
+          <label for="repReason" class="form-label">Motif du signalement (Spam, comportement inapproprié, fausse identité...)</label>
+          <textarea 
+            id="repReason" 
+            [(ngModel)]="reportReason" 
+            rows="4" 
+            placeholder="Expliquez la raison de votre signalement..." 
+            required 
+            class="form-textarea"></textarea>
+        </div>
+
+        <div *ngIf="reportErrorMessage" class="error-box">{{ reportErrorMessage }}</div>
+        <div *ngIf="reportSuccessMessage" class="success-box">{{ reportSuccessMessage }}</div>
+      </div>
+
+      <div class="modal-footer">
+        <button (click)="closeReportModal()" class="btn btn-outline">Annuler</button>
+        <button (click)="submitReport()" [disabled]="isSubmittingReport || !reportReason.trim()" class="btn btn-emerald">
+          <span *ngIf="!isSubmittingReport">Envoyer le Signalement</span>
+          <span *ngIf="isSubmittingReport">Envoi...</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+</div>

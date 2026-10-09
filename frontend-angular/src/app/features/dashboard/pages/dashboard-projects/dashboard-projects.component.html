@@ -1,0 +1,345 @@
+<div class="projects-dashboard-page animate-fade-in">
+  
+  <!-- Header Bar -->
+  <div class="projects-header-card app-card">
+    <div class="header-text-group">
+      <h2>Mes Projets Vitrine</h2>
+      <p class="subtext">Gérez la visibilité, la mise à jour et la suppression de vos réalisations sur la vitrine AfriDev.</p>
+    </div>
+
+    <button (click)="openCreateModal()" class="btn btn-emerald btn-icon-text">
+      <svg class="icon-svg icon-svg-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.5v15m7.5-7.5h-15" />
+      </svg>
+      <span>+ Nouveau projet</span>
+    </button>
+  </div>
+
+  <!-- Search & Filter Controls -->
+  <div class="controls-bar app-card">
+    <div class="search-box">
+      <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
+      </svg>
+      <input 
+        type="text" 
+        [(ngModel)]="searchQuery" 
+        (ngModelChange)="applyFilter()" 
+        placeholder="Rechercher parmi vos projets par titre ou technologie..." 
+        class="form-input search-input">
+    </div>
+
+    <div class="counter-badge">
+      Total : <strong>{{ filteredProjects().length }}</strong> projet(s)
+    </div>
+  </div>
+
+  <!-- Projects Table Card -->
+  <div class="table-container-card app-card">
+    <div *ngIf="isLoading()" class="loading-state">
+      <div class="spinner"></div>
+      <p>Chargement de vos projets...</p>
+    </div>
+
+    <div *ngIf="!isLoading() && filteredProjects().length > 0" class="table-responsive">
+      <table class="projects-table">
+        <thead>
+          <tr>
+            <th>Projet</th>
+            <th>Open Source</th>
+            <th>Reconnaissances</th>
+            <th>Statut</th>
+            <th>Date</th>
+            <th class="text-right">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let proj of filteredProjects()" [class.row-archived]="proj.status === 'ARCHIVED'">
+            
+            <!-- Project Title -->
+            <td class="col-title">
+              <div class="project-identity">
+                <div class="project-avatar-icon">
+                  {{ proj.title.charAt(0).toUpperCase() }}
+                </div>
+                <span class="proj-name">{{ proj.title }}</span>
+              </div>
+            </td>
+
+            <!-- Open Source Badge -->
+            <td class="col-opensource">
+              <span *ngIf="proj.isOpenSource" class="badge badge-emerald-subtle">
+                <svg class="icon-svg icon-svg-xs" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.25 6.75L22.5 12l-5.25 5.25m-10.5 0L1.5 12l5.25-5.25m7.5-3l-4.5 16.5" />
+                </svg>
+                Oui
+              </span>
+              <span *ngIf="!proj.isOpenSource" class="text-muted text-sm">Non</span>
+            </td>
+
+            <!-- Recognitions Count -->
+            <td class="col-recognitions">
+              <div class="recognition-pill">
+                <span class="star-icon">⭐</span>
+                <span class="count">{{ proj.recognitionsCount || 0 }}</span>
+              </div>
+            </td>
+
+            <!-- Status Badge -->
+            <td class="col-status">
+              <span class="status-badge" [ngClass]="proj.status === 'PUBLISHED' ? 'status-published' : 'status-disabled'">
+                <span class="dot"></span>
+                {{ proj.status === 'PUBLISHED' ? 'Publié' : 'Désactivé' }}
+              </span>
+            </td>
+
+            <!-- Creation Date -->
+            <td class="col-date">
+              <span class="date-text">{{ proj.createdAt | date:'shortDate' }}</span>
+            </td>
+
+            <!-- Action Buttons with Distinct Icons -->
+            <td class="col-actions text-right">
+              <div class="action-buttons-group">
+                
+                <!-- 1. Voir Détail -->
+                <button 
+                  (click)="openDetailModal(proj)" 
+                  class="action-btn btn-view" 
+                  title="Voir les détails du projet">
+                  <svg class="action-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.036 123c2.7-5.32 8.357-9 14.964-9s12.264 3.68 14.964 9c-2.7 5.32-8.357 9-14.964 9s-12.264-3.68-14.964-9z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                  </svg>
+                </button>
+
+                <!-- 2. Modifier -->
+                <button 
+                  (click)="openEditModal(proj)" 
+                  class="action-btn btn-edit" 
+                  title="Modifier le projet">
+                  <svg class="action-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" />
+                  </svg>
+                </button>
+
+                <!-- 3. Désactiver / Activer -->
+                <button 
+                  (click)="toggleStatus(proj)" 
+                  class="action-btn btn-toggle" 
+                  [class.is-disabled-state]="proj.status === 'ARCHIVED'"
+                  [title]="proj.status === 'PUBLISHED' ? 'Désactiver la publication' : 'Activer et publier'">
+                  <svg *ngIf="proj.status === 'PUBLISHED'" class="action-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.75 5.25v13.5m-7.5-13.5v13.5" />
+                  </svg>
+                  <svg *ngIf="proj.status !== 'PUBLISHED'" class="action-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.348a1.125 1.125 0 010 1.971l-11.54 6.347a1.125 1.125 0 01-1.667-.985V5.653z" />
+                  </svg>
+                </button>
+
+                <!-- 4. Supprimer -->
+                <button 
+                  (click)="confirmDelete(proj)" 
+                  class="action-btn btn-delete" 
+                  title="Supprimer définitivement ce projet">
+                  <svg class="action-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
+                  </svg>
+                </button>
+
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Empty State -->
+    <div *ngIf="!isLoading() && filteredProjects().length === 0" class="empty-projects-state">
+      <div class="empty-icon">📁</div>
+      <h4>Aucun projet trouvé</h4>
+      <p class="text-muted">Vous n'avez pas encore publié de projet ou aucun projet ne correspond à votre recherche.</p>
+      <button (click)="openCreateModal()" class="btn btn-emerald btn-sm">Ajouter mon premier projet</button>
+    </div>
+  </div>
+
+  <!-- 1. MODAL DE CRÉATION DE PROJET -->
+  <div class="modal-overlay" *ngIf="showCreateModal" (click)="closeCreateModal()">
+    <div class="app-card modal-card" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>Nouveau Projet Vitrine</h3>
+        <button (click)="closeCreateModal()" class="close-btn">&times;</button>
+      </div>
+
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label">Titre du projet *</label>
+          <input type="text" [(ngModel)]="projectForm.title" placeholder="Ex: AfriPay Mobile App" class="form-input">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Description *</label>
+          <textarea [(ngModel)]="projectForm.description" rows="4" placeholder="Expliquez l'objectif et les fonctionnalités clés de votre projet..." class="form-textarea"></textarea>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Technologies (séparées par une virgule)</label>
+          <input type="text" [(ngModel)]="projectForm.stackInput" placeholder="Angular, Spring Boot, PostgreSQL, Docker" class="form-input">
+        </div>
+
+        <div class="form-row-2">
+          <div class="form-group">
+            <label class="form-label">Lien Dépôt GitHub / GitLab</label>
+            <input type="url" [(ngModel)]="projectForm.repoUrl" placeholder="https://github.com/votre-user/projet" class="form-input">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Lien Démo en Ligne</label>
+            <input type="url" [(ngModel)]="projectForm.demoUrl" placeholder="https://mon-projet.com" class="form-input">
+          </div>
+        </div>
+
+        <div class="checkbox-group">
+          <label class="custom-checkbox-label">
+            <input type="checkbox" [(ngModel)]="projectForm.isOpenSource">
+            <span>Projet Open Source</span>
+          </label>
+        </div>
+
+        <div *ngIf="formErrorMessage" class="error-box">{{ formErrorMessage }}</div>
+      </div>
+
+      <div class="modal-footer">
+        <button (click)="closeCreateModal()" class="btn btn-outline">Annuler</button>
+        <button (click)="submitCreate()" [disabled]="isSubmitting" class="btn btn-emerald">
+          <span *ngIf="!isSubmitting">Publier le projet</span>
+          <span *ngIf="isSubmitting">Publication...</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. MODAL DE MODIFICATION DE PROJET -->
+  <div class="modal-overlay" *ngIf="showEditModal" (click)="closeEditModal()">
+    <div class="app-card modal-card" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>Modifier le Projet</h3>
+        <button (click)="closeEditModal()" class="close-btn">&times;</button>
+      </div>
+
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label">Titre du projet *</label>
+          <input type="text" [(ngModel)]="projectForm.title" class="form-input">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Description *</label>
+          <textarea [(ngModel)]="projectForm.description" rows="4" class="form-textarea"></textarea>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Technologies (séparées par une virgule)</label>
+          <input type="text" [(ngModel)]="projectForm.stackInput" class="form-input">
+        </div>
+
+        <div class="form-row-2">
+          <div class="form-group">
+            <label class="form-label">Lien Dépôt GitHub / GitLab</label>
+            <input type="url" [(ngModel)]="projectForm.repoUrl" class="form-input">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Lien Démo en Ligne</label>
+            <input type="url" [(ngModel)]="projectForm.demoUrl" class="form-input">
+          </div>
+        </div>
+
+        <div class="checkbox-group">
+          <label class="custom-checkbox-label">
+            <input type="checkbox" [(ngModel)]="projectForm.isOpenSource">
+            <span>Projet Open Source</span>
+          </label>
+        </div>
+
+        <div *ngIf="formErrorMessage" class="error-box">{{ formErrorMessage }}</div>
+      </div>
+
+      <div class="modal-footer">
+        <button (click)="closeEditModal()" class="btn btn-outline">Annuler</button>
+        <button (click)="submitEdit()" [disabled]="isSubmitting" class="btn btn-emerald">
+          <span *ngIf="!isSubmitting">Enregistrer les modifications</span>
+          <span *ngIf="isSubmitting">Enregistrement...</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3. MODAL DE DÉTAIL PROJET -->
+  <div class="modal-overlay" *ngIf="showDetailModal && selectedProject" (click)="closeDetailModal()">
+    <div class="app-card modal-card detail-modal" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <div class="detail-header-left">
+          <h3>{{ selectedProject.title }}</h3>
+          <span class="status-badge" [ngClass]="selectedProject.status === 'PUBLISHED' ? 'status-published' : 'status-disabled'">
+            {{ selectedProject.status === 'PUBLISHED' ? 'Publié' : 'Désactivé' }}
+          </span>
+        </div>
+        <button (click)="closeDetailModal()" class="close-btn">&times;</button>
+      </div>
+
+      <div class="modal-body">
+        <p class="detail-description">{{ selectedProject.description }}</p>
+
+        <div class="detail-section">
+          <h5>Stack Technique</h5>
+          <div class="stack-tags-row">
+            <span *ngFor="let s of selectedProject.stack" class="tech-tag">{{ s }}</span>
+          </div>
+        </div>
+
+        <div class="detail-section">
+          <h5>Liens du projet</h5>
+          <div class="links-row">
+            <a *ngIf="selectedProject.repoUrl" [href]="selectedProject.repoUrl" target="_blank" class="btn btn-outline btn-sm">
+              🐙 Voir le code GitHub
+            </a>
+            <a *ngIf="selectedProject.demoUrl" [href]="selectedProject.demoUrl" target="_blank" class="btn btn-emerald btn-sm">
+              🚀 Voir la Démo
+            </a>
+          </div>
+        </div>
+
+        <div class="detail-section">
+          <h5>Engouement de la communauté</h5>
+          <p class="star-info">⭐ Ce projet compte <strong>{{ selectedProject.recognitionsCount || 0 }}</strong> reconnaissance(s) par les pairs.</p>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button (click)="closeDetailModal()" class="btn btn-outline">Fermer</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 4. MODAL DE CONFIRMATION DE SUPPRESSION -->
+  <div class="modal-overlay" *ngIf="showDeleteModal && projectToDelete" (click)="closeDeleteModal()">
+    <div class="app-card modal-card delete-modal" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3 class="danger-title">Supprimer le projet ?</h3>
+        <button (click)="closeDeleteModal()" class="close-btn">&times;</button>
+      </div>
+
+      <div class="modal-body">
+        <p>Êtes-vous sûr de vouloir supprimer définitivement le projet <strong>« {{ projectToDelete.title }} »</strong> ?</p>
+        <p class="text-muted text-sm">Cette action est irréversible. Le projet sera retiré de la vitrine publique.</p>
+      </div>
+
+      <div class="modal-footer">
+        <button (click)="closeDeleteModal()" class="btn btn-outline">Annuler</button>
+        <button (click)="executeDelete()" class="btn btn-danger">Supprimer définitivement</button>
+      </div>
+    </div>
+  </div>
+
+</div>

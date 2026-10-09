@@ -1,6 +1,7 @@
 package africa.afridev.service;
 
 import africa.afridev.dto.auth.UserDto;
+import africa.afridev.dto.message.ConversationSummaryDto;
 import africa.afridev.dto.message.MessageCreateRequest;
 import africa.afridev.dto.message.MessageDto;
 import africa.afridev.model.entity.MessageEntity;
@@ -72,6 +73,38 @@ public class MessageService {
         }
 
         return partners;
+    }
+
+    @Transactional(readOnly = true)
+    public List<ConversationSummaryDto> getConversationSummaries(String userEmail) {
+        UserEntity currentUser = userRepository.findByEmail(userEmail)
+                .orElseThrow(() -> new IllegalArgumentException("Utilisateur non trouvé."));
+
+        List<MessageEntity> allMessages = messageRepository.findAllUserMessages(currentUser.getId());
+        Set<String> partnerIds = new LinkedHashSet<>();
+        List<ConversationSummaryDto> summaries = new ArrayList<>();
+
+        for (MessageEntity msg : allMessages) {
+            String partnerId = msg.getSender().getId().equals(currentUser.getId()) 
+                    ? msg.getRecipient().getId() 
+                    : msg.getSender().getId();
+
+            if (!partnerIds.contains(partnerId)) {
+                partnerIds.add(partnerId);
+                UserEntity partner = msg.getSender().getId().equals(currentUser.getId()) ? msg.getRecipient() : msg.getSender();
+                boolean fromMe = msg.getSender().getId().equals(currentUser.getId());
+                
+                summaries.add(ConversationSummaryDto.builder()
+                        .partner(authService.mapToUserDto(partner))
+                        .lastMessage(msg.getContent())
+                        .lastMessageTime(msg.getCreatedAt())
+                        .isLastMessageFromMe(fromMe)
+                        .isRead(msg.getIsRead())
+                        .build());
+            }
+        }
+
+        return summaries;
     }
 
     private MessageDto mapToMessageDto(MessageEntity entity) {

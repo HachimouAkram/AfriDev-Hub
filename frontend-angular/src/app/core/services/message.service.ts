@@ -12,6 +12,14 @@ export interface DirectMessage {
   createdAt: string;
 }
 
+export interface ConversationSummary {
+  partner: User;
+  lastMessage: string;
+  lastMessageTime: string;
+  isLastMessageFromMe: boolean;
+  isRead: boolean;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -29,5 +37,9 @@ export class MessageService {
 
   getRecentConversations(): Observable<ApiResponse<User[]>> {
     return this.http.get<ApiResponse<User[]>>(`${this.apiUrl}/conversations`);
+  }
+
+  getConversationSummaries(): Observable<ApiResponse<ConversationSummary[]>> {
+    return this.http.get<ApiResponse<ConversationSummary[]>>(`${this.apiUrl}/summaries`);
   }
 }

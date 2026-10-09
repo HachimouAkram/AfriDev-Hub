@@ -59,6 +59,18 @@ export class OpportunityService {
     return this.http.post<ApiResponse<Opportunity>>(this.apiUrl, data);
   }
 
+  updateOpportunity(id: string, data: any): Observable<ApiResponse<Opportunity>> {
+    return this.http.put<ApiResponse<Opportunity>>(`${this.apiUrl}/${id}`, data);
+  }
+
+  toggleOpportunityStatus(id: string): Observable<ApiResponse<Opportunity>> {
+    return this.http.patch<ApiResponse<Opportunity>>(`${this.apiUrl}/${id}/toggle-status`, {});
+  }
+
+  deleteOpportunity(id: string): Observable<ApiResponse<any>> {
+    return this.http.delete<ApiResponse<any>>(`${this.apiUrl}/${id}`);
+  }
+
   applyToOpportunity(id: string, message: string, cvUrl?: string): Observable<ApiResponse<Application>> {
     return this.http.post<ApiResponse<Application>>(`${this.apiUrl}/${id}/apply`, { message, cvUrl });
   }

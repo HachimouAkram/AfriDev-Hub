@@ -16,13 +16,62 @@ export const routes: Routes = [
   },
   {
     path: 'dashboard',
-    loadComponent: () => import('./features/dashboard/dashboard.component').then(m => m.DashboardComponent),
-    canActivate: [authGuard]
+    loadComponent: () => import('./features/dashboard/dashboard-layout/dashboard-layout.component').then(m => m.DashboardLayoutComponent),
+    canActivate: [authGuard],
+    children: [
+      {
+        path: '',
+        loadComponent: () => import('./features/dashboard/pages/dashboard-overview/dashboard-overview.component').then(m => m.DashboardOverviewComponent)
+      },
+      {
+        path: 'applications',
+        loadComponent: () => import('./features/dashboard/pages/dashboard-applications/dashboard-applications.component').then(m => m.DashboardApplicationsComponent)
+      },
+      {
+        path: 'offers',
+        loadComponent: () => import('./features/dashboard/pages/dashboard-offers/dashboard-offers.component').then(m => m.DashboardOffersComponent)
+      },
+      {
+        path: 'messages',
+        loadComponent: () => import('./features/messages/messages.component').then(m => m.MessagesComponent)
+      },
+      {
+        path: 'projects',
+        loadComponent: () => import('./features/dashboard/pages/dashboard-projects/dashboard-projects.component').then(m => m.DashboardProjectsComponent)
+      },
+      {
+        path: 'evaluations',
+        loadComponent: () => import('./features/evaluations/evaluation-list/evaluation-list.component').then(m => m.EvaluationListComponent)
+      },
+      {
+        path: 'profile',
+        loadComponent: () => import('./features/profile/profile-detail/profile-detail.component').then(m => m.ProfileDetailComponent)
+      },
+      {
+        path: 'profile/:id',
+        loadComponent: () => import('./features/profile/profile-detail/profile-detail.component').then(m => m.ProfileDetailComponent)
+      }
+    ]
+  },
+  {
+    path: 'messages',
+    redirectTo: 'dashboard/messages',
+    pathMatch: 'full'
+  },
+  {
+    path: 'evaluations',
+    redirectTo: 'dashboard/evaluations',
+    pathMatch: 'full'
+  },
+  {
+    path: 'evaluations/:id',
+    redirectTo: 'dashboard/evaluations',
+    pathMatch: 'full'
   },
   {
     path: 'profile',
-    loadComponent: () => import('./features/profile/profile-detail/profile-detail.component').then(m => m.ProfileDetailComponent),
-    canActivate: [authGuard]
+    redirectTo: 'dashboard/profile',
+    pathMatch: 'full'
   },
   {
     path: 'profile/:id',
@@ -35,14 +84,6 @@ export const routes: Routes = [
   {
     path: 'opportunities',
     loadComponent: () => import('./features/opportunities/opportunity-list/opportunity-list.component').then(m => m.OpportunityListComponent)
-  },
-  {
-    path: 'evaluations',
-    loadComponent: () => import('./features/evaluations/evaluation-list/evaluation-list.component').then(m => m.EvaluationListComponent)
-  },
-  {
-    path: 'evaluations/:id',
-    loadComponent: () => import('./features/evaluations/evaluation-list/evaluation-list.component').then(m => m.EvaluationListComponent)
   },
   {
     path: 'network',

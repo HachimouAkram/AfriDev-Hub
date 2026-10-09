@@ -44,4 +44,10 @@ public class MessageController {
         List<UserDto> conversations = messageService.getRecentConversations(authentication.getName());
         return ResponseEntity.ok(ApiResponse.ok(conversations));
     }
+
+    @GetMapping("/summaries")
+    public ResponseEntity<ApiResponse<List<africa.afridev.dto.message.ConversationSummaryDto>>> getConversationSummaries(Authentication authentication) {
+        List<africa.afridev.dto.message.ConversationSummaryDto> summaries = messageService.getConversationSummaries(authentication.getName());
+        return ResponseEntity.ok(ApiResponse.ok(summaries));
+    }
 }

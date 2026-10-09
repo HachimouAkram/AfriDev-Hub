@@ -112,6 +112,72 @@ public class ProjectService {
         return mapToProjectDto(project, userEmail);
     }
 
+    @Transactional(readOnly = true)
+    public Page<ProjectDto> getMyProjects(String userEmail, Pageable pageable) {
+        UserEntity user = userRepository.findByEmail(userEmail)
+                .orElseThrow(() -> new IllegalArgumentException("Utilisateur non trouvé."));
+        Page<ProjectEntity> projects = projectRepository.findByAuthorIdOrderByCreatedAtDesc(user.getId(), pageable);
+        return projects.map(p -> mapToProjectDto(p, userEmail));
+    }
+
+    @Transactional
+    public ProjectDto updateProject(String userEmail, String id, ProjectCreateRequest request) {
+        UserEntity user = userRepository.findByEmail(userEmail)
+                .orElseThrow(() -> new IllegalArgumentException("Utilisateur non trouvé."));
+        ProjectEntity project = projectRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Projet introuvable."));
+
+        if (!project.getAuthor().getId().equals(user.getId())) {
+            throw new IllegalStateException("Vous n'êtes pas le propriétaire de ce projet.");
+        }
+
+        project.setTitle(request.getTitle());
+        project.setDescription(request.getDescription());
+        if (request.getStack() != null) project.setStack(request.getStack());
+        project.setRepoUrl(request.getRepoUrl());
+        project.setDemoUrl(request.getDemoUrl());
+        if (request.getScreenshots() != null) project.setScreenshots(request.getScreenshots());
+        if (request.getIsOpenSource() != null) project.setIsOpenSource(request.getIsOpenSource());
+
+        ProjectEntity saved = projectRepository.save(project);
+        return mapToProjectDto(saved, userEmail);
+    }
+
+    @Transactional
+    public ProjectDto toggleProjectStatus(String userEmail, String id) {
+        UserEntity user = userRepository.findByEmail(userEmail)
+                .orElseThrow(() -> new IllegalArgumentException("Utilisateur non trouvé."));
+        ProjectEntity project = projectRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Projet introuvable."));
+
+        if (!project.getAuthor().getId().equals(user.getId())) {
+            throw new IllegalStateException("Vous n'êtes pas le propriétaire de ce projet.");
+        }
+
+        if (project.getStatus() == ContentStatus.PUBLISHED) {
+            project.setStatus(ContentStatus.HIDDEN);
+        } else {
+            project.setStatus(ContentStatus.PUBLISHED);
+        }
+
+        ProjectEntity saved = projectRepository.save(project);
+        return mapToProjectDto(saved, userEmail);
+    }
+
+    @Transactional
+    public void deleteProject(String userEmail, String id) {
+        UserEntity user = userRepository.findByEmail(userEmail)
+                .orElseThrow(() -> new IllegalArgumentException("Utilisateur non trouvé."));
+        ProjectEntity project = projectRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Projet introuvable."));
+
+        if (!project.getAuthor().getId().equals(user.getId())) {
+            throw new IllegalStateException("Vous n'êtes pas le propriétaire de ce projet.");
+        }
+
+        projectRepository.delete(project);
+    }
+
     private ProjectDto mapToProjectDto(ProjectEntity project, String currentUserEmail) {
         boolean recognized = false;
         if (currentUserEmail != null) {

@@ -2,6 +2,8 @@ package africa.afridev.model.enums;
 
 public enum Availability {
     OPEN,
-    NOT_AVAILABLE,
-    FREELANCE_ONLY
+    FULL_TIME,
+    PART_TIME,
+    FREELANCE_ONLY,
+    NOT_AVAILABLE
 }

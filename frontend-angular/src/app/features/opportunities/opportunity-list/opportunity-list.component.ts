@@ -15,36 +15,9 @@ export class OpportunityListComponent implements OnInit {
   private opportunityService = inject(OpportunityService);
   private authService = inject(AuthService);
 
-  opportunities: Opportunity[] = [
-    {
-      id: 'opt-1',
-      publisher: { id: 'u10', email: 'hr@techafrica.com', emailVerified: true, role: 'RECRUITER', status: 'ACTIVE', profile: { id: 'p10', fullName: 'Tech Africa Talent', country: 'Kenya', city: 'Nairobi', title: 'Tech Talent Acquisition', skills: [], availability: 'OPEN', completionScore: 100, mobileMoneyVerified: true } },
-      title: 'Lead Architecte Java Spring Boot / Cloud',
-      description: 'Nous recherchons un développeur senior pour piloter la refonte de notre plateforme bancaire distribuée.',
-      type: 'JOB',
-      location: 'Kenya / Remote Panafricain',
-      isRemote: true,
-      stack: ['Spring Boot', 'Java 21', 'Docker', 'PostgreSQL'],
-      budget: '$3,500 - $5,000 / mois',
-      status: 'PUBLISHED',
-      createdAt: new Date().toISOString()
-    },
-    {
-      id: 'opt-2',
-      publisher: { id: 'u11', email: 'dev@openafrica.org', emailVerified: true, role: 'DEVELOPER', status: 'ACTIVE', profile: { id: 'p11', fullName: 'OpenSource Africa Initiative', country: 'Nigeria', city: 'Lagos', title: 'Open Source Community Lead', skills: [], availability: 'OPEN', completionScore: 90, mobileMoneyVerified: true } },
-      title: 'Collaboration Open Source: Calculateur de Réputation',
-      description: 'Rejoignez une équipe de 4 développeurs pour concevoir l\'algorithme de vérification par les pairs en Python/FastAPI.',
-      type: 'COLLABORATION',
-      location: 'Remote',
-      isRemote: true,
-      stack: ['Python', 'FastAPI', 'Redis'],
-      budget: 'Bénévolat / Open Source',
-      status: 'PUBLISHED',
-      createdAt: new Date().toISOString()
-    }
-  ];
+  opportunities: Opportunity[] = [];
   selectedType: string = 'ALL';
-  isLoading = false;
+  isLoading = true;
 
   isLoggedIn(): boolean {
     return this.authService.isLoggedIn();
@@ -77,10 +50,12 @@ export class OpportunityListComponent implements OnInit {
   }
 
   loadOpportunities(): void {
+    this.isLoading = true;
     const typeParam = this.selectedType === 'ALL' ? undefined : this.selectedType;
 
     this.opportunityService.getOpportunities(typeParam).subscribe({
       next: (res: any) => {
+        this.isLoading = false;
         let fetched: Opportunity[] = [];
         if (res?.success && res?.data?.content && Array.isArray(res.data.content)) {
           fetched = res.data.content;
@@ -92,11 +67,12 @@ export class OpportunityListComponent implements OnInit {
           fetched = res;
         }
 
-        if (fetched && fetched.length > 0) {
-          this.opportunities = fetched;
-        }
+        this.opportunities = fetched;
       },
-      error: () => {}
+      error: () => {
+        this.isLoading = false;
+        this.opportunities = [];
+      }
     });
   }
 

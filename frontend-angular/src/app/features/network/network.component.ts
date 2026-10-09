@@ -119,4 +119,12 @@ export class NetworkComponent implements OnInit {
   toggleFollowSuggestion(sug: NetworkSuggestion): void {
     this.toggleFollow(sug.user);
   }
+
+  cleanText(text?: string): string {
+    if (!text) return '';
+    return text
+      .replace(/S\?\?n\?\?gal/gi, 'Sénégal')
+      .replace(/C\?\?te d'Ivoire/gi, "Côte d'Ivoire")
+      .replace(/\?\?/g, 'é');
+  }
 }

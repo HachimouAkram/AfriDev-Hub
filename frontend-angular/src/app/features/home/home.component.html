@@ -1,99 +1,270 @@
 <div class="landing-container">
-  <!-- Hero Section -->
-  <header class="hero app-card">
-    <div class="badge badge-emerald">
-      Infrastructure Panafricaine v1.0 Prête
-    </div>
-
-    <h1 class="hero-title">
-      Plateforme d'Échange Africaine <br>
-      <span class="gradient-text">« Construite par les devs, pour les devs »</span>
-    </h1>
-
-    <p class="hero-subtitle">
-      Infrastructure de réputation transférable et vérifiable par les pairs pour les développeurs africains.
-      Combinez vos contributions GitHub, vos projets réels et vos évaluations certifiées.
-    </p>
-
-    <div class="hero-actions">
-      <a [routerLink]="isLoggedIn() ? '/dashboard' : '/register'" class="btn btn-emerald">
-        <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
+  <!-- HERO SECTION -->
+  <header class="hero-section app-card">
+    <div class="hero-bg-glow"></div>
+    
+    <div class="hero-content">
+      <div class="badge badge-emerald hero-badge">
+        <span class="live-dot"></span>
+        <svg class="icon-svg icon-svg-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+          <circle cx="12" cy="12" r="10" stroke-width="2"/>
+          <path stroke-width="2" d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
         </svg>
-        <span *ngIf="!isLoggedIn()">Rejoindre la Communauté</span>
-        <span *ngIf="isLoggedIn()">Accéder au Tableau de Bord</span>
-      </a>
-      <a routerLink="/projects" class="btn btn-outline">
-        <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" />
-        </svg>
-        Découvrir les Projets
-      </a>
+        Le Premier Réseau Tech Panafricain Certifié
+      </div>
+
+      <h1 class="hero-title">
+        Connectez les Talents Tech Africains <br>
+        <span class="gradient-text">« Évaluez, Collaborez & Propulsez votre Carrière »</span>
+      </h1>
+
+      <p class="hero-subtitle">
+        AfriDev Hub réunit les développeurs, ingénieurs et recruteurs du continent. 
+        Mettez en avant vos projets réels, valorisez votre score de réputation certifié par vos pairs 
+        et accédez aux meilleures opportunités Tech en Afrique.
+      </p>
+
+      <div class="hero-actions">
+        <a [routerLink]="isLoggedIn() ? '/dashboard' : '/register'" class="btn btn-emerald btn-hero">
+          <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
+          </svg>
+          <span *ngIf="!isLoggedIn()">Rejoindre la Communauté (Gratuit)</span>
+          <span *ngIf="isLoggedIn()">Accéder à mon Espace</span>
+        </a>
+        <a routerLink="/projects" class="btn btn-outline btn-hero">
+          <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" />
+          </svg>
+          Découvrir la Vitrine Projets
+        </a>
+      </div>
+
+      <!-- Live Stats Banner -->
+      <div class="stats-counter-bar">
+        <div class="stat-item">
+          <span class="stat-num">100%</span>
+          <span class="stat-lbl">Réputation Certifiée</span>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat-item">
+          <span class="stat-num">Live</span>
+          <span class="stat-lbl">GitHub Sync</span>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat-item">
+          <span class="stat-num">Panafricain</span>
+          <span class="stat-lbl">Sénégal, CI, Cameroun...</span>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat-item">
+          <span class="stat-num">Mobile Money</span>
+          <span class="stat-lbl">Comptes Vérifiés</span>
+        </div>
+      </div>
     </div>
   </header>
 
-  <!-- Service Status Grid -->
-  <section class="status-section">
-    <div class="section-title">
-      <h2>Architecture Hybride Performante</h2>
+  <!-- PILLARS / FEATURES SECTION -->
+  <section class="pillars-section">
+    <div class="section-header">
+      <span class="badge badge-emerald">Pourquoi Choisir AfriDev Hub ?</span>
+      <h2>Une Plateforme Conçue pour l'Écosystème Tech Africain</h2>
+      <p class="section-desc">Tout ce dont vous avez besoin pour valoriser votre savoir-faire et collaborer en toute confiance.</p>
     </div>
 
-    <div class="grid-3">
-      <!-- Card Security & Auth -->
-      <div class="app-card status-card">
-        <div class="card-header">
-          <div class="icon-box">
-            <svg class="icon-svg icon-svg-lg text-emerald" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
-            </svg>
-          </div>
-          <div>
-            <h3>Sécurité & Authentification</h3>
-            <p class="card-subtitle">Protection et Contrôle d'Accès</p>
-          </div>
+    <div class="grid-4">
+      <!-- Pillar 1 -->
+      <div class="app-card pillar-card">
+        <div class="pillar-icon icon-emerald">
+          <svg class="pillar-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 00-.182.557l1.285 5.385c.116.486-.412.87-.837.616l-4.71-2.826a.563.563 0 00-.586 0l-4.71 2.826c-.425.255-.953-.13-.837-.616l1.285-5.385a.563.563 0 00-.182-.557l-4.204-3.602c-.38-.325-.178-.948.32-.988l5.518-.442a.563.563 0 00.475-.345L11.48 3.5z" />
+          </svg>
         </div>
-        <div class="card-body">
-          <span class="badge badge-emerald">Système Sécurisé</span>
-          <p class="card-desc">Sécurité certifiée, vérification OTP, persistance relationnelle, gestion des opportunités et journaux d'audit.</p>
+        <h3>Réputation Certifiée par les Pairs</h3>
+        <p>Ne comptez plus sur de simples CV. Obtenez un score de réputation transparent basé sur 4 critères clés : qualité du code, collaboration, profondeur technique et fiabilité.</p>
+      </div>
+
+      <!-- Pillar 2 -->
+      <div class="app-card pillar-card">
+        <div class="pillar-icon icon-blue">
+          <svg class="pillar-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z" />
+          </svg>
+        </div>
+        <h3>Synchronisation GitHub & Stats</h3>
+        <p>Connectez votre compte GitHub pour mettre en valeur vos contributions des 12 derniers mois, vos langages de prédilection et vos étoiles en un clic.</p>
+      </div>
+
+      <!-- Pillar 3 -->
+      <div class="app-card pillar-card">
+        <div class="pillar-icon icon-purple">
+          <svg class="pillar-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.25 14.15v4.25c0 .621-.504 1.125-1.125 1.125H4.875A1.125 1.125 0 013.75 18.4v-4.25m16.5 0a2.25 2.25 0 00-2.25-2.25H6a2.25 2.25 0 00-2.25 2.25m16.5 0v-2.25A2.25 2.25 0 0018 9.65h-2.25a2.25 2.25 0 00-2.25 2.25M3.75 14.15v-2.25A2.25 2.25 0 016 9.65h2.25a2.25 2.25 0 012.25 2.25M9 6.75A2.25 2.25 0 0111.25 4.5h1.5A2.25 2.25 0 0115 6.75v2.9h-6v-2.9z" />
+          </svg>
+        </div>
+        <h3>Opportunités Tech Vérifiées</h3>
+        <p>Accédez à des offres de recrutement et de freelance vérifiées. Les profils et entreprises certifiés Mobile Money garantissent une confiance absolue.</p>
+      </div>
+
+      <!-- Pillar 4 -->
+      <div class="app-card pillar-card">
+        <div class="pillar-icon icon-amber">
+          <svg class="pillar-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.625 12a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H8.25m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0h-.375m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0h-.375M21 12c0 4.556-4.03 8.25-9 8.25a9.764 9.764 0 01-2.555-.337A5.972 5.972 0 015.41 20.97a.598.598 0 01-.743-.715 6.275 6.275 0 00.998-3.03A8.47 8.47 0 013 12c0-4.556 4.03-8.25 9-8.25s9 3.694 9 8.25z" />
+          </svg>
+        </div>
+        <h3>Messagerie Directe Instantanée</h3>
+        <p>Communiquez en direct style Messenger avec des développeurs, mentors et recruteurs. Échangez avec citation de messages et raccourcis fluides.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- FEATURED PROJECTS SHOWCASE -->
+  <section class="showcase-section">
+    <div class="section-header-row">
+      <div>
+        <span class="badge badge-emerald">Vitrine de Projets</span>
+        <h2>Dernières Créations de la Communauté</h2>
+      </div>
+      <a routerLink="/projects" class="btn btn-outline btn-sm">Voir tous les projets &rarr;</a>
+    </div>
+
+    <div class="projects-grid" *ngIf="!isLoadingProjects; else loadingProjectsTpl">
+      <div *ngFor="let proj of featuredProjects" class="app-card project-home-card">
+        <div class="proj-card-top">
+          <span class="badge badge-emerald">
+            <svg class="icon-svg icon-svg-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 00-.182.557l1.285 5.385c.116.486-.412.87-.837.616l-4.71-2.826a.563.563 0 00-.586 0l-4.71 2.826c-.425.255-.953-.13-.837-.616l1.285-5.385a.563.563 0 00-.182-.557l-4.204-3.602c-.38-.325-.178-.948.32-.988l5.518-.442a.563.563 0 00.475-.345L11.48 3.5z" />
+            </svg>
+            {{ proj.recognitionsCount || 0 }} reconnaissances
+          </span>
+          <span class="proj-badge-os" *ngIf="proj.isOpenSource">Open Source</span>
+        </div>
+
+        <h3 class="proj-title">{{ proj.title }}</h3>
+        <p class="proj-desc">{{ proj.description }}</p>
+
+        <div class="proj-stack" *ngIf="proj.stack && proj.stack.length">
+          <span *ngFor="let tech of proj.stack.slice(0, 4)" class="badge badge-gray">{{ tech }}</span>
+        </div>
+
+        <div class="proj-footer">
+          <div class="proj-author" *ngIf="proj.author">
+            <div class="author-avatar">
+              {{ (proj.author.profile?.fullName || proj.author.email || 'D').charAt(0).toUpperCase() }}
+            </div>
+            <span class="author-name">{{ proj.author.profile?.fullName || proj.author.email }}</span>
+          </div>
+          <a routerLink="/projects" class="btn btn-outline btn-xs">Détails</a>
         </div>
       </div>
 
-      <!-- Card Intelligence & Analytics -->
-      <div class="app-card status-card">
-        <div class="card-header">
-          <div class="icon-box">
-            <svg class="icon-svg icon-svg-lg text-emerald" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z" />
-            </svg>
+      <div *ngIf="featuredProjects.length === 0" class="empty-showcase app-card">
+        <p class="text-muted">Aucun projet publié pour le moment. Soyez le premier à publier votre projet !</p>
+        <a routerLink="/projects" class="btn btn-emerald btn-sm">Publier un Projet</a>
+      </div>
+    </div>
+
+    <ng-template #loadingProjectsTpl>
+      <div class="loading-box app-card">Chargement des projets...</div>
+    </ng-template>
+  </section>
+
+  <!-- FEATURED MEMBERS DIRECTORY SHOWCASE -->
+  <section class="members-showcase-section">
+    <div class="section-header-row">
+      <div>
+        <span class="badge badge-emerald">Annuaire & Réseau</span>
+        <h2>Rencontrez les Développeurs d'Élite</h2>
+      </div>
+      <a routerLink="/network" class="btn btn-outline btn-sm">Explorer l'Annuaire &rarr;</a>
+    </div>
+
+    <div class="members-grid" *ngIf="!isLoadingMembers; else loadingMembersTpl">
+      <div *ngFor="let member of featuredMembers" class="app-card member-home-card">
+        <div class="member-card-header">
+          <div class="member-avatar">
+            {{ (member.fullName || member.email).charAt(0).toUpperCase() }}
           </div>
-          <div>
-            <h3>Intelligence & Recommandation</h3>
-            <p class="card-subtitle">Analytics & Profiling</p>
+          <div class="member-meta">
+            <h4>{{ member.fullName || member.email }}</h4>
+            <span class="member-title">{{ member.title || 'Développeur Full-Stack' }}</span>
+            <span class="member-country">
+              <svg class="icon-svg icon-svg-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" />
+              </svg>
+              {{ cleanText(member.country) || 'Afrique' }} ({{ member.city || 'Dakar' }})
+            </span>
           </div>
         </div>
-        <div class="card-body">
-          <span class="badge badge-emerald">Service d'Analyse Actif</span>
-          <p class="card-desc">Agrégation des statistiques GitHub, calcul du score de réputation 4-critères et matching intelligent.</p>
+
+        <div class="member-skills" *ngIf="member.skills && member.skills.length">
+          <span *ngFor="let sk of member.skills.slice(0, 3)" class="badge badge-gray">{{ sk }}</span>
+        </div>
+
+        <div class="member-card-footer">
+          <span class="rep-score">
+            <svg class="icon-svg icon-svg-sm" viewBox="0 0 24 24" fill="currentColor">
+              <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+            </svg>
+            {{ (member.reputationScore || 5) | number:'1.1-1' }}/5.0
+          </span>
+          <a [routerLink]="['/profile', member.id]" class="btn btn-outline btn-xs">Voir le Profil</a>
         </div>
       </div>
 
-      <!-- Card Storage & Infrastructure -->
-      <div class="app-card status-card">
-        <div class="card-header">
-          <div class="icon-box">
-            <svg class="icon-svg icon-svg-lg text-emerald" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M20.25 6.375c0 2.278-3.694 4.125-8.25 4.125S3.75 8.653 3.75 6.375m16.5 0c0-2.278-3.694-4.125-8.25-4.125S3.75 4.097 3.75 6.375m16.5 0v11.25c0 2.278-3.694 4.125-8.25 4.125s-8.25-1.847-8.25-4.125V6.375m16.5 5.625c0 2.278-3.694 4.125-8.25 4.125s-8.25-1.847-8.25-4.125" />
-            </svg>
-          </div>
-          <div>
-            <h3>Haute Disponibilité</h3>
-            <p class="card-subtitle">Performance & Persistance</p>
-          </div>
-        </div>
-        <div class="card-body">
-          <span class="badge badge-emerald">Infrastructure Opérationnelle</span>
-          <p class="card-desc">Base de données relationnelle sécurisée et système de mise en cache ultra-rapide pour des accès instantanés.</p>
-        </div>
+      <div *ngIf="featuredMembers.length === 0" class="empty-showcase app-card">
+        <p class="text-muted">Rejoignez le réseau pour apparaître parmi les développeurs d'élite.</p>
+      </div>
+    </div>
+
+    <ng-template #loadingMembersTpl>
+      <div class="loading-box app-card">Chargement des membres...</div>
+    </ng-template>
+  </section>
+
+  <!-- HOW IT WORKS STEP-BY-STEP -->
+  <section class="steps-section app-card">
+    <div class="section-header">
+      <span class="badge badge-emerald">Parcours Simple & Rapide</span>
+      <h2>Comment Fonctionne AfriDev Hub ?</h2>
+    </div>
+
+    <div class="steps-grid">
+      <div class="step-card">
+        <div class="step-number">01</div>
+        <h3>Créez votre Profil</h3>
+        <p>Remplissez vos compétences, votre ville et synchronisez votre compte GitHub en quelques secondes.</p>
+      </div>
+
+      <div class="step-card">
+        <div class="step-number">02</div>
+        <h3>Publiez & Certifiez</h3>
+        <p>Présentez vos projets open-source ou vitrines et recevez des évaluations certifiées par des pairs de confiance.</p>
+      </div>
+
+      <div class="step-card">
+        <div class="step-number">03</div>
+        <h3>Collaborez & Postulez</h3>
+        <p>Échangez en direct par messagerie Messenger et décrochez les plus belles opportunités Tech d'Afrique.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- BOTTOM CTA BANNER -->
+  <section class="bottom-cta-banner app-card">
+    <div class="cta-content">
+      <h2>Prêt à Propulser votre Carrière Tech en Afrique ?</h2>
+      <p>Rejoignez gratuitement la communauté AfriDev Hub et faites reconnaître votre valeur technique à sa juste mesure.</p>
+      <div class="cta-actions">
+        <a [routerLink]="isLoggedIn() ? '/dashboard' : '/register'" class="btn btn-emerald btn-hero">
+          <span>{{ isLoggedIn() ? 'Accéder à mon Tableau de Bord' : 'Créer un Compte Gratuitement' }}</span>
+        </a>
+        <a routerLink="/opportunities" class="btn btn-outline btn-hero">
+          <span>Consulter les Opportunités</span>
+        </a>
       </div>
     </div>
   </section>

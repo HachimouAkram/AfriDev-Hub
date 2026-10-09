@@ -10,6 +10,9 @@ import { ProfileService } from '../../core/services/profile.service';
 import { AdminService, AdminStats } from '../../core/services/admin.service';
 import { MessageService, DirectMessage } from '../../core/services/message.service';
 
+import { ThemeService } from '../../core/services/theme.service';
+import { HostListener } from '@angular/core';
+
 @Component({
   selector: 'app-dashboard',
   standalone: true,
@@ -19,6 +22,7 @@ import { MessageService, DirectMessage } from '../../core/services/message.servi
 })
 export class DashboardComponent implements OnInit {
   private authService = inject(AuthService);
+  private themeService = inject(ThemeService);
   private projectService = inject(ProjectService);
   private opportunityService = inject(OpportunityService);
   private evaluationService = inject(EvaluationService);
@@ -28,6 +32,9 @@ export class DashboardComponent implements OnInit {
   private router = inject(Router);
 
   user = this.authService.currentUser;
+
+  // Profile menu dropdown state inside Dashboard header
+  isProfileMenuOpen = false;
 
   // Active Tab: OVERVIEW | MY_APPLICATIONS | MY_OFFERS
   activeTab = signal<'OVERVIEW' | 'MY_APPLICATIONS' | 'MY_OFFERS'>('OVERVIEW');
@@ -298,6 +305,28 @@ export class DashboardComponent implements OnInit {
   showToast(msg: string): void {
     this.toastMessage.set(msg);
     setTimeout(() => this.toastMessage.set(''), 4000);
+  }
+
+  @HostListener('document:click')
+  onDocumentClick(): void {
+    this.isProfileMenuOpen = false;
+  }
+
+  toggleProfileMenu(event: Event): void {
+    event.stopPropagation();
+    this.isProfileMenuOpen = !this.isProfileMenuOpen;
+  }
+
+  closeProfileMenu(): void {
+    this.isProfileMenuOpen = false;
+  }
+
+  toggleTheme(): void {
+    this.themeService.toggleTheme();
+  }
+
+  isDark(): boolean {
+    return this.themeService.isDark();
   }
 
   logout(): void {

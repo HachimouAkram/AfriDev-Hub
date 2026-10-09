@@ -26,26 +26,38 @@
         (click)="setTab('ALL')" 
         [class.active]="activeTab === 'ALL'" 
         class="tab-btn">
-        👥 Tous les Membres
+        <svg class="icon-svg icon-svg-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z" />
+        </svg>
+        Tous les Membres
       </button>
       <button 
         (click)="setTab('DEVELOPER')" 
         [class.active]="activeTab === 'DEVELOPER'" 
         class="tab-btn">
-        👨‍💻 Développeurs
+        <svg class="icon-svg icon-svg-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.25 6.75L22.5 12l-5.25 5.25m-10.5 0L1.5 12l5.25-5.25m7.5-3l-4.5 16.5" />
+        </svg>
+        Développeurs
       </button>
       <button 
         (click)="setTab('RECRUITER')" 
         [class.active]="activeTab === 'RECRUITER'" 
         class="tab-btn">
-        👔 Recruteurs
+        <svg class="icon-svg icon-svg-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.25 14.15v4.25c0 .621-.504 1.125-1.125 1.125H4.875A1.125 1.125 0 013.75 18.4v-4.25m16.5 0a2.25 2.25 0 00-2.25-2.25H6a2.25 2.25 0 00-2.25 2.25m16.5 0v-2.25A2.25 2.25 0 0018 9.65h-2.25a2.25 2.25 0 00-2.25 2.25M3.75 14.15v-2.25A2.25 2.25 0 016 9.65h2.25a2.25 2.25 0 012.25 2.25M9 6.75A2.25 2.25 0 0111.25 4.5h1.5A2.25 2.25 0 0115 6.75v2.9h-6v-2.9z" />
+        </svg>
+        Recruteurs
       </button>
       <button 
         *ngIf="isLoggedIn()"
         (click)="setTab('SUGGESTIONS')" 
         [class.active]="activeTab === 'SUGGESTIONS'" 
         class="tab-btn tab-ai">
-        ✨ Recommandations IA
+        <svg class="icon-svg icon-svg-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 00-2.456 2.456z" />
+        </svg>
+        Recommandations IA
       </button>
     </div>
 
@@ -83,7 +95,12 @@
   <div *ngIf="activeTab === 'SUGGESTIONS'" class="suggestions-view">
     <div class="ai-banner app-card">
       <div class="ai-banner-content">
-        <h3>✨ Suggestions Intelligentes</h3>
+        <h3>
+          <svg class="icon-svg icon-svg-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z" />
+          </svg>
+          Suggestions Intelligentes
+        </h3>
         <p>Moteur de recommandation analysant vos compétences communes, la synergie de rôle et les réputations certifiées.</p>
       </div>
       <span class="badge badge-emerald">Recommandations Personnalisées</span>
@@ -103,18 +120,30 @@
             <a [routerLink]="['/profile', sug.user.id]" class="user-name">{{ sug.user.fullName }}</a>
             <span class="user-title">{{ sug.user.title || 'Membre AfriDev' }}</span>
             <div class="user-meta-row">
-              <span class="badge" [ngClass]="sug.user.role === 'RECRUITER' ? 'badge-blue' : 'badge-emerald'">
-                {{ sug.user.role === 'RECRUITER' ? '👔 Recruteur' : '👨‍💻 Développeur' }}
+              <span class="badge inline-flex-badge" [ngClass]="sug.user.role === 'RECRUITER' ? 'badge-blue' : 'badge-emerald'">
+                <svg *ngIf="sug.user.role === 'RECRUITER'" class="icon-svg icon-svg-xs" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.25 14.15v4.25c0 .621-.504 1.125-1.125 1.125H4.875A1.125 1.125 0 013.75 18.4v-4.25m16.5 0a2.25 2.25 0 00-2.25-2.25H6a2.25 2.25 0 00-2.25 2.25" />
+                </svg>
+                <svg *ngIf="sug.user.role !== 'RECRUITER'" class="icon-svg icon-svg-xs" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.25 6.75L22.5 12l-5.25 5.25m-10.5 0L1.5 12l5.25-5.25m7.5-3l-4.5 16.5" />
+                </svg>
+                {{ sug.user.role === 'RECRUITER' ? 'Recruteur' : 'Développeur' }}
               </span>
               <span class="rep-score" *ngIf="sug.user.reputationScore > 0">
-                ⭐ {{ sug.user.reputationScore | number:'1.1-1' }}
+                <svg class="icon-svg icon-svg-xs" viewBox="0 0 24 24" fill="currentColor">
+                  <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                </svg>
+                {{ sug.user.reputationScore | number:'1.1-1' }}
               </span>
             </div>
           </div>
         </div>
 
         <p class="ai-reason">
-          💡 {{ sug.reason }}
+          <svg class="icon-svg icon-svg-xs" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18v-5.25m0 0a6.01 6.01 0 001.5-.189m-1.5.189a6.01 6.01 0 01-1.5-.189m3.75 2.625a3.375 3.375 0 00-3.75-3.375m-3.75 3.375a3.375 3.375 0 013.75-3.375m0 0V5.25m0 0a2.25 2.25 0 00-2.25-2.25h-1.5A2.25 2.25 0 006 5.25v2.25m6-4.5a2.25 2.25 0 012.25 2.25v2.25" />
+          </svg>
+          {{ sug.reason }}
         </p>
 
         <div class="skills-list" *ngIf="sug.user.skills && sug.user.skills.length > 0">
@@ -156,10 +185,22 @@
             <a [routerLink]="['/profile', u.id]" class="user-name">{{ u.fullName }}</a>
             <span class="user-title">{{ u.title || 'Membre AfriDev Hub' }}</span>
             <div class="user-meta-row">
-              <span class="badge" [ngClass]="u.role === 'RECRUITER' ? 'badge-blue' : 'badge-emerald'">
-                {{ u.role === 'RECRUITER' ? '👔 Recruteur' : '👨‍💻 Développeur' }}
+              <span class="badge inline-flex-badge" [ngClass]="u.role === 'RECRUITER' ? 'badge-blue' : 'badge-emerald'">
+                <svg *ngIf="u.role === 'RECRUITER'" class="icon-svg icon-svg-xs" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.25 14.15v4.25c0 .621-.504 1.125-1.125 1.125H4.875A1.125 1.125 0 013.75 18.4v-4.25m16.5 0a2.25 2.25 0 00-2.25-2.25H6a2.25 2.25 0 00-2.25 2.25" />
+                </svg>
+                <svg *ngIf="u.role !== 'RECRUITER'" class="icon-svg icon-svg-xs" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.25 6.75L22.5 12l-5.25 5.25m-10.5 0L1.5 12l5.25-5.25m7.5-3l-4.5 16.5" />
+                </svg>
+                {{ u.role === 'RECRUITER' ? 'Recruteur' : 'Développeur' }}
               </span>
-              <span class="geo-tag" *ngIf="u.country">📍 {{ u.city ? u.city + ', ' : '' }}{{ u.country }}</span>
+              <span class="geo-tag" *ngIf="u.country">
+                <svg class="icon-svg icon-svg-xs" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" />
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" />
+                </svg>
+                {{ u.city ? u.city + ', ' : '' }}{{ cleanText(u.country) }}
+              </span>
             </div>
           </div>
         </div>
@@ -172,7 +213,12 @@
 
         <div class="card-footer">
           <div class="user-stats-mini">
-            <span class="rep-badge" *ngIf="u.reputationScore > 0">⭐ {{ u.reputationScore | number:'1.1-1' }}/5</span>
+            <span class="rep-badge" *ngIf="u.reputationScore > 0">
+              <svg class="icon-svg icon-svg-xs" viewBox="0 0 24 24" fill="currentColor">
+                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+              </svg>
+              {{ u.reputationScore | number:'1.1-1' }}/5
+            </span>
             <span class="followers-count">{{ u.followersCount }} abonné(s)</span>
           </div>
 
