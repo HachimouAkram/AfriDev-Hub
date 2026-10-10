@@ -3,15 +3,74 @@
   <!-- Header Bar -->
   <div class="projects-header-card app-card">
     <div class="header-text-group">
-      <h2>Mes Projets Vitrine</h2>
-      <p class="subtext">Gérez la visibilité, la mise à jour et la suppression de vos réalisations sur la vitrine AfriDev.</p>
+      <h2>Mes Projets & Réalisations</h2>
+      <p class="subtext">Publiez et gérez vos projets Open Source, applications en vente, produits SaaS, sites portfolio et réalisations d'entreprise sous NDA.</p>
     </div>
 
     <button (click)="openCreateModal()" class="btn btn-emerald btn-icon-text">
       <svg class="icon-svg icon-svg-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.5v15m7.5-7.5h-15" />
       </svg>
-      <span>+ Nouveau projet</span>
+      <span>Publier un projet</span>
+    </button>
+  </div>
+
+  <!-- Category Filter Pills -->
+  <div class="category-filters-row">
+    <button 
+      (click)="filterByCategory('ALL')" 
+      class="filter-pill-btn" 
+      [class.active]="selectedCategory === 'ALL'">
+      <svg class="icon-svg icon-svg-xs" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.75 6A2.25 2.25 0 016 3.75h2.25A2.25 2.25 0 0110.5 6v2.25a2.25 2.25 0 01-2.25 2.25H6a2.25 2.25 0 01-2.25-2.25V6zM3.75 15.75A2.25 2.25 0 016 13.5h2.25a2.25 2.25 0 012.25 2.25V18a2.25 2.25 0 01-2.25 2.25H6A2.25 2.25 0 013.75 18v-2.25zM13.5 6a2.25 2.25 0 012.25-2.25H18A2.25 2.25 0 0120.25 6v2.25A2.25 2.25 0 0118 10.5h-2.25a2.25 2.25 0 01-2.25-2.25V6zM13.5 15.75a2.25 2.25 0 012.25-2.25H18a2.25 2.25 0 012.25 2.25V18A2.25 2.25 0 0118 20.25h-2.25A2.25 2.25 0 0113.5 18v-2.25z" />
+      </svg>
+      <span>Tous les types</span>
+    </button>
+    <button 
+      (click)="filterByCategory('OPEN_SOURCE')" 
+      class="filter-pill-btn" 
+      [class.active]="selectedCategory === 'OPEN_SOURCE'">
+      <svg class="icon-svg icon-svg-xs" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.25 6.75L22.5 12l-5.25 5.25m-10.5 0L1.5 12l5.25-5.25m7.5-3l-4.5 16.5" />
+      </svg>
+      <span>Open Source</span>
+    </button>
+    <button 
+      (click)="filterByCategory('FOR_SALE')" 
+      class="filter-pill-btn" 
+      [class.active]="selectedCategory === 'FOR_SALE'">
+      <svg class="icon-svg icon-svg-xs" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.568 3H5.25A2.25 2.25 0 003 5.25v4.318c0 .597.237 1.17.659 1.591l9.581 9.581c.699.699 1.78.872 2.607.33a18.095 18.095 0 005.223-5.223c.542-.827.369-1.908-.33-2.607L11.16 3.66A2.25 2.25 0 009.568 3z" />
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 6h.008v.008H6V6z" />
+      </svg>
+      <span>En Vente</span>
+    </button>
+    <button 
+      (click)="filterByCategory('SAAS')" 
+      class="filter-pill-btn" 
+      [class.active]="selectedCategory === 'SAAS'">
+      <svg class="icon-svg icon-svg-xs" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.59 14.37a6 6 0 01-5.84 7.38v-4.8m5.84-2.58a14.98 14.98 0 006.16-12.12A14.98 14.98 0 009.631 8.41m5.96 5.96a14.926 14.926 0 01-5.841 2.58m-.119-8.54a6 6 0 00-7.381 5.84h4.8m2.581-5.84a14.927 14.927 0 00-2.58 5.841m8.541-5.96a14.927 14.927 0 00-5.841 2.58m0 0a5.972 5.972 0 00-2.3-1.815m2.3 1.815a5.97 5.97 0 011.815 2.3m-1.815-2.3L9 9m6 6l-1.5-1.5" />
+      </svg>
+      <span>SaaS</span>
+    </button>
+    <button 
+      (click)="filterByCategory('PORTFOLIO')" 
+      class="filter-pill-btn" 
+      [class.active]="selectedCategory === 'PORTFOLIO'">
+      <svg class="icon-svg icon-svg-xs" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.25 14.15v4.25c0 1.094-.787 2.036-1.872 2.18-2.087.277-4.216.42-6.378.42s-4.291-.143-6.378-.42c-1.085-.144-1.872-1.086-1.872-2.18v-4.25m16.5 0a2.18 2.18 0 00.75-1.661V8.706c0-1.081-.768-2.015-1.837-2.175a48.114 48.114 0 00-3.413-.387M3.75 14.15a2.18 2.18 0 01-.75-1.661V8.706c0-1.081.768-2.015 1.837-2.175a48.111 48.111 0 013.413-.387m4.5 8.006h4.5m-4.5 0A2.25 2.25 0 019 12v-1.5A2.25 2.25 0 0111.25 8.25h1.5A2.25 2.25 0 0115 10.5V12a2.25 2.25 0 01-2.25 2.25m-4.5 0h4.5" />
+      </svg>
+      <span>Portfolio</span>
+    </button>
+    <button 
+      (click)="filterByCategory('ENTERPRISE')" 
+      class="filter-pill-btn" 
+      [class.active]="selectedCategory === 'ENTERPRISE'">
+      <svg class="icon-svg icon-svg-xs" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.25 21h19.5m-18-18v18m10.5-18v18m6-13.5V21M6.75 6.75h.008v.008H6.75V6.75zm0 3.75h.008v.008H6.75V10.5zm0 3.75h.008v.008H6.75v-.008zm0 3.75h.008v.008H6.75v-.008zm6-11.25h.008v.008h-.008V6.75zm0 3.75h.008v.008h-.008V10.5zm0 3.75h.008v.008h-.008v-.008zm0 3.75h.008v.008h-.008v-.008z" />
+      </svg>
+      <span>Entreprise</span>
     </button>
   </div>
 
@@ -25,7 +84,7 @@
         type="text" 
         [(ngModel)]="searchQuery" 
         (ngModelChange)="applyFilter()" 
-        placeholder="Rechercher parmi vos projets par titre ou technologie..." 
+        placeholder="Rechercher par titre, entreprise ou technologie..." 
         class="form-input search-input">
     </div>
 
@@ -46,7 +105,8 @@
         <thead>
           <tr>
             <th>Projet</th>
-            <th>Open Source</th>
+            <th>Type</th>
+            <th>Détails & Prix</th>
             <th>Reconnaissances</th>
             <th>Statut</th>
             <th>Date</th>
@@ -56,25 +116,43 @@
         <tbody>
           <tr *ngFor="let proj of filteredProjects()" [class.row-archived]="proj.status === 'ARCHIVED'">
             
-            <!-- Project Title -->
+            <!-- Project Title & Description -->
             <td class="col-title">
               <div class="project-identity">
                 <div class="project-avatar-icon">
                   {{ proj.title.charAt(0).toUpperCase() }}
                 </div>
-                <span class="proj-name">{{ proj.title }}</span>
+                <div class="project-text-meta">
+                  <span class="proj-name">{{ proj.title }}</span>
+                  <span class="proj-subtext text-muted" *ngIf="proj.companyName">🏢 {{ proj.companyName }} ({{ proj.companyRole }})</span>
+                </div>
               </div>
             </td>
 
-            <!-- Open Source Badge -->
-            <td class="col-opensource">
-              <span *ngIf="proj.isOpenSource" class="badge badge-emerald-subtle">
-                <svg class="icon-svg icon-svg-xs" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.25 6.75L22.5 12l-5.25 5.25m-10.5 0L1.5 12l5.25-5.25m7.5-3l-4.5 16.5" />
-                </svg>
-                Oui
+            <!-- Project Type Badge -->
+            <td class="col-type">
+              <span class="badge" [ngClass]="getProjectTypeBadge(proj.projectType).class">
+                {{ getProjectTypeBadge(proj.projectType).label }}
               </span>
-              <span *ngIf="!proj.isOpenSource" class="text-muted text-sm">Non</span>
+            </td>
+
+            <!-- Details & Price -->
+            <td class="col-details">
+              <div *ngIf="proj.projectType === 'FOR_SALE'">
+                <span class="price-highlight">{{ proj.price | number }} {{ proj.currency || 'XOF' }}</span>
+              </div>
+              <div *ngIf="proj.projectType === 'SAAS'">
+                <span class="saas-pricing-pill">{{ proj.saasPricingType || 'FREEMIUM' }}</span>
+              </div>
+              <div *ngIf="proj.projectType === 'OPEN_SOURCE'">
+                <span class="text-xs text-muted">Licence : {{ proj.licenseType || 'MIT' }}</span>
+              </div>
+              <div *ngIf="proj.projectType === 'ENTERPRISE'">
+                <span class="text-xs text-slate font-medium">🔒 Confidentiel NDA</span>
+              </div>
+              <div *ngIf="proj.projectType === 'PORTFOLIO'">
+                <span class="text-xs text-muted">Site Vitrine</span>
+              </div>
             </td>
 
             <!-- Recognitions Count -->
@@ -98,7 +176,7 @@
               <span class="date-text">{{ proj.createdAt | date:'shortDate' }}</span>
             </td>
 
-            <!-- Action Buttons with Distinct Icons -->
+            <!-- Action Buttons -->
             <td class="col-actions text-right">
               <div class="action-buttons-group">
                 
@@ -108,7 +186,7 @@
                   class="action-btn btn-view" 
                   title="Voir les détails du projet">
                   <svg class="action-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.036 123c2.7-5.32 8.357-9 14.964-9s12.264 3.68 14.964 9c-2.7 5.32-8.357 9-14.964 9s-12.264-3.68-14.964-9z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.573 16.49 16.638 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                   </svg>
                 </button>
@@ -158,60 +236,313 @@
     <div *ngIf="!isLoading() && filteredProjects().length === 0" class="empty-projects-state">
       <div class="empty-icon">📁</div>
       <h4>Aucun projet trouvé</h4>
-      <p class="text-muted">Vous n'avez pas encore publié de projet ou aucun projet ne correspond à votre recherche.</p>
-      <button (click)="openCreateModal()" class="btn btn-emerald btn-sm">Ajouter mon premier projet</button>
+      <p class="text-muted">Vous n'avez pas encore publié de projet dans cette catégorie ou aucun projet ne correspond à votre recherche.</p>
+      <button (click)="openCreateModal()" class="btn btn-emerald btn-sm">+ Ajouter un projet</button>
     </div>
   </div>
 
-  <!-- 1. MODAL DE CRÉATION DE PROJET -->
+  <!-- 1. MODAL DE CRÉATION DE PROJET (MULTI-TYPES & SÉCURISÉ) -->
   <div class="modal-overlay" *ngIf="showCreateModal" (click)="closeCreateModal()">
-    <div class="app-card modal-card" (click)="$event.stopPropagation()">
+    <div class="app-card modal-card modal-card-large" (click)="$event.stopPropagation()">
       <div class="modal-header">
-        <h3>Nouveau Projet Vitrine</h3>
+        <div>
+          <h3>Publier une Nouvelle Réalisation</h3>
+          <p class="text-xs text-muted">Sélectionnez la catégorie du projet pour activer les champs appropriés.</p>
+        </div>
         <button (click)="closeCreateModal()" class="close-btn">&times;</button>
       </div>
 
       <div class="modal-body">
-        <div class="form-group">
-          <label class="form-label">Titre du projet *</label>
-          <input type="text" [(ngModel)]="projectForm.title" placeholder="Ex: AfriPay Mobile App" class="form-input">
+        
+        <!-- Tab selector for Project Type -->
+        <div class="project-type-tabs">
+          <button 
+            (click)="selectProjectType('OPEN_SOURCE')"
+            class="type-tab-btn"
+            [class.active]="projectForm.projectType === 'OPEN_SOURCE'">
+            <svg class="tab-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.25 6.75L22.5 12l-5.25 5.25m-10.5 0L1.5 12l5.25-5.25m7.5-3l-4.5 16.5" />
+            </svg>
+            <div class="tab-text">
+              <span class="tab-label">Open Source</span>
+              <span class="tab-desc">Code source public avec licence libre</span>
+            </div>
+          </button>
+
+          <button 
+            (click)="selectProjectType('FOR_SALE')"
+            class="type-tab-btn"
+            [class.active]="projectForm.projectType === 'FOR_SALE'">
+            <svg class="tab-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.568 3H5.25A2.25 2.25 0 003 5.25v4.318c0 .597.237 1.17.659 1.591l9.581 9.581c.699.699 1.78.872 2.607.33a18.095 18.095 0 005.223-5.223c.542-.827.369-1.908-.33-2.607L11.16 3.66A2.25 2.25 0 009.568 3z" />
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 6h.008v.008H6V6z" />
+            </svg>
+            <div class="tab-text">
+              <span class="tab-label">En Vente</span>
+              <span class="tab-desc">Projet prêt à céder avec prix</span>
+            </div>
+          </button>
+
+          <button 
+            (click)="selectProjectType('SAAS')"
+            class="type-tab-btn"
+            [class.active]="projectForm.projectType === 'SAAS'">
+            <svg class="tab-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.59 14.37a6 6 0 01-5.84 7.38v-4.8m5.84-2.58a14.98 14.98 0 006.16-12.12A14.98 14.98 0 009.631 8.41m5.96 5.96a14.926 14.926 0 01-5.841 2.58m-.119-8.54a6 6 0 00-7.381 5.84h4.8m2.581-5.84a14.927 14.927 0 00-2.58 5.841m8.541-5.96a14.927 14.927 0 00-5.841 2.58m0 0a5.972 5.972 0 00-2.3-1.815m2.3 1.815a5.97 5.97 0 011.815 2.3m-1.815-2.3L9 9m6 6l-1.5-1.5" />
+            </svg>
+            <div class="tab-text">
+              <span class="tab-label">SaaS</span>
+              <span class="tab-desc">Produit en ligne en mode service</span>
+            </div>
+          </button>
+
+          <button 
+            (click)="selectProjectType('PORTFOLIO')"
+            class="type-tab-btn"
+            [class.active]="projectForm.projectType === 'PORTFOLIO'">
+            <svg class="tab-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.25 14.15v4.25c0 1.094-.787 2.036-1.872 2.18-2.087.277-4.216.42-6.378.42s-4.291-.143-6.378-.42c-1.085-.144-1.872-1.086-1.872-2.18v-4.25m16.5 0a2.18 2.18 0 00.75-1.661V8.706c0-1.081-.768-2.015-1.837-2.175a48.114 48.114 0 00-3.413-.387M3.75 14.15a2.18 2.18 0 01-.75-1.661V8.706c0-1.081.768-2.015 1.837-2.175a48.111 48.111 0 013.413-.387m4.5 8.006h4.5m-4.5 0A2.25 2.25 0 019 12v-1.5A2.25 2.25 0 0111.25 8.25h1.5A2.25 2.25 0 0115 10.5V12a2.25 2.25 0 01-2.25 2.25m-4.5 0h4.5" />
+            </svg>
+            <div class="tab-text">
+              <span class="tab-label">Portfolio</span>
+              <span class="tab-desc">Site vitrine personnel</span>
+            </div>
+          </button>
+
+          <button 
+            (click)="selectProjectType('ENTERPRISE')"
+            class="type-tab-btn"
+            [class.active]="projectForm.projectType === 'ENTERPRISE'">
+            <svg class="tab-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.25 21h19.5m-18-18v18m10.5-18v18m6-13.5V21M6.75 6.75h.008v.008H6.75V6.75zm0 3.75h.008v.008H6.75V10.5zm0 3.75h.008v.008H6.75v-.008zm0 3.75h.008v.008H6.75v-.008zm6-11.25h.008v.008h-.008V6.75zm0 3.75h.008v.008h-.008V10.5zm0 3.75h.008v.008h-.008v-.008zm0 3.75h.008v.008h-.008v-.008z" />
+            </svg>
+            <div class="tab-text">
+              <span class="tab-label">Entreprise</span>
+              <span class="tab-desc">Réalisation sous contrat NDA</span>
+            </div>
+          </button>
+        </div>
+
+        <!-- Common Fields -->
+        <div class="form-group margin-top-md">
+          <label class="form-label">Titre du projet <span class="required-star">*</span></label>
+          <input type="text" [(ngModel)]="projectForm.title" placeholder="Ex: AfriPay Escrow Protocol" class="form-input">
         </div>
 
         <div class="form-group">
-          <label class="form-label">Description *</label>
-          <textarea [(ngModel)]="projectForm.description" rows="4" placeholder="Expliquez l'objectif et les fonctionnalités clés de votre projet..." class="form-textarea"></textarea>
+          <label class="form-label">Description / Pitch <span class="required-star">*</span></label>
+          <textarea [(ngModel)]="projectForm.description" rows="4" placeholder="Présentez les objectifs, l'architecture et les fonctionnalités clés..." class="form-textarea"></textarea>
         </div>
 
         <div class="form-group">
-          <label class="form-label">Technologies (séparées par une virgule)</label>
-          <input type="text" [(ngModel)]="projectForm.stackInput" placeholder="Angular, Spring Boot, PostgreSQL, Docker" class="form-input">
+          <label class="form-label">Technologies / Stack Technique (séparées par virgule)</label>
+          <input type="text" [(ngModel)]="projectForm.stackInput" placeholder="Spring Boot, Angular, PostgreSQL, Docker" class="form-input">
         </div>
 
-        <div class="form-row-2">
+        <!-- DYNAMIC FIELDS PER PROJECT TYPE -->
+
+        <!-- TYPE: OPEN SOURCE -->
+        <div *ngIf="projectForm.projectType === 'OPEN_SOURCE'" class="dynamic-type-box emerald-box">
+          <h5 class="type-box-title">
+            <svg class="icon-svg icon-svg-xs" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.25 6.75L22.5 12l-5.25 5.25m-10.5 0L1.5 12l5.25-5.25m7.5-3l-4.5 16.5" />
+            </svg>
+            <span>Paramètres Open Source</span>
+          </h5>
+          <div class="form-row-2">
+            <div class="form-group">
+              <label class="form-label">Lien Dépôt GitHub <span class="required-star">*</span></label>
+              <input type="url" [(ngModel)]="projectForm.repoUrl" placeholder="https://github.com/user/repository" class="form-input">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Licence du Projet <span class="required-star">*</span></label>
+              <select [(ngModel)]="projectForm.licenseType" class="form-input">
+                <option value="MIT">Licence MIT</option>
+                <option value="Apache-2.0">Apache 2.0</option>
+                <option value="GPL-3.0">GNU GPLv3</option>
+                <option value="BSD-3-Clause">BSD 3-Clause</option>
+                <option value="CC0-1.0">Creative Commons CC0</option>
+              </select>
+            </div>
+          </div>
           <div class="form-group">
-            <label class="form-label">Lien Dépôt GitHub / GitLab</label>
-            <input type="url" [(ngModel)]="projectForm.repoUrl" placeholder="https://github.com/votre-user/projet" class="form-input">
+            <label class="form-label">Lien Démo en Ligne (Optionnel)</label>
+            <input type="url" [(ngModel)]="projectForm.demoUrl" placeholder="https://demo.monprojet.org" class="form-input">
+          </div>
+        </div>
+
+        <!-- TYPE: FOR SALE -->
+        <div *ngIf="projectForm.projectType === 'FOR_SALE'" class="dynamic-type-box amber-box">
+          <h5 class="type-box-title">
+            <svg class="icon-svg icon-svg-xs" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.568 3H5.25A2.25 2.25 0 003 5.25v4.318c0 .597.237 1.17.659 1.591l9.581 9.581c.699.699 1.78.872 2.607.33a18.095 18.095 0 005.223-5.223c.542-.827.369-1.908-.33-2.607L11.16 3.66A2.25 2.25 0 009.568 3z" />
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 6h.008v.008H6V6z" />
+            </svg>
+            <span>Conditions de Vente</span>
+          </h5>
+          <div class="form-row-3">
+            <div class="form-group">
+              <label class="form-label">Prix Demande <span class="required-star">*</span></label>
+              <input type="number" [(ngModel)]="projectForm.price" placeholder="Ex: 500000" class="form-input">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Devise</label>
+              <select [(ngModel)]="projectForm.currency" class="form-input">
+                <option value="XOF">XOF (FCFA)</option>
+                <option value="EUR">EUR (€)</option>
+                <option value="USD">USD ($)</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Type de Cession <span class="required-star">*</span></label>
+              <select [(ngModel)]="projectForm.saleType" class="form-input">
+                <option value="FULL_SOURCE_CODE">Code source complet</option>
+                <option value="EXCLUSIVE_CESSION">Cession exclusive</option>
+                <option value="LICENSED">Licence d'utilisation</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-row-2">
+            <div class="form-group">
+              <label class="form-label">Lien Démo Live (Optionnel)</label>
+              <input type="url" [(ngModel)]="projectForm.demoUrl" placeholder="https://preview.mon-projet.com" class="form-input">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Lien Code Source (Masqué aux visiteurs)</label>
+              <input type="url" [(ngModel)]="projectForm.repoUrl" placeholder="https://github.com/user/private-repo" class="form-input">
+            </div>
+          </div>
+        </div>
+
+        <!-- TYPE: SAAS -->
+        <div *ngIf="projectForm.projectType === 'SAAS'" class="dynamic-type-box purple-box">
+          <h5 class="type-box-title">
+            <svg class="icon-svg icon-svg-xs" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.59 14.37a6 6 0 01-5.84 7.38v-4.8m5.84-2.58a14.98 14.98 0 006.16-12.12A14.98 14.98 0 009.631 8.41m5.96 5.96a14.926 14.926 0 01-5.841 2.58m-.119-8.54a6 6 0 00-7.381 5.84h4.8m2.581-5.84a14.927 14.927 0 00-2.58 5.841m8.541-5.96a14.927 14.927 0 00-5.841 2.58m0 0a5.972 5.972 0 00-2.3-1.815m2.3 1.815a5.97 5.97 0 011.815 2.3m-1.815-2.3L9 9m6 6l-1.5-1.5" />
+            </svg>
+            <span>Configuration du Produit SaaS</span>
+          </h5>
+          <div class="form-row-2">
+            <div class="form-group">
+              <label class="form-label">Lien de l'application en ligne <span class="required-star">*</span></label>
+              <input type="url" [(ngModel)]="projectForm.demoUrl" placeholder="https://app.monsaas.com" class="form-input">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Modèle économique <span class="required-star">*</span></label>
+              <select [(ngModel)]="projectForm.saasPricingType" class="form-input">
+                <option value="FREEMIUM">Freemium</option>
+                <option value="PAID_SUBSCRIPTION">Abonnement payant</option>
+                <option value="FREE">100% Gratuit</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Compte / Mode d'emploi Démo (Optionnel & Sécurisé)</label>
+            <input type="text" [(ngModel)]="projectForm.demoAccountInfo" placeholder="Ex: Email: demo@saas.com | Mdp: Demo1234" class="form-input">
+            <span class="text-xs text-muted">Ces identifiants ne sont affichés qu'à vous et aux réviseurs autorisés.</span>
+          </div>
+        </div>
+
+        <!-- TYPE: PORTFOLIO -->
+        <div *ngIf="projectForm.projectType === 'PORTFOLIO'" class="dynamic-type-box blue-box">
+          <h5 class="type-box-title">
+            <svg class="icon-svg icon-svg-xs" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.25 14.15v4.25c0 1.094-.787 2.036-1.872 2.18-2.087.277-4.216.42-6.378.42s-4.291-.143-6.378-.42c-1.085-.144-1.872-1.086-1.872-2.18v-4.25m16.5 0a2.18 2.18 0 00.75-1.661V8.706c0-1.081-.768-2.015-1.837-2.175a48.114 48.114 0 00-3.413-.387M3.75 14.15a2.18 2.18 0 01-.75-1.661V8.706c0-1.081.768-2.015 1.837-2.175a48.111 48.111 0 013.413-.387m4.5 8.006h4.5m-4.5 0A2.25 2.25 0 019 12v-1.5A2.25 2.25 0 0111.25 8.25h1.5A2.25 2.25 0 0115 10.5V12a2.25 2.25 0 01-2.25 2.25m-4.5 0h4.5" />
+            </svg>
+            <span>Vitrine / Site Personnel</span>
+          </h5>
+          <div class="form-row-2">
+            <div class="form-group">
+              <label class="form-label">Lien du Site en Ligne <span class="required-star">*</span></label>
+              <input type="url" [(ngModel)]="projectForm.demoUrl" placeholder="https://mon-portfolio.dev" class="form-input">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Lien Dépôt GitHub (Optionnel)</label>
+              <input type="url" [(ngModel)]="projectForm.repoUrl" placeholder="https://github.com/user/portfolio" class="form-input">
+            </div>
+          </div>
+        </div>
+
+        <!-- TYPE: ENTERPRISE -->
+        <div *ngIf="projectForm.projectType === 'ENTERPRISE'" class="dynamic-type-box slate-box">
+          <h5 class="type-box-title">
+            <svg class="icon-svg icon-svg-xs" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.25 21h19.5m-18-18v18m10.5-18v18m6-13.5V21M6.75 6.75h.008v.008H6.75V6.75zm0 3.75h.008v.008H6.75V10.5zm0 3.75h.008v.008H6.75v-.008zm0 3.75h.008v.008H6.75v-.008zm6-11.25h.008v.008h-.008V6.75zm0 3.75h.008v.008h-.008V10.5zm0 3.75h.008v.008h-.008v-.008zm0 3.75h.008v.008h-.008v-.008z" />
+            </svg>
+            <span>Réalisation d'Entreprise / Client (Confidentialité NDA)</span>
+          </h5>
+          <div class="form-row-2">
+            <div class="form-group">
+              <label class="form-label">Nom de l'Entreprise / Client <span class="required-star">*</span></label>
+              <input type="text" [(ngModel)]="projectForm.companyName" placeholder="Ex: Wave Mobile Money, Sonatel" class="form-input">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Votre Rôle / Post tenue <span class="required-star">*</span></label>
+              <input type="text" [(ngModel)]="projectForm.companyRole" placeholder="Ex: Lead Architecte Backend" class="form-input">
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Lien du produit final (Optionnel)</label>
+            <input type="url" [(ngModel)]="projectForm.demoUrl" placeholder="https://entreprise.com/produit" class="form-input">
+          </div>
+          <p class="nda-security-notice">
+            🔒 <strong>Protection NDA :</strong> Le code source GitHub est masqué pour garantir la confidentialité absolue de l'entreprise.
+          </p>
+        </div>
+
+        <!-- MEDIA ATTACHMENTS (YOUTUBE, SCREENSHOTS, PDF) -->
+        <div class="media-upload-section margin-top-md">
+          <h5 class="section-subheading">🎬 Médias & Documents de Présentation</h5>
+          
+          <!-- YouTube Video -->
+          <div class="form-group">
+            <label class="form-label">Lien Vidéo YouTube de Démo (Optionnel)</label>
+            <input type="url" [(ngModel)]="projectForm.youtubeUrl" placeholder="https://www.youtube.com/watch?v=XXXXXXXXXXX" class="form-input">
           </div>
 
+          <!-- Screenshots Dropzone -->
           <div class="form-group">
-            <label class="form-label">Lien Démo en Ligne</label>
-            <input type="url" [(ngModel)]="projectForm.demoUrl" placeholder="https://mon-projet.com" class="form-input">
+            <label class="form-label">Captures d'écran (Jusqu'à 5 images PNG/JPG max 5 Mo)</label>
+            <div class="file-upload-row">
+              <label class="btn btn-outline btn-sm file-input-label">
+                📷 Choisir une image
+                <input type="file" accept="image/png, image/jpeg, image/webp" (change)="onImageSelected($event)" class="hidden-file-input">
+              </label>
+              <span *ngIf="isUploadingMedia" class="text-xs text-emerald spinner-text">Téléversement...</span>
+            </div>
+
+            <!-- Preview Grid -->
+            <div *ngIf="projectForm.screenshots.length > 0" class="screenshots-preview-grid">
+              <div *ngFor="let img of projectForm.screenshots; let i = index" class="screenshot-thumb-box">
+                <img [src]="'http://localhost:8081/api/v1' + img" alt="Capture d'écran">
+                <button type="button" (click)="removeScreenshot(i)" class="btn-remove-thumb">&times;</button>
+              </div>
+            </div>
           </div>
+
+          <!-- Documentation PDF -->
+          <div class="form-group">
+            <label class="form-label">Document de présentation PDF (Max 10 Mo)</label>
+            <div class="file-upload-row">
+              <label class="btn btn-outline btn-sm file-input-label">
+                📄 Joindre un PDF
+                <input type="file" accept="application/pdf" (change)="onPdfSelected($event)" class="hidden-file-input">
+              </label>
+              <div *ngIf="projectForm.documentationPdfUrl" class="pdf-file-chip">
+                <span>📄 Document PDF joint</span>
+                <button type="button" (click)="removePdf()" class="btn-remove-pdf">&times;</button>
+              </div>
+            </div>
+          </div>
+
         </div>
 
-        <div class="checkbox-group">
-          <label class="custom-checkbox-label">
-            <input type="checkbox" [(ngModel)]="projectForm.isOpenSource">
-            <span>Projet Open Source</span>
-          </label>
-        </div>
-
-        <div *ngIf="formErrorMessage" class="error-box">{{ formErrorMessage }}</div>
+        <div *ngIf="formErrorMessage" class="error-box margin-top-sm">{{ formErrorMessage }}</div>
       </div>
 
       <div class="modal-footer">
         <button (click)="closeCreateModal()" class="btn btn-outline">Annuler</button>
-        <button (click)="submitCreate()" [disabled]="isSubmitting" class="btn btn-emerald">
+        <button (click)="submitCreate()" [disabled]="isSubmitting || isUploadingMedia" class="btn btn-emerald">
           <span *ngIf="!isSubmitting">Publier le projet</span>
           <span *ngIf="isSubmitting">Publication...</span>
         </button>
@@ -221,48 +552,169 @@
 
   <!-- 2. MODAL DE MODIFICATION DE PROJET -->
   <div class="modal-overlay" *ngIf="showEditModal" (click)="closeEditModal()">
-    <div class="app-card modal-card" (click)="$event.stopPropagation()">
+    <div class="app-card modal-card modal-card-large" (click)="$event.stopPropagation()">
       <div class="modal-header">
-        <h3>Modifier le Projet</h3>
+        <div>
+          <h3>Modifier le Projet</h3>
+          <p class="text-xs text-muted">Mettez à jour les informations, liens ou fichiers de votre projet.</p>
+        </div>
         <button (click)="closeEditModal()" class="close-btn">&times;</button>
       </div>
 
       <div class="modal-body">
-        <div class="form-group">
-          <label class="form-label">Titre du projet *</label>
+        
+        <!-- Tab selector for Project Type -->
+        <div class="project-type-tabs">
+          <button 
+            (click)="selectProjectType('OPEN_SOURCE')"
+            class="type-tab-btn"
+            [class.active]="projectForm.projectType === 'OPEN_SOURCE'">
+            <svg class="tab-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.25 6.75L22.5 12l-5.25 5.25m-10.5 0L1.5 12l5.25-5.25m7.5-3l-4.5 16.5" />
+            </svg>
+            <div class="tab-text">
+              <span class="tab-label">Open Source</span>
+            </div>
+          </button>
+
+          <button 
+            (click)="selectProjectType('FOR_SALE')"
+            class="type-tab-btn"
+            [class.active]="projectForm.projectType === 'FOR_SALE'">
+            <svg class="tab-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.568 3H5.25A2.25 2.25 0 003 5.25v4.318c0 .597.237 1.17.659 1.591l9.581 9.581c.699.699 1.78.872 2.607.33a18.095 18.095 0 005.223-5.223c.542-.827.369-1.908-.33-2.607L11.16 3.66A2.25 2.25 0 009.568 3z" />
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 6h.008v.008H6V6z" />
+            </svg>
+            <div class="tab-text">
+              <span class="tab-label">En Vente</span>
+            </div>
+          </button>
+
+          <button 
+            (click)="selectProjectType('SAAS')"
+            class="type-tab-btn"
+            [class.active]="projectForm.projectType === 'SAAS'">
+            <svg class="tab-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.59 14.37a6 6 0 01-5.84 7.38v-4.8m5.84-2.58a14.98 14.98 0 006.16-12.12A14.98 14.98 0 009.631 8.41m5.96 5.96a14.926 14.926 0 01-5.841 2.58m-.119-8.54a6 6 0 00-7.381 5.84h4.8m2.581-5.84a14.927 14.927 0 00-2.58 5.841m8.541-5.96a14.927 14.927 0 00-5.841 2.58m0 0a5.972 5.972 0 00-2.3-1.815m2.3 1.815a5.97 5.97 0 011.815 2.3m-1.815-2.3L9 9m6 6l-1.5-1.5" />
+            </svg>
+            <div class="tab-text">
+              <span class="tab-label">SaaS</span>
+            </div>
+          </button>
+
+          <button 
+            (click)="selectProjectType('PORTFOLIO')"
+            class="type-tab-btn"
+            [class.active]="projectForm.projectType === 'PORTFOLIO'">
+            <svg class="tab-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.25 14.15v4.25c0 1.094-.787 2.036-1.872 2.18-2.087.277-4.216.42-6.378.42s-4.291-.143-6.378-.42c-1.085-.144-1.872-1.086-1.872-2.18v-4.25m16.5 0a2.18 2.18 0 00.75-1.661V8.706c0-1.081-.768-2.015-1.837-2.175a48.114 48.114 0 00-3.413-.387M3.75 14.15a2.18 2.18 0 01-.75-1.661V8.706c0-1.081.768-2.015 1.837-2.175a48.111 48.111 0 013.413-.387m4.5 8.006h4.5m-4.5 0A2.25 2.25 0 019 12v-1.5A2.25 2.25 0 0111.25 8.25h1.5A2.25 2.25 0 0115 10.5V12a2.25 2.25 0 01-2.25 2.25m-4.5 0h4.5" />
+            </svg>
+            <div class="tab-text">
+              <span class="tab-label">Portfolio</span>
+            </div>
+          </button>
+
+          <button 
+            (click)="selectProjectType('ENTERPRISE')"
+            class="type-tab-btn"
+            [class.active]="projectForm.projectType === 'ENTERPRISE'">
+            <svg class="tab-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.25 21h19.5m-18-18v18m10.5-18v18m6-13.5V21M6.75 6.75h.008v.008H6.75V6.75zm0 3.75h.008v.008H6.75V10.5zm0 3.75h.008v.008H6.75v-.008zm0 3.75h.008v.008H6.75v-.008zm6-11.25h.008v.008h-.008V6.75zm0 3.75h.008v.008h-.008V10.5zm0 3.75h.008v.008h-.008v-.008zm0 3.75h.008v.008h-.008v-.008z" />
+            </svg>
+            <div class="tab-text">
+              <span class="tab-label">Entreprise</span>
+            </div>
+          </button>
+        </div>
+
+        <!-- Common Fields -->
+        <div class="form-group margin-top-md">
+          <label class="form-label">Titre du projet <span class="required-star">*</span></label>
           <input type="text" [(ngModel)]="projectForm.title" class="form-input">
         </div>
 
         <div class="form-group">
-          <label class="form-label">Description *</label>
+          <label class="form-label">Description / Pitch <span class="required-star">*</span></label>
           <textarea [(ngModel)]="projectForm.description" rows="4" class="form-textarea"></textarea>
         </div>
 
         <div class="form-group">
-          <label class="form-label">Technologies (séparées par une virgule)</label>
+          <label class="form-label">Technologies / Stack Technique</label>
           <input type="text" [(ngModel)]="projectForm.stackInput" class="form-input">
         </div>
 
-        <div class="form-row-2">
-          <div class="form-group">
-            <label class="form-label">Lien Dépôt GitHub / GitLab</label>
-            <input type="url" [(ngModel)]="projectForm.repoUrl" class="form-input">
-          </div>
-
-          <div class="form-group">
-            <label class="form-label">Lien Démo en Ligne</label>
-            <input type="url" [(ngModel)]="projectForm.demoUrl" class="form-input">
+        <!-- DYNAMIC FIELDS PER TYPE -->
+        <div *ngIf="projectForm.projectType === 'OPEN_SOURCE'" class="dynamic-type-box emerald-box">
+          <div class="form-row-2">
+            <div class="form-group">
+              <label class="form-label">Lien Dépôt GitHub <span class="required-star">*</span></label>
+              <input type="url" [(ngModel)]="projectForm.repoUrl" class="form-input">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Licence</label>
+              <select [(ngModel)]="projectForm.licenseType" class="form-input">
+                <option value="MIT">Licence MIT</option>
+                <option value="Apache-2.0">Apache 2.0</option>
+                <option value="GPL-3.0">GNU GPLv3</option>
+              </select>
+            </div>
           </div>
         </div>
 
-        <div class="checkbox-group">
-          <label class="custom-checkbox-label">
-            <input type="checkbox" [(ngModel)]="projectForm.isOpenSource">
-            <span>Projet Open Source</span>
-          </label>
+        <div *ngIf="projectForm.projectType === 'FOR_SALE'" class="dynamic-type-box amber-box">
+          <div class="form-row-3">
+            <div class="form-group">
+              <label class="form-label">Prix <span class="required-star">*</span></label>
+              <input type="number" [(ngModel)]="projectForm.price" class="form-input">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Devise</label>
+              <select [(ngModel)]="projectForm.currency" class="form-input">
+                <option value="XOF">XOF (FCFA)</option>
+                <option value="EUR">EUR (€)</option>
+                <option value="USD">USD ($)</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Cession</label>
+              <select [(ngModel)]="projectForm.saleType" class="form-input">
+                <option value="FULL_SOURCE_CODE">Code source complet</option>
+                <option value="EXCLUSIVE_CESSION">Cession exclusive</option>
+              </select>
+            </div>
+          </div>
         </div>
 
-        <div *ngIf="formErrorMessage" class="error-box">{{ formErrorMessage }}</div>
+        <div *ngIf="projectForm.projectType === 'SAAS'" class="dynamic-type-box purple-box">
+          <div class="form-row-2">
+            <div class="form-group">
+              <label class="form-label">Lien Démo SaaS <span class="required-star">*</span></label>
+              <input type="url" [(ngModel)]="projectForm.demoUrl" class="form-input">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Tarification</label>
+              <select [(ngModel)]="projectForm.saasPricingType" class="form-input">
+                <option value="FREEMIUM">Freemium</option>
+                <option value="PAID_SUBSCRIPTION">Abonnement</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div *ngIf="projectForm.projectType === 'ENTERPRISE'" class="dynamic-type-box slate-box">
+          <div class="form-row-2">
+            <div class="form-group">
+              <label class="form-label">Nom Entreprise <span class="required-star">*</span></label>
+              <input type="text" [(ngModel)]="projectForm.companyName" class="form-input">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Votre Rôle <span class="required-star">*</span></label>
+              <input type="text" [(ngModel)]="projectForm.companyRole" class="form-input">
+            </div>
+          </div>
+        </div>
+
+        <div *ngIf="formErrorMessage" class="error-box margin-top-sm">{{ formErrorMessage }}</div>
       </div>
 
       <div class="modal-footer">
@@ -275,22 +727,49 @@
     </div>
   </div>
 
-  <!-- 3. MODAL DE DÉTAIL PROJET -->
+  <!-- 3. MODAL DE DÉTAIL PROJET DYNAMIQUE (AVEC YOUTUBE ET GALERIE) -->
   <div class="modal-overlay" *ngIf="showDetailModal && selectedProject" (click)="closeDetailModal()">
     <div class="app-card modal-card detail-modal" (click)="$event.stopPropagation()">
       <div class="modal-header">
         <div class="detail-header-left">
           <h3>{{ selectedProject.title }}</h3>
-          <span class="status-badge" [ngClass]="selectedProject.status === 'PUBLISHED' ? 'status-published' : 'status-disabled'">
-            {{ selectedProject.status === 'PUBLISHED' ? 'Publié' : 'Désactivé' }}
+          <span class="badge" [ngClass]="getProjectTypeBadge(selectedProject.projectType).class">
+            {{ getProjectTypeBadge(selectedProject.projectType).label }}
           </span>
         </div>
         <button (click)="closeDetailModal()" class="close-btn">&times;</button>
       </div>
 
       <div class="modal-body">
+        
+        <!-- Video YouTube Player -->
+        <div *ngIf="selectedProject.youtubeUrl && getYouTubeEmbedUrl(selectedProject.youtubeUrl)" class="video-container-box">
+          <iframe 
+            [src]="getYouTubeEmbedUrl(selectedProject.youtubeUrl)!" 
+            title="Démonstration Vidéo YouTube" 
+            frameborder="0" 
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+            allowfullscreen>
+          </iframe>
+        </div>
+
         <p class="detail-description">{{ selectedProject.description }}</p>
 
+        <!-- Company details if enterprise -->
+        <div *ngIf="selectedProject.companyName" class="detail-section enterprise-info-card">
+          <h5>🏢 Réalisation d'Entreprise</h5>
+          <p><strong>Entreprise :</strong> {{ selectedProject.companyName }}</p>
+          <p><strong>Rôle tenu :</strong> {{ selectedProject.companyRole }}</p>
+        </div>
+
+        <!-- Pricing details if sale or saas -->
+        <div *ngIf="selectedProject.projectType === 'FOR_SALE'" class="detail-section price-info-card">
+          <h5>💰 Modalité de Vente</h5>
+          <p class="price-value">{{ selectedProject.price | number }} {{ selectedProject.currency || 'XOF' }}</p>
+          <p class="text-xs text-muted">Type de cession : {{ selectedProject.saleType || 'Code source complet' }}</p>
+        </div>
+
+        <!-- Stack Tags -->
         <div class="detail-section">
           <h5>Stack Technique</h5>
           <div class="stack-tags-row">
@@ -298,22 +777,32 @@
           </div>
         </div>
 
+        <!-- Links Row -->
         <div class="detail-section">
-          <h5>Liens du projet</h5>
+          <h5>Liens & Accès</h5>
           <div class="links-row">
             <a *ngIf="selectedProject.repoUrl" [href]="selectedProject.repoUrl" target="_blank" class="btn btn-outline btn-sm">
               🐙 Voir le code GitHub
             </a>
             <a *ngIf="selectedProject.demoUrl" [href]="selectedProject.demoUrl" target="_blank" class="btn btn-emerald btn-sm">
-              🚀 Voir la Démo
+              🚀 Accéder à la Démo
+            </a>
+            <a *ngIf="selectedProject.documentationPdfUrl" [href]="'http://localhost:8081/api/v1' + selectedProject.documentationPdfUrl" target="_blank" class="btn btn-outline btn-sm">
+              📄 Télécharger la Doc PDF
             </a>
           </div>
         </div>
 
-        <div class="detail-section">
-          <h5>Engouement de la communauté</h5>
-          <p class="star-info">⭐ Ce projet compte <strong>{{ selectedProject.recognitionsCount || 0 }}</strong> reconnaissance(s) par les pairs.</p>
+        <!-- Screenshots gallery -->
+        <div *ngIf="selectedProject.screenshots && selectedProject.screenshots.length > 0" class="detail-section">
+          <h5>Captures d'écran ({{ selectedProject.screenshots.length }})</h5>
+          <div class="detail-gallery-row">
+            <a *ngFor="let s of selectedProject.screenshots" [href]="'http://localhost:8081/api/v1' + s" target="_blank" class="gallery-thumb">
+              <img [src]="'http://localhost:8081/api/v1' + s" alt="Capture d'écran">
+            </a>
+          </div>
         </div>
+
       </div>
 
       <div class="modal-footer">

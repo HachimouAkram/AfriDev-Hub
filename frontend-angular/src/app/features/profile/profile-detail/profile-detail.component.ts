@@ -134,6 +134,23 @@ export class ProfileDetailComponent implements OnInit {
     });
   }
 
+  getProjectTypeBadge(type?: string): { label: string; class: string } {
+    switch (type) {
+      case 'OPEN_SOURCE':
+        return { label: 'Open Source', class: 'badge-emerald' };
+      case 'FOR_SALE':
+        return { label: 'En Vente', class: 'badge-amber' };
+      case 'SAAS':
+        return { label: 'SaaS', class: 'badge-purple' };
+      case 'PORTFOLIO':
+        return { label: 'Portfolio', class: 'badge-blue' };
+      case 'ENTERPRISE':
+        return { label: 'Entreprise (NDA)', class: 'badge-slate' };
+      default:
+        return { label: 'Open Source', class: 'badge-emerald' };
+    }
+  }
+
   loadFollowStats(userId: string): void {
     this.followService.getStats(userId).subscribe({
       next: (res) => {

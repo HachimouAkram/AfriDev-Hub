@@ -31,15 +31,30 @@ public class ProjectService {
         UserEntity author = userRepository.findByEmail(userEmail)
                 .orElseThrow(() -> new IllegalArgumentException("Utilisateur non trouvé."));
 
+        validateProjectRequest(request);
+
+        africa.afridev.model.enums.ProjectType pType = request.getProjectType() != null ? request.getProjectType() : africa.afridev.model.enums.ProjectType.OPEN_SOURCE;
+
         ProjectEntity project = ProjectEntity.builder()
                 .author(author)
                 .title(request.getTitle())
                 .description(request.getDescription())
                 .stack(request.getStack() != null ? request.getStack() : new ArrayList<>())
-                .repoUrl(request.getRepoUrl())
+                .repoUrl(pType == africa.afridev.model.enums.ProjectType.ENTERPRISE ? null : request.getRepoUrl())
                 .demoUrl(request.getDemoUrl())
                 .screenshots(request.getScreenshots() != null ? request.getScreenshots() : new ArrayList<>())
-                .isOpenSource(request.getIsOpenSource() != null ? request.getIsOpenSource() : false)
+                .isOpenSource(pType == africa.afridev.model.enums.ProjectType.OPEN_SOURCE || Boolean.TRUE.equals(request.getIsOpenSource()))
+                .projectType(pType)
+                .price(request.getPrice())
+                .currency(request.getCurrency() != null ? request.getCurrency() : "XOF")
+                .saleType(request.getSaleType())
+                .saasPricingType(request.getSaasPricingType())
+                .licenseType(request.getLicenseType())
+                .demoAccountInfo(request.getDemoAccountInfo())
+                .companyName(request.getCompanyName())
+                .companyRole(request.getCompanyRole())
+                .youtubeUrl(request.getYoutubeUrl())
+                .documentationPdfUrl(request.getDocumentationPdfUrl())
                 .recognitionsCount(0)
                 .status(ContentStatus.PUBLISHED)
                 .build();
@@ -131,16 +146,84 @@ public class ProjectService {
             throw new IllegalStateException("Vous n'êtes pas le propriétaire de ce projet.");
         }
 
+        validateProjectRequest(request);
+
         project.setTitle(request.getTitle());
         project.setDescription(request.getDescription());
         if (request.getStack() != null) project.setStack(request.getStack());
-        project.setRepoUrl(request.getRepoUrl());
+        project.setRepoUrl(request.getProjectType() == africa.afridev.model.enums.ProjectType.ENTERPRISE ? null : request.getRepoUrl());
         project.setDemoUrl(request.getDemoUrl());
         if (request.getScreenshots() != null) project.setScreenshots(request.getScreenshots());
         if (request.getIsOpenSource() != null) project.setIsOpenSource(request.getIsOpenSource());
 
+        if (request.getProjectType() != null) {
+            project.setProjectType(request.getProjectType());
+            if (request.getProjectType() == africa.afridev.model.enums.ProjectType.OPEN_SOURCE) {
+                project.setIsOpenSource(true);
+            }
+        }
+        project.setPrice(request.getPrice());
+        if (request.getCurrency() != null) project.setCurrency(request.getCurrency());
+        project.setSaleType(request.getSaleType());
+        project.setSaasPricingType(request.getSaasPricingType());
+        project.setLicenseType(request.getLicenseType());
+        project.setDemoAccountInfo(request.getDemoAccountInfo());
+        project.setCompanyName(request.getCompanyName());
+        project.setCompanyRole(request.getCompanyRole());
+        project.setYoutubeUrl(request.getYoutubeUrl());
+        project.setDocumentationPdfUrl(request.getDocumentationPdfUrl());
+
         ProjectEntity saved = projectRepository.save(project);
         return mapToProjectDto(saved, userEmail);
+    }
+
+    private void validateProjectRequest(ProjectCreateRequest request) {
+        if (request.getTitle() == null || request.getTitle().trim().length() < 3) {
+            throw new IllegalArgumentException("Le titre du projet doit contenir au moins 3 caractères.");
+        }
+        if (request.getDescription() == null || request.getDescription().trim().length() < 10) {
+            throw new IllegalArgumentException("La description du projet doit contenir au moins 10 caractères.");
+        }
+
+        africa.afridev.model.enums.ProjectType type = request.getProjectType() != null ? request.getProjectType() : africa.afridev.model.enums.ProjectType.OPEN_SOURCE;
+
+        switch (type) {
+            case OPEN_SOURCE -> {
+                if (request.getRepoUrl() == null || request.getRepoUrl().trim().isEmpty()) {
+                    throw new IllegalArgumentException("Le lien du dépôt GitHub est obligatoire pour un projet Open Source.");
+                }
+            }
+            case FOR_SALE -> {
+                if (request.getPrice() == null || request.getPrice().compareTo(java.math.BigDecimal.ZERO) < 0) {
+                    throw new IllegalArgumentException("Le prix de vente est obligatoire et doit être positif ou nul.");
+                }
+            }
+            case SAAS -> {
+                if (request.getDemoUrl() == null || request.getDemoUrl().trim().isEmpty()) {
+                    throw new IllegalArgumentException("Le lien de démonstration/application en ligne est obligatoire pour un SaaS.");
+                }
+            }
+            case PORTFOLIO -> {
+                if (request.getDemoUrl() == null || request.getDemoUrl().trim().isEmpty()) {
+                    throw new IllegalArgumentException("Le lien du site est obligatoire pour un projet Portfolio.");
+                }
+            }
+            case ENTERPRISE -> {
+                if (request.getCompanyName() == null || request.getCompanyName().trim().isEmpty()) {
+                    throw new IllegalArgumentException("Le nom de l'entreprise est obligatoire pour un projet d'entreprise.");
+                }
+                if (request.getCompanyRole() == null || request.getCompanyRole().trim().isEmpty()) {
+                    throw new IllegalArgumentException("Le rôle tenu est obligatoire pour un projet d'entreprise.");
+                }
+            }
+        }
+
+        if (request.getYoutubeUrl() != null && !request.getYoutubeUrl().trim().isEmpty()) {
+            String regex = "^(https?://)?(www\\.)?(youtube\\.com/watch\\?v=|youtu\\.be/)([a-zA-Z0-9_-]{11})(\\S*)?$";
+            if (!request.getYoutubeUrl().trim().matches(regex)) {
+                throw new IllegalArgumentException("Le lien vidéo YouTube est invalide. Exemple accepté: https://www.youtube.com/watch?v=VIDEO_ID");
+            }
+        }
     }
 
     @Transactional
@@ -180,11 +263,20 @@ public class ProjectService {
 
     private ProjectDto mapToProjectDto(ProjectEntity project, String currentUserEmail) {
         boolean recognized = false;
+        boolean isAuthor = false;
         if (currentUserEmail != null) {
             var userOpt = userRepository.findByEmail(currentUserEmail);
             if (userOpt.isPresent()) {
-                recognized = recognitionRepository.existsByProjectIdAndUserId(project.getId(), userOpt.get().getId());
+                String currentUserId = userOpt.get().getId();
+                recognized = recognitionRepository.existsByProjectIdAndUserId(project.getId(), currentUserId);
+                isAuthor = project.getAuthor().getId().equals(currentUserId);
             }
+        }
+
+        // Confidentiality check for Enterprise or For Sale repository URL
+        String sanitizedRepoUrl = project.getRepoUrl();
+        if (project.getProjectType() == africa.afridev.model.enums.ProjectType.ENTERPRISE) {
+            sanitizedRepoUrl = null; // Enterprise code repository is strictly NDA/confidential
         }
 
         return ProjectDto.builder()
@@ -193,10 +285,21 @@ public class ProjectService {
                 .title(project.getTitle())
                 .description(project.getDescription())
                 .stack(project.getStack())
-                .repoUrl(project.getRepoUrl())
+                .repoUrl(sanitizedRepoUrl)
                 .demoUrl(project.getDemoUrl())
                 .screenshots(project.getScreenshots())
-                .isOpenSource(project.getIsOpenSource())
+                .isOpenSource(project.getIsOpenSource() != null ? project.getIsOpenSource() : (project.getProjectType() == africa.afridev.model.enums.ProjectType.OPEN_SOURCE))
+                .projectType(project.getProjectType() != null ? project.getProjectType() : africa.afridev.model.enums.ProjectType.OPEN_SOURCE)
+                .price(project.getPrice())
+                .currency(project.getCurrency() != null ? project.getCurrency() : "XOF")
+                .saleType(project.getSaleType())
+                .saasPricingType(project.getSaasPricingType())
+                .licenseType(project.getLicenseType())
+                .demoAccountInfo(isAuthor ? project.getDemoAccountInfo() : null)
+                .companyName(project.getCompanyName())
+                .companyRole(project.getCompanyRole())
+                .youtubeUrl(project.getYoutubeUrl())
+                .documentationPdfUrl(project.getDocumentationPdfUrl())
                 .recognitionsCount(project.getRecognitionsCount())
                 .recognizedByCurrentUser(recognized)
                 .status(project.getStatus())

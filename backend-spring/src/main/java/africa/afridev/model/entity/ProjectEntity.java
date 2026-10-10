@@ -1,11 +1,15 @@
 package africa.afridev.model.entity;
 
 import africa.afridev.model.enums.ContentStatus;
+import africa.afridev.model.enums.ProjectType;
+import africa.afridev.model.enums.SaleType;
+import africa.afridev.model.enums.SaasPricingType;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -13,7 +17,8 @@ import java.util.List;
 @Entity
 @Table(name = "projects", indexes = {
     @Index(name = "idx_project_author", columnList = "author_id"),
-    @Index(name = "idx_project_status_created", columnList = "status, createdAt")
+    @Index(name = "idx_project_status_created", columnList = "status, createdAt"),
+    @Index(name = "idx_project_type", columnList = "projectType")
 })
 @Getter
 @Setter
@@ -53,6 +58,32 @@ public class ProjectEntity {
 
     @Builder.Default
     private Boolean isOpenSource = false;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    @Builder.Default
+    private ProjectType projectType = ProjectType.OPEN_SOURCE;
+
+    private BigDecimal price;
+    
+    @Builder.Default
+    private String currency = "XOF";
+
+    @Enumerated(EnumType.STRING)
+    private SaleType saleType;
+
+    @Enumerated(EnumType.STRING)
+    private SaasPricingType saasPricingType;
+
+    private String licenseType;
+
+    @Column(columnDefinition = "TEXT")
+    private String demoAccountInfo;
+
+    private String companyName;
+    private String companyRole;
+    private String youtubeUrl;
+    private String documentationPdfUrl;
 
     @Builder.Default
     private Integer recognitionsCount = 0;

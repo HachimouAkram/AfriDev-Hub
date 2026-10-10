@@ -1,9 +1,13 @@
 package africa.afridev.dto.project;
 
+import africa.afridev.model.enums.ProjectType;
+import africa.afridev.model.enums.SaleType;
+import africa.afridev.model.enums.SaasPricingType;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @Data
@@ -22,4 +26,16 @@ public class ProjectCreateRequest {
     private String demoUrl;
     private List<String> screenshots;
     private Boolean isOpenSource;
+
+    private ProjectType projectType;
+    private BigDecimal price;
+    private String currency;
+    private SaleType saleType;
+    private SaasPricingType saasPricingType;
+    private String licenseType;
+    private String demoAccountInfo;
+    private String companyName;
+    private String companyRole;
+    private String youtubeUrl;
+    private String documentationPdfUrl;
 }

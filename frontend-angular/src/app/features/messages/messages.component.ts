@@ -58,11 +58,15 @@ export class MessagesComponent implements OnInit, OnDestroy, AfterViewChecked {
 
     this.loadSummaries();
 
-    // Check if URL has ?user=ID or ?userId=ID
+    // Check if URL has ?user=ID or ?userId=ID and optional ?text=InitialMessage
     this.route.queryParams.subscribe(params => {
       const targetId = params['user'] || params['userId'];
+      const prefilledText = params['text'];
       if (targetId) {
         this.openChatWithUserId(targetId);
+      }
+      if (prefilledText) {
+        this.newMessageContent = prefilledText;
       }
     });
 

@@ -3,6 +3,10 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { ApiResponse, User } from './auth.service';
 
+export type ProjectType = 'OPEN_SOURCE' | 'FOR_SALE' | 'SAAS' | 'PORTFOLIO' | 'ENTERPRISE';
+export type SaleType = 'LICENSED' | 'FULL_SOURCE_CODE' | 'EXCLUSIVE_CESSION';
+export type SaasPricingType = 'FREE' | 'FREEMIUM' | 'PAID_SUBSCRIPTION';
+
 export interface ProjectComment {
   id: string;
   projectId: string;
@@ -21,6 +25,19 @@ export interface Project {
   demoUrl?: string;
   screenshots: string[];
   isOpenSource: boolean;
+
+  projectType?: ProjectType;
+  price?: number;
+  currency?: string;
+  saleType?: SaleType;
+  saasPricingType?: SaasPricingType;
+  licenseType?: string;
+  demoAccountInfo?: string;
+  companyName?: string;
+  companyRole?: string;
+  youtubeUrl?: string;
+  documentationPdfUrl?: string;
+
   recognitionsCount: number;
   recognizedByCurrentUser: boolean;
   status: string;
@@ -92,6 +109,18 @@ export class ProjectService {
 
   addComment(projectId: string, content: string): Observable<ApiResponse<ProjectComment>> {
     return this.http.post<ApiResponse<ProjectComment>>(`${this.apiUrl}/${projectId}/comments`, { content });
+  }
+
+  uploadImage(file: File): Observable<ApiResponse<{ url: string }>> {
+    const formData = new FormData();
+    formData.append('file', file);
+    return this.http.post<ApiResponse<{ url: string }>>('http://localhost:8081/api/v1/uploads/image', formData);
+  }
+
+  uploadPdf(file: File): Observable<ApiResponse<{ url: string }>> {
+    const formData = new FormData();
+    formData.append('file', file);
+    return this.http.post<ApiResponse<{ url: string }>>('http://localhost:8081/api/v1/uploads/pdf', formData);
   }
 }
 
