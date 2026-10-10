@@ -764,6 +764,43 @@
   max-width: 840px;
 }
 
+.detail-section-title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+  color: var(--text-heading);
+}
+
+.detail-section-title h4 {
+  font-size: 0.95rem;
+  font-weight: 700;
+  margin: 0;
+  color: var(--text-heading);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.section-title-svg {
+  width: 1.15rem !important;
+  height: 1.15rem !important;
+  max-width: 1.15rem !important;
+  max-height: 1.15rem !important;
+  color: var(--emerald-400, #10B981);
+  flex-shrink: 0;
+  display: inline-block;
+}
+
+.inline-icon-xs {
+  width: 0.85rem !important;
+  height: 0.85rem !important;
+  max-width: 0.85rem !important;
+  max-height: 0.85rem !important;
+  display: inline-block;
+  vertical-align: middle;
+  flex-shrink: 0;
+}
+
 .detail-header-left {
   display: flex;
   align-items: center;

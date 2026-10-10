@@ -294,26 +294,58 @@ a:hover {
 }
 
 /* Vector SVG Utility */
+svg {
+  max-width: 100%;
+}
+
 .icon-svg {
   width: 1.125rem;
   height: 1.125rem;
   stroke-width: 1.75px;
   flex-shrink: 0;
+  display: inline-block;
+  vertical-align: middle;
 }
 
 .icon-svg-xs {
-  width: 0.775rem;
-  height: 0.775rem;
+  width: 0.8rem;
+  height: 0.8rem;
+  flex-shrink: 0;
 }
 
 .icon-svg-sm {
-  width: 0.875rem;
-  height: 0.875rem;
+  width: 0.95rem;
+  height: 0.95rem;
+  flex-shrink: 0;
 }
 
 .icon-svg-lg {
   width: 1.5rem;
   height: 1.5rem;
+  flex-shrink: 0;
+}
+
+.icon-svg-xl {
+  width: 2.5rem;
+  height: 2.5rem;
+  flex-shrink: 0;
+}
+
+.section-title-svg {
+  width: 1.15rem;
+  height: 1.15rem;
+  color: #10B981;
+  flex-shrink: 0;
+  display: inline-block;
+  vertical-align: middle;
+}
+
+.inline-icon-xs {
+  width: 0.85rem;
+  height: 0.85rem;
+  display: inline-block;
+  vertical-align: middle;
+  flex-shrink: 0;
 }
 
 /* Form Controls */
