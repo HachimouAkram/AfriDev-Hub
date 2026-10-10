@@ -481,6 +481,32 @@
   font-weight: 700;
 }
 
+.demo-credentials-box {
+  padding: 0.75rem 1rem;
+  background: rgba(0, 0, 0, 0.25);
+  border-radius: 10px;
+  border: 1px dashed rgba(168, 85, 247, 0.4);
+}
+
+.demo-credentials-box .lbl {
+  font-size: 0.75rem;
+  color: #C084FC;
+  font-weight: 700;
+}
+
+.demo-credentials-box p {
+  margin-top: 0.25rem;
+  font-size: 0.85rem;
+  color: var(--text-main);
+}
+
+.demo-credentials-box code {
+  background: rgba(255, 255, 255, 0.1);
+  padding: 0.15rem 0.4rem;
+  border-radius: 4px;
+  font-family: monospace;
+}
+
 .margin-top-xs { margin-top: 0.35rem; }
 
 .detail-gallery-row {

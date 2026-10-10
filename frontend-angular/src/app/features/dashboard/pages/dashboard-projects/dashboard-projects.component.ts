@@ -1,21 +1,25 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { Router, RouterLink } from '@angular/router';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
-import { ProjectService, Project, ProjectType, SaleType, SaasPricingType } from '../../../../core/services/project.service';
+import { ProjectService, Project, ProjectComment, ProjectType, SaleType, SaasPricingType } from '../../../../core/services/project.service';
 import { AuthService } from '../../../../core/services/auth.service';
+import { FollowService, FollowStats } from '../../../../core/services/follow.service';
 
 @Component({
   selector: 'app-dashboard-projects',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, RouterLink],
   templateUrl: './dashboard-projects.component.html',
   styleUrl: './dashboard-projects.component.css'
 })
 export class DashboardProjectsComponent implements OnInit {
   private projectService = inject(ProjectService);
-  private authService = inject(AuthService);
+  public authService = inject(AuthService);
+  private followService = inject(FollowService);
   private sanitizer = inject(DomSanitizer);
+  private router = inject(Router);
 
   currentUser = this.authService.currentUser;
   
@@ -34,6 +38,19 @@ export class DashboardProjectsComponent implements OnInit {
 
   selectedProject: Project | null = null;
   projectToDelete: Project | null = null;
+
+  // Detail Modal & Comments State
+  projectComments: ProjectComment[] = [];
+  isLoadingComments = false;
+  newCommentText = '';
+  isPostingComment = false;
+
+  // Author Follow State
+  authorFollowStats: FollowStats | null = null;
+  isTogglingAuthorFollow = false;
+
+  // Toast State
+  toastMessage: string | null = null;
 
   // Project Types definition
   projectTypesList: { key: ProjectType; label: string; icon: string; desc: string }[] = [
@@ -407,11 +424,200 @@ export class DashboardProjectsComponent implements OnInit {
   openDetailModal(project: Project): void {
     this.selectedProject = project;
     this.showDetailModal = true;
+    this.newCommentText = '';
+    this.authorFollowStats = null;
+    this.loadComments(project.id);
+
+    const authorUserId = project.author?.id;
+    const currentUserId = this.authService.currentUser()?.id;
+
+    if (this.authService.isLoggedIn() && authorUserId && authorUserId !== currentUserId) {
+      this.followService.getStats(authorUserId).subscribe({
+        next: (res) => {
+          if (res.success) {
+            this.authorFollowStats = res.data;
+          }
+        },
+        error: () => {
+          this.authorFollowStats = null;
+        }
+      });
+    }
   }
 
   closeDetailModal(): void {
     this.showDetailModal = false;
     this.selectedProject = null;
+    this.projectComments = [];
+    this.authorFollowStats = null;
+  }
+
+  toggleRecognize(project: Project, event?: Event): void {
+    if (event) {
+      event.stopPropagation();
+    }
+    if (!this.authService.isLoggedIn()) {
+      this.showToast('⚠️ Connectez-vous pour donner un J\'aime à ce projet.');
+      return;
+    }
+
+    if (project.recognizedByCurrentUser) {
+      this.projectService.unrecognizeProject(project.id).subscribe({
+        next: () => {
+          project.recognitionsCount = Math.max(0, (project.recognitionsCount || 1) - 1);
+          project.recognizedByCurrentUser = false;
+          this.showToast('Reconnaissance retirée.');
+        }
+      });
+    } else {
+      this.projectService.recognizeProject(project.id).subscribe({
+        next: () => {
+          project.recognitionsCount = (project.recognitionsCount || 0) + 1;
+          project.recognizedByCurrentUser = true;
+          this.showToast('⭐ Projet reconnu !');
+        }
+      });
+    }
+  }
+
+  toggleAuthorFollow(): void {
+    const authorUserId = this.selectedProject?.author?.id;
+    if (!authorUserId || !this.authService.isLoggedIn()) {
+      this.showToast('⚠️ Connectez-vous pour suivre ce développeur.');
+      return;
+    }
+
+    this.isTogglingAuthorFollow = true;
+    if (this.authorFollowStats?.followedByCurrentUser) {
+      this.followService.unfollowUser(authorUserId).subscribe({
+        next: (res) => {
+          this.isTogglingAuthorFollow = false;
+          if (res.success) {
+            this.authorFollowStats = res.data;
+            this.showToast('Abonnement retiré.');
+          }
+        },
+        error: () => {
+          this.isTogglingAuthorFollow = false;
+        }
+      });
+    } else {
+      this.followService.followUser(authorUserId).subscribe({
+        next: (res) => {
+          this.isTogglingAuthorFollow = false;
+          if (res.success) {
+            this.authorFollowStats = res.data;
+            if (res.data.followedByCurrentUser && res.data.followsCurrentUser) {
+              this.showToast('🤝 Vous êtes maintenant amis !');
+            } else {
+              this.showToast('✓ Développeur suivi !');
+            }
+          }
+        },
+        error: () => {
+          this.isTogglingAuthorFollow = false;
+        }
+      });
+    }
+  }
+
+  loadComments(projectId: string): void {
+    this.isLoadingComments = true;
+    this.projectService.getComments(projectId).subscribe({
+      next: (res) => {
+        this.isLoadingComments = false;
+        if (res.success && res.data) {
+          this.projectComments = res.data;
+        }
+      },
+      error: () => {
+        this.isLoadingComments = false;
+        this.projectComments = [];
+      }
+    });
+  }
+
+  postComment(): void {
+    if (!this.selectedProject || !this.newCommentText.trim()) return;
+
+    if (!this.authService.isLoggedIn()) {
+      this.showToast('⚠️ Connectez-vous pour publier un commentaire.');
+      return;
+    }
+
+    this.isPostingComment = true;
+    this.projectService.addComment(this.selectedProject.id, this.newCommentText).subscribe({
+      next: (res) => {
+        this.isPostingComment = false;
+        if (res.success && res.data) {
+          this.projectComments.push(res.data);
+          this.newCommentText = '';
+          this.showToast('💬 Commentaire publié !');
+        }
+      },
+      error: () => {
+        this.isPostingComment = false;
+        this.showToast('Erreur lors de la publication du commentaire.');
+      }
+    });
+  }
+
+  contactAuthorForProject(project: Project, inquiryType: 'BUY' | 'DEMO' | 'COLLAB'): void {
+    if (!this.authService.isLoggedIn()) {
+      this.showToast('⚠️ Veuillez vous connecter pour contacter le créateur du projet.');
+      return;
+    }
+
+    const authorId = project.author?.id;
+    if (!authorId) return;
+
+    let initialText = '';
+    if (inquiryType === 'BUY') {
+      initialText = `Bonjour, je suis intéressé(e) par l'achat de votre projet "${project.title}" (${project.price ? project.price + ' ' + (project.currency || 'XOF') : 'Prix sur demande'}) affiché sur AfriDev Hub. Pouvons-nous échanger sur les modalités ?`;
+    } else if (inquiryType === 'DEMO') {
+      initialText = `Bonjour, je souhaiterais tester votre produit SaaS "${project.title}". Pouvez-vous me partager un compte de test ou une démonstration ?`;
+    } else {
+      initialText = `Bonjour, j'ai vu votre réalisation "${project.title}" (${project.companyName || 'Projet Pro'}) sur AfriDev Hub et j'aimerais entrer en contact avec vous.`;
+    }
+
+    this.closeDetailModal();
+    this.router.navigate(['/dashboard/messages'], {
+      queryParams: {
+        user: authorId,
+        text: initialText
+      }
+    });
+  }
+
+  shareProject(project: Project, platform?: string, event?: Event): void {
+    if (event) {
+      event.stopPropagation();
+    }
+
+    const permalink = `${window.location.origin}/projects/${project.id}`;
+    const authorName = project.author?.profile?.fullName || 'un développeur';
+    const shareText = `Découvrez le projet "${project.title}" créé par ${authorName} sur AfriDev Hub !`;
+
+    if (platform === 'linkedin') {
+      window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(permalink)}`, '_blank');
+    } else if (platform === 'twitter') {
+      window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(permalink)}`, '_blank');
+    } else if (platform === 'whatsapp') {
+      window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(shareText + ' ' + permalink)}`, '_blank');
+    } else {
+      navigator.clipboard.writeText(permalink).then(() => {
+        this.showToast('🔗 Lien du projet copié dans le presse-papier !');
+      }).catch(() => {
+        this.showToast('Lien du projet : ' + permalink);
+      });
+    }
+  }
+
+  showToast(message: string): void {
+    this.toastMessage = message;
+    setTimeout(() => {
+      this.toastMessage = null;
+    }, 3500);
   }
 
   getYouTubeEmbedUrl(url?: string): SafeResourceUrl | null {

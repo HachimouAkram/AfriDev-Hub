@@ -313,9 +313,10 @@
           <div class="saas-action-row">
             <div>
               <span class="saas-pricing-pill">{{ selectedProject.saasPricingType || 'FREEMIUM' }}</span>
-              <p class="text-xs text-muted margin-top-xs" *ngIf="selectedProject.demoAccountInfo">
-                ℹ️ Identifiants démo disponibles pour les utilisateurs connectés.
-              </p>
+              <div class="demo-credentials-box margin-top-xs" *ngIf="selectedProject.demoAccountInfo">
+                <span class="lbl">🔑 Mode d'emploi & Identifiants Démo :</span>
+                <p><code>{{ selectedProject.demoAccountInfo }}</code></p>
+              </div>
             </div>
             <button 
               (click)="contactAuthorForProject(selectedProject, 'DEMO')" 
