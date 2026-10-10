@@ -110,26 +110,40 @@
   <div *ngIf="isServerOffline && !isLoading" class="app-card server-offline-card">
     <div class="offline-content">
       <div class="offline-text-group">
-        <div class="offline-icon">⚠️</div>
+        <div class="offline-icon">
+          <svg class="icon-svg icon-svg-lg text-amber" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
+          </svg>
+        </div>
         <div class="offline-text">
           <h3>Serveur Backend Indisponible</h3>
           <p>Impossible de se connecter à l'API backend (<code>http://localhost:8081/api/v1</code>). Veuillez vérifier que le serveur Spring Boot est démarré.</p>
         </div>
       </div>
       <button (click)="loadProjects()" class="btn btn-emerald btn-sm">
-        🔄 Réessayer la connexion
+        <svg class="icon-svg icon-svg-xs" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
+        </svg>
+        Réessayer la connexion
       </button>
     </div>
   </div>
 
   <!-- Empty State (when connected but 0 projects match filters) -->
   <div *ngIf="!isServerOffline && !isLoading && filteredProjects.length === 0" class="app-card empty-projects-card">
-    <div class="empty-icon">📂</div>
+    <div class="empty-icon">
+      <svg class="icon-svg icon-svg-xl text-muted" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M2.25 12.75V12A2.25 2.25 0 014.5 9.75h15A2.25 2.25 0 0121.75 12v.75m-19.5 0A2.25 2.25 0 004.5 15h15a2.25 2.25 0 002.25-2.25m-19.5 0v.243a2.25 2.25 0 001.07 1.916l7.5 4.615a2.25 2.25 0 002.36 0l7.5-4.615a2.25 2.25 0 001.07-1.916V12.75" />
+      </svg>
+    </div>
     <h3>Aucun projet trouvé</h3>
     <p *ngIf="searchQuery || selectedCategory !== 'ALL'">Aucun projet ne correspond aux filtres de recherche sélectionnés.</p>
     <p *ngIf="!searchQuery && selectedCategory === 'ALL'">Aucun projet n'a encore été publié sur la plateforme. Soyez le premier à partager votre réalisation !</p>
     <button *ngIf="isLoggedIn()" (click)="openCreateModal()" class="btn btn-emerald btn-sm margin-top-sm">
-      + Publier un projet
+      <svg class="icon-svg icon-svg-xs" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.5v15m7.5-7.5h-15" />
+      </svg>
+      Publier un projet
     </button>
   </div>
 
@@ -146,7 +160,11 @@
               {{ p.author?.profile?.fullName || p.author?.email || 'Développeur' }}
             </a>
             <span class="author-country" *ngIf="p.author?.profile?.country">
-              📍 {{ p.author?.profile?.country }}
+              <svg class="inline-icon-xs" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" />
+              </svg>
+              {{ p.author?.profile?.country }}
             </span>
           </div>
         </div>
@@ -162,12 +180,18 @@
 
         <!-- Company if enterprise -->
         <div *ngIf="p.companyName" class="enterprise-tag-line text-xs text-muted">
-          🏢 {{ p.companyName }} • {{ p.companyRole }}
+          <svg class="inline-icon-xs" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.25 21h19.5m-18-18v18m10.5-18v18m6-13.5V21" />
+          </svg>
+          {{ p.companyName }} • {{ p.companyRole }}
         </div>
 
         <!-- Price if sale -->
         <div *ngIf="p.projectType === 'FOR_SALE'" class="price-tag-line">
-          💰 <strong>{{ p.price | number }} {{ p.currency || 'XOF' }}</strong>
+          <svg class="inline-icon-xs text-amber" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.568 3H5.25A2.25 2.25 0 003 5.25v4.318c0 .597.237 1.17.659 1.591l9.581 9.581c.699.699 1.78.872 2.607.33a18.095 18.095 0 005.223-5.223c.542-.827.369-1.908-.33-2.607L11.16 3.66A2.25 2.25 0 009.568 3z" />
+          </svg>
+          <strong>{{ p.price | number }} {{ p.currency || 'XOF' }}</strong>
         </div>
 
         <div class="stack-list" *ngIf="p.stack && p.stack.length">
@@ -212,7 +236,7 @@
     <div class="loading-box app-card" *ngIf="isLoading">Chargement de la vitrine des projets...</div>
   </ng-template>
 
-  <!-- DETAIL & COMMENTS MODAL -->
+  <!-- DETAIL & COMMENTS MODAL (VECTOR SVG ONLY, NO EMOJIS) -->
   <div class="modal-overlay" *ngIf="selectedProject" (click)="closeDetailModal()">
     <div class="app-card modal-card detail-modal" (click)="$event.stopPropagation()">
       <div class="modal-header">
@@ -221,16 +245,95 @@
           <span class="badge" [ngClass]="getProjectTypeBadge(selectedProject.projectType).class">
             {{ getProjectTypeBadge(selectedProject.projectType).label }}
           </span>
+          <span class="status-badge status-published">
+            <span class="dot"></span>
+            Publié
+          </span>
+          <span class="text-xs text-muted" *ngIf="selectedProject.createdAt">
+            • Publié le {{ selectedProject.createdAt | date:'mediumDate' }}
+          </span>
         </div>
-        <button (click)="closeDetailModal()" class="btn-icon">
-          <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
-          </svg>
-        </button>
+        <button (click)="closeDetailModal()" class="close-btn">&times;</button>
       </div>
 
-      <div class="detail-body">
+      <div class="modal-body">
         
+        <!-- Author Bar & Social Actions -->
+        <div class="detail-author-bar" *ngIf="selectedProject?.author">
+          <div class="detail-author-left">
+            <div class="author-avatar lg">
+              {{ (selectedProject.author?.profile?.fullName || selectedProject.author?.email || 'A').charAt(0).toUpperCase() }}
+            </div>
+            <div>
+              <div class="author-name-lg">
+                <a [routerLink]="['/profile', selectedProject.author?.profile?.id || selectedProject.author?.id]" (click)="closeDetailModal()" class="author-link">
+                  {{ selectedProject.author?.profile?.fullName || selectedProject.author?.email || 'Développeur' }}
+                </a>
+                <span class="badge badge-emerald text-xs margin-left-xs" *ngIf="selectedProject.author?.profile?.mobileMoneyVerified">
+                  ★ Vérifié
+                </span>
+              </div>
+              <div class="author-subtext">
+                {{ selectedProject.author?.profile?.title || 'Membre AfriDev' }}
+                <span *ngIf="selectedProject.author?.profile?.city || selectedProject.author?.profile?.country">
+                  • 
+                  <svg class="inline-icon-xs" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" />
+                  </svg>
+                  {{ selectedProject.author?.profile?.city || '' }} {{ selectedProject.author?.profile?.country || '' }}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <div class="detail-author-right">
+            <!-- Reconnaissances / Upvote button -->
+            <button 
+              (click)="toggleRecognize(selectedProject, $event)" 
+              class="btn btn-sm"
+              [ngClass]="selectedProject.recognizedByCurrentUser ? 'btn-emerald' : 'btn-outline'"
+              title="Soutenir ce projet">
+              <svg class="icon-svg icon-svg-xs" viewBox="0 0 24 24" fill="currentColor" stroke="none">
+                <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
+              </svg>
+              <span>{{ selectedProject.recognitionsCount || 0 }}</span>
+            </button>
+
+            <!-- Discuter / Message button -->
+            <button 
+              *ngIf="isLoggedIn() && selectedProject.author?.id !== authService.currentUser()?.id"
+              (click)="contactAuthorForProject(selectedProject, 'COLLAB')" 
+              class="btn btn-emerald btn-sm">
+              <svg class="icon-svg icon-svg-xs" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.625 12a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H8.25m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H12m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0h-.375M21 12c0 4.556-4.03 8.25-9 8.25a9.764 9.764 0 01-2.555-.337A5.972 5.972 0 015.41 20.97a.598.598 0 01-.743-.598l.147-1.44a5.962 5.962 0 01-1.814-4.432C3 10.444 7.03 6.75 12 6.75s9 3.694 9 8.25z" />
+              </svg>
+              <span>Discuter</span>
+            </button>
+
+            <!-- Follow Relationship Button -->
+            <button 
+              *ngIf="isLoggedIn() && selectedProject.author?.id !== authService.currentUser()?.id && authorFollowStats" 
+              (click)="toggleAuthorFollow()" 
+              [disabled]="isTogglingAuthorFollow"
+              class="btn btn-sm follow-rel-btn"
+              [ngClass]="{
+                'btn-friends': authorFollowStats.followedByCurrentUser && authorFollowStats.followsCurrentUser,
+                'btn-follow-back': !authorFollowStats.followedByCurrentUser && authorFollowStats.followsCurrentUser,
+                'btn-outline': authorFollowStats.followedByCurrentUser && !authorFollowStats.followsCurrentUser,
+                'btn-emerald': !authorFollowStats.followedByCurrentUser && !authorFollowStats.followsCurrentUser
+              }">
+              <svg class="icon-svg icon-svg-xs" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7.5v3m0 0v3m0-3h3m-3 0h-3m-2.25-4.125a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zM4 19.235v-.11a6.375 6.375 0 0112.75 0v.109A12.318 12.318 0 0110.374 21c-2.331 0-4.512-.645-6.374-1.765z" />
+              </svg>
+              <span *ngIf="authorFollowStats.followedByCurrentUser && authorFollowStats.followsCurrentUser">Amis</span>
+              <span *ngIf="!authorFollowStats.followedByCurrentUser && authorFollowStats.followsCurrentUser">Suivre en retour</span>
+              <span *ngIf="authorFollowStats.followedByCurrentUser && !authorFollowStats.followsCurrentUser">Abonné(e)</span>
+              <span *ngIf="!authorFollowStats.followedByCurrentUser && !authorFollowStats.followsCurrentUser">Suivre</span>
+            </button>
+          </div>
+        </div>
+
         <!-- Video YouTube Player -->
         <div *ngIf="selectedProject.youtubeUrl && getYouTubeEmbedUrl(selectedProject.youtubeUrl)" class="video-container-box">
           <iframe 
@@ -242,130 +345,164 @@
           </iframe>
         </div>
 
-        <!-- Author info bar -->
-        <div class="detail-author-bar" *ngIf="selectedProject?.author">
-          <div class="detail-author-left">
-            <div class="author-avatar lg">
-              {{ (selectedProject.author?.profile?.fullName || selectedProject.author?.email || 'A').charAt(0).toUpperCase() }}
-            </div>
-            <div>
-              <div class="author-name-lg">
-                <a [routerLink]="['/profile', selectedProject.author?.profile?.id || selectedProject.author?.id]" (click)="closeDetailModal()" class="author-link">
-                  {{ selectedProject.author?.profile?.fullName || selectedProject.author?.email || 'Développeur' }}
-                </a>
-              </div>
-              <div class="author-subtext">{{ selectedProject.author?.profile?.title || 'Membre AfriDev' }} • {{ selectedProject.author?.profile?.city || '' }} {{ selectedProject.author?.profile?.country || '' }}</div>
-            </div>
-          </div>
-
-          <div class="detail-author-right" *ngIf="isLoggedIn() && selectedProject.author?.id !== authService.currentUser()?.id">
-            <button 
-              *ngIf="authorFollowStats" 
-              (click)="toggleAuthorFollow()" 
-              [disabled]="isTogglingAuthorFollow"
-              class="btn btn-sm follow-rel-btn"
-              [ngClass]="{
-                'btn-friends': authorFollowStats.followedByCurrentUser && authorFollowStats.followsCurrentUser,
-                'btn-follow-back': !authorFollowStats.followedByCurrentUser && authorFollowStats.followsCurrentUser,
-                'btn-outline': authorFollowStats.followedByCurrentUser && !authorFollowStats.followsCurrentUser,
-                'btn-emerald': !authorFollowStats.followedByCurrentUser && !authorFollowStats.followsCurrentUser
-              }">
-              <span *ngIf="authorFollowStats.followedByCurrentUser && authorFollowStats.followsCurrentUser">🤝 Amis</span>
-              <span *ngIf="!authorFollowStats.followedByCurrentUser && authorFollowStats.followsCurrentUser">↩️ Suivre en retour</span>
-              <span *ngIf="authorFollowStats.followedByCurrentUser && !authorFollowStats.followsCurrentUser">✓ Abonné(e)</span>
-              <span *ngIf="!authorFollowStats.followedByCurrentUser && !authorFollowStats.followsCurrentUser">+ Suivre</span>
-            </button>
-          </div>
-        </div>
-
-        <!-- Description -->
+        <!-- Description Section -->
         <div class="detail-section">
-          <h4>À propos du Projet</h4>
+          <div class="detail-section-title">
+            <svg class="section-title-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
+            </svg>
+            <h4>À propos du Projet</h4>
+          </div>
           <p class="detail-desc">{{ selectedProject.description }}</p>
         </div>
 
+        <!-- HIGHLIGHT CARDS PER TYPE -->
+
         <!-- Enterprise / Company details -->
-        <div *ngIf="selectedProject.companyName" class="detail-section enterprise-box">
-          <h4>🏢 Réalisation d'Entreprise</h4>
-          <p><strong>Entreprise :</strong> {{ selectedProject.companyName }}</p>
-          <p><strong>Rôle tenu :</strong> {{ selectedProject.companyRole }}</p>
+        <div *ngIf="selectedProject.companyName" class="detail-section enterprise-info-card slate-box">
+          <div class="type-box-title">
+            <svg class="icon-svg icon-svg-xs" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.25 21h19.5m-18-18v18m10.5-18v18m6-13.5V21M6.75 6.75h.008v.008H6.75V6.75zm0 3.75h.008v.008H6.75V10.5zm0 3.75h.008v.008H6.75v-.008zm0 3.75h.008v.008H6.75v-.008zm6-11.25h.008v.008h-.008V6.75zm0 3.75h.008v.008h-.008V10.5zm0 3.75h.008v.008h-.008v-.008zm0 3.75h.008v.008h-.008v-.008z" />
+            </svg>
+            <span>Réalisation d'Entreprise / Client</span>
+          </div>
+          <p class="margin-top-xs"><strong>Entreprise :</strong> {{ selectedProject.companyName }}</p>
+          <p><strong>Rôle occupé :</strong> {{ selectedProject.companyRole }}</p>
+          <p class="nda-security-notice text-xs margin-top-xs">
+            <strong>Confidentialité NDA :</strong> Le code source est préservé conformément à l'accord de confidentialité.
+          </p>
         </div>
 
         <!-- Price details & Buy Action if sale -->
-        <div *ngIf="selectedProject.projectType === 'FOR_SALE'" class="detail-section price-box">
-          <h4>💰 Modalités de Vente</h4>
+        <div *ngIf="selectedProject.projectType === 'FOR_SALE'" class="detail-section price-info-card amber-box">
           <div class="price-action-row">
             <div>
+              <div class="type-box-title">
+                <svg class="icon-svg icon-svg-xs" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.568 3H5.25A2.25 2.25 0 003 5.25v4.318c0 .597.237 1.17.659 1.591l9.581 9.581c.699.699 1.78.872 2.607.33a18.095 18.095 0 005.223-5.223c.542-.827.369-1.908-.33-2.607L11.16 3.66A2.25 2.25 0 009.568 3z" />
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 6h.008v.008H6V6z" />
+                </svg>
+                <span>Modalités & Prix de Vente</span>
+              </div>
               <p class="price-val">{{ selectedProject.price | number }} {{ selectedProject.currency || 'XOF' }}</p>
-              <p class="text-xs text-muted">Cession : {{ selectedProject.saleType || 'Code source complet' }}</p>
+              <p class="text-xs text-muted">Type de cession : <strong>{{ selectedProject.saleType || 'Code source complet' }}</strong></p>
             </div>
             <button 
+              *ngIf="selectedProject.author?.id !== authService.currentUser()?.id"
               (click)="contactAuthorForProject(selectedProject, 'BUY')" 
               class="btn btn-amber btn-sm">
-              💰 Contacter le Vendeur / Faire une Offre
+              <svg class="icon-svg icon-svg-xs" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.25 18.75a60.07 60.07 0 0115.797 2.101c.727.198 1.453-.342 1.453-1.096V18.75M3.75 4.5h16.5" />
+              </svg>
+              <span>Contacter le Vendeur / Offre</span>
             </button>
           </div>
         </div>
 
         <!-- SaaS Demo Request Action if SaaS -->
-        <div *ngIf="selectedProject.projectType === 'SAAS'" class="detail-section saas-action-box">
-          <h4>🚀 Produit SaaS & Accès Démo</h4>
+        <div *ngIf="selectedProject.projectType === 'SAAS'" class="detail-section saas-info-card purple-box">
           <div class="saas-action-row">
             <div>
-              <span class="saas-pricing-pill">{{ selectedProject.saasPricingType || 'FREEMIUM' }}</span>
+              <div class="type-box-title">
+                <svg class="icon-svg icon-svg-xs" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.59 14.37a6 6 0 01-5.84 7.38v-4.8m5.84-2.58a14.98 14.98 0 006.16-12.12A14.98 14.98 0 009.631 8.41m5.96 5.96a14.926 14.926 0 01-5.841 2.58m-.119-8.54a6 6 0 00-7.381 5.84h4.8m2.581-5.84a14.927 14.927 0 00-2.58 5.841m8.541-5.96a14.927 14.927 0 00-5.841 2.58m0 0a5.972 5.972 0 00-2.3-1.815m2.3 1.815a5.97 5.97 0 011.815 2.3m-1.815-2.3L9 9m6 6l-1.5-1.5" />
+                </svg>
+                <span>Produit SaaS & Accès</span>
+              </div>
+              <span class="saas-pricing-pill margin-top-xs">{{ selectedProject.saasPricingType || 'FREEMIUM' }}</span>
               <div class="demo-credentials-box margin-top-xs" *ngIf="selectedProject.demoAccountInfo">
-                <span class="lbl">🔑 Mode d'emploi & Identifiants Démo :</span>
+                <span class="lbl">Identifiants & Accès Démo :</span>
                 <p><code>{{ selectedProject.demoAccountInfo }}</code></p>
               </div>
             </div>
             <button 
+              *ngIf="selectedProject.author?.id !== authService.currentUser()?.id"
               (click)="contactAuthorForProject(selectedProject, 'DEMO')" 
               class="btn btn-purple btn-sm">
-              🔑 Demander un Accès Démo
+              <svg class="icon-svg icon-svg-xs" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.75 5.25a3 3 0 013 3m3 0a6 6 0 01-7.029 5.912c-.563-.097-1.159.026-1.563.43L10.5 17.25H8.25v2.25H6v2.25H2.25v-2.818c0-.597.237-1.17.659-1.591l6.499-6.499c.404-.404.527-1 .43-1.563A6 6 0 1121 7.5z" />
+              </svg>
+              <span>Demander un Accès Démo</span>
             </button>
           </div>
         </div>
 
+        <!-- Open Source details -->
+        <div *ngIf="selectedProject.projectType === 'OPEN_SOURCE'" class="detail-section emerald-box">
+          <div class="type-box-title">
+            <svg class="icon-svg icon-svg-xs" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.25 6.75L22.5 12l-5.25 5.25m-10.5 0L1.5 12l5.25-5.25m7.5-3l-4.5 16.5" />
+            </svg>
+            <span>Licence Open Source</span>
+          </div>
+          <p class="text-sm margin-top-xs">Projet distribué sous la licence libre <strong>{{ selectedProject.licenseType || 'MIT' }}</strong>.</p>
+        </div>
+
         <!-- Stack Tags -->
         <div class="detail-section" *ngIf="selectedProject.stack && selectedProject.stack.length">
-          <h4>Technologies</h4>
-          <div class="stack-list">
-            <span *ngFor="let tech of selectedProject.stack" class="badge badge-gray">{{ tech }}</span>
+          <div class="detail-section-title">
+            <svg class="section-title-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.25 6.75L22.5 12l-5.25 5.25m-10.5 0L1.5 12l5.25-5.25m7.5-3l-4.5 16.5" />
+            </svg>
+            <h4>Stack Technique & Frameworks</h4>
+          </div>
+          <div class="stack-tags-row">
+            <span *ngFor="let tech of selectedProject.stack" class="tech-tag">{{ tech }}</span>
           </div>
         </div>
 
         <!-- Action Links & Share -->
-        <div class="detail-actions-bar">
-          <div class="left-links">
-            <a *ngIf="selectedProject.repoUrl" [href]="selectedProject.repoUrl" target="_blank" class="btn btn-outline btn-sm">
-              <svg class="icon-svg icon-svg-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M17.25 6.75L22.5 12l-5.25 5.25m-10.5 0L1.5 12l5.25-5.25m7.5-3l-4.5 16.5" />
-              </svg>
-              Dépôt GitHub
-            </a>
-            <a *ngIf="selectedProject.demoUrl" [href]="selectedProject.demoUrl" target="_blank" class="btn btn-emerald btn-sm">
-              <svg class="icon-svg icon-svg-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" />
-              </svg>
-              Tester la Démo Live
-            </a>
-            <a *ngIf="selectedProject.documentationPdfUrl" [href]="'http://localhost:8081/api/v1' + selectedProject.documentationPdfUrl" target="_blank" class="btn btn-outline btn-sm">
-              📄 Doc PDF
-            </a>
+        <div class="detail-section">
+          <div class="detail-section-title">
+            <svg class="section-title-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.19 8.688a4.5 4.5 0 011.242 7.244l-4.5 4.5a4.5 4.5 0 01-6.364-6.364l1.757-1.757m13.35-.622l1.757-1.757a4.5 4.5 0 00-6.364-6.364l-4.5 4.5a4.5 4.5 0 001.242 7.244" />
+            </svg>
+            <h4>Liens & Partage</h4>
           </div>
+          <div class="links-and-share-row">
+            <div class="links-row">
+              <a *ngIf="selectedProject.repoUrl" [href]="selectedProject.repoUrl" target="_blank" class="btn btn-outline btn-sm">
+                <svg class="icon-svg icon-svg-xs" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.25 6.75L22.5 12l-5.25 5.25m-10.5 0L1.5 12l5.25-5.25m7.5-3l-4.5 16.5" />
+                </svg>
+                <span>Code GitHub</span>
+              </a>
+              <a *ngIf="selectedProject.demoUrl" [href]="selectedProject.demoUrl" target="_blank" class="btn btn-emerald btn-sm">
+                <svg class="icon-svg icon-svg-xs" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" />
+                </svg>
+                <span>Démo en Ligne</span>
+              </a>
+              <a *ngIf="selectedProject.documentationPdfUrl" [href]="'http://localhost:8081/api/v1' + selectedProject.documentationPdfUrl" target="_blank" class="btn btn-outline btn-sm">
+                <svg class="icon-svg icon-svg-xs" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
+                </svg>
+                <span>Doc PDF</span>
+              </a>
+            </div>
 
-          <div class="share-buttons">
-            <span class="share-label">Partager :</span>
-            <button (click)="shareProject(selectedProject)" class="btn btn-outline btn-icon-sm" title="Copier le lien">🔗</button>
-            <button (click)="shareProject(selectedProject, 'linkedin')" class="btn btn-outline btn-icon-sm" title="Partager sur LinkedIn">in</button>
-            <button (click)="shareProject(selectedProject, 'twitter')" class="btn btn-outline btn-icon-sm" title="Partager sur X">X</button>
-            <button (click)="shareProject(selectedProject, 'whatsapp')" class="btn btn-outline btn-icon-sm" title="Partager sur WhatsApp">WA</button>
+            <div class="share-buttons-group">
+              <span class="share-lbl">Partager :</span>
+              <button (click)="shareProject(selectedProject)" class="btn btn-outline btn-icon-sm" title="Copier le lien">
+                <svg class="icon-svg icon-svg-xs" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.666 3.888A2.25 2.25 0 0013.5 2.25h-3c-1.03 0-1.9.693-2.166 1.638m7.332 0c.055.194.084.4.084.612v0a.75.75 0 01-.75.75H9a.75.75 0 01-.75-.75v0c0-.212.03-.418.084-.612m7.332 0c.646.049 1.288.11 1.927.184 1.1.128 1.907 1.077 1.907 2.185V19.5a2.25 2.25 0 01-2.25 2.25H6.75A2.25 2.25 0 014.5 19.5V6.257c0-1.108.806-2.057 1.907-2.185a48.208 48.208 0 011.927-.184" />
+                </svg>
+              </button>
+              <button (click)="shareProject(selectedProject, 'linkedin')" class="btn btn-outline btn-icon-sm" title="Partager sur LinkedIn">in</button>
+              <button (click)="shareProject(selectedProject, 'twitter')" class="btn btn-outline btn-icon-sm" title="Partager sur X">X</button>
+              <button (click)="shareProject(selectedProject, 'whatsapp')" class="btn btn-outline btn-icon-sm" title="Partager sur WhatsApp">WA</button>
+            </div>
           </div>
         </div>
 
         <!-- Screenshots gallery -->
         <div *ngIf="selectedProject.screenshots && selectedProject.screenshots.length > 0" class="detail-section">
-          <h4>Captures d'écran</h4>
+          <div class="detail-section-title">
+            <svg class="section-title-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
+            </svg>
+            <h4>Captures d'écran ({{ selectedProject.screenshots.length }})</h4>
+          </div>
           <div class="detail-gallery-row">
             <a *ngFor="let s of selectedProject.screenshots" [href]="'http://localhost:8081/api/v1' + s" target="_blank" class="gallery-thumb">
               <img [src]="'http://localhost:8081/api/v1' + s" alt="Capture d'écran">
@@ -373,13 +510,18 @@
           </div>
         </div>
 
-        <hr class="divider">
+        <hr class="divider margin-vertical-md">
 
         <!-- Comments Section -->
         <div class="comments-section">
-          <h3>Commentaires & Échanges ({{ projectComments.length }})</h3>
+          <div class="detail-section-title">
+            <svg class="section-title-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.625 12a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H8.25m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H12m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0h-.375M21 12c0 4.556-4.03 8.25-9 8.25a9.764 9.764 0 01-2.555-.337A5.972 5.972 0 015.41 20.97a.598.598 0 01-.743-.598l.147-1.44a5.962 5.962 0 01-1.814-4.432C3 10.444 7.03 6.75 12 6.75s9 3.694 9 8.25z" />
+            </svg>
+            <h4>Commentaires & Échanges ({{ projectComments.length }})</h4>
+          </div>
 
-          <div class="add-comment-box" *ngIf="isLoggedIn(); else loginToComment">
+          <div class="add-comment-box margin-vertical-sm" *ngIf="isLoggedIn(); else loginToComment">
             <textarea 
               [(ngModel)]="newCommentText" 
               rows="2" 
@@ -388,16 +530,16 @@
             <button 
               (click)="postComment()" 
               [disabled]="isPostingComment || !newCommentText.trim()" 
-              class="btn btn-emerald btn-sm">
+              class="btn btn-emerald btn-sm margin-top-xs">
               <span *ngIf="!isPostingComment">Envoyer le commentaire</span>
               <span *ngIf="isPostingComment">Envoi...</span>
             </button>
           </div>
 
           <ng-template #loginToComment>
-            <div class="login-prompt">
+            <div class="login-prompt-box">
               <p>Connectez-vous pour rejoindre la discussion et poser des questions au créateur.</p>
-              <a routerLink="/login" (click)="closeDetailModal()" class="btn btn-outline btn-sm">Se connecter</a>
+              <a routerLink="/login" (click)="closeDetailModal()" class="btn btn-outline btn-sm margin-top-xs">Se connecter</a>
             </div>
           </ng-template>
 
@@ -407,9 +549,9 @@
                 {{ (c.author?.profile?.fullName || c.author?.email || 'U').charAt(0).toUpperCase() }}
               </div>
               <div class="comment-content-box">
-                <div class="comment-header">
+                <div class="comment-header-row">
                   <span class="comment-author-name">{{ c.author?.profile?.fullName || c.author?.email || 'Développeur' }}</span>
-                  <span class="comment-date">{{ c.createdAt | date:'short' }}</span>
+                  <span class="comment-date text-xs text-muted">{{ c.createdAt | date:'short' }}</span>
                 </div>
                 <p class="comment-text">{{ c.content }}</p>
               </div>
@@ -417,9 +559,14 @@
           </div>
 
           <ng-template #noComments>
-            <p class="no-comments-text">Aucun commentaire pour le moment. Soyez le premier à réagir !</p>
+            <p class="no-comments-text text-muted text-sm">Aucun commentaire pour le moment. Soyez le premier à réagir !</p>
           </ng-template>
         </div>
+
+      </div>
+
+      <div class="modal-footer">
+        <button (click)="closeDetailModal()" class="btn btn-outline">Fermer</button>
       </div>
     </div>
   </div>
