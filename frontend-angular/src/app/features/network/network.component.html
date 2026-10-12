@@ -113,8 +113,9 @@
         </div>
 
         <div class="card-header">
-          <div class="user-avatar">
-            {{ (sug.user.fullName || sug.user.email).charAt(0).toUpperCase() }}
+          <div class="user-avatar" [class.has-img]="!!sug.user.avatarUrl">
+            <img *ngIf="sug.user.avatarUrl" [src]="getAvatarUrl(sug.user.avatarUrl)" [alt]="sug.user.fullName" class="user-avatar-img">
+            <span *ngIf="!sug.user.avatarUrl">{{ (sug.user.fullName || sug.user.email).charAt(0).toUpperCase() }}</span>
           </div>
           <div class="user-main-info">
             <a [routerLink]="['/profile', sug.user.id]" class="user-name">{{ sug.user.fullName }}</a>
@@ -179,8 +180,9 @@
     <div class="users-grid" *ngIf="!isLoading && users.length > 0; else emptyOrLoading">
       <div *ngFor="let u of users" class="app-card user-card">
         <div class="card-header">
-          <div class="user-avatar" [ngClass]="u.role === 'RECRUITER' ? 'avatar-recruiter' : 'avatar-dev'">
-            {{ (u.fullName || u.email).charAt(0).toUpperCase() }}
+          <div class="user-avatar" [class.has-img]="!!u.avatarUrl" [ngClass]="u.role === 'RECRUITER' ? 'avatar-recruiter' : 'avatar-dev'">
+            <img *ngIf="u.avatarUrl" [src]="getAvatarUrl(u.avatarUrl)" [alt]="u.fullName" class="user-avatar-img">
+            <span *ngIf="!u.avatarUrl">{{ (u.fullName || u.email).charAt(0).toUpperCase() }}</span>
           </div>
           <div class="user-main-info">
             <a [routerLink]="['/profile', u.id]" class="user-name">{{ u.fullName }}</a>

@@ -955,3 +955,118 @@ body:not(.light-theme) .section-big-title {
     padding: 2.25rem 1.25rem;
   }
 }
+
+/* ======================================================== */
+/* FLUID SCROLL ANIMATIONS & MICRO-INTERACTIONS (UI/UX)    */
+/* ======================================================== */
+.landing-container {
+  animation: pageFadeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes pageFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Hero reveal */
+.hero-section {
+  animation: heroSlideUp 0.9s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes heroSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(24px) scale(0.99);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Scroll reveal classes powered by IntersectionObserver or modern CSS */
+.reveal-on-scroll {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 0.75s cubic-bezier(0.16, 1, 0.3, 1), 
+              transform 0.75s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: opacity, transform;
+}
+
+.reveal-on-scroll.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Stagger animations for cards inside visible sections */
+.reveal-on-scroll.is-visible .pillar-card:nth-child(1),
+.reveal-on-scroll.is-visible .metric-card:nth-child(1),
+.reveal-on-scroll.is-visible .project-home-card:nth-child(1),
+.reveal-on-scroll.is-visible .member-home-card:nth-child(1),
+.reveal-on-scroll.is-visible .step-card:nth-child(1) {
+  animation: itemFadeUp 0.65s cubic-bezier(0.16, 1, 0.3, 1) 0.08s both;
+}
+
+.reveal-on-scroll.is-visible .pillar-card:nth-child(2),
+.reveal-on-scroll.is-visible .metric-card:nth-child(2),
+.reveal-on-scroll.is-visible .project-home-card:nth-child(2),
+.reveal-on-scroll.is-visible .member-home-card:nth-child(2),
+.reveal-on-scroll.is-visible .step-card:nth-child(2) {
+  animation: itemFadeUp 0.65s cubic-bezier(0.16, 1, 0.3, 1) 0.16s both;
+}
+
+.reveal-on-scroll.is-visible .pillar-card:nth-child(3),
+.reveal-on-scroll.is-visible .metric-card:nth-child(3),
+.reveal-on-scroll.is-visible .project-home-card:nth-child(3),
+.reveal-on-scroll.is-visible .member-home-card:nth-child(3),
+.reveal-on-scroll.is-visible .step-card:nth-child(3) {
+  animation: itemFadeUp 0.65s cubic-bezier(0.16, 1, 0.3, 1) 0.24s both;
+}
+
+.reveal-on-scroll.is-visible .pillar-card:nth-child(4),
+.reveal-on-scroll.is-visible .metric-card:nth-child(4),
+.reveal-on-scroll.is-visible .member-home-card:nth-child(4) {
+  animation: itemFadeUp 0.65s cubic-bezier(0.16, 1, 0.3, 1) 0.32s both;
+}
+
+@keyframes itemFadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(22px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Enhanced interactive card hover effects */
+.pillar-card,
+.metric-card,
+.project-home-card,
+.member-home-card,
+.step-card {
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+              box-shadow 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+              border-color 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.pillar-card:hover,
+.project-home-card:hover,
+.member-home-card:hover,
+.step-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 16px 36px -10px rgba(0, 0, 0, 0.3), 0 0 20px -5px var(--emerald-glow);
+  border-color: var(--border-emerald);
+}
+
+.metric-card:hover {
+  transform: translateY(-4px);
+  border-color: var(--border-emerald);
+}

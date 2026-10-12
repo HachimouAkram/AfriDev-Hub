@@ -18,6 +18,9 @@ apache-maven-*/
 # Temp scripts
 remove_emojis.py
 
+# Local uploads
+**/uploads/
+
 # IDE & OS
 .idea/
 .vscode/

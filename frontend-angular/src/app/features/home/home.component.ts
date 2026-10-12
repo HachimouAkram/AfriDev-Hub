@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, AfterViewInit, OnDestroy, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
@@ -12,10 +12,11 @@ import { NetworkService, UserNetwork } from '../../core/services/network.service
   templateUrl: './home.component.html',
   styleUrl: './home.component.css'
 })
-export class HomeComponent implements OnInit {
+export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
   public authService = inject(AuthService);
   private projectService = inject(ProjectService);
   private networkService = inject(NetworkService);
+  private el = inject(ElementRef);
 
   featuredProjects: Project[] = [];
   featuredMembers: UserNetwork[] = [];
@@ -28,11 +29,50 @@ export class HomeComponent implements OnInit {
   statOffers = 0;
   statCountries = 0;
 
+  private scrollObserver?: IntersectionObserver;
+
   ngOnInit(): void {
     this.loadFeaturedProjects();
     this.loadFeaturedMembers();
     this.animateCounters();
   }
+
+  ngAfterViewInit(): void {
+    this.initScrollReveal();
+  }
+
+  ngOnDestroy(): void {
+    if (this.scrollObserver) {
+      this.scrollObserver.disconnect();
+    }
+  }
+
+  private initScrollReveal(): void {
+    if (typeof window === 'undefined' || !('IntersectionObserver' in window)) {
+      // Fallback: make all visible
+      const elements = this.el.nativeElement.querySelectorAll('.reveal-on-scroll');
+      elements.forEach((el: Element) => el.classList.add('is-visible'));
+      return;
+    }
+
+    this.scrollObserver = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('is-visible');
+          // Once animated, stop observing this element
+          this.scrollObserver?.unobserve(entry.target);
+        }
+      });
+    }, {
+      root: null,
+      threshold: 0.12,
+      rootMargin: '0px 0px -40px 0px'
+    });
+
+    const elements = this.el.nativeElement.querySelectorAll('.reveal-on-scroll');
+    elements.forEach((el: Element) => this.scrollObserver?.observe(el));
+  }
+
 
   animateCounters(): void {
     const targetDevs = 56740;

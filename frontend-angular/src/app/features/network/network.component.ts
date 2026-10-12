@@ -5,6 +5,7 @@ import { RouterLink } from '@angular/router';
 import { NetworkService, UserNetwork, NetworkSuggestion } from '../../core/services/network.service';
 import { FollowService } from '../../core/services/follow.service';
 import { AuthService } from '../../core/services/auth.service';
+import { ProfileService } from '../../core/services/profile.service';
 
 @Component({
   selector: 'app-network',
@@ -17,9 +18,15 @@ export class NetworkComponent implements OnInit {
   private networkService = inject(NetworkService);
   private followService = inject(FollowService);
   private authService = inject(AuthService);
+  private profileService = inject(ProfileService);
 
   users: UserNetwork[] = [];
   suggestions: NetworkSuggestion[] = [];
+
+  getAvatarUrl(url: string | undefined | null): string {
+    return this.profileService.getFullAvatarUrl(url);
+  }
+
 
   activeTab: 'ALL' | 'DEVELOPER' | 'RECRUITER' | 'SUGGESTIONS' = 'ALL';
   searchQuery = '';

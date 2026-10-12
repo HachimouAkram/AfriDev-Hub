@@ -52,4 +52,27 @@ export class ProfileService {
   verifyMobileMoney(): Observable<ApiResponse<Profile>> {
     return this.http.post<ApiResponse<Profile>>(`${this.apiUrl}/me/verify-mobile-money`, {});
   }
+
+  uploadAvatar(file: File): Observable<ApiResponse<{ url: string }>> {
+    const formData = new FormData();
+    formData.append('file', file);
+    return this.http.post<ApiResponse<{ url: string }>>('http://localhost:8081/api/v1/uploads/image', formData);
+  }
+
+  getFullAvatarUrl(url: string | undefined | null): string {
+    if (!url) return '';
+    if (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('data:')) {
+      return url;
+    }
+    // If backend returns /uploads/files/... prepend context path and host
+    if (url.startsWith('/uploads')) {
+      return `http://localhost:8081/api/v1${url}`;
+    }
+    if (url.startsWith('/api/v1')) {
+      return `http://localhost:8081${url}`;
+    }
+    return `http://localhost:8081/api/v1/uploads/files/${url}`;
+  }
 }
+
+

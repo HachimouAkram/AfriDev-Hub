@@ -200,7 +200,21 @@ body:not(.light-theme) .header-text h1 {
   font-family: var(--font-heading);
   flex-shrink: 0;
   box-shadow: 0 3px 12px rgba(0, 0, 0, 0.15);
+  overflow: hidden;
+  position: relative;
 }
+
+.user-avatar.has-img {
+  background: transparent !important;
+}
+
+.user-avatar-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
 
 .avatar-dev {
   background: linear-gradient(135deg, var(--emerald-500) 0%, var(--emerald-700) 100%);

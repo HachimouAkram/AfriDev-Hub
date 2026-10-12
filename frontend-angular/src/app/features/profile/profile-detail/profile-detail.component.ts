@@ -112,6 +112,17 @@ export class ProfileDetailComponent implements OnInit {
     });
   }
 
+  getAvatarUrl(url: string | undefined | null): string {
+    return this.profileService.getFullAvatarUrl(url);
+  }
+
+  onAvatarError(event: Event): void {
+    if (this.profile) {
+      // If image fails to load, gracefully reset so letter fallback shows
+      this.profile.avatarUrl = undefined;
+    }
+  }
+
   loadActivities(userId: string): void {
     this.isLoadingActivities = true;
     
@@ -355,12 +366,14 @@ export class ProfileDetailComponent implements OnInit {
   // Edit Profile Modal State
   showEditModal = false;
   isSavingProfile = false;
+  isUploadingAvatar = false;
   editSuccessMessage = '';
   editErrorMessage = '';
 
   editForm = {
     fullName: '',
     title: '',
+    avatarUrl: '',
     bio: '',
     country: '',
     city: '',
@@ -380,6 +393,7 @@ export class ProfileDetailComponent implements OnInit {
     this.editForm = {
       fullName: this.profile.fullName || '',
       title: this.profile.title || '',
+      avatarUrl: this.profile.avatarUrl || '',
       bio: this.profile.bio || '',
       country: this.profile.country || '',
       city: this.profile.city || '',
@@ -402,6 +416,42 @@ export class ProfileDetailComponent implements OnInit {
     this.showEditModal = false;
   }
 
+  onFileSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (!input.files || input.files.length === 0) return;
+
+    const file = input.files[0];
+    this.isUploadingAvatar = true;
+
+    this.profileService.uploadAvatar(file).subscribe({
+      next: (res) => {
+        this.isUploadingAvatar = false;
+        if (res.success && res.data?.url) {
+          const newUrl = res.data.url;
+          this.editForm.avatarUrl = newUrl;
+          if (this.profile) {
+            this.profile.avatarUrl = newUrl;
+          }
+          // Direct quick-save if changed from header badge outside of modal
+          if (!this.showEditModal) {
+            this.profileService.updateProfile({ avatarUrl: newUrl }).subscribe({
+              next: (updateRes) => {
+                if (updateRes.success && updateRes.data) {
+                  this.profile = updateRes.data;
+                  this.authService.updateProfileInUser(updateRes.data);
+                }
+              }
+            });
+          }
+        }
+      },
+      error: () => {
+        this.isUploadingAvatar = false;
+        this.editErrorMessage = 'Échec du téléversement de la photo.';
+      }
+    });
+  }
+
   onSaveProfile(): void {
     this.isSavingProfile = true;
     this.editSuccessMessage = '';
@@ -418,6 +468,7 @@ export class ProfileDetailComponent implements OnInit {
     const payload = {
       fullName: this.editForm.fullName,
       title: this.editForm.title,
+      avatarUrl: this.editForm.avatarUrl,
       bio: this.editForm.bio,
       country: this.editForm.country,
       city: this.editForm.city,
@@ -449,3 +500,4 @@ export class ProfileDetailComponent implements OnInit {
     });
   }
 }
+

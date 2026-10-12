@@ -12,8 +12,27 @@
   <!-- Profile Header Card -->
   <div class="app-card profile-header-card">
     <div class="header-main">
-      <div class="avatar-large">
-        {{ profile.fullName ? profile.fullName.charAt(0).toUpperCase() : 'P' }}
+      <div class="avatar-large-container">
+        <div class="avatar-large" [class.has-photo]="!!profile.avatarUrl">
+          <img 
+            *ngIf="profile.avatarUrl" 
+            [src]="getAvatarUrl(profile.avatarUrl)" 
+            (error)="onAvatarError($event)" 
+            [alt]="profile.fullName" 
+            class="avatar-img">
+          <span *ngIf="!profile.avatarUrl">{{ profile.fullName ? profile.fullName.charAt(0).toUpperCase() : 'P' }}</span>
+        </div>
+        <!-- Quick change photo button for own profile -->
+        <label *ngIf="isOwnProfile" class="avatar-edit-badge" title="Changer la photo de profil">
+          <input type="file" accept="image/*" (change)="onFileSelected($event)" style="display: none;">
+          <svg class="icon-svg icon-svg-xs" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6.827 6.175A2.31 2.31 0 015.186 7.23c-.38.054-.757.112-1.134.175C2.999 7.58 2.25 8.507 2.25 9.574V18a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18V9.574c0-1.067-.75-1.994-1.802-2.169a47.865 47.865 0 00-1.134-.175 2.31 2.31 0 01-1.64-1.055l-.822-1.316a2.192 2.192 0 00-1.736-1.039 48.774 48.774 0 00-5.232 0 2.192 2.192 0 00-1.736 1.039l-.821 1.316z" />
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16.5 12.75a4.5 4.5 0 11-9 0 4.5 4.5 0 019 0zM18.75 10.5h.008v.008h-.008V10.5z" />
+          </svg>
+        </label>
+        <span *ngIf="isUploadingAvatar" class="avatar-uploading-overlay">
+          <div class="spinner-mini"></div>
+        </span>
       </div>
       <div class="header-details">
         <div class="name-badge-row">
@@ -604,11 +623,41 @@
 
       <div class="modal-body">
         <form (ngSubmit)="onSaveProfile()" class="edit-profile-form">
+          <!-- Photo de profil -->
+          <div class="form-group avatar-upload-field">
+            <label class="form-label">Photo de Profil (Avatar)</label>
+            <div class="avatar-edit-preview-row">
+              <div class="avatar-preview-box">
+                <img *ngIf="editForm.avatarUrl" [src]="getAvatarUrl(editForm.avatarUrl)" alt="Avatar preview" class="avatar-preview-img">
+                <span *ngIf="!editForm.avatarUrl" class="avatar-preview-letter">
+                  {{ editForm.fullName ? editForm.fullName.charAt(0).toUpperCase() : 'P' }}
+                </span>
+              </div>
+              <div class="avatar-upload-actions">
+                <label class="btn btn-emerald btn-sm file-upload-btn">
+                  <svg class="icon-svg icon-svg-xs" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
+                  </svg>
+                  <span>Téléverser une photo</span>
+                  <input type="file" accept="image/*" (change)="onFileSelected($event)" style="display: none;">
+                </label>
+                <button type="button" *ngIf="editForm.avatarUrl" (click)="editForm.avatarUrl = ''" class="btn btn-outline btn-sm">
+                  Supprimer la photo
+                </button>
+                <small *ngIf="isUploadingAvatar" class="text-emerald text-xs">Téléversement en cours...</small>
+              </div>
+            </div>
+            <div class="avatar-url-input-row">
+              <input type="text" [(ngModel)]="editForm.avatarUrl" name="avatarUrl" placeholder="Ou collez un lien URL d'image (https://...)" class="form-input">
+            </div>
+          </div>
+
           <div class="grid-2">
             <div class="form-group">
               <label class="form-label">Nom Complet *</label>
               <input type="text" [(ngModel)]="editForm.fullName" name="fullName" required placeholder="Ex: Amadou Diallo" class="form-input">
             </div>
+
 
             <div class="form-group">
               <label class="form-label">Titre / Rôle Principal *</label>
