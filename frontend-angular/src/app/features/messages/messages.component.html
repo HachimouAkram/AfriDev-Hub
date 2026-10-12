@@ -87,13 +87,14 @@
             <div class="partner-name-row">
               <h3>{{ activePartner.profile?.fullName || activePartner.email }}</h3>
               <span class="badge" [ngClass]="activePartner.role === 'RECRUITER' ? 'badge-blue' : 'badge-emerald'" [title]="activePartner.role === 'RECRUITER' ? 'Recruteur' : 'Développeur'">
-                {{ activePartner.role === 'RECRUITER' ? '👔' : '👨‍💻' }}
+                <i *ngIf="activePartner.role === 'RECRUITER'" class="ri-shirt-line"></i>
+                <i *ngIf="activePartner.role !== 'RECRUITER'" class="ri-user-3-line"></i>
                 <span class="role-text-desktop">{{ activePartner.role === 'RECRUITER' ? ' Recruteur' : ' Développeur' }}</span>
               </span>
             </div>
             <div class="partner-sub-bar desktop-only-flex">
               <span class="sub-text" *ngIf="activePartner.profile?.title">{{ activePartner.profile?.title }}</span>
-              <span class="sub-text" *ngIf="activePartner.profile?.country">📍 {{ cleanText(activePartner.profile?.country) }}</span>
+              <span class="sub-text" *ngIf="activePartner.profile?.country"><i class="ri-map-pin-line"></i> {{ cleanText(activePartner.profile?.country) }}</span>
             </div>
           </div>
         </div>
@@ -152,7 +153,7 @@
 
           <ng-template #emptyMessagesTpl>
             <div class="empty-history-box">
-              <div class="empty-icon">💬</div>
+              <div class="empty-icon"><i class="ri-chat-1-line"></i></div>
               <h4>Discussion avec {{ activePartner.profile?.fullName || activePartner.email }}</h4>
               <p class="text-muted">Aucun message pour l'instant. Dites bonjour pour lancer la conversation !</p>
             </div>
@@ -168,7 +169,7 @@
 
       <ng-template #noPartnerBody>
         <div class="chat-history-container empty-selection-box">
-          <div class="empty-icon">⚡</div>
+          <div class="empty-icon"><i class="ri-flashlight-line"></i></div>
           <h3>Vos Discussions Messenger</h3>
           <p class="text-muted">Sélectionnez une conversation dans le panneau de gauche ou démarrez un nouvel échange direct avec un membre du réseau.</p>
           <button (click)="openNewChatModal()" class="btn btn-emerald">Démarrer une discussion</button>
@@ -190,12 +191,12 @@
 
         <!-- Quick Emoji Shortcuts Bar -->
         <div class="emoji-quick-bar">
-          <button (click)="insertEmoji('👍')" class="emoji-btn">👍</button>
-          <button (click)="insertEmoji('🚀')" class="emoji-btn">🚀</button>
-          <button (click)="insertEmoji('👏')" class="emoji-btn">👏</button>
-          <button (click)="insertEmoji('😊')" class="emoji-btn">😊</button>
-          <button (click)="insertEmoji('💻')" class="emoji-btn">💻</button>
-          <button (click)="insertEmoji('🔥')" class="emoji-btn">🔥</button>
+          <button (click)="insertEmoji('👍')" class="emoji-btn"><i class="ri-thumb-up-line"></i></button>
+          <button (click)="insertEmoji('🚀')" class="emoji-btn"><i class="ri-rocket-line"></i></button>
+          <button (click)="insertEmoji('👏')" class="emoji-btn"><i class="ri-sign-language-line"></i></button>
+          <button (click)="insertEmoji('😊')" class="emoji-btn"><i class="ri-smile-line"></i></button>
+          <button (click)="insertEmoji('💻')" class="emoji-btn"><i class="ri-computer-line"></i></button>
+          <button (click)="insertEmoji('🔥')" class="emoji-btn"><i class="ri-fire-line"></i></button>
         </div>
 
         <div class="input-form-row">
@@ -261,7 +262,7 @@
               </div>
               <div class="member-meta">
                 <span class="member-name">{{ member.fullName || member.email }}</span>
-                <span class="member-sub">{{ member.title || 'Membre AfriDev' }} &bull; 📍 {{ member.country || 'Afrique' }}</span>
+                <span class="member-sub">{{ member.title || 'Membre AfriDev' }} &bull; <i class="ri-map-pin-line"></i> {{ member.country || 'Afrique' }}</span>
               </div>
             </div>
             <button class="btn btn-outline btn-sm">Message</button>

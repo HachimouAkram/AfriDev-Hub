@@ -9,12 +9,18 @@
 **/.angular/
 **/__pycache__/
 **/.venv/
+**/venv/
 **/env/
 **/*.class
 **/*.jar
+apache-maven-*/
+
+# Temp scripts
+remove_emojis.py
 
 # IDE & OS
 .idea/
 .vscode/
 *.swp
 .DS_Store
+

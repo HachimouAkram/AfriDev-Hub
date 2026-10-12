@@ -56,6 +56,15 @@ public class OpportunityEntity {
     private String budget;
     private LocalDateTime deadline;
 
+    @Builder.Default
+    private Integer maxApplicants = 1; // Nombre de personnes cherchées (limite de postes)
+
+    @Builder.Default
+    private Integer acceptedCount = 0; // Nombre de candidats acceptés
+
+    @Builder.Default
+    private Boolean isPaid = true; // Pour un stage: rémunéré ou non
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     @Builder.Default

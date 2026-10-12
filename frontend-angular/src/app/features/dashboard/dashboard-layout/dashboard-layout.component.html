@@ -1,82 +1,88 @@
 <div class="dashboard-app-container" *ngIf="user() as u">
   <!-- Full-Height Left Sidebar -->
-  <aside class="dashboard-sidebar" [class.mobile-open]="isMobileSidebarOpen()">
+  <aside class="dashboard-sidebar" [class.mobile-open]="isMobileSidebarOpen()" [class.collapsed]="isSidebarCollapsed()">
     <!-- Sidebar Top Logo (Fixed) -->
     <div class="sidebar-header">
       <a routerLink="/" (click)="closeMobileSidebar()" class="sidebar-logo">
         <img src="/logo-africa.png" alt="AfriDev Hub Logo" class="logo-img" />
-        <div class="logo-text-wrapper">
+        <div class="logo-text-wrapper" *ngIf="!isSidebarCollapsed()">
           <span class="logo-text">AfriDev <span class="accent">Hub</span></span>
           <span class="logo-subtitle">Connexion Développeurs Africains</span>
         </div>
       </a>
+      <button class="sidebar-toggle-desktop" (click)="toggleSidebarCollapse()" [title]="isSidebarCollapsed() ? 'Agrandir le menu' : 'Réduire le menu (Garder les icônes)'">
+        <svg class="icon-svg icon-svg-xs" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+          <path *ngIf="!isSidebarCollapsed()" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.75 19.5l-7.5-7.5 7.5-7.5m-6 15L5.25 12l7.5-7.5" />
+          <path *ngIf="isSidebarCollapsed()" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.25 4.5l7.5 7.5-7.5 7.5m-6-15l7.5 7.5-7.5 7.5" />
+        </svg>
+      </button>
     </div>
 
     <!-- Sidebar Navigation Items -->
     <nav class="sidebar-nav">
-      <a routerLink="/dashboard" (click)="closeMobileSidebar()" [routerLinkActiveOptions]="{exact: true}" routerLinkActive="active" class="nav-item">
+      <a routerLink="/dashboard" (click)="closeMobileSidebar()" [routerLinkActiveOptions]="{exact: true}" routerLinkActive="active" class="nav-item" [title]="isSidebarCollapsed() ? 'Tableau de bord' : ''">
         <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" />
         </svg>
-        <span>Tableau de bord</span>
+        <span class="nav-label">Tableau de bord</span>
       </a>
 
-      <a routerLink="/dashboard/messages" (click)="closeMobileSidebar()" routerLinkActive="active" class="nav-item">
+      <a routerLink="/dashboard/messages" (click)="closeMobileSidebar()" routerLinkActive="active" class="nav-item" [title]="isSidebarCollapsed() ? 'Messages' : ''">
         <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.625 12a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H8.25m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H12m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0h-.375M21 12c0 4.556-4.03 8.25-9 8.25a9.764 9.764 0 01-2.555-.337A5.972 5.972 0 015.41 20.97a.598.598 0 01-.743-.598l.147-1.44a5.962 5.962 0 01-1.814-4.432C3 10.444 7.03 6.75 12 6.75s9 3.694 9 8.25z" />
         </svg>
-        <span>Messages</span>
+        <span class="nav-label">Messages</span>
       </a>
 
-      <a routerLink="/dashboard/applications" (click)="closeMobileSidebar()" routerLinkActive="active" class="nav-item">
+      <a routerLink="/dashboard/applications" (click)="closeMobileSidebar()" routerLinkActive="active" class="nav-item" [title]="isSidebarCollapsed() ? 'Mes candidatures' : ''">
         <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
         </svg>
-        <span>Mes candidatures</span>
+        <span class="nav-label">Mes candidatures</span>
         <span class="nav-badge" *ngIf="submittedAppsCount()">{{ submittedAppsCount() }}</span>
       </a>
 
-      <a routerLink="/dashboard/offers" (click)="closeMobileSidebar()" routerLinkActive="active" class="nav-item">
+      <a routerLink="/dashboard/offers" (click)="closeMobileSidebar()" routerLinkActive="active" class="nav-item" [title]="isSidebarCollapsed() ? 'Offres & Demandes' : ''">
         <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.25 14.15v4.25c0 1.094-.787 2.036-1.872 2.18-2.087.277-4.216.42-6.378.42s-4.291-.143-6.378-.42c-1.085-.144-1.872-1.086-1.872-2.18v-4.25m16.5 0a2.18 2.18 0 00.75-1.661V8.706c0-1.081-.768-2.015-1.837-2.175a48.114 48.114 0 00-3.413-.387m4.5 8.006c-.194.165-.42.295-.673.38A23.978 23.978 0 0112 15.75c-2.648 0-5.195-.429-7.577-1.22a2.016 2.016 0 01-.673-.38m0 0A2.18 2.18 0 013 12.489V8.706c0-1.081.768-2.015 1.837-2.175a48.111 48.111 0 013.413-.387m7.5 0V4.5a2.25 2.25 0 00-2.25-2.25h-3a2.25 2.25 0 00-2.25 2.25v1.644m6 0a47.4 47.4 0 01-6 0" />
         </svg>
-        <span>Offres & Demandes</span>
+        <span class="nav-label">Offres & Demandes</span>
         <span class="nav-badge" *ngIf="receivedAppsCount()">{{ receivedAppsCount() }}</span>
       </a>
 
-      <div class="sidebar-section-header">VOTRE ACTIVITÉ</div>
+      <div class="sidebar-section-header" *ngIf="!isSidebarCollapsed()">VOTRE ACTIVITÉ</div>
 
-      <a routerLink="/dashboard/projects" (click)="closeMobileSidebar()" routerLinkActive="active" class="nav-item">
+      <a routerLink="/dashboard/projects" (click)="closeMobileSidebar()" routerLinkActive="active" class="nav-item" [title]="isSidebarCollapsed() ? 'Mes projets' : ''">
         <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.25 9.75L16.5 12l-2.25 2.25m-4.5 0L7.5 12l2.25-2.25M6 20.25h12A2.25 2.25 0 0020.25 18V6A2.25 2.25 0 0018 3.75H6A2.25 2.25 0 003.75 6v12A2.25 2.25 0 006 20.25z" />
         </svg>
-        <span>Mes projets</span>
+        <span class="nav-label">Mes projets</span>
       </a>
 
-      <a routerLink="/dashboard/evaluations" (click)="closeMobileSidebar()" routerLinkActive="active" class="nav-item">
+      <a routerLink="/dashboard/evaluations" (click)="closeMobileSidebar()" routerLinkActive="active" class="nav-item" [title]="isSidebarCollapsed() ? 'Réputation Pairs' : ''">
         <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 00-.182.557l1.285 5.385a.562.562 0 01-.84.61l-4.725-2.885a.563.563 0 00-.586 0L6.982 20.54a.562.562 0 01-.84-.61l1.285-5.386a.562.562 0 00-.182-.557l-4.204-3.602a.563.563 0 01.321-.988l5.518-.442a.563.563 0 00.475-.345L11.48 3.5z" />
         </svg>
-        <span>Réputation Pairs</span>
+        <span class="nav-label">Réputation Pairs</span>
       </a>
     </nav>
 
     <!-- Sidebar Bottom Fixed Footer -->
     <div class="sidebar-footer">
-      <div class="sidebar-section-header">COMPTE & ESPACE</div>
+      <div class="sidebar-section-header" *ngIf="!isSidebarCollapsed()">COMPTE & ESPACE</div>
 
-      <a routerLink="/dashboard/profile" (click)="closeMobileSidebar()" routerLinkActive="active" class="nav-item">
+      <a routerLink="/dashboard/profile" (click)="closeMobileSidebar()" routerLinkActive="active" class="nav-item" [title]="isSidebarCollapsed() ? 'Mon profil' : ''">
         <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
         </svg>
-        <span>Mon profil</span>
+        <span class="nav-label">Mon profil</span>
       </a>
 
-      <a routerLink="/" (click)="closeMobileSidebar()" class="nav-item link-site-btn">
+      <a routerLink="/" (click)="closeMobileSidebar()" class="nav-item link-site-btn" [title]="isSidebarCollapsed() ? 'Voir le site' : ''">
         <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 21a9 9 0 100-18 9 9 0 000 18zM3.6 9h16.8M3.6 15h16.8M12 3a14.25 14.25 0 000 18 14.25 14.25 0 000-18z" />
         </svg>
-        <span>Voir le site</span>
+        <span class="nav-label">Voir le site</span>
       </a>
     </div>
   </aside>
@@ -85,10 +91,17 @@
   <div class="sidebar-backdrop" *ngIf="isMobileSidebarOpen()" (click)="closeMobileSidebar()"></div>
 
   <!-- Right Dashboard Area -->
-  <div class="dashboard-main-area">
+  <div class="dashboard-main-area" [class.sidebar-is-collapsed]="isSidebarCollapsed()">
     <!-- Top Bar inside Dashboard -->
     <header class="dashboard-topbar">
       <div class="topbar-left">
+        <!-- Desktop Quick Collapse Toggle Icon -->
+        <button (click)="toggleSidebarCollapse()" class="topbar-collapse-btn desktop-only" [title]="isSidebarCollapsed() ? 'Déployer la barre latérale' : 'Réduire la barre latérale (icônes seules)'">
+          <svg class="icon-svg icon-svg-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+          </svg>
+        </button>
+
         <!-- Mobile Hamburger Menu Button -->
         <button (click)="toggleMobileSidebar($event)" class="mobile-hamburger-btn" aria-label="Menu Mobile">
           <svg class="hamburger-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
@@ -107,8 +120,98 @@
       </div>
 
       <div class="topbar-right">
+        <!-- Multilingual Language Selector with Voice -->
+        <div class="lang-dropdown-wrapper">
+          <button (click)="toggleLangMenu($event)" class="topbar-icon-btn lang-pill-btn" title="Changer de langue / Làkk">
+            <span class="lang-flag">{{ currentLang().flag }}</span>
+            <span class="lang-code desktop-only">{{ currentLang().code.toUpperCase() }}</span>
+            <svg class="chevron-icon-sm" [class.rotated]="isLangMenuOpen" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+            </svg>
+          </button>
+
+          <!-- Language Dropdown Menu -->
+          <div class="lang-dropdown-menu app-card" *ngIf="isLangMenuOpen" (click)="$event.stopPropagation()">
+            <div class="lang-menu-head">
+              <span>Langue / Wàllu Làkk</span>
+            </div>
+            <div class="lang-menu-list">
+              <div *ngFor="let lang of availableLanguages" 
+                   class="lang-menu-item" 
+                   [class.active]="lang.code === currentLang().code"
+                   (click)="selectLanguage(lang)">
+                <div class="lang-info">
+                  <span class="lang-emoji">{{ lang.flag }}</span>
+                  <span class="lang-title">{{ lang.label }}</span>
+                </div>
+                <button type="button" class="voice-speak-btn" (click)="speakVoice(lang, $event)" [title]="'Écouter en ' + lang.label">
+                  <svg class="icon-svg icon-svg-xs" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.114 5.636a9 9 0 010 12.728M16.463 8.288a5.25 5.25 0 010 7.424M6.75 8.25l4.72-4.72a.75.75 0 011.28.53v15.88a.75.75 0 01-1.28.53l-4.72-4.72H4.51c-.88 0-1.704-.507-1.938-1.354A9.01 9.01 0 012.25 12c0-.83.112-1.633.322-2.396C2.806 8.757 3.63 8.25 4.51 8.25H6.75z" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Notification Bell Button -->
+        <div class="notif-dropdown-wrapper">
+          <button (click)="toggleNotifMenu($event)" class="topbar-icon-btn notif-btn" title="Notifications">
+            <svg class="icon-svg icon-svg-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0" />
+            </svg>
+            <span class="notif-badge" *ngIf="unreadNotifsCount() > 0">{{ unreadNotifsCount() > 9 ? '9+' : unreadNotifsCount() }}</span>
+          </button>
+
+          <!-- Notification Dropdown Panel -->
+          <div class="notif-dropdown-menu app-card" *ngIf="isNotifMenuOpen" (click)="$event.stopPropagation()">
+            <div class="notif-header">
+              <div class="notif-title-row">
+                <h4>Notifications</h4>
+                <span class="badge badge-emerald" *ngIf="unreadNotifsCount() > 0">{{ unreadNotifsCount() }} nouvelle{{ unreadNotifsCount() > 1 ? 's' : '' }}</span>
+              </div>
+              <button *ngIf="unreadNotifsCount() > 0" (click)="markAllNotifsRead()" class="mark-read-btn">Tout marquer comme lu</button>
+            </div>
+
+            <div class="notif-list">
+              <div *ngIf="notifications().length === 0" class="notif-empty">
+                <svg class="icon-svg icon-svg-lg text-muted" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0" />
+                </svg>
+                <p>Aucune notification pour le moment.</p>
+              </div>
+
+              <div *ngFor="let notif of notifications()" 
+                   class="notif-item" 
+                   [class.unread]="!notif.read"
+                   (click)="markNotifRead(notif, $event)">
+                <div class="notif-icon-circle">
+                  <svg *ngIf="notif.type === 'APPLICATION'" class="icon-svg icon-svg-xs text-blue" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.25 14.15v4.25c0 1.094-.787 2.036-1.872 2.18-2.087.277-4.216.42-6.378.42s-4.291-.143-6.378-.42c-1.085-.144-1.872-1.086-1.872-2.18v-4.25m16.5 0a2.18 2.18 0 00.75-1.661V8.706c0-1.081-.768-2.015-1.837-2.175a48.114 48.114 0 00-3.413-.387m4.5 8.006c-.194.165-.42.295-.673.38A23.978 23.978 0 0112 15.75c-2.648 0-5.195-.429-7.577-1.22a2.016 2.016 0 01-.673-.38m0 0A2.18 2.18 0 013 12.489V8.706c0-1.081.768-2.015 1.837-2.175a48.111 48.111 0 013.413-.387m7.5 0V4.5a2.25 2.25 0 00-2.25-2.25h-3a2.25 2.25 0 00-2.25 2.25v1.644m6 0a47.4 47.4 0 01-6 0" />
+                  </svg>
+                  <svg *ngIf="notif.type === 'MESSAGE'" class="icon-svg icon-svg-xs text-emerald" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.625 12a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H8.25m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H12m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0h-.375M21 12c0 4.556-4.03 8.25-9 8.25a9.764 9.764 0 01-2.555-.337A5.972 5.972 0 015.41 20.97a.75.75 0 01-.774-.954c.264-.958.55-1.928.857-2.89A7.778 7.778 0 013 12c0-4.556 4.03-8.25 9-8.25s9 3.694 9 8.25z" />
+                  </svg>
+                  <svg *ngIf="notif.type === 'EVALUATION'" class="icon-svg icon-svg-xs text-amber" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
+                  </svg>
+                  <svg *ngIf="!['APPLICATION','MESSAGE','EVALUATION'].includes(notif.type)" class="icon-svg icon-svg-xs text-muted" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0" />
+                  </svg>
+                </div>
+                <div class="notif-content">
+                  <div class="notif-item-title">{{ notif.title }}</div>
+                  <div class="notif-item-body">{{ notif.body }}</div>
+                  <div class="notif-item-time">{{ notif.createdAt | date:'shortTime' }}</div>
+                </div>
+                <span class="unread-dot" *ngIf="!notif.read"></span>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <!-- Theme Toggle Button -->
-        <button (click)="toggleTheme()" class="theme-btn" [title]="isDark() ? 'Passer au Mode Clair' : 'Passer au Mode Sombre'">
+        <button (click)="toggleTheme()" class="topbar-icon-btn theme-btn" [title]="isDark() ? 'Passer au Mode Clair' : 'Passer au Mode Sombre'">
           <svg *ngIf="isDark()" class="icon-svg icon-svg-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v2.25m0 13.5V21m8.966-8.966h-2.25M4.284 12h-2.25m15.364 6.364l-1.591-1.591M6.759 6.759L5.168 5.168m12.728 0l-1.591 1.591M6.759 17.241l-1.591 1.591M12 8.25a3.75 3.75 0 100 7.5 3.75 3.75 0 000-7.5z" />
           </svg>

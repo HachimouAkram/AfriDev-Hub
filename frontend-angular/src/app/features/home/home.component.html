@@ -120,18 +120,98 @@
     </div>
   </section>
 
+  <!-- ELEGANT LIVE METRICS & STATS BANNER -->
+  <section class="metrics-ticker-section app-card">
+    <div class="metrics-grid">
+      <!-- Stat 1: Développeurs -->
+      <div class="metric-card">
+        <div class="metric-icon-box icon-emerald">
+          <svg class="metric-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z" />
+          </svg>
+        </div>
+        <div class="metric-content">
+          <div class="metric-value-row">
+            <span class="metric-number">{{ statDevs | number }}</span>
+            <span class="metric-plus">+</span>
+          </div>
+          <span class="metric-label">Développeurs Inscrits</span>
+          <span class="metric-subtext">Talents certifiés et actifs</span>
+        </div>
+      </div>
+
+      <!-- Stat 2: Projets Disponibles -->
+      <div class="metric-card">
+        <div class="metric-icon-box icon-blue">
+          <svg class="metric-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.25 6.75L22.5 12l-5.25 5.25m-10.5 0L1.5 12l5.25-5.25m7.5-3l-4.5 16.5" />
+          </svg>
+        </div>
+        <div class="metric-content">
+          <div class="metric-value-row">
+            <span class="metric-number">{{ statProjects | number }}</span>
+            <span class="metric-plus">+</span>
+          </div>
+          <span class="metric-label">Projets & Repos</span>
+          <span class="metric-subtext">Open Source et Vitrines SaaS</span>
+        </div>
+      </div>
+
+      <!-- Stat 3: Opportunités -->
+      <div class="metric-card">
+        <div class="metric-icon-box icon-purple">
+          <svg class="metric-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.25 14.15v4.25c0 .621-.504 1.125-1.125 1.125H4.875A1.125 1.125 0 013.75 18.4v-4.25m16.5 0a2.25 2.25 0 00-2.25-2.25H6a2.25 2.25 0 00-2.25 2.25m16.5 0v-2.25A2.25 2.25 0 0018 9.65h-2.25a2.25 2.25 0 00-2.25 2.25M3.75 14.15v-2.25A2.25 2.25 0 016 9.65h2.25a2.25 2.25 0 012.25 2.25M9 6.75A2.25 2.25 0 0111.25 4.5h1.5A2.25 2.25 0 0115 6.75v2.9h-6v-2.9z" />
+          </svg>
+        </div>
+        <div class="metric-content">
+          <div class="metric-value-row">
+            <span class="metric-number">{{ statOffers | number }}</span>
+            <span class="metric-plus">+</span>
+          </div>
+          <span class="metric-label">Opportunités Tech</span>
+          <span class="metric-subtext">CDI, Freelance & Missions</span>
+        </div>
+      </div>
+
+      <!-- Stat 4: Pays Africains -->
+      <div class="metric-card">
+        <div class="metric-icon-box icon-amber">
+          <svg class="metric-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <circle cx="12" cy="12" r="10" stroke-width="2"/>
+            <path stroke-width="2" d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+          </svg>
+        </div>
+        <div class="metric-content">
+          <div class="metric-value-row">
+            <span class="metric-number">{{ statCountries }}</span>
+            <span class="metric-plus">/54</span>
+          </div>
+          <span class="metric-label">Pays Représentés</span>
+          <span class="metric-subtext">Couverture 100% continentale</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <!-- FEATURED PROJECTS SHOWCASE -->
   <section class="showcase-section">
-    <div class="section-header-row">
-      <div>
-        <span class="badge badge-emerald">Vitrine de Projets</span>
-        <h2>Dernières Créations de la Communauté</h2>
+    <div class="section-showcase-header">
+      <span class="badge badge-emerald badge-hero-section">Vitrine de Projets</span>
+      <h2 class="section-big-title">Dernières Créations de la Communauté</h2>
+      <p class="section-subtitle">Explorez les projets phares, applications open-source et SaaS conçus par les développeurs africains.</p>
+      <div class="section-action-center">
+        <a routerLink="/projects" class="btn btn-outline btn-md">
+          <span>Voir tous les projets</span>
+          <svg class="icon-svg icon-svg-xs" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+          </svg>
+        </a>
       </div>
-      <a routerLink="/projects" class="btn btn-outline btn-sm">Voir tous les projets &rarr;</a>
     </div>
 
     <div class="projects-grid" *ngIf="!isLoadingProjects; else loadingProjectsTpl">
-      <div *ngFor="let proj of featuredProjects" class="app-card project-home-card">
+      <div *ngFor="let proj of featuredProjects.slice(0, 3)" class="app-card project-home-card">
         <div class="proj-card-top">
           <span class="badge badge-emerald">
             <svg class="icon-svg icon-svg-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor">
@@ -173,12 +253,18 @@
 
   <!-- FEATURED MEMBERS DIRECTORY SHOWCASE -->
   <section class="members-showcase-section">
-    <div class="section-header-row">
-      <div>
-        <span class="badge badge-emerald">Annuaire & Réseau</span>
-        <h2>Rencontrez les Développeurs d'Élite</h2>
+    <div class="section-showcase-header">
+      <span class="badge badge-emerald badge-hero-section">Annuaire & Réseau</span>
+      <h2 class="section-big-title">Rencontrez les Développeurs d'Élite</h2>
+      <p class="section-subtitle">Connectez-vous avec les talents tech les plus actifs, vérifiés et recommandés à travers toute l'Afrique.</p>
+      <div class="section-action-center">
+        <a routerLink="/network" class="btn btn-outline btn-md">
+          <span>Explorer l'Annuaire complet</span>
+          <svg class="icon-svg icon-svg-xs" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+          </svg>
+        </a>
       </div>
-      <a routerLink="/network" class="btn btn-outline btn-sm">Explorer l'Annuaire &rarr;</a>
     </div>
 
     <div class="members-grid" *ngIf="!isLoadingMembers; else loadingMembersTpl">

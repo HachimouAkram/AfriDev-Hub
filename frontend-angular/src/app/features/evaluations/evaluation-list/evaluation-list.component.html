@@ -74,9 +74,9 @@
           </div>
 
           <div class="review-meta">
-            <span *ngIf="col.evaluatedByCurrentUser" class="badge badge-emerald">✓ Collaboration Évaluée par vous</span>
+            <span *ngIf="col.evaluatedByCurrentUser" class="badge badge-emerald"><i class="ri-check-line"></i> Collaboration Évaluée par vous</span>
             <ng-container *ngIf="col.verified && !col.evaluatedByCurrentUser">
-              <span class="badge badge-emerald">✓ Collaboration Confirmée</span>
+              <span class="badge badge-emerald"><i class="ri-check-line"></i> Collaboration Confirmée</span>
               <button 
                 (click)="openEvalModal(col)" 
                 class="btn btn-emerald btn-sm" style="margin-left: 0.5rem;">
@@ -90,7 +90,7 @@
               *ngIf="!col.verified && col.partner?.id === currentUser()?.id" 
               (click)="onVerifyCollab(col.id)" 
               class="btn btn-emerald btn-sm">
-              ✓ Valider & Confirmer
+              <i class="ri-check-line"></i> Valider & Confirmer
             </button>
             <span *ngIf="!col.verified && col.initiator?.id === currentUser()?.id" class="badge badge-gray">
               En attente de validation du partenaire
@@ -223,7 +223,7 @@
             name="selectedCollabId" 
             class="form-select">
             <option *ngFor="let c of getPendingEvaluationsCollaborations()" [value]="c.id">
-              {{ getEvaluateeName(c) }} — {{ c.type }} (✓ Vérifiée)
+              {{ getEvaluateeName(c) }} — {{ c.type }} (<i class="ri-check-line"></i> Vérifiée)
             </option>
           </select>
         </div>
@@ -244,7 +244,7 @@
             </div>
           </div>
           <div class="partner-status">
-            <span *ngIf="collab.verified" class="badge badge-emerald">✓ Collaboration Certifiée</span>
+            <span *ngIf="collab.verified" class="badge badge-emerald"><i class="ri-check-line"></i> Collaboration Certifiée</span>
             <span *ngIf="!collab.verified" class="badge badge-gray">⏳ En attente de confirmation du partenaire</span>
           </div>
         </div>

@@ -54,11 +54,11 @@ export class DashboardProjectsComponent implements OnInit {
 
   // Project Types definition
   projectTypesList: { key: ProjectType; label: string; icon: string; desc: string }[] = [
-    { key: 'OPEN_SOURCE', label: 'Open Source', icon: '⚡', desc: 'Code source public avec licence libre' },
-    { key: 'FOR_SALE', label: 'Projet en Vente', icon: '💰', desc: 'Cession de code ou d\'application' },
-    { key: 'SAAS', label: 'Projet SaaS', icon: '🚀', desc: 'Service web hébergé avec abonnement' },
-    { key: 'PORTFOLIO', label: 'Site / Portfolio', icon: '💼', desc: 'Vitrine de présentation personnelle' },
-    { key: 'ENTERPRISE', label: 'Projet Entreprise', icon: '🏢', desc: 'Réalisation pro sous contrat NDA' }
+    { key: 'OPEN_SOURCE', label: 'Open Source', icon: 'ri-flashlight-line', desc: 'Code source public avec licence libre' },
+    { key: 'FOR_SALE', label: 'Projet en Vente', icon: 'ri-money-dollar-circle-line', desc: 'Cession de code ou d\'application' },
+    { key: 'SAAS', label: 'Projet SaaS', icon: 'ri-rocket-line', desc: 'Service web hébergé avec abonnement' },
+    { key: 'PORTFOLIO', label: 'Site / Portfolio', icon: 'ri-briefcase-line', desc: 'Vitrine de présentation personnelle' },
+    { key: 'ENTERPRISE', label: 'Projet Entreprise', icon: 'ri-building-line', desc: 'Réalisation pro sous contrat NDA' }
   ];
 
   // Form Model
@@ -457,7 +457,7 @@ export class DashboardProjectsComponent implements OnInit {
       event.stopPropagation();
     }
     if (!this.authService.isLoggedIn()) {
-      this.showToast('⚠️ Connectez-vous pour donner un J\'aime à ce projet.');
+      this.showToast('Connectez-vous pour donner un J\'aime à ce projet.');
       return;
     }
 
@@ -474,7 +474,7 @@ export class DashboardProjectsComponent implements OnInit {
         next: () => {
           project.recognitionsCount = (project.recognitionsCount || 0) + 1;
           project.recognizedByCurrentUser = true;
-          this.showToast('⭐ Projet reconnu !');
+          this.showToast('Projet reconnu !');
         }
       });
     }
@@ -483,7 +483,7 @@ export class DashboardProjectsComponent implements OnInit {
   toggleAuthorFollow(): void {
     const authorUserId = this.selectedProject?.author?.id;
     if (!authorUserId || !this.authService.isLoggedIn()) {
-      this.showToast('⚠️ Connectez-vous pour suivre ce développeur.');
+      this.showToast('Connectez-vous pour suivre ce développeur.');
       return;
     }
 
@@ -508,9 +508,9 @@ export class DashboardProjectsComponent implements OnInit {
           if (res.success) {
             this.authorFollowStats = res.data;
             if (res.data.followedByCurrentUser && res.data.followsCurrentUser) {
-              this.showToast('🤝 Vous êtes maintenant amis !');
+              this.showToast('Vous êtes maintenant amis !');
             } else {
-              this.showToast('✓ Développeur suivi !');
+              this.showToast('Développeur suivi !');
             }
           }
         },
@@ -541,7 +541,7 @@ export class DashboardProjectsComponent implements OnInit {
     if (!this.selectedProject || !this.newCommentText.trim()) return;
 
     if (!this.authService.isLoggedIn()) {
-      this.showToast('⚠️ Connectez-vous pour publier un commentaire.');
+      this.showToast('Connectez-vous pour publier un commentaire.');
       return;
     }
 
@@ -552,7 +552,7 @@ export class DashboardProjectsComponent implements OnInit {
         if (res.success && res.data) {
           this.projectComments.push(res.data);
           this.newCommentText = '';
-          this.showToast('💬 Commentaire publié !');
+          this.showToast('Commentaire publié !');
         }
       },
       error: () => {
@@ -564,7 +564,7 @@ export class DashboardProjectsComponent implements OnInit {
 
   contactAuthorForProject(project: Project, inquiryType: 'BUY' | 'DEMO' | 'COLLAB'): void {
     if (!this.authService.isLoggedIn()) {
-      this.showToast('⚠️ Veuillez vous connecter pour contacter le créateur du projet.');
+      this.showToast('Veuillez vous connecter pour contacter le créateur du projet.');
       return;
     }
 
@@ -606,7 +606,7 @@ export class DashboardProjectsComponent implements OnInit {
       window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(shareText + ' ' + permalink)}`, '_blank');
     } else {
       navigator.clipboard.writeText(permalink).then(() => {
-        this.showToast('🔗 Lien du projet copié dans le presse-papier !');
+        this.showToast('Lien du projet copié dans le presse-papier !');
       }).catch(() => {
         this.showToast('Lien du projet : ' + permalink);
       });

@@ -1,10 +1,12 @@
 .opportunities-container {
-  max-width: 1240px;
+  max-width: 1400px;
+  width: 100%;
   margin: 0 auto;
-  padding: 2.5rem 1.5rem;
+  padding: clamp(1rem, 3vw, 2.5rem) clamp(1rem, 2.5vw, 1.5rem);
   display: flex;
   flex-direction: column;
   gap: 2rem;
+  box-sizing: border-box;
 }
 
 .header-section {
@@ -193,4 +195,65 @@
   justify-content: flex-end;
   gap: 0.75rem;
   margin-top: 0.5rem;
+}
+
+/* Closed / Limit Reached Card Styling */
+.opt-card.opt-card-closed {
+  opacity: 0.75;
+  background: rgba(255, 255, 255, 0.02);
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+.opt-card.opt-card-closed:hover {
+  transform: none;
+  box-shadow: none;
+}
+
+.btn-disabled-quota {
+  background: rgba(255, 255, 255, 0.08) !important;
+  color: var(--text-muted) !important;
+  border: 1px solid var(--border-subtle) !important;
+  cursor: not-allowed !important;
+  opacity: 0.8;
+  font-weight: 600;
+}
+
+/* Radio Pill Group for Stage Remuneration */
+.radio-pill-group {
+  display: flex;
+  gap: 0.6rem;
+  margin-top: 0.35rem;
+}
+
+.radio-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.55rem 0.9rem;
+  background: var(--bg-surface-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  transition: all 0.2s ease;
+}
+
+.radio-pill input[type="radio"] {
+  accent-color: var(--emerald-500);
+}
+
+.radio-pill.selected {
+  background: rgba(16, 185, 129, 0.12);
+  border-color: var(--emerald-500);
+  color: var(--emerald-500);
+}
+
+.field-hint {
+  display: block;
+  font-size: 0.725rem;
+  color: var(--text-muted);
+  margin-top: 0.3rem;
+  line-height: 1.3;
 }

@@ -44,6 +44,8 @@ export class OpportunityListComponent implements OnInit {
   optIsRemote = true;
   optStack = 'Angular, Spring Boot';
   optBudget = '1 500 000 FCFA / mois';
+  optMaxApplicants = 1; // Nombre de personnes cherchées
+  optIsPaid = true; // Pour un stage: rémunéré ou non
 
   ngOnInit(): void {
     this.loadOpportunities();
@@ -127,6 +129,11 @@ export class OpportunityListComponent implements OnInit {
 
     const stack = this.optStack.split(',').map(s => s.trim()).filter(s => s.length > 0);
 
+    // Si stage non rémunéré, pas de montant de rémunération
+    const finalBudget = (this.optType === 'INTERNSHIP' && !this.optIsPaid) 
+      ? 'Non rémunéré (Convention)' 
+      : this.optBudget;
+
     const payload = {
       title: this.optTitle,
       description: this.optDescription,
@@ -134,7 +141,9 @@ export class OpportunityListComponent implements OnInit {
       location: this.optLocation,
       isRemote: this.optIsRemote,
       stack: stack,
-      budget: this.optBudget
+      budget: finalBudget,
+      maxApplicants: this.optMaxApplicants && this.optMaxApplicants > 0 ? this.optMaxApplicants : 1,
+      isPaid: this.optType === 'INTERNSHIP' ? this.optIsPaid : true
     };
 
     this.isSubmitting = true;

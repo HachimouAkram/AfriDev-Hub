@@ -772,3 +772,118 @@
     justify-content: flex-start;
   }
 }
+
+/* Header Actions */
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.btn-icon-text {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 600;
+  text-decoration: none;
+  font-size: 0.85rem;
+}
+
+.icon-svg-sm {
+  width: 1.1rem;
+  height: 1.1rem;
+}
+
+/* Quota Column & Status */
+.col-quota {
+  white-space: nowrap;
+}
+
+.quota-pill {
+  display: inline-flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  padding: 0.35rem 0.65rem;
+  border-radius: 8px;
+  background: rgba(59, 130, 246, 0.08);
+  border: 1px solid rgba(59, 130, 246, 0.2);
+}
+
+.quota-pill .quota-count {
+  font-size: 0.85rem;
+  color: var(--text-heading);
+}
+
+.quota-status-label {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: #EF4444;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.quota-status-label.open {
+  color: var(--emerald-400);
+}
+
+.quota-pill.quota-full {
+  background: rgba(239, 68, 68, 0.08);
+  border-color: rgba(239, 68, 68, 0.25);
+}
+
+/* Sub badge for Internship Paid / Unpaid */
+.sub-badge {
+  font-size: 0.7rem;
+  font-weight: 600;
+  margin-top: 0.15rem;
+  display: inline-block;
+}
+
+.sub-badge.paid {
+  color: var(--emerald-400);
+}
+
+.sub-badge.unpaid {
+  color: #F59E0B;
+}
+
+/* Radio Pill Group in Edit Modal */
+.radio-pill-group {
+  display: flex;
+  gap: 0.6rem;
+  margin-top: 0.35rem;
+}
+
+.radio-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.55rem 0.85rem;
+  background: var(--bg-surface-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 0.825rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  transition: all 0.2s ease;
+}
+
+.radio-pill input[type="radio"] {
+  accent-color: var(--emerald-500);
+}
+
+.radio-pill.selected {
+  background: rgba(16, 185, 129, 0.12);
+  border-color: var(--emerald-500);
+  color: var(--emerald-500);
+}
+
+.field-hint {
+  display: block;
+  font-size: 0.725rem;
+  color: var(--text-muted);
+  margin-top: 0.3rem;
+  line-height: 1.3;
+}

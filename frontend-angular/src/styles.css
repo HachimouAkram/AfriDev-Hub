@@ -135,6 +135,12 @@ body, button, input, select, textarea {
   -moz-osx-font-smoothing: grayscale;
 }
 
+html, body {
+  width: 100%;
+  max-width: 100vw;
+  overflow-x: hidden;
+}
+
 body {
   background-color: var(--bg-dark);
   min-height: 100vh;

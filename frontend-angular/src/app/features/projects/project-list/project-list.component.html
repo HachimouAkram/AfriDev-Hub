@@ -20,6 +20,7 @@
 
   <!-- Advanced Search & Filter Bar -->
   <div class="search-filters-bar app-card">
+    <!-- Main Search Input -->
     <div class="search-input-box">
       <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
@@ -30,38 +31,71 @@
         (ngModelChange)="applyFilter()" 
         placeholder="Rechercher par titre, développeur, technologie ou entreprise..." 
         class="form-input search-field">
+      <button 
+        *ngIf="searchQuery" 
+        (click)="searchQuery = ''; applyFilter();" 
+        class="clear-search-btn" 
+        title="Effacer la recherche">
+        &times;
+      </button>
     </div>
 
-    <!-- Additional Filters for Price & License -->
+    <!-- Additional Filters Controls (Price, License & Reset) -->
     <div class="filters-inputs-row">
-      <div class="price-filter-group" *ngIf="selectedCategory === 'ALL' || selectedCategory === 'FOR_SALE'">
-        <input 
-          type="number" 
-          [(ngModel)]="minPriceInput" 
-          (ngModelChange)="applyFilter()" 
-          placeholder="Prix min" 
-          class="form-input price-input">
-        <span class="text-muted">-</span>
-        <input 
-          type="number" 
-          [(ngModel)]="maxPriceInput" 
-          (ngModelChange)="applyFilter()" 
-          placeholder="Prix max" 
-          class="form-input price-input">
+      <!-- Price range filter -->
+      <div class="filter-item-wrapper price-filter-wrapper" *ngIf="selectedCategory === 'ALL' || selectedCategory === 'FOR_SALE'">
+        <div class="filter-label-inline">
+          <svg class="filter-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v12m-3-2.818l.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <span>Prix (XOF) :</span>
+        </div>
+        <div class="price-inputs-pair">
+          <input 
+            type="number" 
+            [(ngModel)]="minPriceInput" 
+            (ngModelChange)="applyFilter()" 
+            placeholder="Min" 
+            class="form-input price-input">
+          <span class="range-sep">&rarr;</span>
+          <input 
+            type="number" 
+            [(ngModel)]="maxPriceInput" 
+            (ngModelChange)="applyFilter()" 
+            placeholder="Max" 
+            class="form-input price-input">
+        </div>
       </div>
 
-      <select 
-        *ngIf="selectedCategory === 'ALL' || selectedCategory === 'OPEN_SOURCE'" 
-        [(ngModel)]="selectedLicense" 
-        (ngModelChange)="applyFilter()" 
-        class="form-input select-license">
-        <option value="">Toutes les licences</option>
-        <option value="MIT">Licence MIT</option>
-        <option value="Apache-2.0">Apache 2.0</option>
-        <option value="GPL-3.0">GNU GPLv3</option>
-      </select>
+      <!-- License selector filter -->
+      <div class="filter-item-wrapper license-filter-wrapper" *ngIf="selectedCategory === 'ALL' || selectedCategory === 'OPEN_SOURCE'">
+        <div class="filter-label-inline">
+          <svg class="filter-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
+          </svg>
+          <span>Licence :</span>
+        </div>
+        <select 
+          [(ngModel)]="selectedLicense" 
+          (ngModelChange)="applyFilter()" 
+          class="form-input select-license">
+          <option value="">Toutes les licences</option>
+          <option value="MIT">Licence MIT</option>
+          <option value="Apache-2.0">Apache 2.0</option>
+          <option value="GPL-3.0">GNU GPLv3</option>
+        </select>
+      </div>
 
-      <button (click)="resetFilters()" class="btn btn-outline btn-sm">Réinitialiser</button>
+      <!-- Reset Filter Button -->
+      <button 
+        (click)="resetFilters()" 
+        class="btn btn-outline btn-sm btn-reset" 
+        title="Réinitialiser tous les filtres">
+        <svg class="icon-svg icon-svg-xs" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
+        </svg>
+        <span>Réinitialiser</span>
+      </button>
     </div>
   </div>
 

@@ -7,12 +7,21 @@
       <p class="subtext">Publiez de nouvelles opportunités (Emploi, Freelance, Mission, Stage), gérez vos annonces et évaluez les candidatures reçues.</p>
     </div>
 
-    <a routerLink="/opportunities" class="btn btn-emerald btn-icon-text">
-      <svg class="icon-svg icon-svg-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.5v15m7.5-7.5h-15" />
-      </svg>
-      <span>+ Publier une offre</span>
-    </a>
+    <div class="header-actions">
+      <a routerLink="/opportunities" class="btn btn-outline btn-icon-text">
+        <svg class="icon-svg icon-svg-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 21a9 9 0 100-18 9 9 0 000 18zM3.6 9h16.8M3.6 15h16.8M12 3a14.25 14.25 0 000 18 14.25 14.25 0 000-18z" />
+        </svg>
+        <span>Voir les offres sur le site</span>
+      </a>
+
+      <a routerLink="/opportunities" class="btn btn-emerald btn-icon-text">
+        <svg class="icon-svg icon-svg-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.5v15m7.5-7.5h-15" />
+        </svg>
+        <span>+ Publier une offre</span>
+      </a>
+    </div>
   </div>
 
   <!-- Published Offers Table Card -->
@@ -28,7 +37,8 @@
           <tr>
             <th>Offre</th>
             <th>Type</th>
-            <th>Budget / Tarif</th>
+            <th>Places & Quota</th>
+            <th>Budget / Rémunération</th>
             <th>Statut</th>
             <th>Date</th>
             <th class="text-right">Actions</th>
@@ -45,9 +55,17 @@
                   'badge-internship': opp.type === 'INTERNSHIP',
                   'badge-collab': opp.type === 'COLLABORATION'
                 }">
-                  {{ opp.type === 'JOB' ? '💼' : (opp.type === 'FREELANCE' ? '⚡' : (opp.type === 'INTERNSHIP' ? '🎓' : '🤝')) }}
+                  <i *ngIf="opp.type === 'JOB'" class="ri-briefcase-line"></i>
+                  <i *ngIf="opp.type === 'FREELANCE'" class="ri-flashlight-line"></i>
+                  <i *ngIf="opp.type === 'INTERNSHIP'" class="ri-graduation-cap-line"></i>
+                  <i *ngIf="opp.type !== 'JOB' && opp.type !== 'FREELANCE' && opp.type !== 'INTERNSHIP'" class="ri-shake-hands-line"></i>
                 </div>
-                <span class="offer-name">{{ opp.title }}</span>
+                <div class="title-details">
+                  <span class="offer-name">{{ opp.title }}</span>
+                  <span *ngIf="opp.type === 'INTERNSHIP'" class="sub-badge" [ngClass]="opp.isPaid ? 'paid' : 'unpaid'">
+                    {{ opp.isPaid ? '• Rémunéré' : '• Non rémunéré' }}
+                  </span>
+                </div>
               </div>
             </td>
 
@@ -63,9 +81,18 @@
               </span>
             </td>
 
+            <!-- Quota & Places -->
+            <td class="col-quota">
+              <div class="quota-pill" [class.quota-full]="(opp.acceptedCount || 0) >= (opp.maxApplicants || 1)">
+                <span class="quota-count"><strong>{{ opp.acceptedCount || 0 }}</strong> / {{ opp.maxApplicants || 1 }}</span>
+                <span class="quota-status-label" *ngIf="(opp.acceptedCount || 0) >= (opp.maxApplicants || 1)">Complet</span>
+                <span class="quota-status-label open" *ngIf="(opp.acceptedCount || 0) < (opp.maxApplicants || 1)">Disponible</span>
+              </div>
+            </td>
+
             <!-- Budget -->
             <td class="col-budget">
-              <span class="budget-text" *ngIf="opp.budget">💰 {{ opp.budget }}</span>
+              <span class="budget-text" *ngIf="opp.budget"><i class="ri-money-dollar-circle-line"></i> {{ opp.budget }}</span>
               <span class="text-muted text-sm" *ngIf="!opp.budget">N/A</span>
             </td>
 
@@ -140,7 +167,7 @@
 
     <!-- Empty Posted State -->
     <div *ngIf="!loading() && myPostedOpportunities().length === 0" class="empty-state-box">
-      <div class="empty-icon">📢</div>
+      <div class="empty-icon"><i class="ri-megaphone-line"></i></div>
       <h4>Aucune offre publiée pour le moment</h4>
       <p class="text-muted">Publiez une offre d'emploi ou de projet pour commencer à recevoir des candidatures qualifiées.</p>
       <a routerLink="/opportunities" class="btn btn-emerald btn-sm">Publier ma première offre</a>
@@ -270,19 +297,19 @@
           
           <div class="details-chips-grid">
             <div class="chip-item">
-              <span class="chip-lbl">📍 Localisation :</span>
+              <span class="chip-lbl"><i class="ri-map-pin-line"></i> Localisation :</span>
               <strong>{{ cleanText(selectedOpportunity.location) || 'Non spécifié' }}</strong>
             </div>
             <div class="chip-item" *ngIf="selectedOpportunity.budget">
-              <span class="chip-lbl">💰 Budget :</span>
+              <span class="chip-lbl"><i class="ri-money-dollar-circle-line"></i> Budget :</span>
               <strong>{{ selectedOpportunity.budget }}</strong>
             </div>
             <div class="chip-item" *ngIf="selectedOpportunity.isRemote">
-              <span class="chip-lbl">🏠 Télétravail :</span>
+              <span class="chip-lbl"><i class="ri-home-line"></i> Télétravail :</span>
               <strong>Oui</strong>
             </div>
             <div class="chip-item">
-              <span class="chip-lbl">📅 Date de publication :</span>
+              <span class="chip-lbl"><i class="ri-calendar-line"></i> Date de publication :</span>
               <strong>{{ selectedOpportunity.createdAt | date:'shortDate' }}</strong>
             </div>
           </div>
@@ -300,7 +327,7 @@
         <!-- Applicants Section for THIS Specific Offer -->
         <div class="modal-applicants-section">
           <div class="section-title-row">
-            <h4>👥 Candidats ayant postulé à cette offre ({{ opportunityApplicants.length }})</h4>
+            <h4><i class="ri-team-line"></i> Candidats ayant postulé à cette offre ({{ opportunityApplicants.length }})</h4>
             <span class="subtext-sm">Gérez les demandes directement pour cette offre</span>
           </div>
 
@@ -318,7 +345,7 @@
                   </div>
                   <div class="cand-meta">
                     <span class="cand-name">{{ app.applicant?.profile?.fullName || app.applicant?.email }}</span>
-                    <span class="cand-sub">{{ app.applicant?.profile?.title || 'Développeur' }} &bull; 📍 {{ cleanText(app.applicant?.profile?.country) || 'Afrique' }}</span>
+                    <span class="cand-sub">{{ app.applicant?.profile?.title || 'Développeur' }} &bull; <i class="ri-map-pin-line"></i> {{ cleanText(app.applicant?.profile?.country) || 'Afrique' }}</span>
                   </div>
                 </div>
 
@@ -334,15 +361,15 @@
               <div class="cand-body">
                 <p class="cand-msg">« {{ app.message }} »</p>
                 <div class="cand-cv" *ngIf="app.cvUrl">
-                  <a [href]="app.cvUrl" target="_blank" class="btn btn-outline btn-xs">📄 Consulter CV</a>
+                  <a [href]="app.cvUrl" target="_blank" class="btn btn-outline btn-xs"><i class="ri-file-text-line"></i> Consulter CV</a>
                 </div>
               </div>
 
               <div class="cand-actions">
                 <button (click)="onUpdateStatus(app, 'ACCEPTED')" [disabled]="app.status === 'ACCEPTED'" class="btn btn-emerald btn-xs">Accepter</button>
                 <button (click)="onUpdateStatus(app, 'REJECTED')" [disabled]="app.status === 'REJECTED'" class="btn btn-outline btn-xs">Refuser</button>
-                <button (click)="openChatModal(app.applicant)" class="btn btn-emerald btn-xs">💬 Discuter</button>
-                <button (click)="openReportModal(app)" class="btn btn-outline btn-xs btn-report">⚠️ Signaler</button>
+                <button (click)="openChatModal(app.applicant)" class="btn btn-emerald btn-xs"><i class="ri-chat-1-line"></i> Discuter</button>
+                <button (click)="openReportModal(app)" class="btn btn-outline btn-xs btn-report"><i class="ri-alert-line"></i> Signaler</button>
               </div>
             </div>
           </div>
@@ -378,11 +405,42 @@
           <div class="form-group">
             <label class="form-label">Type d'opportunité *</label>
             <select [(ngModel)]="offerForm.type" class="form-input">
-              <option value="JOB">💼 Emploi (Job)</option>
-              <option value="FREELANCE">⚡ Freelance / Mission</option>
-              <option value="INTERNSHIP">🎓 Stage</option>
-              <option value="COLLABORATION">🤝 Collaboration</option>
+              <option value="JOB">Emploi (Job)</option>
+              <option value="FREELANCE">Freelance / Mission</option>
+              <option value="INTERNSHIP">Stage</option>
+              <option value="COLLABORATION">Collaboration</option>
             </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Nombre de personnes cherchées (Quota) *</label>
+            <input type="number" [(ngModel)]="offerForm.maxApplicants" min="1" max="100" class="form-input">
+            <small class="field-hint">Dès que ce quota de candidats est accepté, l'offre devient grisée/fermée.</small>
+          </div>
+        </div>
+
+        <!-- Si Stage : Choix Rémunéré ou Non -->
+        <div class="form-row-2" *ngIf="offerForm.type === 'INTERNSHIP'">
+          <div class="form-group">
+            <label class="form-label">Rémunération du Stage *</label>
+            <div class="radio-pill-group">
+              <label class="radio-pill" [class.selected]="offerForm.isPaid">
+                <input type="radio" [value]="true" [(ngModel)]="offerForm.isPaid" name="editIsPaid">
+                <span>Stage Rémunéré</span>
+              </label>
+              <label class="radio-pill" [class.selected]="!offerForm.isPaid">
+                <input type="radio" [value]="false" [(ngModel)]="offerForm.isPaid" name="editIsPaid">
+                <span>Non rémunéré</span>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-row-2">
+          <!-- Montant : Affiché uniquement si rémunéré ou pas un stage -->
+          <div class="form-group" *ngIf="offerForm.type !== 'INTERNSHIP' || offerForm.isPaid">
+            <label class="form-label">Budget / Rémunération</label>
+            <input type="text" [(ngModel)]="offerForm.budget" placeholder="Ex: 500 000 FCFA / mois" class="form-input">
           </div>
 
           <div class="form-group">
@@ -391,18 +449,11 @@
           </div>
         </div>
 
-        <div class="form-row-2">
-          <div class="form-group">
-            <label class="form-label">Budget / Rémunération</label>
-            <input type="text" [(ngModel)]="offerForm.budget" placeholder="Ex: 500 000 FCFA / mois" class="form-input">
-          </div>
-
-          <div class="form-group checkbox-align">
-            <label class="custom-checkbox-label">
-              <input type="checkbox" [(ngModel)]="offerForm.isRemote">
-              <span>Poste en Télétravail (Remote)</span>
-            </label>
-          </div>
+        <div class="form-group checkbox-align">
+          <label class="custom-checkbox-label">
+            <input type="checkbox" [(ngModel)]="offerForm.isRemote">
+            <span>Poste en Télétravail (Remote)</span>
+          </label>
         </div>
 
         <div class="form-group">

@@ -27,4 +27,6 @@ public class OpportunityCreateRequest {
     private List<String> stack;
     private String budget;
     private LocalDateTime deadline;
+    private Integer maxApplicants;
+    private Boolean isPaid;
 }

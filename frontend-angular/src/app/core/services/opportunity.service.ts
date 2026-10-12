@@ -14,6 +14,9 @@ export interface Opportunity {
   stack: string[];
   budget?: string;
   deadline?: string;
+  maxApplicants?: number;
+  acceptedCount?: number;
+  isPaid?: boolean;
   status: string;
   createdAt: string;
 }

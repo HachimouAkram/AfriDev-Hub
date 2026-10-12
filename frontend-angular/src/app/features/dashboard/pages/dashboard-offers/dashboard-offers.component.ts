@@ -40,7 +40,9 @@ export class DashboardOffersComponent implements OnInit {
     location: '',
     isRemote: false,
     budget: '',
-    stackInput: ''
+    stackInput: '',
+    maxApplicants: 1,
+    isPaid: true
   };
   isSubmittingEdit = false;
   editErrorMessage = '';
@@ -133,7 +135,9 @@ export class DashboardOffersComponent implements OnInit {
       location: opp.location,
       isRemote: opp.isRemote || false,
       budget: opp.budget || '',
-      stackInput: opp.stack ? opp.stack.join(', ') : ''
+      stackInput: opp.stack ? opp.stack.join(', ') : '',
+      maxApplicants: opp.maxApplicants || 1,
+      isPaid: opp.isPaid !== undefined ? opp.isPaid : true
     };
     this.editErrorMessage = '';
     this.showEditModal = true;
@@ -159,14 +163,20 @@ export class DashboardOffersComponent implements OnInit {
       .map(s => s.trim())
       .filter(s => s.length > 0);
 
+    const finalBudget = (this.offerForm.type === 'INTERNSHIP' && !this.offerForm.isPaid)
+      ? 'Non rémunéré (Convention)'
+      : (this.offerForm.budget.trim() || null);
+
     const payload = {
       title: this.offerForm.title.trim(),
       description: this.offerForm.description.trim(),
       type: this.offerForm.type,
       location: this.offerForm.location.trim(),
       isRemote: this.offerForm.isRemote,
-      budget: this.offerForm.budget.trim() || null,
-      stack: stack
+      budget: finalBudget,
+      stack: stack,
+      maxApplicants: this.offerForm.maxApplicants > 0 ? this.offerForm.maxApplicants : 1,
+      isPaid: this.offerForm.type === 'INTERNSHIP' ? this.offerForm.isPaid : true
     };
 
     this.opportunityService.updateOpportunity(this.selectedOpportunity.id, payload).subscribe({
@@ -299,7 +309,7 @@ export class DashboardOffersComponent implements OnInit {
       next: (res) => {
         this.isSubmittingReport = false;
         if (res.success) {
-          this.reportSuccessMessage = '✓ Signalement transmis aux modérateurs avec succès.';
+          this.reportSuccessMessage = 'Signalement transmis aux modérateurs avec succès.';
           setTimeout(() => this.closeReportModal(), 1800);
         }
       },

@@ -3,6 +3,7 @@ import { RouterOutlet, RouterLink, RouterLinkActive, Router } from '@angular/rou
 import { CommonModule } from '@angular/common';
 import { AuthService } from './core/services/auth.service';
 import { ThemeService } from './core/services/theme.service';
+import { TranslationService, Language } from './core/services/translation.service';
 
 @Component({
   selector: 'app-root',
@@ -11,6 +12,7 @@ import { ThemeService } from './core/services/theme.service';
   template: `
     <nav class="app-nav" *ngIf="!isDashboardPage()">
       <div class="nav-content">
+        <!-- Logo Left -->
         <a routerLink="/" (click)="closeAllMenus()" class="logo">
           <img src="/logo-africa.png" alt="AfriDev Hub Logo" class="logo-img" />
           <div class="logo-text-wrapper">
@@ -19,14 +21,54 @@ import { ThemeService } from './core/services/theme.service';
           </div>
         </a>
 
-        <!-- Desktop Nav Links -->
-        <div class="nav-links desktop-only">
+        <!-- Desktop Nav Links - Centered Pill Navigation -->
+        <div class="nav-center-pill desktop-only">
           <ng-container *ngIf="!isDashboardPage()">
             <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" class="nav-link">Accueil</a>
             <a routerLink="/projects" routerLinkActive="active" class="nav-link">Vitrine Projets</a>
             <a routerLink="/opportunities" routerLinkActive="active" class="nav-link">Opportunités</a>
             <a routerLink="/network" routerLinkActive="active" class="nav-link">Réseau & Annuaire</a>
           </ng-container>
+        </div>
+
+        <!-- Desktop Right Actions (Language Switcher, Theme Switcher, Auth & Profile) -->
+        <div class="nav-right-actions desktop-only">
+          <!-- Language Selector Dropdown with Voice Audio -->
+          <div class="lang-dropdown-container">
+            <button (click)="toggleLangMenu($event)" class="lang-toggle-btn" title="Changer de langue / Wàllu làkk">
+              <span class="lang-flag">{{ currentLang().flag }}</span>
+              <span class="lang-code">{{ currentLang().code.toUpperCase() }}</span>
+              <svg class="chevron-svg" [class.rotated]="isLangMenuOpen" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+              </svg>
+            </button>
+
+            <!-- Language Dropdown Menu -->
+            <div class="lang-dropdown-card" *ngIf="isLangMenuOpen" (click)="$event.stopPropagation()">
+              <div class="lang-menu-header">
+                <span>Choisir une langue</span>
+              </div>
+              <div class="lang-menu-list">
+                <div *ngFor="let lang of availableLanguages" 
+                     class="lang-menu-item" 
+                     [class.selected]="lang.code === currentLang().code"
+                     (click)="selectLanguage(lang)">
+                  <div class="lang-item-left">
+                    <span class="lang-flag-sm">{{ lang.flag }}</span>
+                    <span class="lang-name">{{ lang.label }}</span>
+                  </div>
+                  <button type="button" 
+                          class="voice-btn" 
+                          (click)="speakVoice(lang, $event)" 
+                          [title]="'Écouter en ' + lang.label">
+                    <svg class="icon-svg icon-svg-xs" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.114 5.636a9 9 0 010 12.728M16.463 8.288a5.25 5.25 0 010 7.424M6.75 8.25l4.72-4.72a.75.75 0 011.28.53v15.88a.75.75 0 01-1.28.53l-4.72-4.72H4.51c-.88 0-1.704-.507-1.938-1.354A9.01 9.01 0 012.25 12c0-.83.112-1.633.322-2.396C2.806 8.757 3.63 8.25 4.51 8.25H6.75z" />
+                    </svg>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
 
           <!-- Theme Switcher Desktop Button -->
           <button (click)="toggleTheme()" class="theme-toggle-btn icon-only" [title]="isDark() ? 'Passer au Mode Clair' : 'Passer au Mode Sombre'" aria-label="Changer le thème">
@@ -154,6 +196,21 @@ import { ThemeService } from './core/services/theme.service';
             Se Déconnecter
           </button>
 
+          <!-- Mobile Language Selector with Voice -->
+          <div class="mobile-lang-section">
+            <span class="mobile-lang-label">Langue & Voix / Wàllu làkk :</span>
+            <div class="mobile-lang-grid">
+              <button *ngFor="let lang of availableLanguages" 
+                      type="button"
+                      class="mobile-lang-chip"
+                      [class.active]="lang.code === currentLang().code"
+                      (click)="selectLanguage(lang)">
+                <span>{{ lang.flag }} {{ lang.label }}</span>
+                <span class="voice-icon-mini" (click)="speakVoice(lang, $event)" [title]="'Écouter en ' + lang.label">🔊</span>
+              </button>
+            </div>
+          </div>
+
           <button (click)="toggleTheme(); closeAllMenus();" class="theme-toggle-btn mobile-theme-btn">
             <svg *ngIf="isDark()" class="icon-svg icon-svg-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v2.25m0 13.5V21m8.966-8.966h-2.25M4.284 12h-2.25m15.364 6.364l-1.591-1.591M6.759 6.759L5.168 5.168m12.728 0l-1.591 1.591M6.759 17.241l-1.591 1.591M12 8.25a3.75 3.75 0 100 7.5 3.75 3.75 0 000-7.5z" />
@@ -169,6 +226,91 @@ import { ThemeService } from './core/services/theme.service';
     <main>
       <router-outlet></router-outlet>
     </main>
+
+    <!-- ELEGANT PROFESSIONAL FOOTER -->
+    <footer class="app-footer" *ngIf="!isDashboardPage()">
+      <div class="footer-top-glow"></div>
+      <div class="footer-container">
+        <div class="footer-grid">
+          
+          <!-- Column 1: Brand & Mission -->
+          <div class="footer-col col-brand">
+            <a routerLink="/" class="footer-logo">
+              <img src="/logo-africa.png" alt="AfriDev Hub Logo" class="footer-logo-img" />
+              <div class="logo-text-wrapper">
+                <span class="logo-text">AfriDev <span class="accent">Hub</span></span>
+                <span class="logo-subtitle">Infrastructure de Réputation Panafricaine</span>
+              </div>
+            </a>
+            <p class="brand-desc">
+              La première plateforme panafricaine certifiant la réputation, les projets réels et les compétences des développeurs africains auprès des pairs et des recruteurs du monde entier.
+            </p>
+            <div class="community-status-badge">
+              <span class="pulse-indicator"></span>
+              <span>Réseau actif dans 54 pays africains</span>
+            </div>
+          </div>
+
+          <!-- Column 2: Navigation Plateforme -->
+          <div class="footer-col">
+            <h4 class="col-title">Plateforme</h4>
+            <ul class="footer-links">
+              <li><a routerLink="/projects">Vitrine de Projets</a></li>
+              <li><a routerLink="/opportunities">Offres & Freelance</a></li>
+              <li><a routerLink="/network">Annuaire des Développeurs</a></li>
+              <li><a routerLink="/evaluations">Évaluations par les Pairs</a></li>
+              <li><a routerLink="/messages">Messagerie Directe</a></li>
+            </ul>
+          </div>
+
+          <!-- Column 3: Confiance & Sécurité -->
+          <div class="footer-col">
+            <h4 class="col-title">Confiance & Tech</h4>
+            <ul class="footer-links">
+              <li><span class="static-link">Synchronisation GitHub Live</span></li>
+              <li><span class="static-link">Badge Mobile Money Vérifié</span></li>
+              <li><span class="static-link">Algorithme de Score (FastAPI)</span></li>
+              <li><span class="static-link">Architecture Microservices</span></li>
+              <li><span class="static-link">Conformité OWASP & JWT</span></li>
+            </ul>
+          </div>
+
+          <!-- Column 4: Newsletter & Communauté -->
+          <div class="footer-col col-newsletter">
+            <h4 class="col-title">Restez Connecté</h4>
+            <p class="newsletter-desc">Recevez les meilleures opportunités Tech et collaborations open-source directement.</p>
+            <div class="newsletter-form">
+              <input type="email" placeholder="Votre adresse email..." class="newsletter-input" />
+              <button class="btn btn-emerald btn-sm btn-newsletter">
+                <svg class="icon-svg icon-svg-xs" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5" />
+                </svg>
+              </button>
+            </div>
+            <div class="social-pills">
+              <span class="social-pill" title="GitHub"><i class="ri-github-fill"></i> GitHub</span>
+              <span class="social-pill" title="LinkedIn"><i class="ri-linkedin-fill"></i> LinkedIn</span>
+              <span class="social-pill" title="Discord"><i class="ri-discord-fill"></i> Discord</span>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Bottom Copyright Row -->
+        <div class="footer-bottom-row">
+          <div class="copyright-text">
+            &copy; 2026 <strong>AfriDev Hub</strong> &bull; Conçu avec fierté pour les développeurs africains 🌍
+          </div>
+          <div class="footer-legal-links">
+            <span class="legal-link">Conditions d'Utilisation</span>
+            <span class="dot-sep">&bull;</span>
+            <span class="legal-link">Confidentialité</span>
+            <span class="dot-sep">&bull;</span>
+            <span class="legal-link">Sécurité OWASP</span>
+          </div>
+        </div>
+      </div>
+    </footer>
   `,
   styles: [`
     .app-nav {
@@ -183,12 +325,14 @@ import { ThemeService } from './core/services/theme.service';
       transition: background-color 0.2s ease, border-color 0.2s ease;
     }
     .nav-content {
-      max-width: 1240px;
+      max-width: 1400px;
       margin: 0 auto;
       padding: 0 1.5rem;
       display: flex;
       justify-content: space-between;
       align-items: center;
+      gap: 1.5rem;
+      position: relative;
     }
     .logo {
       display: flex;
@@ -199,6 +343,7 @@ import { ThemeService } from './core/services/theme.service';
       font-weight: 800;
       text-decoration: none;
       color: var(--text-heading);
+      flex-shrink: 0;
     }
     .logo-svg {
       width: 1.6rem;
@@ -208,21 +353,216 @@ import { ThemeService } from './core/services/theme.service';
     .accent {
       color: var(--emerald-500);
     }
-    .nav-links {
+
+    /* CENTERED FLOATING PILL NAVIGATION */
+    .nav-center-pill {
       display: flex;
       align-items: center;
-      gap: 1.15rem;
+      gap: 0.25rem;
+      padding: 0.35rem 0.65rem;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--border-subtle);
+      border-radius: 999px;
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+      margin: 0 auto;
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
     }
+    body.light-theme .nav-center-pill {
+      background: rgba(0, 0, 0, 0.03);
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
+    }
+    .nav-center-pill:hover {
+      border-color: rgba(16, 185, 129, 0.3);
+      box-shadow: 0 6px 20px rgba(16, 185, 129, 0.08);
+    }
+
     .nav-link {
       color: var(--text-muted);
       text-decoration: none;
-      font-weight: 500;
-      font-size: 0.9rem;
-      transition: color 0.15s ease;
+      font-weight: 600;
+      font-size: 0.885rem;
+      padding: 0.5rem 1rem;
+      border-radius: 999px;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      position: relative;
     }
-    .nav-link:hover, .nav-link.active {
+    .nav-link:hover {
+      color: var(--text-heading);
+      background: rgba(255, 255, 255, 0.06);
+    }
+    body.light-theme .nav-link:hover {
+      background: rgba(0, 0, 0, 0.05);
+    }
+    .nav-link.active {
+      color: #10B981 !important;
+      background: rgba(16, 185, 129, 0.12);
+      font-weight: 700;
+    }
+    body.light-theme .nav-link.active {
+      color: #059669 !important;
+      background: rgba(16, 185, 129, 0.14);
+    }
+
+    /* RIGHT ACTIONS CONTAINER */
+    .nav-right-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.85rem;
+      flex-shrink: 0;
+    }
+
+    /* LANGUAGE SELECTOR DROPDOWN */
+    .lang-dropdown-container {
+      position: relative;
+    }
+    .lang-toggle-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+      padding: 0.45rem 0.75rem;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid var(--border-subtle);
+      border-radius: 999px;
+      color: var(--text-heading);
+      font-size: 0.825rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .lang-toggle-btn:hover {
+      background: rgba(16, 185, 129, 0.1);
+      border-color: rgba(16, 185, 129, 0.4);
       color: var(--emerald-500);
     }
+    .lang-flag {
+      font-size: 1.05rem;
+      line-height: 1;
+    }
+    .lang-code {
+      letter-spacing: 0.04em;
+    }
+    .lang-dropdown-card {
+      position: absolute;
+      top: calc(100% + 0.5rem);
+      right: 0;
+      width: 220px;
+      background: var(--bg-surface-card);
+      border: 1px solid var(--border-light);
+      border-radius: 14px;
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.28);
+      z-index: 500;
+      padding: 0.5rem;
+      animation: dropdownFadeIn 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .lang-menu-header {
+      padding: 0.4rem 0.75rem;
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-muted);
+      border-bottom: 1px solid var(--border-subtle);
+      margin-bottom: 0.35rem;
+    }
+    .lang-menu-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+    .lang-menu-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.5rem 0.75rem;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .lang-menu-item:hover {
+      background: rgba(16, 185, 129, 0.1);
+    }
+    .lang-menu-item.selected {
+      background: rgba(16, 185, 129, 0.15);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+    }
+    .lang-item-left {
+      display: flex;
+      align-items: center;
+      gap: 0.65rem;
+    }
+    .lang-flag-sm {
+      font-size: 1.15rem;
+    }
+    .lang-name {
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--text-heading);
+    }
+    .voice-btn {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid var(--border-subtle);
+      border-radius: 6px;
+      padding: 0.25rem 0.4rem;
+      color: var(--text-muted);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.15s ease;
+    }
+    .voice-btn:hover {
+      background: var(--emerald-500);
+      color: #022C22;
+      border-color: var(--emerald-500);
+      transform: scale(1.08);
+    }
+
+    /* Mobile Language Drawer Styles */
+    .mobile-lang-section {
+      padding: 0.75rem 0;
+      border-top: 1px solid var(--border-subtle);
+      border-bottom: 1px solid var(--border-subtle);
+      margin: 0.5rem 0;
+    }
+    .mobile-lang-label {
+      font-size: 0.775rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      display: block;
+      margin-bottom: 0.5rem;
+    }
+    .mobile-lang-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 0.5rem;
+    }
+    .mobile-lang-chip {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.5rem 0.75rem;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border-subtle);
+      border-radius: 8px;
+      color: var(--text-heading);
+      font-size: 0.825rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .mobile-lang-chip.active {
+      background: rgba(16, 185, 129, 0.15);
+      border-color: var(--emerald-500);
+      color: var(--emerald-500);
+    }
+    .voice-icon-mini {
+      font-size: 0.9rem;
+      padding-left: 0.35rem;
+    }
+
     .btn-sm {
       padding: 0.45rem 1rem;
       font-size: 0.85rem;
@@ -233,7 +573,7 @@ import { ThemeService } from './core/services/theme.service';
       border: 1px solid var(--border-subtle);
       color: var(--text-heading);
       padding: 0.45rem 0.75rem;
-      border-radius: 8px;
+      border-radius: 999px;
       cursor: pointer;
       display: inline-flex;
       align-items: center;
@@ -248,7 +588,7 @@ import { ThemeService } from './core/services/theme.service';
       color: var(--emerald-500);
     }
     .theme-toggle-btn.icon-only {
-      padding: 0.45rem;
+      padding: 0.45rem 0.65rem;
     }
 
     /* Profile Menu Dropdown */
@@ -469,24 +809,286 @@ import { ThemeService } from './core/services/theme.service';
         display: block !important;
       }
     }
+
+    /* ==========================================================================
+       MODERN PROFESSIONAL FOOTER STYLES
+       ========================================================================== */
+    .app-footer {
+      position: relative;
+      background: var(--bg-surface-card);
+      border-top: 1px solid var(--border-subtle);
+      margin-top: 4rem;
+      padding-top: 3.5rem;
+      overflow: hidden;
+      width: 100%;
+      box-sizing: border-box;
+    }
+
+    .footer-top-glow {
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: min(800px, 90vw);
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--emerald-500), transparent);
+      box-shadow: 0 0 20px var(--emerald-500);
+    }
+
+    .footer-container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 0 1.5rem 2rem;
+      display: flex;
+      flex-direction: column;
+      gap: 3rem;
+    }
+
+    .footer-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr 1.5fr;
+      gap: 2.5rem;
+    }
+
+    @media (max-width: 1024px) {
+      .footer-grid {
+        grid-template-columns: 1fr 1fr;
+        gap: 2rem;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .footer-grid {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+      }
+    }
+
+    .footer-col {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .footer-logo {
+      display: flex;
+      align-items: center;
+      gap: 0.65rem;
+      text-decoration: none;
+      color: var(--text-heading);
+    }
+
+    .footer-logo-img {
+      width: 32px;
+      height: 32px;
+      object-fit: contain;
+      filter: drop-shadow(0 2px 6px rgba(16, 185, 129, 0.4));
+    }
+
+    .brand-desc {
+      font-size: 0.875rem;
+      color: var(--text-muted);
+      line-height: 1.6;
+      max-width: 360px;
+    }
+
+    .community-status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.35rem 0.75rem;
+      background: rgba(16, 185, 129, 0.08);
+      border: 1px solid var(--border-emerald);
+      border-radius: 999px;
+      font-size: 0.775rem;
+      font-weight: 600;
+      color: var(--emerald-400);
+      width: fit-content;
+    }
+
+    .pulse-indicator {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--emerald-500);
+      box-shadow: 0 0 8px var(--emerald-500);
+      animation: pulseDot 2s infinite;
+    }
+
+    .col-title {
+      font-family: var(--font-heading);
+      font-size: 0.95rem;
+      font-weight: 800;
+      color: var(--text-heading);
+      letter-spacing: -0.01em;
+      margin: 0;
+    }
+
+    .footer-links {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 0.65rem;
+    }
+
+    .footer-links a {
+      color: var(--text-muted);
+      font-size: 0.875rem;
+      text-decoration: none;
+      transition: color 0.15s ease, transform 0.15s ease;
+      display: inline-block;
+    }
+
+    .footer-links a:hover {
+      color: var(--emerald-400);
+      transform: translateX(3px);
+    }
+
+    .static-link {
+      font-size: 0.875rem;
+      color: var(--text-dim);
+    }
+
+    .newsletter-desc {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+
+    .newsletter-form {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: 10px;
+      padding: 0.25rem 0.25rem 0.25rem 0.75rem;
+      transition: border-color 0.2s ease;
+    }
+
+    .newsletter-form:focus-within {
+      border-color: var(--emerald-500);
+      box-shadow: 0 0 0 2px var(--emerald-glow);
+    }
+
+    .newsletter-input {
+      background: transparent;
+      border: none;
+      outline: none;
+      color: var(--text-heading);
+      font-size: 0.85rem;
+      flex: 1;
+      width: 100%;
+    }
+
+    .btn-newsletter {
+      padding: 0.45rem 0.75rem !important;
+      border-radius: 7px;
+    }
+
+    .social-pills {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+      margin-top: 0.25rem;
+    }
+
+    .social-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      padding: 0.35rem 0.75rem;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--border-subtle);
+      border-radius: 8px;
+      font-size: 0.775rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .social-pill:hover {
+      background: var(--bg-surface-hover);
+      color: var(--emerald-400);
+      border-color: var(--border-emerald);
+      transform: translateY(-1px);
+    }
+
+    .footer-bottom-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid var(--border-subtle);
+      font-size: 0.825rem;
+      color: var(--text-muted);
+    }
+
+    .footer-legal-links {
+      display: flex;
+      align-items: center;
+      gap: 0.65rem;
+    }
+
+    .legal-link {
+      cursor: pointer;
+      transition: color 0.15s ease;
+    }
+
+    .legal-link:hover {
+      color: var(--emerald-400);
+    }
+
+    .dot-sep {
+      color: var(--border-light);
+    }
   `]
 })
 export class AppComponent {
   private authService = inject(AuthService);
   private themeService = inject(ThemeService);
+  private translationService = inject(TranslationService);
   private router = inject(Router);
 
   isMobileMenuOpen = false;
   isProfileMenuOpen = false;
+  isLangMenuOpen = false;
+
+  availableLanguages = this.translationService.languages;
+  currentLang = this.translationService.currentLang;
 
   @HostListener('document:click')
   onDocumentClick(): void {
     this.isProfileMenuOpen = false;
+    this.isLangMenuOpen = false;
+  }
+
+  toggleLangMenu(event: Event): void {
+    event.stopPropagation();
+    this.isLangMenuOpen = !this.isLangMenuOpen;
+    this.isProfileMenuOpen = false;
+  }
+
+  selectLanguage(lang: Language): void {
+    this.translationService.setLanguage(lang);
+    this.isLangMenuOpen = false;
+    this.translationService.speakGreeting(lang);
+  }
+
+  speakVoice(lang: Language, event: Event): void {
+    event.stopPropagation();
+    this.translationService.speakGreeting(lang);
   }
 
   toggleProfileMenu(event: Event): void {
     event.stopPropagation();
     this.isProfileMenuOpen = !this.isProfileMenuOpen;
+    this.isLangMenuOpen = false;
   }
 
   closeProfileMenu(): void {
@@ -504,6 +1106,7 @@ export class AppComponent {
   closeAllMenus(): void {
     this.isMobileMenuOpen = false;
     this.isProfileMenuOpen = false;
+    this.isLangMenuOpen = false;
   }
 
   toggleTheme(): void {

@@ -25,20 +25,39 @@
   <!-- Opportunities Grid -->
   <div *ngIf="!isLoading; else loadingState">
     <div class="opportunities-grid" *ngIf="opportunities.length > 0; else emptyState">
-      <div *ngFor="let opt of opportunities" class="app-card opt-card">
+      <div *ngFor="let opt of opportunities" 
+           class="app-card opt-card" 
+           [class.opt-card-closed]="(opt.acceptedCount || 0) >= (opt.maxApplicants || 1)">
         <div class="opt-header">
           <div class="badge-group">
             <span class="badge badge-emerald">{{ opt.type }}</span>
             <span *ngIf="opt.isRemote" class="badge badge-gray">Remote</span>
+            <!-- Tag Rémunéré ou Non pour Stage -->
+            <span *ngIf="opt.type === 'INTERNSHIP'" class="badge" [ngClass]="opt.isPaid ? 'badge-emerald' : 'badge-amber'">
+              {{ opt.isPaid ? 'Stage Rémunéré' : 'Stage Non Rémunéré' }}
+            </span>
+            <!-- Tag Quota Recrutement -->
+            <span class="badge badge-blue">
+              <i class="ri-user-line"></i> {{ opt.acceptedCount || 0 }} / {{ opt.maxApplicants || 1 }} place{{ (opt.maxApplicants || 1) > 1 ? 's' : '' }} pourvue{{ (opt.acceptedCount || 0) > 1 ? 's' : '' }}
+            </span>
           </div>
-          <span class="budget-tag" *ngIf="opt.budget">{{ opt.budget }}</span>
+
+          <!-- Si complet, afficher tag indisponible -->
+          <span class="badge badge-danger" *ngIf="(opt.acceptedCount || 0) >= (opt.maxApplicants || 1)">
+            Fermée (Complet)
+          </span>
+          <span class="budget-tag" *ngIf="(opt.acceptedCount || 0) < (opt.maxApplicants || 1) && opt.budget">
+            {{ opt.budget }}
+          </span>
         </div>
 
         <div class="opt-body">
-          <h3 class="opt-title">{{ opt.title }}</h3>
+          <h3 class="opt-title" [class.text-muted]="(opt.acceptedCount || 0) >= (opt.maxApplicants || 1)">
+            {{ opt.title }}
+          </h3>
           <p class="publisher-info">
             Publié par <strong>{{ opt.publisher?.profile?.fullName || opt.publisher?.email || 'Recruteur' }}</strong> &bull; 
-            <span>📍 {{ opt.location }}</span>
+            <span><i class="ri-map-pin-line"></i> {{ opt.location }}</span>
           </p>
           <p class="opt-desc">{{ opt.description }}</p>
 
@@ -49,7 +68,21 @@
 
         <div class="opt-footer">
           <span class="date-text">Offre vérifiée &bull; {{ opt.createdAt | date:'mediumDate' }}</span>
-          <button (click)="openApplyModal(opt)" class="btn btn-emerald btn-sm">
+          
+          <!-- Si nombre de personnes atteint, bouton grisé / indisponible -->
+          <button 
+            *ngIf="(opt.acceptedCount || 0) >= (opt.maxApplicants || 1)" 
+            disabled 
+            class="btn btn-secondary btn-sm btn-disabled-quota" 
+            title="Cette offre a atteint sa limite de recrutement. Personne ne peut plus postuler.">
+            Limite atteinte &bull; Indisponible
+          </button>
+
+          <!-- Sinon bouton actif pour postuler -->
+          <button 
+            *ngIf="(opt.acceptedCount || 0) < (opt.maxApplicants || 1)" 
+            (click)="openApplyModal(opt)" 
+            class="btn btn-emerald btn-sm">
             Postuler
             <svg class="icon-svg icon-svg-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
@@ -61,7 +94,7 @@
 
     <ng-template #emptyState>
       <div class="empty-opportunities-card app-card">
-        <div class="empty-icon">📢</div>
+        <div class="empty-icon"><i class="ri-megaphone-line"></i></div>
         <h3>Aucune opportunité disponible pour le moment</h3>
         <p class="text-muted">Aucune offre ne correspond actuellement à ce filtre. Soyez le premier à publier une opportunité pour la communauté !</p>
         <button *ngIf="isLoggedIn()" (click)="openCreateModal()" class="btn btn-emerald btn-sm">+ Publier une Opportunité</button>
@@ -165,15 +198,57 @@
           <textarea id="oDesc" [(ngModel)]="optDescription" name="optDescription" rows="4" required class="form-textarea"></textarea>
         </div>
 
+        <!-- Row: Nombre de personnes cherchées & Options -->
         <div class="form-row">
           <div class="form-group flex-1">
+            <label for="oMax" class="form-label">
+              <i class="ri-user-search-line"></i> Nombre de personnes cherchées (Postes à pourvoir) *
+            </label>
+            <input 
+              type="number" 
+              id="oMax" 
+              [(ngModel)]="optMaxApplicants" 
+              name="optMaxApplicants" 
+              min="1" 
+              max="100" 
+              required 
+              placeholder="Ex: 1, 2, 5" 
+              class="form-input">
+            <small class="field-hint">Dès que vous aurez accepté ce nombre de candidats, l'offre deviendra indisponible.</small>
+          </div>
+
+          <!-- Si c'est un STAGE : Option Rémunéré ou Non -->
+          <div class="form-group flex-1" *ngIf="optType === 'INTERNSHIP'">
+            <label class="form-label">Rémunération du stage *</label>
+            <div class="radio-pill-group">
+              <label class="radio-pill" [class.selected]="optIsPaid">
+                <input type="radio" [value]="true" [(ngModel)]="optIsPaid" name="optIsPaid">
+                <span>Rémunéré (Gratification)</span>
+              </label>
+              <label class="radio-pill" [class.selected]="!optIsPaid">
+                <input type="radio" [value]="false" [(ngModel)]="optIsPaid" name="optIsPaid">
+                <span>Non rémunéré</span>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <!-- Budget / Rémunération : affiché si pas un stage non-rémunéré -->
+          <div class="form-group flex-1" *ngIf="optType !== 'INTERNSHIP' || optIsPaid">
             <label for="oBudget" class="form-label">Budget / Rémunération</label>
-            <input type="text" id="oBudget" [(ngModel)]="optBudget" name="optBudget" class="form-input">
+            <input 
+              type="text" 
+              id="oBudget" 
+              [(ngModel)]="optBudget" 
+              name="optBudget" 
+              placeholder="Ex: 150 000 FCFA / mois, 500$, ..." 
+              class="form-input">
           </div>
 
           <div class="form-group flex-1">
             <label for="oStack" class="form-label">Stack requise</label>
-            <input type="text" id="oStack" [(ngModel)]="optStack" name="optStack" class="form-input">
+            <input type="text" id="oStack" [(ngModel)]="optStack" name="optStack" placeholder="Ex: React, Node.js" class="form-input">
           </div>
         </div>
 

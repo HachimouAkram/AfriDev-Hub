@@ -1,13 +1,57 @@
 .profile-container {
-  max-width: 1240px;
+  max-width: 1400px;
   margin: 0 auto;
-  padding: 0;
+  padding: clamp(0.75rem, 2vw, 1.5rem);
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: 1.25rem;
   width: 100%;
   box-sizing: border-box;
   overflow-x: hidden;
+}
+
+.profile-top-bar {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  margin-bottom: -0.25rem;
+}
+
+.btn-back-nav {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background: var(--bg-card, #111827);
+  color: var(--text-secondary, #94A3B8);
+  border: 1px solid var(--border-color, rgba(255, 255, 255, 0.08));
+  border-radius: 10px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  user-select: none;
+}
+
+.btn-back-nav svg {
+  transition: transform 0.2s ease;
+}
+
+.btn-back-nav:hover {
+  background: rgba(16, 185, 129, 0.1);
+  color: #10B981;
+  border-color: rgba(16, 185, 129, 0.4);
+  transform: translateX(-3px);
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.15);
+}
+
+.btn-back-nav:hover svg {
+  transform: translateX(-2px);
+}
+
+.btn-back-nav:active {
+  transform: translateX(0);
 }
 
 .profile-header-card {

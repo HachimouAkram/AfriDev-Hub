@@ -170,7 +170,7 @@ export class DashboardComponent implements OnInit {
       next: (res) => {
         if (res.success) {
           const statusText = status === 'ACCEPTED' ? 'acceptée' : (status === 'REJECTED' ? 'refusée' : 'mise à jour');
-          this.showToast(`✓ Candidature de ${app.applicant.profile?.fullName || app.applicant.email} ${statusText} !`);
+          this.showToast(`Candidature de ${app.applicant.profile?.fullName || app.applicant.email} ${statusText} !`);
           this.loadMyPostedData();
         }
       },
@@ -253,7 +253,7 @@ export class DashboardComponent implements OnInit {
       next: (res) => {
         this.isSubmittingReport = false;
         if (res.success) {
-          this.reportSuccessMessage = '✓ Signalement transmis aux modérateurs avec succès.';
+          this.reportSuccessMessage = 'Signalement transmis aux modérateurs avec succès.';
           setTimeout(() => this.closeReportModal(), 1800);
         }
       },
@@ -279,7 +279,7 @@ export class DashboardComponent implements OnInit {
       next: (res) => {
         this.syncingGithub.set(false);
         if (res.success) {
-          this.githubMessage.set('✓ Synchronisation GitHub réussie !');
+          this.githubMessage.set('Synchronisation GitHub réussie !');
         } else {
           this.githubMessage.set('Erreur lors de la synchronisation.');
         }
@@ -295,7 +295,7 @@ export class DashboardComponent implements OnInit {
     this.profileService.verifyMobileMoney().subscribe({
       next: (res) => {
         if (res.success) {
-          this.showToast('✓ Compte vérifié avec succès via Mobile Money !');
+          this.showToast('Compte vérifié avec succès via Mobile Money !');
           window.location.reload();
         }
       }

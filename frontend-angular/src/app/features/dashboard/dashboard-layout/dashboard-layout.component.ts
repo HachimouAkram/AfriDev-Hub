@@ -4,6 +4,8 @@ import { RouterOutlet, RouterLink, RouterLinkActive, Router } from '@angular/rou
 import { AuthService } from '../../../core/services/auth.service';
 import { ThemeService } from '../../../core/services/theme.service';
 import { OpportunityService } from '../../../core/services/opportunity.service';
+import { TranslationService, Language } from '../../../core/services/translation.service';
+import { NotificationService, NotificationItem } from '../../../core/services/notification.service';
 
 @Component({
   selector: 'app-dashboard-layout',
@@ -16,17 +18,31 @@ export class DashboardLayoutComponent implements OnInit {
   private authService = inject(AuthService);
   private themeService = inject(ThemeService);
   private opportunityService = inject(OpportunityService);
+  private translationService = inject(TranslationService);
+  private notificationService = inject(NotificationService);
   private router = inject(Router);
 
   user = this.authService.currentUser;
   isProfileMenuOpen = false;
   isMobileSidebarOpen = signal<boolean>(false);
+  isSidebarCollapsed = signal<boolean>(false);
+
+  // Notifications
+  isNotifMenuOpen = false;
+  notifications = this.notificationService.notifications;
+  unreadNotifsCount = this.notificationService.unreadCount;
+
+  // Multilingual & Speech
+  isLangMenuOpen = false;
+  currentLang = this.translationService.currentLang;
+  availableLanguages = this.translationService.languages;
 
   submittedAppsCount = signal<number>(0);
   receivedAppsCount = signal<number>(0);
 
   ngOnInit(): void {
     this.loadCounts();
+    this.loadNotifications();
   }
 
   loadCounts(): void {
@@ -47,10 +63,20 @@ export class DashboardLayoutComponent implements OnInit {
     });
   }
 
+  loadNotifications(): void {
+    this.notificationService.getUserNotifications().subscribe();
+  }
+
   @HostListener('document:click')
   onDocumentClick(): void {
     this.isProfileMenuOpen = false;
+    this.isLangMenuOpen = false;
+    this.isNotifMenuOpen = false;
     this.isMobileSidebarOpen.set(false);
+  }
+
+  toggleSidebarCollapse(): void {
+    this.isSidebarCollapsed.update(v => !v);
   }
 
   toggleMobileSidebar(event?: Event): void {
@@ -64,11 +90,56 @@ export class DashboardLayoutComponent implements OnInit {
 
   toggleProfileMenu(event: Event): void {
     event.stopPropagation();
+    this.isLangMenuOpen = false;
+    this.isNotifMenuOpen = false;
     this.isProfileMenuOpen = !this.isProfileMenuOpen;
   }
 
   closeProfileMenu(): void {
     this.isProfileMenuOpen = false;
+  }
+
+  toggleLangMenu(event: Event): void {
+    event.stopPropagation();
+    this.isProfileMenuOpen = false;
+    this.isNotifMenuOpen = false;
+    this.isLangMenuOpen = !this.isLangMenuOpen;
+  }
+
+  selectLanguage(lang: Language): void {
+    this.translationService.setLanguage(lang);
+    this.isLangMenuOpen = false;
+    this.speakVoice(lang);
+  }
+
+  speakVoice(lang: Language, event?: Event): void {
+    if (event) event.stopPropagation();
+    this.translationService.speakGreeting(lang);
+  }
+
+  toggleNotifMenu(event: Event): void {
+    event.stopPropagation();
+    this.isProfileMenuOpen = false;
+    this.isLangMenuOpen = false;
+    this.isNotifMenuOpen = !this.isNotifMenuOpen;
+    if (this.isNotifMenuOpen) {
+      this.loadNotifications();
+    }
+  }
+
+  markAllNotifsRead(): void {
+    this.notificationService.markAllAsRead().subscribe();
+  }
+
+  markNotifRead(notif: NotificationItem, event?: Event): void {
+    if (event) event.stopPropagation();
+    if (!notif.read) {
+      this.notificationService.markAsRead(notif.id).subscribe();
+    }
+    if (notif.link) {
+      this.router.navigateByUrl(notif.link);
+      this.isNotifMenuOpen = false;
+    }
   }
 
   toggleTheme(): void {

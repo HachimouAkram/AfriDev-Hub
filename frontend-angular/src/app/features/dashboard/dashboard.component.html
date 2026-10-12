@@ -184,7 +184,7 @@
       <!-- Welcome Header Banner -->
       <section class="welcome-banner">
         <div class="welcome-title-row">
-          <h1>Bonjour {{ u.profile.fullName || u.email }} <span class="wave">👋</span></h1>
+          <h1>Bonjour {{ u.profile.fullName || u.email }} <span class="wave"><i class="ri-hand-coin-line"></i></span></h1>
           <span class="badge badge-emerald" *ngIf="u.profile.mobileMoneyVerified">
             ★ Membre Vérifié
           </span>
@@ -373,7 +373,7 @@
                 <h4>{{ app.opportunityTitle || 'Opportunité' }}</h4>
                 <div class="badge-row">
                   <span class="badge badge-emerald" *ngIf="app.opportunityType">{{ app.opportunityType }}</span>
-                  <span class="badge badge-gray" *ngIf="app.opportunityLocation">📍 {{ app.opportunityLocation }}</span>
+                  <span class="badge badge-gray" *ngIf="app.opportunityLocation"><i class="ri-map-pin-line"></i> {{ app.opportunityLocation }}</span>
                   <span class="budget-tag" *ngIf="app.opportunityBudget">{{ app.opportunityBudget }}</span>
                 </div>
               </div>

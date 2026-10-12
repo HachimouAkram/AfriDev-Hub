@@ -1,4 +1,14 @@
 <div class="profile-container" *ngIf="profile">
+  <!-- Navigation Retour -->
+  <div class="profile-top-bar">
+    <button type="button" class="btn-back-nav" (click)="goBack()" title="Retourner à la page précédente">
+      <svg class="icon-svg icon-svg-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
+      </svg>
+      <span>Retour</span>
+    </button>
+  </div>
+
   <!-- Profile Header Card -->
   <div class="app-card profile-header-card">
     <div class="header-main">
@@ -558,7 +568,7 @@
                   {{ uItem.profile?.fullName || uItem.email || 'Membre' }}
                 </a>
                 <span class="user-sub-info">
-                  {{ uItem.profile?.title || 'Membre AfriDev' }} &bull; 📍 {{ uItem.profile?.country || 'Afrique' }}
+                  {{ uItem.profile?.title || 'Membre AfriDev' }} &bull; <i class="ri-map-pin-line"></i> {{ uItem.profile?.country || 'Afrique' }}
                 </span>
               </div>
             </div>

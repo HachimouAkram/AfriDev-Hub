@@ -14,7 +14,7 @@
           <h4>{{ app.opportunityTitle || 'Opportunité' }}</h4>
           <div class="badge-row">
             <span class="badge badge-emerald" *ngIf="app.opportunityType">{{ app.opportunityType }}</span>
-            <span class="badge badge-gray" *ngIf="app.opportunityLocation">📍 {{ app.opportunityLocation }}</span>
+            <span class="badge badge-gray" *ngIf="app.opportunityLocation"><i class="ri-map-pin-line"></i> {{ app.opportunityLocation }}</span>
             <span class="budget-tag" *ngIf="app.opportunityBudget">{{ app.opportunityBudget }}</span>
           </div>
         </div>

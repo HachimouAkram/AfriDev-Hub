@@ -7,15 +7,216 @@
   <!-- Welcome Header Banner -->
   <section class="welcome-banner app-card">
     <div class="welcome-title-row">
-      <h1>Bonjour {{ u.profile?.fullName || u.email }} <span class="wave">👋</span></h1>
+      <h1>Bonjour {{ u.profile?.fullName || u.email }} <span class="wave"><i class="ri-hand-coin-line"></i></span></h1>
       <span class="badge badge-emerald" *ngIf="u.profile?.mobileMoneyVerified">
-        ★ Membre Vérifié
+        <svg class="icon-svg icon-svg-xs" viewBox="0 0 24 24" fill="currentColor">
+          <path fill-rule="evenodd" d="M8.603 3.799A4.49 4.49 0 0112 2.25c1.357 0 2.573.6 3.397 1.549a4.49 4.49 0 013.498 1.307 4.491 4.491 0 011.307 3.497A4.49 4.49 0 0121.75 12a4.49 4.49 0 01-1.549 3.397 4.491 4.491 0 01-1.307 3.497 4.491 4.491 0 01-3.497 1.307A4.49 4.49 0 0112 21.75a4.49 4.49 0 01-3.397-1.549 4.49 4.49 0 01-3.498-1.306 4.491 4.491 0 01-1.307-3.498A4.49 4.49 0 012.25 12c0-1.357.6-2.573 1.549-3.397a4.49 4.49 0 011.307-3.497 4.49 4.49 0 013.497-1.307zm7.643 6.951a.75.75 0 00-1.06-1.06L10.5 14.44l-1.69-1.69a.75.75 0 00-1.06 1.06l2.22 2.22a.75.75 0 001.06 0l4.216-4.28z" clip-rule="evenodd" />
+        </svg>
+        <span>Membre Vérifié</span>
       </span>
       <span class="badge badge-emerald" *ngIf="!u.profile?.mobileMoneyVerified">
         {{ u.profile?.title || u.role }}
       </span>
     </div>
     <p class="welcome-sub">Voici où en est votre activité globale sur AfriDev Hub.</p>
+  </section>
+
+  <!-- Modern Top KPI Cards Row -->
+  <section class="kpi-grid">
+    <!-- KPI 1: Projets publiés -->
+    <div class="kpi-card app-card">
+      <div class="kpi-card-top">
+        <span class="kpi-label">Projets dans l'Écosystème</span>
+        <div class="kpi-icon-wrap emerald">
+          <svg class="icon-svg icon-svg-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.25 9.75L16.5 12l-2.25 2.25m-4.5 0L7.5 12l2.25-2.25M6 20.25h12A2.25 2.25 0 0020.25 18V6A2.25 2.25 0 0018 3.75H6A2.25 2.25 0 003.75 6v12A2.25 2.25 0 006 20.25z" />
+          </svg>
+        </div>
+      </div>
+      <div class="kpi-value-row">
+        <span class="kpi-number">{{ totalProjectsCount() }}</span>
+        <span class="kpi-trend positive">+14% ce mois</span>
+      </div>
+      <div class="kpi-footer">
+        <a routerLink="/projects" class="kpi-link">Voir la vitrine projets →</a>
+      </div>
+    </div>
+
+    <!-- KPI 2: Opportunités Actives -->
+    <div class="kpi-card app-card">
+      <div class="kpi-card-top">
+        <span class="kpi-label">Opportunités & Offres</span>
+        <div class="kpi-icon-wrap cyan">
+          <svg class="icon-svg icon-svg-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.25 14.15v4.25c0 1.094-.787 2.036-1.872 2.18-2.087.277-4.216.42-6.378.42s-4.291-.143-6.378-.42c-1.085-.144-1.872-1.086-1.872-2.18v-4.25m16.5 0a2.18 2.18 0 00.75-1.661V8.706c0-1.081-.768-2.015-1.837-2.175a48.114 48.114 0 00-3.413-.387m4.5 8.006c-.194.165-.42.295-.673.38A23.978 23.978 0 0112 15.75c-2.648 0-5.195-.429-7.577-1.22a2.016 2.016 0 01-.673-.38m0 0A2.18 2.18 0 013 12.489V8.706c0-1.081.768-2.015 1.837-2.175a48.111 48.111 0 013.413-.387m7.5 0V4.5a2.25 2.25 0 00-2.25-2.25h-3a2.25 2.25 0 00-2.25 2.25v1.644m6 0a47.4 47.4 0 01-6 0" />
+          </svg>
+        </div>
+      </div>
+      <div class="kpi-value-row">
+        <span class="kpi-number">{{ totalOpportunitiesCount() }}</span>
+        <span class="kpi-trend positive">Recrutements en cours</span>
+      </div>
+      <div class="kpi-footer">
+        <a routerLink="/opportunities" class="kpi-link">Découvrir les offres →</a>
+      </div>
+    </div>
+
+    <!-- KPI 3: Réseau & Relations -->
+    <div class="kpi-card app-card">
+      <div class="kpi-card-top">
+        <span class="kpi-label">Relations & Développeurs</span>
+        <div class="kpi-icon-wrap violet">
+          <svg class="icon-svg icon-svg-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 18.72a9.094 9.094 0 003.741-.479 3 3 0 00-4.682-2.72m.94 3.198l.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0112 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 016 18.719m12 0a5.971 5.971 0 00-.941-3.197m0 0A5.995 5.995 0 0012 12.75a5.995 5.995 0 00-5.058 2.772m0 0a3 3 0 00-4.681 2.72 8.986 8.986 0 003.74.477m.999-3.199a5.971 5.971 0 00-.94 3.197M15 6.75a3 3 0 11-6 0 3 3 0 016 0zm6 3a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0zm-13.5 0a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z" />
+          </svg>
+        </div>
+      </div>
+      <div class="kpi-value-row">
+        <span class="kpi-number">{{ totalRelationsCount() }}</span>
+        <span class="kpi-trend highlight">54 pays couverts</span>
+      </div>
+      <div class="kpi-footer">
+        <a routerLink="/network" class="kpi-link">Explorer l'annuaire →</a>
+      </div>
+    </div>
+
+    <!-- KPI 4: Nombre de Demandes & Candidatures -->
+    <div class="kpi-card app-card">
+      <div class="kpi-card-top">
+        <span class="kpi-label">Demandes & Candidatures</span>
+        <div class="kpi-icon-wrap amber">
+          <svg class="icon-svg icon-svg-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
+          </svg>
+        </div>
+      </div>
+      <div class="kpi-value-row">
+        <span class="kpi-number">{{ totalApplicationsCount() }}</span>
+        <span class="kpi-trend positive">Activité suivie</span>
+      </div>
+      <div class="kpi-footer">
+        <a routerLink="/dashboard/applications" class="kpi-link">Voir mes candidatures →</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================================================== -->
+  <!-- MODERN ANALYTICS CHARTS SECTION                         -->
+  <!-- ======================================================== -->
+  <section class="analytics-grid">
+    <!-- Chart 1: Comparaison des 3 Projets les plus vus -->
+    <div class="analytics-card app-card">
+      <div class="chart-header">
+        <div>
+          <div class="chart-badge">
+            <svg class="icon-svg icon-svg-xs text-amber" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16.5 18.75h-9m9 0a3 3 0 013 3h-15a3 3 0 013-3m9 0v-3.375c0-.621-.504-1.125-1.125-1.125h-6.75a1.125 1.125 0 01-1.125 1.125v3.375m9 0H7.5m9-10.875A4.875 4.875 0 0012 3a4.875 4.875 0 00-4.5 4.875V11.25a4.5 4.5 0 009 0V7.875zM16.5 6a3 3 0 013 3v.75a3 3 0 01-3 3M7.5 6a3 3 0 00-3 3v.75a3 3 0 003 3" />
+            </svg>
+            <span>Performance Vitrine</span>
+          </div>
+          <h3 class="chart-title">Comparaison des 3 Projets les Plus Vus</h3>
+          <p class="chart-subtitle">Analyse d'audience, d'intérêt de la communauté et reconnaissances par les pairs.</p>
+        </div>
+        <a routerLink="/projects" class="chart-action-link">Voir tous les projets</a>
+      </div>
+
+      <!-- Modern Visual Bar Comparison -->
+      <div class="projects-comparison-container">
+        <div *ngFor="let proj of topProjects(); let i = index" class="project-comp-item">
+          <div class="proj-comp-head">
+            <div class="proj-comp-left">
+              <span class="rank-badge" [class.rank-1]="i === 0" [class.rank-2]="i === 1" [class.rank-3]="i === 2">
+                #{{ i + 1 }}
+              </span>
+              <div class="proj-details">
+                <span class="proj-title">{{ proj.title }}</span>
+                <span class="proj-cat">{{ proj.category }}</span>
+              </div>
+            </div>
+
+            <div class="proj-stats-pills">
+              <span class="pill-views">
+                <svg class="icon-svg icon-svg-xs" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+                <strong>{{ proj.views }}</strong> vues
+              </span>
+              <span class="pill-stars">
+                <svg class="icon-svg icon-svg-xs text-amber" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
+                </svg>
+                <strong>{{ proj.recognitions }}</strong> pairs
+              </span>
+            </div>
+          </div>
+
+          <!-- Progress Bar Representation -->
+          <div class="progress-track">
+            <div class="progress-fill" 
+                 [style.width.%]="proj.percentage" 
+                 [style.background]="proj.color">
+              <span class="progress-glow"></span>
+            </div>
+          </div>
+
+          <!-- Stack tags -->
+          <div class="proj-tags-row">
+            <span *ngFor="let tag of proj.stack" class="mini-tag">{{ tag }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Chart 2: Graphique d'Activité des Demandes & Candidatures -->
+    <div class="analytics-card app-card">
+      <div class="chart-header">
+        <div>
+          <div class="chart-badge">
+            <svg class="icon-svg icon-svg-xs text-emerald" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z" />
+            </svg>
+            <span>Volume Mensuel</span>
+          </div>
+          <h3 class="chart-title">Évolution des Demandes & Offres</h3>
+          <p class="chart-subtitle">Flux d'opportunités, propositions et demandes traitées.</p>
+        </div>
+        <div class="period-pills">
+          <button (click)="setPeriod('MONTH')" class="period-pill" [class.active]="activePeriodFilter() === 'MONTH'">Mois</button>
+          <button (click)="setPeriod('WEEK')" class="period-pill" [class.active]="activePeriodFilter() === 'WEEK'">Semaine</button>
+        </div>
+      </div>
+
+      <!-- Interactive SVG / CSS Column Graph -->
+      <div class="activity-graph-wrapper">
+        <div class="activity-bars-container">
+          <div *ngFor="let pt of activityTimeline()" class="graph-col">
+            <div class="graph-bar-group">
+              <!-- Demandes Bar -->
+              <div class="bar-col demandes-bar" [style.height.%]="pt.heightPercent" [title]="pt.demandes + ' demandes en ' + pt.month">
+                <span class="bar-tooltip">{{ pt.demandes }}</span>
+              </div>
+              <!-- Candidatures Bar -->
+              <div class="bar-col candidatures-bar" [style.height.%]="pt.heightPercent * 0.75" [title]="pt.candidatures + ' candidatures en ' + pt.month">
+                <span class="bar-tooltip">{{ pt.candidatures }}</span>
+              </div>
+            </div>
+            <span class="graph-col-label">{{ pt.month }}</span>
+          </div>
+        </div>
+
+        <div class="chart-legend">
+          <div class="legend-item">
+            <span class="legend-dot dot-demandes"></span>
+            <span>Demandes & Offres</span>
+          </div>
+          <div class="legend-item">
+            <span class="legend-dot dot-candidatures"></span>
+            <span>Candidatures Enregistrées</span>
+          </div>
+        </div>
+      </div>
+    </div>
   </section>
 
   <!-- Quick Actions Bar for Developers -->

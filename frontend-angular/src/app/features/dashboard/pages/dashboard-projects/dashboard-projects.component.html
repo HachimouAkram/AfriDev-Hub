@@ -124,7 +124,7 @@
                 </div>
                 <div class="project-text-meta">
                   <span class="proj-name">{{ proj.title }}</span>
-                  <span class="proj-subtext text-muted" *ngIf="proj.companyName">🏢 {{ proj.companyName }} ({{ proj.companyRole }})</span>
+                  <span class="proj-subtext text-muted" *ngIf="proj.companyName"><i class="ri-building-line"></i> {{ proj.companyName }} ({{ proj.companyRole }})</span>
                 </div>
               </div>
             </td>
@@ -148,7 +148,7 @@
                 <span class="text-xs text-muted">Licence : {{ proj.licenseType || 'MIT' }}</span>
               </div>
               <div *ngIf="proj.projectType === 'ENTERPRISE'">
-                <span class="text-xs text-slate font-medium">🔒 Confidentiel NDA</span>
+                <span class="text-xs text-slate font-medium"><i class="ri-lock-line"></i> Confidentiel NDA</span>
               </div>
               <div *ngIf="proj.projectType === 'PORTFOLIO'">
                 <span class="text-xs text-muted">Site Vitrine</span>
@@ -158,7 +158,7 @@
             <!-- Recognitions Count -->
             <td class="col-recognitions">
               <div class="recognition-pill">
-                <span class="star-icon">⭐</span>
+                <span class="star-icon"><i class="ri-star-fill"></i></span>
                 <span class="count">{{ proj.recognitionsCount || 0 }}</span>
               </div>
             </td>
@@ -234,7 +234,7 @@
 
     <!-- Empty State -->
     <div *ngIf="!isLoading() && filteredProjects().length === 0" class="empty-projects-state">
-      <div class="empty-icon">📁</div>
+      <div class="empty-icon"><i class="ri-folder-line"></i></div>
       <h4>Aucun projet trouvé</h4>
       <p class="text-muted">Vous n'avez pas encore publié de projet dans cette catégorie ou aucun projet ne correspond à votre recherche.</p>
       <button (click)="openCreateModal()" class="btn btn-emerald btn-sm">+ Ajouter un projet</button>
@@ -486,13 +486,13 @@
             <input type="url" [(ngModel)]="projectForm.demoUrl" placeholder="https://entreprise.com/produit" class="form-input">
           </div>
           <p class="nda-security-notice">
-            🔒 <strong>Protection NDA :</strong> Le code source GitHub est masqué pour garantir la confidentialité absolue de l'entreprise.
+            <i class="ri-lock-line"></i> <strong>Protection NDA :</strong> Le code source GitHub est masqué pour garantir la confidentialité absolue de l'entreprise.
           </p>
         </div>
 
         <!-- MEDIA ATTACHMENTS (YOUTUBE, SCREENSHOTS, PDF) -->
         <div class="media-upload-section margin-top-md">
-          <h5 class="section-subheading">🎬 Médias & Documents de Présentation</h5>
+          <h5 class="section-subheading"><i class="ri-movie-line"></i> Médias & Documents de Présentation</h5>
           
           <!-- YouTube Video -->
           <div class="form-group">
@@ -505,7 +505,7 @@
             <label class="form-label">Captures d'écran (Jusqu'à 5 images PNG/JPG max 5 Mo)</label>
             <div class="file-upload-row">
               <label class="btn btn-outline btn-sm file-input-label">
-                📷 Choisir une image
+                <i class="ri-camera-line"></i> Choisir une image
                 <input type="file" accept="image/png, image/jpeg, image/webp" (change)="onImageSelected($event)" class="hidden-file-input">
               </label>
               <span *ngIf="isUploadingMedia" class="text-xs text-emerald spinner-text">Téléversement...</span>
@@ -525,11 +525,11 @@
             <label class="form-label">Document de présentation PDF (Max 10 Mo)</label>
             <div class="file-upload-row">
               <label class="btn btn-outline btn-sm file-input-label">
-                📄 Joindre un PDF
+                <i class="ri-file-text-line"></i> Joindre un PDF
                 <input type="file" accept="application/pdf" (change)="onPdfSelected($event)" class="hidden-file-input">
               </label>
               <div *ngIf="projectForm.documentationPdfUrl" class="pdf-file-chip">
-                <span>📄 Document PDF joint</span>
+                <span><i class="ri-file-text-line"></i> Document PDF joint</span>
                 <button type="button" (click)="removePdf()" class="btn-remove-pdf">&times;</button>
               </div>
             </div>

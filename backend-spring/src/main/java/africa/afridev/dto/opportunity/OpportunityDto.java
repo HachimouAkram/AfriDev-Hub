@@ -26,6 +26,9 @@ public class OpportunityDto {
     private List<String> stack;
     private String budget;
     private LocalDateTime deadline;
+    private Integer maxApplicants;
+    private Integer acceptedCount;
+    private Boolean isPaid;
     private ContentStatus status;
     private LocalDateTime createdAt;
 }

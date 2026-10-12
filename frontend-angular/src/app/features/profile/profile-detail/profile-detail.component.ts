@@ -1,6 +1,7 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { Location } from '@angular/common';
 import { Router, ActivatedRoute, RouterLink } from '@angular/router';
 import { AuthService, Profile, User } from '../../../core/services/auth.service';
 import { ProfileService, GitHubStats } from '../../../core/services/profile.service';
@@ -25,6 +26,7 @@ export class ProfileDetailComponent implements OnInit {
   private evaluationService = inject(EvaluationService);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
+  private location = inject(Location);
 
   profile: Profile | null = null;
   targetUserId: string | null = null;
@@ -81,6 +83,15 @@ export class ProfileDetailComponent implements OnInit {
         this.loadActivities(this.targetUserId);
       }
     });
+  }
+
+  goBack(): void {
+    // If there is history, navigate back; else fallback to network
+    if (window.history.length > 1) {
+      this.location.back();
+    } else {
+      this.router.navigate(['/network']);
+    }
   }
 
   loadProfile(id: string): void {

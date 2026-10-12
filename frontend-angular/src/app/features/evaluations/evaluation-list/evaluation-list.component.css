@@ -1,11 +1,11 @@
 .evaluations-container {
-  max-width: 1240px;
+  max-width: 1400px;
+  width: 100%;
   margin: 0 auto;
-  padding: 2rem 1.5rem 4rem;
+  padding: clamp(1rem, 3vw, 2.5rem) clamp(1rem, 2.5vw, 1.5rem) 4rem;
   display: flex;
   flex-direction: column;
   gap: 2rem;
-  width: 100%;
   box-sizing: border-box;
   overflow-x: hidden;
 }

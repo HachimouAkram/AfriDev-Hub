@@ -84,7 +84,7 @@ export class ProjectListComponent implements OnInit {
         if (res.success) {
           this.closeCreateModal();
           this.loadProjects();
-          this.showToast('🎉 Projet publié avec succès !');
+          this.showToast('Projet publié avec succès !');
         }
       },
       error: (err) => {
@@ -196,7 +196,7 @@ export class ProjectListComponent implements OnInit {
 
   contactAuthorForProject(project: Project, inquiryType: 'BUY' | 'DEMO' | 'COLLAB'): void {
     if (!this.isLoggedIn()) {
-      this.showToast('⚠️ Veuillez vous connecter pour contacter le créateur du projet.');
+      this.showToast('Veuillez vous connecter pour contacter le créateur du projet.');
       return;
     }
 
@@ -344,7 +344,7 @@ export class ProjectListComponent implements OnInit {
       event.stopPropagation();
     }
     if (!this.isLoggedIn()) {
-      this.showToast('⚠️ Connectez-vous pour donner un J\'aime à ce projet.');
+      this.showToast('Connectez-vous pour donner un J\'aime à ce projet.');
       return;
     }
 
@@ -361,7 +361,7 @@ export class ProjectListComponent implements OnInit {
         next: () => {
           project.recognitionsCount += 1;
           project.recognizedByCurrentUser = true;
-          this.showToast('⭐ Projet reconnu !');
+          this.showToast('Projet reconnu !');
         }
       });
     }
@@ -399,7 +399,7 @@ export class ProjectListComponent implements OnInit {
   toggleAuthorFollow(): void {
     const authorUserId = this.selectedProject?.author?.id;
     if (!authorUserId || !this.isLoggedIn()) {
-      this.showToast('⚠️ Connectez-vous pour suivre ce développeur.');
+      this.showToast('Connectez-vous pour suivre ce développeur.');
       return;
     }
 
@@ -424,9 +424,9 @@ export class ProjectListComponent implements OnInit {
           if (res.success) {
             this.authorFollowStats = res.data;
             if (res.data.followedByCurrentUser && res.data.followsCurrentUser) {
-              this.showToast('🤝 Vous êtes maintenant amis !');
+              this.showToast('Vous êtes maintenant amis !');
             } else {
-              this.showToast('✓ Développeur suivi !');
+              this.showToast('Développeur suivi !');
             }
           }
         },
@@ -465,7 +465,7 @@ export class ProjectListComponent implements OnInit {
     if (!this.selectedProject || !this.newCommentText.trim()) return;
 
     if (!this.isLoggedIn()) {
-      this.showToast('⚠️ Connectez-vous pour publier un commentaire.');
+      this.showToast('Connectez-vous pour publier un commentaire.');
       return;
     }
 
@@ -476,7 +476,7 @@ export class ProjectListComponent implements OnInit {
         if (res.success && res.data) {
           this.projectComments.push(res.data);
           this.newCommentText = '';
-          this.showToast('💬 Commentaire publié !');
+          this.showToast('Commentaire publié !');
         }
       },
       error: () => {
@@ -490,7 +490,7 @@ export class ProjectListComponent implements OnInit {
         };
         this.projectComments.push(mockComment);
         this.newCommentText = '';
-        this.showToast('💬 Commentaire ajouté !');
+        this.showToast('Commentaire ajouté !');
       }
     });
   }
@@ -511,7 +511,7 @@ export class ProjectListComponent implements OnInit {
       window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(shareText + ' ' + permalink)}`, '_blank');
     } else {
       navigator.clipboard.writeText(permalink).then(() => {
-        this.showToast('🔗 Lien du projet copié dans le presse-papier !');
+        this.showToast('Lien du projet copié dans le presse-papier !');
       }).catch(() => {
         this.showToast('Lien du projet : ' + permalink);
       });

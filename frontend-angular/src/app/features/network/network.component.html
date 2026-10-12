@@ -160,7 +160,8 @@
             (click)="toggleFollowSuggestion(sug)" 
             class="btn btn-sm"
             [ngClass]="sug.user.isFollowedByCurrentUser ? 'btn-outline' : 'btn-emerald'">
-            {{ sug.user.isFollowedByCurrentUser ? '✓ Suivi' : '+ Suivre' }}
+            <i *ngIf="sug.user.isFollowedByCurrentUser" class="ri-check-line"></i>
+            <span>{{ sug.user.isFollowedByCurrentUser ? ' Suivi' : '+ Suivre' }}</span>
           </button>
         </div>
       </div>
@@ -227,7 +228,8 @@
             (click)="toggleFollow(u)" 
             class="btn btn-sm"
             [ngClass]="u.isFollowedByCurrentUser ? 'btn-outline' : 'btn-emerald'">
-            {{ u.isFollowedByCurrentUser ? '✓ Suivi' : '+ Suivre' }}
+            <i *ngIf="u.isFollowedByCurrentUser" class="ri-check-line"></i>
+            <span>{{ u.isFollowedByCurrentUser ? ' Suivi' : '+ Suivre' }}</span>
           </button>
         </div>
       </div>

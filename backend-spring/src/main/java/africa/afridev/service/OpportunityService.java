@@ -46,6 +46,9 @@ public class OpportunityService {
                 .stack(request.getStack() != null ? request.getStack() : new ArrayList<>())
                 .budget(request.getBudget())
                 .deadline(request.getDeadline())
+                .maxApplicants(request.getMaxApplicants() != null && request.getMaxApplicants() > 0 ? request.getMaxApplicants() : 1)
+                .acceptedCount(0)
+                .isPaid(request.getIsPaid() != null ? request.getIsPaid() : true)
                 .status(ContentStatus.PUBLISHED)
                 .build();
 
@@ -81,6 +84,13 @@ public class OpportunityService {
 
         if (opportunity.getPublisher().getId().equals(applicant.getId())) {
             throw new IllegalArgumentException("Vous ne pouvez pas candidater à votre propre offre.");
+        }
+
+        // Vérifier si l'offre a déjà atteint le nombre de personnes cherchées
+        int max = opportunity.getMaxApplicants() != null ? opportunity.getMaxApplicants() : 1;
+        int accepted = opportunity.getAcceptedCount() != null ? opportunity.getAcceptedCount() : 0;
+        if (accepted >= max) {
+            throw new IllegalStateException("Cette offre a atteint sa limite de recrutement (" + accepted + "/" + max + "). Les candidatures sont fermées.");
         }
 
         if (applicationRepository.existsByOpportunityIdAndApplicantId(opportunityId, applicant.getId())) {
@@ -158,12 +168,24 @@ public class OpportunityService {
         ApplicationEntity application = applicationRepository.findById(applicationId)
                 .orElseThrow(() -> new IllegalArgumentException("Candidature introuvable avec l'id: " + applicationId));
 
-        if (!application.getOpportunity().getPublisher().getId().equals(user.getId())) {
+        OpportunityEntity opportunity = application.getOpportunity();
+        if (!opportunity.getPublisher().getId().equals(user.getId())) {
             throw new IllegalStateException("Seul l'émetteur de cette opportunité peut changer le statut des candidatures.");
         }
 
+        ApplicationStatus oldStatus = application.getStatus();
         application.setStatus(newStatus);
         ApplicationEntity saved = applicationRepository.save(application);
+
+        // Recalculer le nombre de candidats acceptés pour cette opportunité
+        long countAccepted = applicationRepository.findByOpportunityId(opportunity.getId())
+                .stream()
+                .filter(a -> a.getStatus() == ApplicationStatus.ACCEPTED)
+                .count();
+
+        opportunity.setAcceptedCount((int) countAccepted);
+        opportunityRepository.save(opportunity);
+
         return mapToApplicationDto(saved);
     }
 
@@ -187,6 +209,12 @@ public class OpportunityService {
         if (request.getStack() != null) opportunity.setStack(request.getStack());
         opportunity.setBudget(request.getBudget());
         opportunity.setDeadline(request.getDeadline());
+        if (request.getMaxApplicants() != null && request.getMaxApplicants() > 0) {
+            opportunity.setMaxApplicants(request.getMaxApplicants());
+        }
+        if (request.getIsPaid() != null) {
+            opportunity.setIsPaid(request.getIsPaid());
+        }
 
         OpportunityEntity saved = opportunityRepository.save(opportunity);
         return mapToOpportunityDto(saved);
@@ -241,6 +269,9 @@ public class OpportunityService {
                 .stack(opportunity.getStack())
                 .budget(opportunity.getBudget())
                 .deadline(opportunity.getDeadline())
+                .maxApplicants(opportunity.getMaxApplicants() != null ? opportunity.getMaxApplicants() : 1)
+                .acceptedCount(opportunity.getAcceptedCount() != null ? opportunity.getAcceptedCount() : 0)
+                .isPaid(opportunity.getIsPaid() != null ? opportunity.getIsPaid() : true)
                 .status(opportunity.getStatus())
                 .createdAt(opportunity.getCreatedAt())
                 .build();
