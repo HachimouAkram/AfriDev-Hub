@@ -1088,4 +1088,76 @@ body.light-theme .progress-bar {
 }
 
 
+/* CV Status Messages */
+.cv-status-msg {
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 0.4rem 0.75rem;
+  border-radius: 8px;
+  gap: 0.35rem;
+}
+
+.cv-success {
+  background: rgba(16, 185, 129, 0.12);
+  color: #34D399;
+  border: 1px solid var(--border-emerald, rgba(16, 185, 129, 0.3));
+}
+
+.cv-error {
+  background: rgba(239, 68, 68, 0.12);
+  color: #FCA5A5;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+/* CV Badge in sidebar */
+.cv-badge-card {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  background: rgba(16, 185, 129, 0.06);
+  border: 1px solid var(--border-emerald, rgba(16, 185, 129, 0.25));
+  border-radius: 10px;
+  margin-top: 0.75rem;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.cv-badge-card:hover {
+  background: rgba(16, 185, 129, 0.12);
+  transform: translateY(-1px);
+}
+
+.cv-badge-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  background: rgba(16, 185, 129, 0.15);
+  border-radius: 8px;
+  flex-shrink: 0;
+  color: var(--emerald-500, #10B981);
+}
+
+.cv-badge-text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.cv-badge-label {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.cv-badge-name {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--emerald-500, #10B981);
+}
 

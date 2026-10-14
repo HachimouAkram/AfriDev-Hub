@@ -68,6 +68,7 @@ public class ProfileService {
         if (request.getZindiUrl() != null) profile.setZindiUrl(request.getZindiUrl());
         if (request.getPortfolioUrl() != null) profile.setPortfolioUrl(request.getPortfolioUrl());
         if (request.getAvatarUrl() != null) profile.setAvatarUrl(request.getAvatarUrl());
+        if (request.getCvUrl() != null) profile.setCvUrl(request.getCvUrl());
 
         profile.setCompletionScore(calculateCompletionScore(profile));
 

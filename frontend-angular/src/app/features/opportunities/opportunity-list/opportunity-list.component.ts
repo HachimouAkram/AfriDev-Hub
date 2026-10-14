@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AuthService } from '../../../core/services/auth.service';
 import { OpportunityService, Opportunity } from '../../../core/services/opportunity.service';
+import { ProfileService } from '../../../core/services/profile.service';
 
 @Component({
   selector: 'app-opportunity-list',
@@ -14,6 +15,7 @@ import { OpportunityService, Opportunity } from '../../../core/services/opportun
 export class OpportunityListComponent implements OnInit {
   private opportunityService = inject(OpportunityService);
   private authService = inject(AuthService);
+  private profileService = inject(ProfileService);
 
   opportunities: Opportunity[] = [];
   selectedType: string = 'ALL';
@@ -27,10 +29,14 @@ export class OpportunityListComponent implements OnInit {
   showApplyModal = false;
   selectedOpportunity: Opportunity | null = null;
   applicationMessage = '';
-  cvUrl = '';
+  cvUrl = ''; // URL finale envoyée au backend
+  cvFileName = ''; // Nom du fichier sélectionné
+  usedProfileCv = false; // Si on utilise le CV du profil
+  isUploadingCv = false; // Upload en cours
   isApplying = false;
   applySuccessMessage = '';
   applyErrorMessage = '';
+  cvUploadError = '';
 
   // Create Opportunity Modal
   showCreateModal = false;
@@ -88,6 +94,19 @@ export class OpportunityListComponent implements OnInit {
     this.showApplyModal = true;
     this.applySuccessMessage = '';
     this.applyErrorMessage = '';
+    this.cvUploadError = '';
+    this.isUploadingCv = false;
+    // Auto-fill CV from profile if available
+    const profileCv = this.authService.currentUser()?.profile?.cvUrl;
+    if (profileCv) {
+      this.cvUrl = profileCv;
+      this.cvFileName = 'CV de votre profil';
+      this.usedProfileCv = true;
+    } else {
+      this.cvUrl = '';
+      this.cvFileName = '';
+      this.usedProfileCv = false;
+    }
   }
 
   closeApplyModal(): void {
@@ -114,6 +133,42 @@ export class OpportunityListComponent implements OnInit {
         this.applyErrorMessage = err.error?.error?.message || 'Erreur lors de l\'envoi de la candidature.';
       }
     });
+  }
+
+  onCvFileSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (!input.files || input.files.length === 0) return;
+
+    const file = input.files[0];
+    if (file.type !== 'application/pdf') {
+      this.cvUploadError = 'Seuls les fichiers PDF sont acceptés.';
+      return;
+    }
+
+    this.isUploadingCv = true;
+    this.cvUploadError = '';
+    this.usedProfileCv = false;
+
+    this.profileService.uploadCv(file).subscribe({
+      next: (res) => {
+        this.isUploadingCv = false;
+        if (res.success && res.data?.url) {
+          this.cvUrl = res.data.url;
+          this.cvFileName = file.name;
+        } else {
+          this.cvUploadError = 'Erreur lors du téléversement du CV.';
+        }
+      },
+      error: () => {
+        this.isUploadingCv = false;
+        this.cvUploadError = 'Erreur lors du téléversement du CV. Veuillez réessayer.';
+      }
+    });
+  }
+
+  getProfileCvUrl(): string {
+    const url = this.authService.currentUser()?.profile?.cvUrl;
+    return this.profileService.getFullFileUrl(url);
   }
 
   openCreateModal(): void {

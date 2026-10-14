@@ -17,6 +17,7 @@ export interface Profile {
   completionScore: number;
   mobileMoneyVerified: boolean;
   avatarUrl?: string;
+  cvUrl?: string;
   githubUrl?: string;
   linkedinUrl?: string;
   zindiUrl?: string;

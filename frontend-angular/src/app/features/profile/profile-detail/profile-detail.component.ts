@@ -116,6 +116,15 @@ export class ProfileDetailComponent implements OnInit {
     return this.profileService.getFullAvatarUrl(url);
   }
 
+  /** Safely get cvUrl from profile without 'as any' in template */
+  getCvUrl(profile: any): string | null {
+    return profile?.cvUrl || null;
+  }
+
+  hasCv(profile: any): boolean {
+    return !!profile?.cvUrl;
+  }
+
   onAvatarError(event: Event): void {
     if (this.profile) {
       // If image fails to load, gracefully reset so letter fallback shows
@@ -367,6 +376,9 @@ export class ProfileDetailComponent implements OnInit {
   showEditModal = false;
   isSavingProfile = false;
   isUploadingAvatar = false;
+  isUploadingCv = false;
+  cvUploadSuccessMessage = '';
+  cvUploadErrorMessage = '';
   editSuccessMessage = '';
   editErrorMessage = '';
 
@@ -448,6 +460,48 @@ export class ProfileDetailComponent implements OnInit {
       error: () => {
         this.isUploadingAvatar = false;
         this.editErrorMessage = 'Échec du téléversement de la photo.';
+      }
+    });
+  }
+
+  onCvSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (!input.files || input.files.length === 0) return;
+
+    const file = input.files[0];
+    if (file.type !== 'application/pdf') {
+      this.cvUploadErrorMessage = 'Seuls les fichiers PDF sont acceptés.';
+      return;
+    }
+
+    this.isUploadingCv = true;
+    this.cvUploadSuccessMessage = '';
+    this.cvUploadErrorMessage = '';
+
+    this.profileService.uploadCv(file).subscribe({
+      next: (res) => {
+        this.isUploadingCv = false;
+        if (res.success && res.data?.url) {
+          const cvUrl = res.data.url;
+          // Save cv URL to profile
+          this.profileService.updateProfile({ cvUrl }).subscribe({
+            next: (updateRes) => {
+              if (updateRes.success && updateRes.data) {
+                this.profile = updateRes.data;
+                this.authService.updateProfileInUser(updateRes.data);
+                this.cvUploadSuccessMessage = `CV téléversé avec succès : ${file.name}`;
+                setTimeout(() => this.cvUploadSuccessMessage = '', 4000);
+              }
+            },
+            error: () => {
+              this.cvUploadErrorMessage = 'Erreur lors de la sauvegarde du CV.';
+            }
+          });
+        }
+      },
+      error: () => {
+        this.isUploadingCv = false;
+        this.cvUploadErrorMessage = 'Échec du téléversement du CV PDF.';
       }
     });
   }

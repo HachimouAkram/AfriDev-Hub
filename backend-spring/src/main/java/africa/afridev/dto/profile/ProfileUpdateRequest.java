@@ -24,4 +24,5 @@ public class ProfileUpdateRequest {
     private String portfolioUrl;
     private String avatarUrl;
     private String bannerUrl;
+    private String cvUrl;
 }

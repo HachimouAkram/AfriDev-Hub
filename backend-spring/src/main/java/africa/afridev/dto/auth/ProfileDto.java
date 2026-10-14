@@ -32,6 +32,7 @@ public class ProfileDto {
     private String portfolioUrl;
     private String avatarUrl;
     private String bannerUrl;
+    private String cvUrl;
     private Integer completionScore;
     private Boolean mobileMoneyVerified;
 }

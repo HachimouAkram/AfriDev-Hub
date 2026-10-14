@@ -72,6 +72,7 @@ public class ProfileEntity {
     private String portfolioUrl;
     private String avatarUrl;
     private String bannerUrl;
+    private String cvUrl;
 
     @Column(columnDefinition = "TEXT")
     private String githubStatsJson;

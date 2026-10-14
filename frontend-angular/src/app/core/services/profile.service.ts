@@ -59,6 +59,17 @@ export class ProfileService {
     return this.http.post<ApiResponse<{ url: string }>>('http://localhost:8081/api/v1/uploads/image', formData);
   }
 
+  uploadCv(file: File): Observable<ApiResponse<{ url: string }>> {
+    const formData = new FormData();
+    formData.append('file', file);
+    return this.http.post<ApiResponse<{ url: string }>>('http://localhost:8081/api/v1/uploads/pdf', formData);
+  }
+
+  /** Generic URL resolver for any uploaded file (image or PDF) */
+  getFullFileUrl(url: string | undefined | null): string {
+    return this.getFullAvatarUrl(url);
+  }
+
   getFullAvatarUrl(url: string | undefined | null): string {
     if (!url) return '';
     if (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('data:')) {

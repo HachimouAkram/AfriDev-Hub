@@ -9,6 +9,7 @@
   box-sizing: border-box;
 }
 
+/* ────────── Header ────────── */
 .header-section {
   display: flex;
   justify-content: space-between;
@@ -19,9 +20,13 @@
 }
 
 .header-text h1 {
-  font-size: 2rem;
+  font-size: clamp(1.4rem, 3vw, 2rem);
   font-weight: 800;
   margin-bottom: 0.35rem;
+  background: linear-gradient(135deg, #fff 0%, #34D399 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 .header-text p {
@@ -30,6 +35,7 @@
   max-width: 720px;
 }
 
+/* ────────── Filter Tabs ────────── */
 .filter-tabs {
   display: flex;
   gap: 0.6rem;
@@ -40,111 +46,319 @@
   background: var(--bg-surface-card);
   border: 1px solid var(--border-subtle);
   color: var(--text-muted);
-  padding: 0.5rem 1rem;
-  border-radius: 8px;
+  padding: 0.5rem 1.1rem;
+  border-radius: 20px;
   cursor: pointer;
   font-weight: 600;
   font-size: 0.85rem;
-  transition: all 0.15s ease;
+  transition: all 0.18s ease;
+  letter-spacing: 0.01em;
 }
 
-.filter-btn.active, .filter-btn:hover {
+.filter-btn.active,
+.filter-btn:hover {
   background: var(--emerald-500);
   color: #022C22;
   border-color: var(--emerald-500);
+  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
 }
 
+/* ────────── Cards Grid ────────── */
 .opportunities-grid {
-  display: flex;
-  flex-direction: column;
-  gap: 1.25rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  gap: 1.5rem;
 }
 
+/* ────────── Opt Card ────────── */
 .opt-card {
   display: flex;
   flex-direction: column;
-  gap: 1.25rem;
+  gap: 1rem;
   padding: 1.5rem;
+  background: var(--bg-surface-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: 16px;
+  cursor: default;
+  transition: transform 0.22s cubic-bezier(0.4,0,0.2,1), box-shadow 0.22s cubic-bezier(0.4,0,0.2,1), border-color 0.22s ease;
+  position: relative;
+  overflow: hidden;
 }
 
+.opt-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at top right, rgba(16,185,129,0.05) 0%, transparent 70%);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.opt-card:hover::before {
+  opacity: 1;
+}
+
+.opt-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 40px rgba(0,0,0,0.3), 0 0 0 1px rgba(16,185,129,0.15);
+  border-color: rgba(16,185,129,0.2);
+}
+
+/* ────────── Card Header ────────── */
 .opt-header {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-start;
   flex-wrap: wrap;
   gap: 0.75rem;
 }
 
 .badge-group {
   display: flex;
-  gap: 0.5rem;
+  gap: 0.45rem;
+  flex-wrap: wrap;
+}
+
+.badge-sm {
+  font-size: 0.72rem !important;
+  padding: 0.2rem 0.55rem !important;
 }
 
 .budget-tag {
   font-weight: 700;
   color: var(--emerald-500);
-  font-size: 0.95rem;
+  font-size: 0.9rem;
+  background: rgba(16, 185, 129, 0.1);
+  padding: 0.25rem 0.65rem;
+  border-radius: 8px;
+  border: 1px solid rgba(16, 185, 129, 0.2);
+  white-space: nowrap;
 }
 
+/* ────────── Card Body ────────── */
 .opt-body {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 0.65rem;
+  flex: 1;
 }
 
 .opt-title {
-  font-size: 1.25rem;
+  font-size: 1.1rem;
   font-weight: 700;
+  line-height: 1.35;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
-.publisher-info {
+/* ────────── Publisher Row ────────── */
+.publisher-row {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.pub-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, rgba(16,185,129,0.2), rgba(16,185,129,0.05));
+  border: 1px solid rgba(16,185,129,0.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--emerald-500);
+  flex-shrink: 0;
+}
+
+.pub-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+}
+
+.pub-name {
   font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-body);
+}
+
+.pub-location {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.75rem;
   color: var(--text-muted);
 }
 
 .opt-desc {
-  font-size: 0.9rem;
-  color: var(--text-body);
+  font-size: 0.875rem;
+  color: var(--text-muted);
   line-height: 1.55;
-  margin: 0.35rem 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 .stack-list {
   display: flex;
   gap: 0.35rem;
   flex-wrap: wrap;
+  margin-top: 0.25rem;
 }
 
+/* ────────── Quota Progress ────────── */
+.quota-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.quota-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.quota-label {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.quota-pct {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--text-body);
+}
+
+.quota-bar {
+  height: 4px;
+  background: rgba(255,255,255,0.06);
+  border-radius: 99px;
+  overflow: hidden;
+}
+
+.quota-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--emerald-500), #34D399);
+  border-radius: 99px;
+  transition: width 0.4s ease;
+}
+
+.quota-fill.quota-full {
+  background: linear-gradient(90deg, #ef4444, #f87171);
+}
+
+/* ────────── Card Footer ────────── */
 .opt-footer {
   display: flex;
   justify-content: space-between;
   align-items: center;
   border-top: 1px solid var(--border-subtle);
   padding-top: 1rem;
-  margin-top: 0.5rem;
+  margin-top: auto;
+  gap: 0.5rem;
 }
 
 .date-text {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+/* ────────── Closed Card ────────── */
+.opt-card.opt-card-closed {
+  opacity: 0.65;
+  background: rgba(255, 255, 255, 0.015);
+}
+
+.opt-card.opt-card-closed:hover {
+  transform: none;
+  box-shadow: none;
+  border-color: var(--border-subtle);
+}
+
+.btn-disabled-quota {
+  background: rgba(255, 255, 255, 0.06) !important;
+  color: var(--text-muted) !important;
+  border: 1px solid var(--border-subtle) !important;
+  cursor: not-allowed !important;
+  opacity: 0.8;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.4rem 0.85rem;
+  border-radius: 8px;
   font-size: 0.8rem;
-  color: var(--text-muted);
 }
 
-.loading-box {
+/* ────────── Skeleton Loader ────────── */
+.loading-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  gap: 1.5rem;
+}
+
+.skeleton-card {
+  height: 280px;
+  border-radius: 16px;
+  background: linear-gradient(90deg,
+    rgba(255,255,255,0.04) 0%,
+    rgba(255,255,255,0.08) 50%,
+    rgba(255,255,255,0.04) 100%);
+  background-size: 200% 100%;
+  animation: skeleton-shimmer 1.5s infinite;
+}
+
+@keyframes skeleton-shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* ────────── Empty State ────────── */
+.empty-opportunities-card {
   text-align: center;
-  padding: 3rem;
-  color: var(--text-muted);
+  padding: 4rem 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
 }
 
-/* Modal Overlay & Form */
+.empty-icon {
+  width: 56px;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(16, 185, 129, 0.08);
+  border: 1px solid var(--border-emerald, rgba(16,185,129,0.2));
+  border-radius: 14px;
+  color: var(--emerald-500);
+}
 
+/* ────────── Modal ────────── */
 .modal-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  margin-bottom: 0.25rem;
 }
 
 .modal-header h3 {
-  font-size: 1.25rem;
+  font-size: 1.15rem;
   font-weight: 700;
 }
 
@@ -160,7 +374,7 @@
   background: rgba(16, 185, 129, 0.08);
   padding: 0.75rem;
   border-radius: 8px;
-  border: 1px solid var(--border-emerald);
+  border: 1px solid var(--border-emerald, rgba(16,185,129,0.3));
 }
 
 .form-row {
@@ -172,6 +386,97 @@
   flex: 1;
 }
 
+/* ────────── CV Section in Modal ────────── */
+.cv-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.cv-profile-card {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.75rem 1rem;
+  background: rgba(16, 185, 129, 0.07);
+  border: 1px solid rgba(16, 185, 129, 0.25);
+  border-radius: 10px;
+}
+
+.cv-profile-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  background: rgba(16, 185, 129, 0.15);
+  border-radius: 8px;
+  color: var(--emerald-500);
+  flex-shrink: 0;
+}
+
+.cv-profile-info {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.cv-profile-label {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+.cv-profile-link {
+  font-size: 0.82rem;
+  color: var(--emerald-500);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.cv-profile-link:hover {
+  text-decoration: underline;
+}
+
+.cv-check {
+  color: var(--emerald-500);
+  flex-shrink: 0;
+}
+
+.cv-uploaded-card {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.6rem 0.9rem;
+  background: rgba(16, 185, 129, 0.05);
+  border: 1px solid rgba(16, 185, 129, 0.2);
+  border-radius: 8px;
+  color: var(--emerald-500);
+}
+
+.cv-file-name {
+  font-size: 0.82rem;
+  font-weight: 600;
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cv-actions {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.file-upload-label {
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+/* ────────── Error / Success ────────── */
 .error-box {
   background: rgba(239, 68, 68, 0.12);
   border: 1px solid rgba(239, 68, 68, 0.3);
@@ -183,7 +488,7 @@
 
 .success-box {
   background: rgba(16, 185, 129, 0.12);
-  border: 1px solid var(--border-emerald);
+  border: 1px solid var(--border-emerald, rgba(16,185,129,0.3));
   color: #34D399;
   padding: 0.65rem 0.9rem;
   border-radius: 8px;
@@ -197,28 +502,7 @@
   margin-top: 0.5rem;
 }
 
-/* Closed / Limit Reached Card Styling */
-.opt-card.opt-card-closed {
-  opacity: 0.75;
-  background: rgba(255, 255, 255, 0.02);
-  border-color: rgba(255, 255, 255, 0.08);
-}
-
-.opt-card.opt-card-closed:hover {
-  transform: none;
-  box-shadow: none;
-}
-
-.btn-disabled-quota {
-  background: rgba(255, 255, 255, 0.08) !important;
-  color: var(--text-muted) !important;
-  border: 1px solid var(--border-subtle) !important;
-  cursor: not-allowed !important;
-  opacity: 0.8;
-  font-weight: 600;
-}
-
-/* Radio Pill Group for Stage Remuneration */
+/* ────────── Radio Pill Group ────────── */
 .radio-pill-group {
   display: flex;
   gap: 0.6rem;
@@ -251,9 +535,26 @@
 }
 
 .field-hint {
-  display: block;
-  font-size: 0.725rem;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.3rem;
+  font-size: 0.73rem;
   color: var(--text-muted);
-  margin-top: 0.3rem;
-  line-height: 1.3;
+  line-height: 1.4;
+}
+
+/* ────────── Responsive ────────── */
+@media (max-width: 640px) {
+  .opportunities-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .form-row {
+    flex-direction: column;
+  }
+
+  .header-section {
+    flex-direction: column;
+    align-items: flex-start;
+  }
 }

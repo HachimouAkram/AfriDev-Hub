@@ -164,6 +164,7 @@ public class AuthService {
                 .portfolioUrl(profile.getPortfolioUrl())
                 .avatarUrl(profile.getAvatarUrl())
                 .bannerUrl(profile.getBannerUrl())
+                .cvUrl(profile.getCvUrl())
                 .completionScore(profile.getCompletionScore())
                 .mobileMoneyVerified(profile.getMobileMoneyVerified())
                 .build();
