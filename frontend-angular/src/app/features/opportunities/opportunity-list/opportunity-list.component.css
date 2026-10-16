@@ -20,18 +20,19 @@
 }
 
 .header-text h1 {
-  font-size: clamp(1.4rem, 3vw, 2rem);
-  font-weight: 800;
+  font-family: var(--font-heading);
+  font-size: var(--page-title-size);
+  font-weight: var(--page-title-weight);
+  line-height: var(--page-title-line-height);
+  letter-spacing: var(--page-title-letter-spacing);
   margin-bottom: 0.35rem;
-  background: linear-gradient(135deg, #fff 0%, #34D399 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  color: var(--text-heading);
 }
 
 .header-text p {
   color: var(--text-muted);
-  font-size: 0.95rem;
+  font-size: var(--page-subtitle-size);
+  line-height: var(--page-subtitle-line-height);
   max-width: 720px;
 }
 

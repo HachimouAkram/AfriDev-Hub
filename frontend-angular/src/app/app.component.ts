@@ -10,7 +10,7 @@ import { TranslationService, Language } from './core/services/translation.servic
   standalone: true,
   imports: [CommonModule, RouterOutlet, RouterLink, RouterLinkActive],
   template: `
-    <nav class="app-nav" *ngIf="!isDashboardPage()">
+    <nav class="app-nav" [class.nav-scrolled]="isScrolled" [class.nav-light]="!isDark()" *ngIf="!isDashboardPage()">
       <div class="nav-content">
         <!-- Logo Left -->
         <a routerLink="/" (click)="closeAllMenus()" class="logo">
@@ -25,13 +25,9 @@ import { TranslationService, Language } from './core/services/translation.servic
         <div class="nav-center-pill desktop-only">
           <ng-container *ngIf="!isDashboardPage()">
             <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" class="nav-link">Accueil</a>
-            <a routerLink="/projects" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" class="nav-link">Vitrine Projets</a>
-            <a [routerLink]="['/projects']" [queryParams]="{category: 'COLLABORATIVE'}" routerLinkActive="active" class="nav-link nav-link-collab">
-              <span class="collab-dot-live"></span>
-              <i class="ri-team-line"></i> Collaboration
-            </a>
+            <a routerLink="/projects" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" class="nav-link">Projets</a>
             <a routerLink="/opportunities" routerLinkActive="active" class="nav-link">Opportunités</a>
-            <a routerLink="/network" routerLinkActive="active" class="nav-link">Réseau & Annuaire</a>
+            <a routerLink="/network" routerLinkActive="active" class="nav-link">Réseau</a>
             <a routerLink="/events" routerLinkActive="active" class="nav-link">Événements</a>
           </ng-container>
         </div>
@@ -115,13 +111,6 @@ import { TranslationService, Language } from './core/services/translation.servic
               <div class="dropdown-divider"></div>
 
               <div class="dropdown-menu-list">
-                <a routerLink="/" (click)="closeProfileMenu()" class="dropdown-item">
-                  <svg class="icon-svg icon-svg-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 21a9 9 0 100-18 9 9 0 000 18zM3.6 9h16.8M3.6 15h16.8M12 3a14.25 14.25 0 000 18 14.25 14.25 0 000-18z" />
-                  </svg>
-                  <span>Voir le site</span>
-                </a>
-
                 <a routerLink="/dashboard/profile" (click)="closeProfileMenu()" routerLinkActive="active" class="dropdown-item">
                   <svg class="icon-svg icon-svg-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
@@ -187,13 +176,10 @@ import { TranslationService, Language } from './core/services/translation.servic
       <div class="mobile-drawer" [class.open]="isMobileMenuOpen">
         <div class="mobile-drawer-links">
           <a routerLink="/" (click)="closeAllMenus()" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" class="mobile-nav-link">Accueil</a>
-          <a routerLink="/projects" (click)="closeAllMenus()" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" class="mobile-nav-link">Vitrine Projets</a>
-          <a [routerLink]="['/projects']" [queryParams]="{category: 'COLLABORATIVE'}" (click)="closeAllMenus()" class="mobile-nav-link mobile-nav-link-collab">
-            <i class="ri-team-line"></i> Espace Collaboration & Équipes
-          </a>
+          <a routerLink="/projects" (click)="closeAllMenus()" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" class="mobile-nav-link">Projets</a>
           <a routerLink="/opportunities" (click)="closeAllMenus()" routerLinkActive="active" class="mobile-nav-link">Opportunités</a>
-          <a routerLink="/network" (click)="closeAllMenus()" routerLinkActive="active" class="mobile-nav-link">Réseau & Annuaire</a>
-          <a routerLink="/events" (click)="closeAllMenus()" routerLinkActive="active" class="mobile-nav-link">Événements & Meetups</a>
+          <a routerLink="/network" (click)="closeAllMenus()" routerLinkActive="active" class="mobile-nav-link">Réseau</a>
+          <a routerLink="/events" (click)="closeAllMenus()" routerLinkActive="active" class="mobile-nav-link">Événements</a>
           <a *ngIf="isLoggedIn()" routerLink="/messages" (click)="closeAllMenus()" routerLinkActive="active" class="mobile-nav-link">Messagerie</a>
           <a *ngIf="isLoggedIn()" routerLink="/dashboard/profile" (click)="closeAllMenus()" routerLinkActive="active" class="mobile-nav-link">Mon Profil</a>
           <a *ngIf="isLoggedIn()" routerLink="/dashboard" (click)="closeAllMenus()" routerLinkActive="active" class="mobile-nav-link">Tableau de bord</a>
@@ -232,7 +218,7 @@ import { TranslationService, Language } from './core/services/translation.servic
         </div>
       </div>
     </nav>
-    <main>
+    <main [class.has-fixed-nav]="!isDashboardPage()">
       <router-outlet></router-outlet>
     </main>
 
@@ -323,15 +309,47 @@ import { TranslationService, Language } from './core/services/translation.servic
   `,
   styles: [`
     .app-nav {
-      position: sticky;
+      position: fixed;
       top: 0;
-      z-index: 100;
-      background: var(--bg-dark);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
+      left: 0;
+      right: 0;
+      width: 100%;
+      z-index: 1000;
+      background: rgba(11, 15, 25, 0.88);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
       border-bottom: 1px solid var(--border-subtle);
       padding: 0.85rem 0;
-      transition: background-color 0.2s ease, border-color 0.2s ease;
+      transition: background-color 0.25s ease, border-color 0.25s ease, padding 0.25s ease, box-shadow 0.25s ease;
+    }
+    .app-nav.nav-scrolled {
+      background: rgba(11, 15, 25, 0.96);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+      border-bottom-color: var(--border-light);
+      padding: 0.65rem 0;
+    }
+    .app-nav.nav-light,
+    :host-context(body.light-theme) .app-nav {
+      background: rgba(255, 255, 255, 0.94);
+      border-bottom-color: rgba(0, 0, 0, 0.08);
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+    }
+    .app-nav.nav-light.nav-scrolled,
+    :host-context(body.light-theme) .app-nav.nav-scrolled {
+      background: rgba(255, 255, 255, 0.98);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+      border-bottom-color: rgba(0, 0, 0, 0.12);
+    }
+    .app-nav.nav-light .logo-text,
+    :host-context(body.light-theme) .logo-text {
+      color: #0F172A;
+    }
+    .app-nav.nav-light .logo-subtitle,
+    :host-context(body.light-theme) .logo-subtitle {
+      color: #64748B;
+    }
+    main.has-fixed-nav {
+      padding-top: 74px;
     }
     .nav-content {
       max-width: 1400px;
@@ -378,8 +396,10 @@ import { TranslationService, Language } from './core/services/translation.servic
       margin: 0 auto;
       transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
     }
-    body.light-theme .nav-center-pill {
+    .app-nav.nav-light .nav-center-pill,
+    :host-context(body.light-theme) .nav-center-pill {
       background: rgba(0, 0, 0, 0.03);
+      border-color: rgba(0, 0, 0, 0.08);
       box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
     }
     .nav-center-pill:hover {
@@ -397,11 +417,17 @@ import { TranslationService, Language } from './core/services/translation.servic
       transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
       position: relative;
     }
+    .app-nav.nav-light .nav-link,
+    :host-context(body.light-theme) .nav-link {
+      color: #475569;
+    }
     .nav-link:hover {
       color: var(--text-heading);
       background: rgba(255, 255, 255, 0.06);
     }
-    body.light-theme .nav-link:hover {
+    .app-nav.nav-light .nav-link:hover,
+    :host-context(body.light-theme) .nav-link:hover {
+      color: #0F172A;
       background: rgba(0, 0, 0, 0.05);
     }
     .nav-link.active {
@@ -409,9 +435,77 @@ import { TranslationService, Language } from './core/services/translation.servic
       background: rgba(16, 185, 129, 0.12);
       font-weight: 700;
     }
-    body.light-theme .nav-link.active {
+    .app-nav.nav-light .nav-link.active,
+    :host-context(body.light-theme) .nav-link.active {
       color: #059669 !important;
       background: rgba(16, 185, 129, 0.14);
+    }
+
+    .app-nav.nav-light .lang-toggle-btn,
+    .app-nav.nav-light .theme-toggle-btn,
+    .app-nav.nav-light .mobile-toggle-btn,
+    :host-context(body.light-theme) .lang-toggle-btn,
+    :host-context(body.light-theme) .theme-toggle-btn,
+    :host-context(body.light-theme) .mobile-toggle-btn {
+      background: rgba(0, 0, 0, 0.04);
+      border-color: rgba(0, 0, 0, 0.1);
+      color: #0F172A;
+    }
+    .app-nav.nav-light .lang-toggle-btn:hover,
+    .app-nav.nav-light .theme-toggle-btn:hover,
+    .app-nav.nav-light .mobile-toggle-btn:hover,
+    :host-context(body.light-theme) .lang-toggle-btn:hover,
+    :host-context(body.light-theme) .theme-toggle-btn:hover,
+    :host-context(body.light-theme) .mobile-toggle-btn:hover {
+      background: rgba(0, 0, 0, 0.08);
+      border-color: var(--emerald-500);
+      color: var(--emerald-600);
+    }
+
+    .app-nav.nav-light .lang-dropdown-card,
+    .app-nav.nav-light .profile-dropdown-card,
+    :host-context(body.light-theme) .lang-dropdown-card,
+    :host-context(body.light-theme) .profile-dropdown-card {
+      background: #FFFFFF;
+      border: 1px solid rgba(0, 0, 0, 0.1);
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.12);
+    }
+    .app-nav.nav-light .lang-name,
+    :host-context(body.light-theme) .lang-name {
+      color: #0F172A;
+    }
+    .app-nav.nav-light .dropdown-user-info .user-name,
+    :host-context(body.light-theme) .dropdown-user-info .user-name {
+      color: #0F172A;
+    }
+    .app-nav.nav-light .dropdown-item,
+    :host-context(body.light-theme) .dropdown-item {
+      color: #334155;
+    }
+    .app-nav.nav-light .dropdown-item:hover,
+    .app-nav.nav-light .dropdown-item.active,
+    :host-context(body.light-theme) .dropdown-item:hover,
+    :host-context(body.light-theme) .dropdown-item.active {
+      background: #F1F5F9;
+      color: #059669;
+    }
+    .app-nav.nav-light .dropdown-divider,
+    :host-context(body.light-theme) .dropdown-divider {
+      background: rgba(0, 0, 0, 0.08);
+    }
+    .app-nav.nav-light .mobile-drawer,
+    :host-context(body.light-theme) .mobile-drawer {
+      background: #FFFFFF;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+    }
+    .app-nav.nav-light .mobile-nav-link,
+    :host-context(body.light-theme) .mobile-nav-link {
+      color: #0F172A;
+      border-bottom-color: rgba(0, 0, 0, 0.06);
+    }
+    .app-nav.nav-light .mobile-nav-link.active,
+    :host-context(body.light-theme) .mobile-nav-link.active {
+      color: #059669;
     }
 
     /* RIGHT ACTIONS CONTAINER */
@@ -816,6 +910,8 @@ import { TranslationService, Language } from './core/services/translation.servic
       }
       .mobile-drawer.open {
         display: block !important;
+        max-height: calc(100vh - 72px);
+        overflow-y: auto;
       }
     }
 
@@ -1067,9 +1163,15 @@ export class AppComponent {
   isMobileMenuOpen = false;
   isProfileMenuOpen = false;
   isLangMenuOpen = false;
+  isScrolled = false;
 
   availableLanguages = this.translationService.languages;
   currentLang = this.translationService.currentLang;
+
+  @HostListener('window:scroll')
+  onWindowScroll(): void {
+    this.isScrolled = window.scrollY > 15;
+  }
 
   @HostListener('document:click')
   onDocumentClick(): void {

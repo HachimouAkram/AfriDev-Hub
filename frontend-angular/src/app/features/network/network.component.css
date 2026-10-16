@@ -20,24 +20,19 @@
 
 .header-text h1 {
   font-family: var(--font-heading);
-  font-size: clamp(2.2rem, 3.5vw, 2.85rem);
-  font-weight: 900;
-  margin-bottom: 0.5rem;
-  letter-spacing: -0.025em;
-  line-height: 1.15;
-  color: #0F172A;
-}
-
-body:not(.light-theme) .header-text h1 {
-  color: #FFFFFF;
-  text-shadow: 0 2px 20px rgba(0, 0, 0, 0.4);
+  font-size: var(--page-title-size);
+  font-weight: var(--page-title-weight);
+  margin-bottom: 0.35rem;
+  letter-spacing: var(--page-title-letter-spacing);
+  line-height: var(--page-title-line-height);
+  color: var(--text-heading);
 }
 
 .header-text p {
   color: var(--text-muted);
-  font-size: clamp(1rem, 1.3vw, 1.125rem);
+  font-size: var(--page-subtitle-size);
+  line-height: var(--page-subtitle-line-height);
   max-width: 760px;
-  line-height: 1.6;
 }
 
 .stats-pills {

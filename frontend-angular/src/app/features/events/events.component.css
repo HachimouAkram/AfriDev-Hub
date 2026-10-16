@@ -51,31 +51,21 @@
 }
 
 .events-hero h1 {
-  font-size: 2.6rem;
-  font-weight: 800;
-  letter-spacing: -0.025em;
-  margin-bottom: 1rem;
-  background: linear-gradient(135deg, #FFFFFF 0%, #CBD5E1 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
-
-body.light-theme .events-hero h1 {
-  background: linear-gradient(135deg, #0F172A 0%, #1E293B 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+  font-family: var(--font-heading);
+  font-size: var(--page-title-size);
+  font-weight: var(--page-title-weight);
+  letter-spacing: var(--page-title-letter-spacing);
+  line-height: var(--page-title-line-height);
+  margin-bottom: 0.4rem;
+  color: var(--text-heading);
 }
 
 .events-hero p {
   max-width: 680px;
-  margin: 0 auto 2rem;
-  color: var(--text-muted, #94A3B8);
-  font-size: 1.05rem;
-  line-height: 1.6;
-}
-
-body.light-theme .events-hero p {
-  color: #64748B;
+  margin: 0 auto 1.75rem;
+  color: var(--text-muted);
+  font-size: var(--page-subtitle-size);
+  line-height: var(--page-subtitle-line-height);
 }
 
 .hero-actions {

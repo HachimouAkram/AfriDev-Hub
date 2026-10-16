@@ -314,54 +314,64 @@ export class DashboardProjectsComponent implements OnInit {
   }
 
   validateForm(): boolean {
-    if (!this.projectForm.title.trim()) {
+    if (!this.projectForm.title || !this.projectForm.title.trim()) {
       this.formErrorMessage = 'Le titre du projet est obligatoire.';
+      this.showToast(this.formErrorMessage);
       return false;
     }
-    if (this.projectForm.description.trim().length < 10) {
+    if (!this.projectForm.description || this.projectForm.description.trim().length < 10) {
       this.formErrorMessage = 'La description doit contenir au moins 10 caractères.';
+      this.showToast(this.formErrorMessage);
       return false;
     }
 
     const type = this.projectForm.projectType;
 
     if (type === 'COLLABORATIVE') {
-      if (!this.projectForm.stackInput.trim()) {
+      if (!this.projectForm.stackInput || !this.projectForm.stackInput.trim()) {
         this.formErrorMessage = 'Veuillez renseigner les technologies / stack requises pour ce projet collaboratif.';
+        this.showToast(this.formErrorMessage);
         return false;
       }
       if (this.projectForm.maxMembers !== null && this.projectForm.maxMembers !== undefined && Number(this.projectForm.maxMembers) < 1) {
         this.formErrorMessage = 'Le nombre maximum de collaborateurs doit être supérieur ou égal à 1 s\'il est renseigné.';
+        this.showToast(this.formErrorMessage);
         return false;
       }
       this.projectForm.youtubeUrl = '';
     } else if (type === 'OPEN_SOURCE') {
-      if (!this.projectForm.repoUrl.trim()) {
+      if (!this.projectForm.repoUrl || !this.projectForm.repoUrl.trim()) {
         this.formErrorMessage = 'Le lien du dépôt GitHub est obligatoire pour un projet Open Source.';
+        this.showToast(this.formErrorMessage);
         return false;
       }
     } else if (type === 'FOR_SALE') {
-      if (this.projectForm.price === null || this.projectForm.price < 0) {
+      if (this.projectForm.price === null || this.projectForm.price === undefined || this.projectForm.price < 0) {
         this.formErrorMessage = 'Le prix de vente est obligatoire et doit être supérieur ou égal à 0.';
+        this.showToast(this.formErrorMessage);
         return false;
       }
     } else if (type === 'SAAS') {
-      if (!this.projectForm.demoUrl.trim()) {
+      if (!this.projectForm.demoUrl || !this.projectForm.demoUrl.trim()) {
         this.formErrorMessage = 'Le lien de l\'application en ligne est obligatoire pour un SaaS.';
+        this.showToast(this.formErrorMessage);
         return false;
       }
     } else if (type === 'PORTFOLIO') {
-      if (!this.projectForm.demoUrl.trim()) {
+      if (!this.projectForm.demoUrl || !this.projectForm.demoUrl.trim()) {
         this.formErrorMessage = 'Le lien du site est obligatoire pour un projet Portfolio.';
+        this.showToast(this.formErrorMessage);
         return false;
       }
     } else if (type === 'ENTERPRISE') {
-      if (!this.projectForm.companyName.trim()) {
+      if (!this.projectForm.companyName || !this.projectForm.companyName.trim()) {
         this.formErrorMessage = 'Le nom de l\'entreprise est obligatoire pour un projet d\'entreprise.';
+        this.showToast(this.formErrorMessage);
         return false;
       }
-      if (!this.projectForm.companyRole.trim()) {
+      if (!this.projectForm.companyRole || !this.projectForm.companyRole.trim()) {
         this.formErrorMessage = 'Votre rôle est obligatoire pour un projet d\'entreprise.';
+        this.showToast(this.formErrorMessage);
         return false;
       }
     }
@@ -370,6 +380,7 @@ export class DashboardProjectsComponent implements OnInit {
       const ytRegex = /^(https?:\/\/)?(www\.)?(youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]{11})(\S*)?$/;
       if (!ytRegex.test(this.projectForm.youtubeUrl.trim())) {
         this.formErrorMessage = 'Le lien YouTube n\'est pas valide (Ex: https://www.youtube.com/watch?v=VIDEO_ID).';
+        this.showToast(this.formErrorMessage);
         return false;
       }
     }
@@ -383,7 +394,7 @@ export class DashboardProjectsComponent implements OnInit {
     this.isSubmitting = true;
     this.formErrorMessage = '';
 
-    const stack = this.projectForm.stackInput
+    const stack = (this.projectForm.stackInput || '')
       .split(',')
       .map(s => s.trim())
       .filter(s => s.length > 0);
@@ -392,19 +403,19 @@ export class DashboardProjectsComponent implements OnInit {
       title: this.projectForm.title.trim(),
       description: this.projectForm.description.trim(),
       stack: stack,
-      repoUrl: this.projectForm.projectType === 'ENTERPRISE' ? null : (this.projectForm.repoUrl.trim() || null),
-      demoUrl: this.projectForm.demoUrl.trim() || null,
+      repoUrl: this.projectForm.projectType === 'ENTERPRISE' ? null : (this.projectForm.repoUrl?.trim() || null),
+      demoUrl: this.projectForm.demoUrl?.trim() || null,
       isOpenSource: this.projectForm.isOpenSource,
       projectType: this.projectForm.projectType,
-      price: this.projectForm.price,
+      price: this.projectForm.price !== null && this.projectForm.price !== undefined ? Number(this.projectForm.price) : null,
       currency: this.projectForm.currency,
       saleType: this.projectForm.saleType,
       saasPricingType: this.projectForm.saasPricingType,
       licenseType: this.projectForm.licenseType,
-      demoAccountInfo: this.projectForm.demoAccountInfo.trim() || null,
-      companyName: this.projectForm.companyName.trim() || null,
-      companyRole: this.projectForm.companyRole.trim() || null,
-      youtubeUrl: this.projectForm.projectType === 'COLLABORATIVE' ? null : (this.projectForm.youtubeUrl.trim() || null),
+      demoAccountInfo: this.projectForm.demoAccountInfo?.trim() || null,
+      companyName: this.projectForm.companyName?.trim() || null,
+      companyRole: this.projectForm.companyRole?.trim() || null,
+      youtubeUrl: this.projectForm.projectType === 'COLLABORATIVE' ? null : (this.projectForm.youtubeUrl?.trim() || null),
       documentationPdfUrl: this.projectForm.documentationPdfUrl || null,
       screenshots: this.projectForm.screenshots,
       maxMembers: this.projectForm.maxMembers ? Number(this.projectForm.maxMembers) : null
@@ -416,11 +427,17 @@ export class DashboardProjectsComponent implements OnInit {
         if (res.success) {
           this.closeCreateModal();
           this.loadMyProjects();
+          this.showToast('Projet publié avec succès !');
         }
       },
       error: (err) => {
         this.isSubmitting = false;
-        this.formErrorMessage = err.error?.message || 'Erreur lors de la création du projet.';
+        if (err.error?.error?.details && typeof err.error.error.details === 'object') {
+          this.formErrorMessage = Object.values(err.error.error.details).join(' • ');
+        } else {
+          this.formErrorMessage = err.error?.error?.message || err.error?.message || 'Erreur lors de la création du projet.';
+        }
+        this.showToast(this.formErrorMessage);
       }
     });
   }
@@ -501,11 +518,17 @@ export class DashboardProjectsComponent implements OnInit {
         if (res.success) {
           this.closeEditModal();
           this.loadMyProjects();
+          this.showToast('Projet mis à jour avec succès !');
         }
       },
       error: (err) => {
         this.isSubmitting = false;
-        this.formErrorMessage = err.error?.message || 'Erreur lors de la mise à jour du projet.';
+        if (err.error?.error?.details && typeof err.error.error.details === 'object') {
+          this.formErrorMessage = Object.values(err.error.error.details).join(' • ');
+        } else {
+          this.formErrorMessage = err.error?.error?.message || err.error?.message || 'Erreur lors de la mise à jour du projet.';
+        }
+        this.showToast(this.formErrorMessage);
       }
     });
   }

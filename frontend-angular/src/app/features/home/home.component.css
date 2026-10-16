@@ -241,16 +241,11 @@ body:not(.light-theme) .section-header .badge {
   font-family: var(--font-heading);
   font-size: clamp(2rem, 3.2vw, 2.75rem);
   font-weight: 900;
-  color: #0F172A;
+  color: var(--text-heading);
   margin: 0;
   line-height: 1.2;
   letter-spacing: -0.025em;
   text-align: center;
-}
-
-body:not(.light-theme) .section-header h2 {
-  color: #FFFFFF;
-  text-shadow: 0 2px 20px rgba(0, 0, 0, 0.4);
 }
 
 .section-desc {
@@ -281,31 +276,20 @@ body:not(.light-theme) .section-header h2 {
   padding: 0.5rem 1.4rem !important;
   border-radius: 999px !important;
   background: rgba(16, 185, 129, 0.15) !important;
-  color: #059669 !important;
+  color: var(--emerald-500) !important;
   border: 1.5px solid rgba(16, 185, 129, 0.45) !important;
   box-shadow: 0 4px 16px rgba(16, 185, 129, 0.2) !important;
-}
-
-body:not(.light-theme) .badge-hero-section {
-  color: #34D399 !important;
-  background: rgba(16, 185, 129, 0.18) !important;
-  border-color: rgba(52, 211, 153, 0.45) !important;
 }
 
 .section-big-title {
   font-family: var(--font-heading);
   font-size: clamp(2.2rem, 3.8vw, 3rem);
   font-weight: 900;
-  color: #0F172A;
+  color: var(--text-heading);
   margin: 0.25rem 0 0 0;
   line-height: 1.15;
   letter-spacing: -0.03em;
   text-align: center;
-}
-
-body:not(.light-theme) .section-big-title {
-  color: #FFFFFF;
-  text-shadow: 0 2px 20px rgba(0, 0, 0, 0.4);
 }
 
 .section-subtitle {

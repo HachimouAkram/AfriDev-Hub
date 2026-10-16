@@ -1,5 +1,10 @@
 <div class="projects-dashboard-page animate-fade-in">
   
+  <!-- Global Toast Notification -->
+  <div *ngIf="toastMessage" class="toast-notification animate-fade-in">
+    {{ toastMessage }}
+  </div>
+
   <!-- Header Bar -->
   <div class="projects-header-card app-card">
     <div class="header-text-group">
@@ -293,6 +298,17 @@
 
       <div class="modal-body">
         
+        <!-- Alerte d'erreur visible immédiatement -->
+        <div *ngIf="formErrorMessage" class="form-alert-error animate-fade-in">
+          <svg class="alert-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
+          </svg>
+          <div class="alert-text-content">
+            <strong>Champs obligatoires manquants :</strong>
+            <span>{{ formErrorMessage }}</span>
+          </div>
+        </div>
+
         <!-- Tab selector for Project Type -->
         <div class="project-type-tabs">
           <button 
@@ -619,6 +635,9 @@
       </div>
 
       <div class="modal-footer">
+        <span *ngIf="formErrorMessage" class="footer-inline-error">
+          ⚠️ {{ formErrorMessage }}
+        </span>
         <button (click)="closeCreateModal()" class="btn btn-outline">Annuler</button>
         <button (click)="submitCreate()" [disabled]="isSubmitting || isUploadingMedia" class="btn btn-emerald">
           <span *ngIf="!isSubmitting">Publier le projet</span>
@@ -641,6 +660,17 @@
 
       <div class="modal-body">
         
+        <!-- Alerte d'erreur visible immédiatement -->
+        <div *ngIf="formErrorMessage" class="form-alert-error animate-fade-in">
+          <svg class="alert-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
+          </svg>
+          <div class="alert-text-content">
+            <strong>Champs obligatoires manquants :</strong>
+            <span>{{ formErrorMessage }}</span>
+          </div>
+        </div>
+
         <!-- Tab selector for Project Type -->
         <div class="project-type-tabs">
           <button 
@@ -824,6 +854,9 @@
       </div>
 
       <div class="modal-footer">
+        <span *ngIf="formErrorMessage" class="footer-inline-error">
+          ⚠️ {{ formErrorMessage }}
+        </span>
         <button (click)="closeEditModal()" class="btn btn-outline">Annuler</button>
         <button (click)="submitEdit()" [disabled]="isSubmitting" class="btn btn-emerald">
           <span *ngIf="!isSubmitting">Enregistrer les modifications</span>
