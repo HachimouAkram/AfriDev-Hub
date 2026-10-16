@@ -28,6 +28,7 @@ export class NetworkComponent implements OnInit {
   }
 
   activeTab: 'ALL' | 'DEVELOPER' | 'RECRUITER' | 'SUGGESTIONS' = 'ALL';
+  currentSort: 'SUGGESTED' | 'POPULAR' | 'SAME_COUNTRY' | 'RECENT' = 'SUGGESTED';
   searchQuery = '';
   selectedSkill = '';
   selectedCountry = '';
@@ -53,6 +54,17 @@ export class NetworkComponent implements OnInit {
     }
   }
 
+  setSort(sort: 'SUGGESTED' | 'POPULAR' | 'SAME_COUNTRY' | 'RECENT'): void {
+    if (this.currentSort === sort) return;
+    this.currentSort = sort;
+    this.loadNetworkUsers();
+  }
+
+  isMatchedSkill(user: UserNetwork, skill: string): boolean {
+    if (!user.matchedSkills || user.matchedSkills.length === 0) return false;
+    return user.matchedSkills.some(s => s.toLowerCase() === skill.toLowerCase());
+  }
+
   loadNetworkUsers(): void {
     this.isLoading = true;
     this.page = 0;
@@ -64,6 +76,7 @@ export class NetworkComponent implements OnInit {
       query: this.searchQuery,
       skill: this.selectedSkill,
       country: this.selectedCountry,
+      sort: this.currentSort,
       page: 0,
       size: this.pageSize
     }).subscribe({
@@ -94,6 +107,7 @@ export class NetworkComponent implements OnInit {
       query: this.searchQuery,
       skill: this.selectedSkill,
       country: this.selectedCountry,
+      sort: this.currentSort,
       page: nextPage,
       size: this.pageSize
     }).subscribe({

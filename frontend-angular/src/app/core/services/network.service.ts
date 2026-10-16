@@ -17,6 +17,9 @@ export interface UserNetwork {
   followersCount: number;
   followingCount: number;
   isFollowedByCurrentUser: boolean;
+  matchPercentage?: number;
+  suggestionReason?: string;
+  matchedSkills?: string[];
 }
 
 export interface NetworkSuggestion {
@@ -38,6 +41,7 @@ export class NetworkService {
     query?: string;
     skill?: string;
     country?: string;
+    sort?: string;
     page?: number;
     size?: number;
   }): Observable<ApiResponse<any>> {
@@ -46,6 +50,7 @@ export class NetworkService {
     if (params?.query) httpParams = httpParams.set('query', params.query);
     if (params?.skill) httpParams = httpParams.set('skill', params.skill);
     if (params?.country) httpParams = httpParams.set('country', params.country);
+    if (params?.sort) httpParams = httpParams.set('sort', params.sort);
     if (params?.page !== undefined) httpParams = httpParams.set('page', params.page.toString());
     if (params?.size !== undefined) httpParams = httpParams.set('size', params.size.toString());
 

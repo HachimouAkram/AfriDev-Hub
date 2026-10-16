@@ -89,6 +89,41 @@
         placeholder="Pays..." 
         class="form-input mini-input">
     </div>
+
+    <!-- Sort Selector Row -->
+    <div class="sort-bar-row" *ngIf="activeTab !== 'SUGGESTIONS'">
+      <span class="sort-label">Trier par :</span>
+      <div class="sort-pills">
+        <button 
+          type="button"
+          (click)="setSort('SUGGESTED')" 
+          [class.active]="currentSort === 'SUGGESTED'" 
+          class="sort-pill-btn">
+          <span>✨ Recommandés pour vous</span>
+        </button>
+        <button 
+          type="button"
+          (click)="setSort('POPULAR')" 
+          [class.active]="currentSort === 'POPULAR'" 
+          class="sort-pill-btn">
+          <span>🔥 Plus populaires</span>
+        </button>
+        <button 
+          type="button"
+          (click)="setSort('SAME_COUNTRY')" 
+          [class.active]="currentSort === 'SAME_COUNTRY'" 
+          class="sort-pill-btn">
+          <span>🌍 Même pays</span>
+        </button>
+        <button 
+          type="button"
+          (click)="setSort('RECENT')" 
+          [class.active]="currentSort === 'RECENT'" 
+          class="sort-pill-btn">
+          <span>⏱️ Nouveaux arrivants</span>
+        </button>
+      </div>
+    </div>
   </div>
 
   <!-- AI Suggestions Tab View -->
@@ -178,7 +213,11 @@
   <!-- Standard User Directory Grid (ALL / DEVELOPER / RECRUITER) -->
   <div *ngIf="activeTab !== 'SUGGESTIONS'" class="directory-view">
     <div class="users-grid" *ngIf="!isLoading && users.length > 0; else emptyOrLoading">
-      <div *ngFor="let u of users" class="app-card user-card">
+      <div *ngFor="let u of users" class="app-card user-card" [class.is-match-highlight]="u.matchPercentage && u.matchPercentage >= 75">
+        <!-- Score d'affinite IA -->
+        <div class="card-affinity-pill" *ngIf="u.matchPercentage">
+          <span>✨ {{ u.matchPercentage | number:'1.0-0' }}% Match</span>
+        </div>
         <div class="card-header">
           <div class="user-avatar" [class.has-img]="!!u.avatarUrl" [ngClass]="u.role === 'RECRUITER' ? 'avatar-recruiter' : 'avatar-dev'">
             <img *ngIf="u.avatarUrl" [src]="getAvatarUrl(u.avatarUrl)" [alt]="u.fullName" class="user-avatar-img">
@@ -208,8 +247,22 @@
           </div>
         </div>
 
+        <!-- Raison de la suggestion / affinite -->
+        <div class="user-reason-row" *ngIf="u.suggestionReason">
+          <svg class="icon-svg icon-svg-xs text-amber" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18v-5.25m0 0a6.01 6.01 0 001.5-.189m-1.5.189a6.01 6.01 0 01-1.5-.189m3.75 2.625a3.375 3.375 0 00-3.75-3.375m-3.75 3.375a3.375 3.375 0 013.75-3.375m0 0V5.25m0 0a2.25 2.25 0 00-2.25-2.25h-1.5A2.25 2.25 0 006 5.25v2.25m6-4.5a2.25 2.25 0 012.25 2.25v2.25" />
+          </svg>
+          <span class="reason-text">{{ u.suggestionReason }}</span>
+        </div>
+
+        <!-- Competences avec mise en valeur des technologies partagees -->
         <div class="skills-list" *ngIf="u.skills && u.skills.length > 0">
-          <span *ngFor="let s of u.skills.slice(0, 4)" class="skill-pill">
+          <span *ngFor="let s of u.skills.slice(0, 4)" 
+                class="skill-pill"
+                [class.skill-matched]="isMatchedSkill(u, s)">
+            <svg *ngIf="isMatchedSkill(u, s)" class="icon-svg icon-svg-xs text-emerald" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M4.5 12.75l6 6 9-13.5" />
+            </svg>
             {{ s }}
           </span>
         </div>

@@ -27,12 +27,13 @@ public class NetworkController {
             @RequestParam(required = false) String query,
             @RequestParam(required = false) String skill,
             @RequestParam(required = false) String country,
+            @RequestParam(defaultValue = "SUGGESTED") String sort,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size,
             Authentication authentication
     ) {
         String currentEmail = authentication != null ? authentication.getName() : null;
-        Page<UserNetworkDto> users = networkService.getNetworkUsers(currentEmail, role, query, skill, country, PageRequest.of(page, size));
+        Page<UserNetworkDto> users = networkService.getNetworkUsers(currentEmail, role, query, skill, country, sort, PageRequest.of(page, size));
         return ResponseEntity.ok(ApiResponse.ok(users, Map.of("page", page, "perPage", size, "total", users.getTotalElements())));
     }
 

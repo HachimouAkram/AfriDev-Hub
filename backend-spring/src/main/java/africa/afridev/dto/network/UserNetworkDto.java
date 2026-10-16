@@ -25,4 +25,7 @@ public class UserNetworkDto {
     private Long followersCount;
     private Long followingCount;
     private Boolean isFollowedByCurrentUser;
+    private Double matchPercentage;
+    private String suggestionReason;
+    private List<String> matchedSkills;
 }
