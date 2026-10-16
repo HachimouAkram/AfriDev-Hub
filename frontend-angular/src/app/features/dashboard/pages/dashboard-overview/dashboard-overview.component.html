@@ -101,6 +101,211 @@
   </section>
 
   <!-- ======================================================== -->
+  <!-- ESPACE COLLABORATION & SUIVI DES TÂCHES ET PROGRESSION  -->
+  <!-- ======================================================== -->
+  <section class="collab-overview-section app-card">
+    <div class="collab-section-header">
+      <div class="collab-header-left">
+        <div class="section-tag-badge">
+          <span class="pulse-dot"></span>
+          <span>ESPACE COLLABORATION & ÉQUIPES</span>
+        </div>
+        <h2>Tableau de Bord & Progression des Projets d'Équipe</h2>
+        <p class="section-subtitle">
+          Pilotez vos recrutements, la progression globale en direct et le respect des échéances de vos tâches Kanban.
+        </p>
+      </div>
+
+      <div class="collab-header-actions">
+        <a [routerLink]="['/dashboard/projects']" [queryParams]="{create: 'true', type: 'COLLABORATIVE'}" class="btn btn-emerald btn-icon-text">
+          <svg class="icon-svg icon-svg-xs" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.5v15m7.5-7.5h-15" />
+          </svg>
+          <span>Créer un Projet Collaboratif</span>
+        </a>
+        <a [routerLink]="['/dashboard/projects']" [queryParams]="{category: 'COLLABORATIVE'}" class="btn btn-outline btn-sm">
+          <span>Gérer Tous mes Projets →</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- KPI Metrics Row for Collaboration -->
+    <div class="collab-kpis-grid">
+      <!-- KPI: Progression Moyenne -->
+      <div class="mini-kpi-card">
+        <div class="mini-kpi-icon-wrap emerald">
+          <svg class="icon-svg icon-svg-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.5 6a7.5 7.5 0 107.5 7.5h-7.5V6z" />
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.5 10.5H21A7.5 7.5 0 0013.5 3v7.5z" />
+          </svg>
+        </div>
+        <div class="mini-kpi-content">
+          <span class="mini-kpi-label">Progression Moyenne</span>
+          <div class="mini-kpi-val-row">
+            <span class="mini-kpi-value text-emerald">{{ averageCollabProgress() }}%</span>
+            <span class="mini-kpi-sub">avancement global</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- KPI: Tâches Totales & En Cours -->
+      <div class="mini-kpi-card">
+        <div class="mini-kpi-icon-wrap cyan">
+          <svg class="icon-svg icon-svg-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+          </svg>
+        </div>
+        <div class="mini-kpi-content">
+          <span class="mini-kpi-label">Tâches en Cours</span>
+          <div class="mini-kpi-val-row">
+            <span class="mini-kpi-value">{{ inProgressCollabTasks() }}</span>
+            <span class="mini-kpi-sub">sur {{ totalCollabTasks() }} tâches</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- KPI: Tâches Terminées -->
+      <div class="mini-kpi-card">
+        <div class="mini-kpi-icon-wrap violet">
+          <svg class="icon-svg icon-svg-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+        </div>
+        <div class="mini-kpi-content">
+          <span class="mini-kpi-label">Tâches Terminées</span>
+          <div class="mini-kpi-val-row">
+            <span class="mini-kpi-value text-teal">{{ completedCollabTasks() }}</span>
+            <span class="mini-kpi-sub">validées par l'équipe</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- KPI: Tâches en Retard -->
+      <div class="mini-kpi-card" [class.alert-border]="overdueCollabTasks() > 0">
+        <div class="mini-kpi-icon-wrap" [ngClass]="overdueCollabTasks() > 0 ? 'rose' : 'slate'">
+          <svg class="icon-svg icon-svg-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
+          </svg>
+        </div>
+        <div class="mini-kpi-content">
+          <span class="mini-kpi-label">Tâches en Retard</span>
+          <div class="mini-kpi-val-row">
+            <span class="mini-kpi-value" [class.text-rose]="overdueCollabTasks() > 0">{{ overdueCollabTasks() }}</span>
+            <span class="mini-kpi-sub" [class.text-rose]="overdueCollabTasks() > 0">
+              {{ overdueCollabTasks() > 0 ? 'Action requise !' : 'Aucun retard' }}
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Active Collaborative Projects Cards -->
+    <div class="collab-projects-deck" *ngIf="collaborations().length > 0; else noCollabs">
+      <div *ngFor="let c of collaborations()" class="collab-deck-card">
+        <!-- Top row: Status, Role Badge and Members -->
+        <div class="deck-top-row">
+          <div class="deck-title-group">
+            <span class="badge" [ngClass]="c.isProjectLead ? 'badge-lead' : 'badge-member'">
+              <i [class]="c.isProjectLead ? 'ri-shield-star-fill text-amber' : 'ri-code-s-slash-line text-emerald'"></i>
+              {{ c.isProjectLead ? 'Chef de Projet / Lead' : 'Développeur Membre' }}
+            </span>
+            <h4 class="deck-project-title">{{ c.projectTitle }}</h4>
+          </div>
+
+          <div class="deck-team-pill">
+            <svg class="icon-svg icon-svg-xs" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 18.72a9.094 9.094 0 003.741-.479 3 3 0 00-4.682-2.72m.94 3.198l.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0112 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 016 18.719m12 0a5.971 5.971 0 00-.941-3.197m0 0A5.995 5.995 0 0012 12.75a5.995 5.995 0 00-5.058 2.772m0 0a3 3 0 00-4.681 2.72 8.986 8.986 0 003.74.477m.999-3.199a5.971 5.971 0 00-.94 3.197M15 6.75a3 3 0 11-6 0 3 3 0 016 0zm6 3a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0zm-13.5 0a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z" />
+            </svg>
+            <span>{{ c.activeMembersCount }} membre(s)</span>
+          </div>
+        </div>
+
+        <!-- Progress Track with percentage -->
+        <div class="deck-progress-container">
+          <div class="deck-progress-label-row">
+            <span class="progress-txt">Avancement global du projet</span>
+            <span class="progress-pct font-bold">{{ c.completionPercentage }}%</span>
+          </div>
+          <div class="deck-progress-track">
+            <div class="deck-progress-fill" [style.width.%]="c.completionPercentage"></div>
+          </div>
+        </div>
+
+        <!-- Kanban task counters breakdown -->
+        <div class="deck-kanban-breakdown">
+          <div class="k-chip k-chip-todo">
+            <span class="chip-count">{{ c.todoTasks }}</span>
+            <span class="chip-lbl">À Faire</span>
+          </div>
+          <div class="k-chip k-chip-prog">
+            <span class="chip-count">{{ c.inProgressTasks }}</span>
+            <span class="chip-lbl">En Cours</span>
+          </div>
+          <div class="k-chip k-chip-rev">
+            <span class="chip-count">{{ c.reviewTasks }}</span>
+            <span class="chip-lbl">En Revue</span>
+          </div>
+          <div class="k-chip k-chip-done">
+            <span class="chip-count">{{ c.completedTasks }}</span>
+            <span class="chip-lbl">Terminé</span>
+          </div>
+        </div>
+
+        <!-- Overdue alert warning if any -->
+        <div *ngIf="c.overdueTasks > 0" class="deck-overdue-alert">
+          <svg class="icon-svg icon-svg-xs text-rose" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
+          </svg>
+          <span>Attention : <strong>{{ c.overdueTasks }} tâche(s) en retard</strong> sur la date d'échéance !</span>
+        </div>
+
+        <!-- Action Button -->
+        <div class="deck-card-footer">
+          <a [routerLink]="['/dashboard/projects']" [queryParams]="{openCollab: c.projectId}" class="btn btn-emerald btn-sm btn-block">
+            <i class="ri-kanban-view"></i>
+            <span>Ouvrir le tableau de bord Kanban & Équipe</span>
+            <i class="ri-arrow-right-line"></i>
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Empty State if user has no collaborative project -->
+    <ng-template #noCollabs>
+      <div class="collab-empty-card">
+        <div class="empty-collab-graphic">
+          <div class="circle-icon-pulse">
+            <svg class="icon-svg icon-svg-lg text-emerald" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 18.72a9.094 9.094 0 003.741-.479 3 3 0 00-4.682-2.72m.94 3.198l.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0112 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 016 18.719m12 0a5.971 5.971 0 00-.941-3.197m0 0A5.995 5.995 0 0012 12.75a5.995 5.995 0 00-5.058 2.772m0 0a3 3 0 00-4.681 2.72 8.986 8.986 0 003.74.477m.999-3.199a5.971 5.971 0 00-.94 3.197M15 6.75a3 3 0 11-6 0 3 3 0 016 0zm6 3a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0zm-13.5 0a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z" />
+            </svg>
+          </div>
+        </div>
+        <div class="empty-collab-text">
+          <h3>Vous n'avez pas encore de projet collaboratif actif</h3>
+          <p>
+            Sur AfriDev Hub, vous pouvez publier votre idée de projet, recruter des talents complémentaires (Frontend, Backend, DevOps, Data/IA) et piloter vos tâches Kanban avec un indicateur de retard et de progression en direct.
+          </p>
+          <div class="empty-collab-perks">
+            <div class="perk-item"><i class="ri-check-line text-emerald"></i> Recrutement d'équipe panafricaine</div>
+            <div class="perk-item"><i class="ri-check-line text-emerald"></i> Gestion de tâches Kanban intégrée</div>
+            <div class="perk-item"><i class="ri-check-line text-emerald"></i> Suivi des retards & avancement %</div>
+          </div>
+          <div class="empty-collab-actions">
+            <a [routerLink]="['/dashboard/projects']" [queryParams]="{create: 'true', type: 'COLLABORATIVE'}" class="btn btn-emerald">
+              <i class="ri-add-line"></i>
+              <span>Lancer mon Premier Projet Collaboratif</span>
+            </a>
+            <a [routerLink]="['/projects']" [queryParams]="{category: 'COLLABORATIVE'}" class="btn btn-outline">
+              <i class="ri-search-line"></i>
+              <span>Rejoindre une Équipe en Recrutement</span>
+            </a>
+          </div>
+        </div>
+      </div>
+    </ng-template>
+  </section>
+
+  <!-- ======================================================== -->
   <!-- MODERN ANALYTICS CHARTS SECTION                         -->
   <!-- ======================================================== -->
   <section class="analytics-grid">
@@ -121,7 +326,7 @@
       </div>
 
       <!-- Modern Visual Bar Comparison -->
-      <div class="projects-comparison-container">
+      <div class="projects-comparison-container" *ngIf="topProjects().length > 0; else noProjectsYet">
         <div *ngFor="let proj of topProjects(); let i = index" class="project-comp-item">
           <div class="proj-comp-head">
             <div class="proj-comp-left">
@@ -166,6 +371,22 @@
           </div>
         </div>
       </div>
+
+      <ng-template #noProjectsYet>
+        <div class="empty-projects-state">
+          <svg class="icon-svg icon-svg-xl text-muted" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M14.25 9.75L16.5 12l-2.25 2.25m-4.5 0L7.5 12l2.25-2.25M6 20.25h12A2.25 2.25 0 0020.25 18V6A2.25 2.25 0 0018 3.75H6A2.25 2.25 0 003.75 6v12A2.25 2.25 0 006 20.25z" />
+          </svg>
+          <p class="text-muted">Vous n'avez pas encore publié de projet.</p>
+          <a routerLink="/projects" class="btn btn-emerald btn-sm">
+            <svg class="icon-svg icon-svg-xs" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+            </svg>
+            Publier mon premier projet
+          </a>
+        </div>
+      </ng-template>
+
     </div>
 
     <!-- Chart 2: Graphique d'Activité des Demandes & Candidatures -->

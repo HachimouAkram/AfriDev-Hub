@@ -3,6 +3,7 @@ package africa.afridev.service;
 import africa.afridev.dto.auth.AuthResponse;
 import africa.afridev.dto.auth.LoginRequest;
 import africa.afridev.dto.auth.RegisterRequest;
+import africa.afridev.dto.auth.RegisterResponse;
 import africa.afridev.model.entity.UserEntity;
 import africa.afridev.model.enums.Role;
 import africa.afridev.model.enums.UserStatus;
@@ -50,6 +51,7 @@ class AuthServiceTest {
                 .passwordHash("hashed_pass")
                 .role(Role.DEVELOPER)
                 .status(UserStatus.ACTIVE)
+                .emailVerified(true)
                 .build();
     }
 
@@ -66,12 +68,13 @@ class AuthServiceTest {
         when(userRepository.existsByEmail("new@afridev.africa")).thenReturn(false);
         when(passwordEncoder.encode(any())).thenReturn("encoded_pass");
         when(userRepository.save(any())).thenReturn(mockUser);
-        when(tokenProvider.generateToken(any())).thenReturn("mocked_jwt_token");
+        // OTP generation may be called but we ignore its result (mock returns nothing by default)
 
-        AuthResponse response = authService.register(request);
+        RegisterResponse response = authService.register(request);
 
         assertNotNull(response);
-        assertEquals("mocked_jwt_token", response.getToken());
+        assertTrue(response.isRequiresEmailVerification());
+        assertEquals("new@afridev.africa", response.getEmail());
         verify(userRepository, times(1)).save(any());
     }
 
@@ -101,5 +104,18 @@ class AuthServiceTest {
         when(passwordEncoder.matches("wrong_password", "hashed_pass")).thenReturn(false);
 
         assertThrows(IllegalArgumentException.class, () -> authService.login(request));
+    }
+
+    @Test
+    void testLogin_EmailNotVerified_ThrowsException() {
+        mockUser.setEmailVerified(false);
+        LoginRequest request = new LoginRequest();
+        request.setEmail("test@afridev.africa");
+        request.setPassword("password123");
+
+        when(userRepository.findByEmail("test@afridev.africa")).thenReturn(Optional.of(mockUser));
+        when(passwordEncoder.matches("password123", "hashed_pass")).thenReturn(true);
+
+        assertThrows(IllegalStateException.class, () -> authService.login(request));
     }
 }

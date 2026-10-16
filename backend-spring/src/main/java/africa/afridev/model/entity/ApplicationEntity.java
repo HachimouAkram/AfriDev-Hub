@@ -40,6 +40,11 @@ public class ApplicationEntity {
     @Builder.Default
     private ApplicationStatus status = ApplicationStatus.PENDING;
 
+    @Column(columnDefinition = "TEXT")
+    private String rejectionReason;
+
+    private String coverLetterUrl;
+
     @CreationTimestamp
     @Column(updatable = false)
     private LocalDateTime createdAt;

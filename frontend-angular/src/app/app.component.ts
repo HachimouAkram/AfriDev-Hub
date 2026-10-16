@@ -25,9 +25,14 @@ import { TranslationService, Language } from './core/services/translation.servic
         <div class="nav-center-pill desktop-only">
           <ng-container *ngIf="!isDashboardPage()">
             <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" class="nav-link">Accueil</a>
-            <a routerLink="/projects" routerLinkActive="active" class="nav-link">Vitrine Projets</a>
+            <a routerLink="/projects" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" class="nav-link">Vitrine Projets</a>
+            <a [routerLink]="['/projects']" [queryParams]="{category: 'COLLABORATIVE'}" routerLinkActive="active" class="nav-link nav-link-collab">
+              <span class="collab-dot-live"></span>
+              <i class="ri-team-line"></i> Collaboration
+            </a>
             <a routerLink="/opportunities" routerLinkActive="active" class="nav-link">Opportunités</a>
             <a routerLink="/network" routerLinkActive="active" class="nav-link">Réseau & Annuaire</a>
+            <a routerLink="/events" routerLinkActive="active" class="nav-link">Événements</a>
           </ng-container>
         </div>
 
@@ -182,9 +187,13 @@ import { TranslationService, Language } from './core/services/translation.servic
       <div class="mobile-drawer" [class.open]="isMobileMenuOpen">
         <div class="mobile-drawer-links">
           <a routerLink="/" (click)="closeAllMenus()" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" class="mobile-nav-link">Accueil</a>
-          <a routerLink="/projects" (click)="closeAllMenus()" routerLinkActive="active" class="mobile-nav-link">Vitrine Projets</a>
+          <a routerLink="/projects" (click)="closeAllMenus()" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" class="mobile-nav-link">Vitrine Projets</a>
+          <a [routerLink]="['/projects']" [queryParams]="{category: 'COLLABORATIVE'}" (click)="closeAllMenus()" class="mobile-nav-link mobile-nav-link-collab">
+            <i class="ri-team-line"></i> Espace Collaboration & Équipes
+          </a>
           <a routerLink="/opportunities" (click)="closeAllMenus()" routerLinkActive="active" class="mobile-nav-link">Opportunités</a>
           <a routerLink="/network" (click)="closeAllMenus()" routerLinkActive="active" class="mobile-nav-link">Réseau & Annuaire</a>
+          <a routerLink="/events" (click)="closeAllMenus()" routerLinkActive="active" class="mobile-nav-link">Événements & Meetups</a>
           <a *ngIf="isLoggedIn()" routerLink="/messages" (click)="closeAllMenus()" routerLinkActive="active" class="mobile-nav-link">Messagerie</a>
           <a *ngIf="isLoggedIn()" routerLink="/dashboard/profile" (click)="closeAllMenus()" routerLinkActive="active" class="mobile-nav-link">Mon Profil</a>
           <a *ngIf="isLoggedIn()" routerLink="/dashboard" (click)="closeAllMenus()" routerLinkActive="active" class="mobile-nav-link">Tableau de bord</a>

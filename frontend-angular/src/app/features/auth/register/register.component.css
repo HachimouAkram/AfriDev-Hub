@@ -187,3 +187,311 @@ select.form-control option {
   text-decoration: underline;
 }
 
+/* ── Password Input Wrapper & Eye Toggle ─────────────────── */
+.password-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.password-input-wrapper .form-control {
+  padding-right: 2.75rem;
+}
+
+.pwd-eye-btn {
+  position: absolute;
+  right: 0.75rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  padding: 0;
+  transition: color 0.2s ease;
+}
+
+.pwd-eye-btn:hover {
+  color: var(--emerald);
+}
+
+.pwd-eye-btn svg {
+  width: 18px;
+  height: 18px;
+  stroke-width: 1.75;
+}
+
+/* ── Password Strength Rules ──────────────────────────────── */
+.pwd-rules {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  margin-top: 0.6rem;
+  padding: 0.75rem;
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 8px;
+}
+
+.pwd-rule {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.8rem;
+  color: #64748B;
+  transition: color 0.2s ease;
+}
+
+.pwd-rule svg {
+  width: 14px;
+  height: 14px;
+  stroke-width: 2.5;
+  flex-shrink: 0;
+  color: #334155;
+  transition: color 0.2s ease;
+}
+
+/* ✅ Condition OK → vert */
+.pwd-rule.ok {
+  color: #34D399;
+}
+
+.pwd-rule.ok svg {
+  color: #10B981;
+}
+
+/* ── Confirm Password Match Hint ──────────────────────────── */
+.pwd-match-hint {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-top: 0.4rem;
+  font-size: 0.8rem;
+}
+
+.pwd-match-hint svg {
+  width: 14px;
+  height: 14px;
+  stroke-width: 2.5;
+  flex-shrink: 0;
+}
+
+.match-ok {
+  color: #34D399;
+}
+
+.match-err {
+  color: #F87171;
+}
+
+.pwd-match-hint:has(.match-ok) svg {
+  color: #10B981;
+}
+
+.pwd-match-hint:has(.match-err) svg {
+  color: #EF4444;
+}
+
+/* Input border states */
+.form-control.input-ok {
+  border-color: rgba(16, 185, 129, 0.6) !important;
+  box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.12);
+}
+
+.form-control.input-error {
+  border-color: rgba(239, 68, 68, 0.6) !important;
+  box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.1);
+}
+
+/* ── Custom Searchable Dropdown ───────────────────────────── */
+
+.custom-select-wrapper {
+  position: relative;
+  width: 100%;
+  isolation: isolate; /* Prevent stacking/blur bleed from parent card */
+}
+
+.custom-select-trigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  cursor: pointer;
+  text-align: left;
+  width: 100%;
+  transition: all 0.2s ease;
+}
+
+.custom-select-trigger:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.custom-select-wrapper.open .custom-select-trigger {
+  border-color: var(--emerald);
+  box-shadow: 0 0 0 3px var(--emerald-glow);
+}
+
+.custom-select-trigger .placeholder {
+  color: var(--text-muted);
+}
+
+.select-chevron {
+  width: 16px;
+  height: 16px;
+  stroke-width: 2;
+  color: var(--text-muted);
+  flex-shrink: 0;
+  transition: transform 0.2s ease;
+}
+
+.custom-select-wrapper.open .select-chevron {
+  transform: rotate(180deg);
+  color: var(--emerald);
+}
+
+/* ── Dropdown Panel ─────────────────────────────────────────── */
+.custom-dropdown {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  right: 0;
+  z-index: 9999;
+  /* Fully opaque — prevents bleed from parent backdrop-filter */
+  background: #131C2E;
+  border: 1px solid rgba(16, 185, 129, 0.35);
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(255,255,255,0.05);
+  animation: dropdownFadeIn 0.15s ease;
+  /* Force own compositing layer — breaks out of parent blur stacking */
+  will-change: transform;
+  transform: translateZ(0);
+}
+
+@keyframes dropdownFadeIn {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Search Box ─────────────────────────────────────────────── */
+.dropdown-search-box {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.65rem 0.9rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  background: #0F1828;
+}
+
+.search-icon {
+  width: 15px;
+  height: 15px;
+  stroke-width: 2;
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+
+.dropdown-search-input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: #E2E8F0;
+  font-family: var(--font-sans);
+  font-size: 0.875rem;
+}
+
+.dropdown-search-input::placeholder {
+  color: #64748B;
+}
+
+/* ── List ───────────────────────────────────────────────────── */
+.dropdown-list {
+  list-style: none;
+  margin: 0;
+  padding: 0.35rem 0;
+  max-height: 220px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(16, 185, 129, 0.3) transparent;
+}
+
+.dropdown-list::-webkit-scrollbar {
+  width: 4px;
+}
+.dropdown-list::-webkit-scrollbar-thumb {
+  background: rgba(16, 185, 129, 0.3);
+  border-radius: 4px;
+}
+
+.dropdown-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.6rem 0.9rem;
+  font-size: 0.875rem;
+  color: #E2E8F0;  /* Explicit solid white — no CSS variable that might resolve transparent */
+  cursor: pointer;
+  transition: background 0.12s ease;
+}
+
+.dropdown-item:hover {
+  background: rgba(16, 185, 129, 0.1);
+  color: #FFFFFF;
+}
+
+.dropdown-item.selected {
+  background: rgba(16, 185, 129, 0.15);
+  color: #34D399;
+  font-weight: 600;
+}
+
+.check-icon {
+  width: 14px;
+  height: 14px;
+  stroke-width: 2.5;
+  color: var(--emerald);
+  flex-shrink: 0;
+}
+
+.dropdown-empty {
+  padding: 0.85rem;
+  text-align: center;
+  font-size: 0.85rem;
+  color: #64748B;
+  font-style: italic;
+}
+
+.auth-divider {
+  display: flex;
+  align-items: center;
+  text-align: center;
+  margin: 1.25rem 0 0.75rem;
+  color: var(--text-muted);
+  font-size: 0.8rem;
+}
+
+.auth-divider::before,
+.auth-divider::after {
+  content: '';
+  flex: 1;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.auth-divider span {
+  padding: 0 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--text-muted);
+}
+
+.google-btn-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  min-height: 44px;
+}

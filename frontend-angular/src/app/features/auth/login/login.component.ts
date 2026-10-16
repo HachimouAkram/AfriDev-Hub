@@ -1,8 +1,10 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, AfterViewInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
+
+declare const google: any;
 
 @Component({
   selector: 'app-login',
@@ -11,7 +13,7 @@ import { AuthService } from '../../../core/services/auth.service';
   templateUrl: './login.component.html',
   styleUrl: './login.component.css'
 })
-export class LoginComponent {
+export class LoginComponent implements AfterViewInit {
   private authService = inject(AuthService);
   private router = inject(Router);
 
@@ -45,7 +47,13 @@ export class LoginComponent {
       },
       error: (err) => {
         this.isLoading = false;
-        this.errorMessage = err.error?.error?.message || 'Identifiants invalides ou serveur indisponible.';
+        const code = err.error?.error?.code;
+        if (code === 'EMAIL_NOT_VERIFIED') {
+          // Un OTP a été renvoyé automatiquement par le backend
+          this.router.navigate(['/verify-otp'], { queryParams: { email: this.email, mode: 'login' } });
+        } else {
+          this.errorMessage = err.error?.error?.message || 'Identifiants invalides ou serveur indisponible.';
+        }
       }
     });
   }
@@ -100,4 +108,58 @@ export class LoginComponent {
     this.errorMessage = '';
     this.successMessage = '';
   }
+
+  ngAfterViewInit(): void {
+    this.initGoogleSignIn();
+  }
+
+  private initGoogleSignIn(): void {
+    const checkGoogle = () => {
+      if (typeof google !== 'undefined' && google.accounts?.id) {
+        try {
+          google.accounts.id.initialize({
+            client_id: '496829118154-ifg5amooc56vptf4oorlfs3u77t51rem.apps.googleusercontent.com',
+            callback: (response: any) => this.handleGoogleCredential(response)
+          });
+
+          const btnElement = document.getElementById('google-btn-login');
+          if (btnElement) {
+            google.accounts.id.renderButton(btnElement, {
+              theme: 'filled_black',
+              size: 'large',
+              width: 360,
+              text: 'continue_with',
+              shape: 'rectangular',
+              logo_alignment: 'left'
+            });
+          }
+        } catch (e) {
+          console.warn('Google Identity initialization error', e);
+        }
+      } else {
+        setTimeout(checkGoogle, 300);
+      }
+    };
+    checkGoogle();
+  }
+
+  handleGoogleCredential(response: any): void {
+    if (response?.credential) {
+      this.isLoading = true;
+      this.errorMessage = '';
+      this.authService.loginWithGoogle(response.credential).subscribe({
+        next: (res) => {
+          this.isLoading = false;
+          if (res.success) {
+            this.router.navigate(['/dashboard']);
+          }
+        },
+        error: (err) => {
+          this.isLoading = false;
+          this.errorMessage = err.error?.error?.message || 'Erreur lors de la connexion avec Google.';
+        }
+      });
+    }
+  }
 }
+

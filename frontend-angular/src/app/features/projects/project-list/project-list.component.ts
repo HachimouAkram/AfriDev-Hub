@@ -1,11 +1,12 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
+import { Router, RouterLink, ActivatedRoute } from '@angular/router';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { AuthService } from '../../../core/services/auth.service';
 import { ProjectService, Project, ProjectComment, ProjectType } from '../../../core/services/project.service';
 import { FollowService, FollowStats } from '../../../core/services/follow.service';
+import { ProjectCollaborationService, ProjectMember, ProjectTask, ProjectProgress, TaskStatus, TaskPriority } from '../../../core/services/project-collaboration.service';
 
 @Component({
   selector: 'app-project-list',
@@ -18,8 +19,10 @@ export class ProjectListComponent implements OnInit {
   private projectService = inject(ProjectService);
   public authService = inject(AuthService);
   private followService = inject(FollowService);
+  private collaborationService = inject(ProjectCollaborationService);
   private sanitizer = inject(DomSanitizer);
   private router = inject(Router);
+  private route = inject(ActivatedRoute);
 
   projects: Project[] = [];
   filteredProjects: Project[] = [];
@@ -50,8 +53,11 @@ export class ProjectListComponent implements OnInit {
   isOpenSource = true;
 
   openCreateModal(): void {
-    this.showCreateModal = true;
-    this.errorMessage = '';
+    if (!this.isLoggedIn()) {
+      this.router.navigate(['/login']);
+      return;
+    }
+    this.router.navigate(['/dashboard/projects'], { queryParams: { create: 'true' } });
   }
 
   closeCreateModal(): void {
@@ -106,6 +112,23 @@ export class ProjectListComponent implements OnInit {
   newCommentText = '';
   isPostingComment = false;
 
+  // Collaboration State
+  activeDetailTab: 'overview' | 'collaboration' = 'overview';
+  projectProgress: ProjectProgress | null = null;
+  projectMembers: ProjectMember[] = [];
+  projectTasks: ProjectTask[] = [];
+  isLoadingCollabData = false;
+  showApplyModal = false;
+  applyRole = '';
+  applyMessage = '';
+  applyCvUrl = '';
+  hasProfileCv = false;
+  useProfileCv = true;
+  uploadedCvName = '';
+  isUploadingCv = false;
+  cvUploadError = '';
+  isSubmittingApply = false;
+
   // Author Follow State
   authorFollowStats: FollowStats | null = null;
   isTogglingAuthorFollow = false;
@@ -114,6 +137,13 @@ export class ProjectListComponent implements OnInit {
   toastMessage: string | null = null;
 
   ngOnInit(): void {
+    this.route.queryParamMap.subscribe(params => {
+      const cat = params.get('category');
+      if (cat) {
+        this.selectedCategory = cat;
+        this.applyFilter();
+      }
+    });
     this.loadProjects();
   }
 
@@ -326,6 +356,8 @@ export class ProjectListComponent implements OnInit {
     switch (type) {
       case 'OPEN_SOURCE':
         return { label: 'Open Source', class: 'badge-emerald' };
+      case 'COLLABORATIVE':
+        return { label: 'Collaboratif', class: 'badge-teal' };
       case 'FOR_SALE':
         return { label: 'En Vente', class: 'badge-amber' };
       case 'SAAS':
@@ -371,7 +403,9 @@ export class ProjectListComponent implements OnInit {
     this.selectedProject = project;
     this.newCommentText = '';
     this.authorFollowStats = null;
+    this.activeDetailTab = project.projectType === 'COLLABORATIVE' ? 'collaboration' : 'overview';
     this.loadComments(project.id);
+    this.loadCollaborationData(project.id);
 
     const authorUserId = project.author?.id;
     const currentUserId = this.authService.currentUser()?.id;
@@ -394,6 +428,205 @@ export class ProjectListComponent implements OnInit {
     this.selectedProject = null;
     this.projectComments = [];
     this.authorFollowStats = null;
+    this.projectProgress = null;
+    this.projectMembers = [];
+    this.projectTasks = [];
+    this.showApplyModal = false;
+  }
+
+  loadCollaborationData(projectId: string): void {
+    this.isLoadingCollabData = true;
+    this.collaborationService.getProgress(projectId).subscribe({
+      next: (res) => {
+        if (res.success) {
+          this.projectProgress = res.data;
+        }
+      },
+      error: () => {}
+    });
+
+    this.collaborationService.getMembers(projectId).subscribe({
+      next: (res) => {
+        if (res.success) {
+          this.projectMembers = res.data;
+        }
+      },
+      error: () => {}
+    });
+
+    this.collaborationService.getTasks(projectId).subscribe({
+      next: (res) => {
+        this.isLoadingCollabData = false;
+        if (res.success) {
+          this.projectTasks = res.data;
+        }
+      },
+      error: () => {
+        this.isLoadingCollabData = false;
+      }
+    });
+  }
+
+  filterTasksByStatus(status: TaskStatus): ProjectTask[] {
+    return this.projectTasks.filter(t => t.status === status);
+  }
+
+  openApplyModal(): void {
+    if (!this.isLoggedIn()) {
+      this.showToast('Veuillez vous connecter pour postuler à ce projet.');
+      this.router.navigate(['/login']);
+      return;
+    }
+    this.applyRole = '';
+    this.applyMessage = '';
+    this.cvUploadError = '';
+    this.isUploadingCv = false;
+
+    // Récupérer le CV du profil de l'utilisateur s'il existe
+    const profileCv = this.authService.currentUser()?.profile?.cvUrl;
+    if (profileCv && profileCv.trim()) {
+      this.applyCvUrl = profileCv;
+      this.hasProfileCv = true;
+      this.useProfileCv = true;
+      this.uploadedCvName = 'Mon_CV_Profil.pdf';
+    } else {
+      this.applyCvUrl = '';
+      this.hasProfileCv = false;
+      this.useProfileCv = false;
+      this.uploadedCvName = '';
+    }
+
+    this.showApplyModal = true;
+  }
+
+  closeApplyModal(): void {
+    this.showApplyModal = false;
+  }
+
+  toggleReplaceCv(): void {
+    this.useProfileCv = false;
+    this.applyCvUrl = '';
+    this.uploadedCvName = '';
+  }
+
+  reuseProfileCv(): void {
+    const profileCv = this.authService.currentUser()?.profile?.cvUrl;
+    if (profileCv) {
+      this.applyCvUrl = profileCv;
+      this.useProfileCv = true;
+      this.uploadedCvName = 'Mon_CV_Profil.pdf';
+    }
+  }
+
+  removeUploadedCv(): void {
+    this.applyCvUrl = '';
+    this.uploadedCvName = '';
+  }
+
+  onCvFileSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (!input.files || input.files.length === 0) return;
+
+    const file = input.files[0];
+    if (file.type !== 'application/pdf' && !file.name.toLowerCase().endsWith('.pdf')) {
+      this.cvUploadError = 'Veuillez sélectionner un fichier PDF valide.';
+      return;
+    }
+
+    if (file.size > 10 * 1024 * 1024) {
+      this.cvUploadError = 'Le fichier est trop volumineux (max 10 Mo).';
+      return;
+    }
+
+    this.isUploadingCv = true;
+    this.cvUploadError = '';
+
+    this.projectService.uploadPdf(file).subscribe({
+      next: (res) => {
+        this.isUploadingCv = false;
+        if (res.success && res.data?.url) {
+          this.applyCvUrl = res.data.url;
+          this.uploadedCvName = file.name;
+          this.useProfileCv = false;
+          this.showToast('CV PDF téléversé avec succès !');
+        }
+      },
+      error: (err) => {
+        this.isUploadingCv = false;
+        this.cvUploadError = err.error?.error?.message || 'Erreur lors du téléversement du CV.';
+      }
+    });
+  }
+
+  getCvDisplayUrl(url: string): string {
+    if (!url) return '';
+    if (url.startsWith('http://') || url.startsWith('https://')) {
+      return url;
+    }
+    return 'http://localhost:8081/api/v1' + url;
+  }
+
+  submitApplication(): void {
+    if (!this.selectedProject || !this.applyRole.trim()) return;
+
+    this.isSubmittingApply = true;
+    this.collaborationService.applyToJoin(
+      this.selectedProject.id, 
+      this.applyRole, 
+      this.applyMessage, 
+      this.applyCvUrl
+    ).subscribe({
+      next: (res) => {
+        this.isSubmittingApply = false;
+        if (res.success) {
+          this.showApplyModal = false;
+          this.showToast('Candidature envoyée avec succès au lead du projet !');
+          this.loadCollaborationData(this.selectedProject!.id);
+        }
+      },
+      error: (err) => {
+        this.isSubmittingApply = false;
+        const msg = err.error?.error?.message || 'Erreur lors de l\'envoi de la candidature.';
+        this.showToast(msg);
+      }
+    });
+  }
+
+  updateTaskStatus(task: ProjectTask, newStatus: TaskStatus): void {
+    if (!this.selectedProject) return;
+
+    const prevStatus = task.status;
+    task.status = newStatus;
+    this.collaborationService.updateTask(this.selectedProject.id, task.id, { status: newStatus }).subscribe({
+      next: (res) => {
+        if (res.success) {
+          this.showToast(`Statut mis à jour : ${newStatus}`);
+          this.loadCollaborationData(this.selectedProject!.id);
+        }
+      },
+      error: (err) => {
+        task.status = prevStatus;
+        const msg = err.error?.error?.message || 'Action non autorisée ou erreur de mise à jour.';
+        this.showToast(msg);
+      }
+    });
+  }
+
+  isCurrentUserMember(): boolean {
+    const currentUserId = this.authService.currentUser()?.id;
+    if (!currentUserId) return false;
+    return this.projectMembers.some(m => m.userId === currentUserId && m.status === 'ACCEPTED');
+  }
+
+  isCurrentUserPendingMember(): boolean {
+    const currentUserId = this.authService.currentUser()?.id;
+    if (!currentUserId) return false;
+    return this.projectMembers.some(m => m.userId === currentUserId && m.status === 'PENDING');
+  }
+
+  isCurrentUserLead(): boolean {
+    const currentUserId = this.authService.currentUser()?.id;
+    return !!(currentUserId && this.selectedProject?.author?.id === currentUserId);
   }
 
   toggleAuthorFollow(): void {

@@ -1,0 +1,360 @@
+<div class="events-page">
+  <!-- Toast -->
+  <div *ngIf="successToast" class="floating-toast">
+    <i class="ri-checkbox-circle-fill"></i>
+    <span>{{ successToast }}</span>
+  </div>
+
+  <!-- Hero Header -->
+  <header class="events-hero">
+    <div class="hero-badge">
+      <i class="ri-calendar-check-line"></i> Écosystème Tech Panafricain
+    </div>
+    <h1>Événements & Meetups Tech</h1>
+    <p>
+      Découvrez et participez aux plus grandes conférences, hackathons et meetups locaux à travers le continent africain.
+      Votez pour soutenir les initiatives tech qui comptent.
+    </p>
+
+    <div class="hero-actions">
+      <div class="search-box">
+        <i class="ri-search-line search-icon"></i>
+        <input 
+          type="text" 
+          [(ngModel)]="searchQuery" 
+          placeholder="Rechercher par titre, ville, pays ou mot-clé (ex: Python, FinTech, Dakar)..." />
+        <button *ngIf="searchQuery" (click)="searchQuery = ''" class="clear-btn">
+          <i class="ri-close-line"></i>
+        </button>
+      </div>
+
+      <a *ngIf="authService.isLoggedIn()" routerLink="/dashboard/events" class="btn-dashboard-events">
+        <i class="ri-dashboard-line"></i> Mes événements
+      </a>
+
+      <button (click)="openCreateModal()" class="btn-primary create-btn">
+        <i class="ri-add-circle-line"></i> Proposer un événement
+      </button>
+    </div>
+  </header>
+
+  <!-- Filter Pills -->
+  <div class="filters-nav">
+    <button 
+      *ngFor="let item of eventTypes" 
+      class="filter-pill" 
+      [class.active]="activeFilter === item.key"
+      (click)="setFilter(item.key)">
+      <i [class]="item.icon"></i>
+      <span>{{ item.label }}</span>
+    </button>
+  </div>
+
+  <!-- Events Grid -->
+  <div class="events-content">
+    <div *ngIf="isLoading()" class="loading-state">
+      <div class="spinner"></div>
+      <p>Chargement des événements panafricains...</p>
+    </div>
+
+    <div *ngIf="!isLoading() && filteredEvents.length === 0" class="empty-state">
+      <div class="empty-icon"><i class="ri-calendar-line"></i></div>
+      <h3>Aucun événement trouvé</h3>
+      <p>Aucun événement ne correspond à vos critères actuels. Soyez le premier à en proposer un !</p>
+      <button (click)="openCreateModal()" class="btn-primary">
+        <i class="ri-add-line"></i> Publier un événement
+      </button>
+    </div>
+
+    <div *ngIf="!isLoading() && filteredEvents.length > 0" class="events-grid">
+      <div *ngFor="let event of filteredEvents" class="event-card">
+        <!-- Banner / Image -->
+        <div class="card-media" [style.background-image]="event.bannerUrl ? 'url(' + event.bannerUrl + ')' : 'linear-gradient(135deg, #10B981, #064E3B)'">
+          <div class="media-overlay"></div>
+          <span class="type-badge" [ngClass]="getTypeBadgeClass(event.type)">
+            {{ getTypeLabel(event.type) }}
+          </span>
+          <span *ngIf="event.isOnline" class="online-badge">
+            <i class="ri-broadcast-line"></i> En ligne
+          </span>
+          <a *ngIf="isMyEvent(event)" routerLink="/dashboard/events" class="my-event-badge" title="Gérer ou modifier dans mon tableau de bord">
+            <i class="ri-user-settings-line"></i> Mon événement
+          </a>
+        </div>
+
+        <div class="card-body">
+          <!-- Date & Location -->
+          <div class="event-meta">
+            <div class="meta-item date">
+              <i class="ri-time-line"></i>
+              <span>{{ formatDate(event.startDate) }}</span>
+            </div>
+            <div class="meta-item location">
+              <i class="ri-map-pin-2-line"></i>
+              <span>{{ event.location }}</span>
+            </div>
+          </div>
+
+          <h3 class="event-title">{{ event.title }}</h3>
+          <p class="event-description">{{ event.description }}</p>
+
+          <!-- Tags -->
+          <div *ngIf="event.tags && event.tags.length > 0" class="event-tags">
+            <span *ngFor="let tag of event.tags" class="tag">#{{ tag }}</span>
+          </div>
+
+          <!-- Organizer -->
+          <div class="event-organizer">
+            <div class="organizer-avatar">
+              <img *ngIf="event.organizerAvatar" [src]="event.organizerAvatar" [alt]="event.organizerName" />
+              <div *ngIf="!event.organizerAvatar" class="avatar-fallback">
+                {{ event.organizerName.charAt(0).toUpperCase() }}
+              </div>
+            </div>
+            <div class="organizer-info">
+              <span class="by">Organisé par</span>
+              <span class="name">{{ event.organizerName }}</span>
+            </div>
+          </div>
+
+          <!-- Card Actions (Vote Agree / Disagree & Link) -->
+          <div class="card-footer">
+            <div class="vote-group">
+              <button 
+                class="vote-btn agree" 
+                [class.active]="event.userVote === 'AGREE'"
+                (click)="onVote(event, 'AGREE', $event)"
+                title="Je soutiens / Je participe">
+                <i class="ri-thumb-up-line"></i>
+                <span class="count">{{ event.agreeCount }}</span>
+                <span class="label">Soutenir</span>
+              </button>
+
+              <button 
+                class="vote-btn disagree" 
+                [class.active]="event.userVote === 'DISAGREE'"
+                (click)="onVote(event, 'DISAGREE', $event)"
+                title="Pas d'accord / Pas intéressé">
+                <i class="ri-thumb-down-line"></i>
+                <span class="count">{{ event.disagreeCount }}</span>
+              </button>
+            </div>
+
+            <a *ngIf="event.eventUrl" [href]="event.eventUrl" target="_blank" rel="noopener noreferrer" class="btn-link">
+              <span>Participer</span>
+              <i class="ri-external-link-line"></i>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Create Event Modal -->
+  <div *ngIf="showCreateModal" class="modal-backdrop" (click)="closeCreateModal()">
+    <div class="modal-card" (click)="$event.stopPropagation()">
+      <!-- Fixed Header -->
+      <div class="modal-header">
+        <div class="modal-title-group">
+          <div class="modal-icon"><i class="ri-calendar-event-fill"></i></div>
+          <div>
+            <h2>Publier un Événement ou Meetup</h2>
+            <p>Faites rayonner les initiatives tech africaines auprès de la communauté</p>
+          </div>
+        </div>
+        <button (click)="closeCreateModal()" class="close-btn" title="Fermer"><i class="ri-close-line"></i></button>
+      </div>
+
+      <!-- Content Form -->
+      <form (ngSubmit)="submitEvent()" class="modal-content-form">
+        <div class="modal-body">
+          <div *ngIf="errorMessage" class="modal-alert-error">
+            <i class="ri-error-warning-line"></i> {{ errorMessage }}
+          </div>
+
+          <!-- Titre -->
+          <div class="form-group">
+            <label for="eventTitle">Titre de l'événement <span class="required">*</span></label>
+            <div class="input-icon-wrap">
+              <i class="ri-font-size-2 input-icon"></i>
+              <input 
+                type="text" 
+                id="eventTitle" 
+                [(ngModel)]="newEvent.title" 
+                name="title" 
+                placeholder="Ex: PyCon Africa 2026, Hackathon FinTech Dakar..." 
+                required />
+            </div>
+          </div>
+
+          <!-- Type d'événement & Format (En ligne / Présentiel) -->
+          <div class="form-row">
+            <div class="form-group flex-1">
+              <label for="eventType">Type d'événement <span class="required">*</span></label>
+              <select id="eventType" [(ngModel)]="newEvent.type" name="type" required>
+                <option value="CONFERENCE">Conférence Tech</option>
+                <option value="MEETUP">Meetup Local</option>
+                <option value="HACKATHON">Hackathon & Challenge</option>
+                <option value="WORKSHOP">Atelier / Masterclass</option>
+                <option value="WEBINAR">Webinaire en ligne</option>
+              </select>
+            </div>
+
+            <div class="form-group flex-1">
+              <label>Format de l'événement</label>
+              <div class="format-toggle-card" [class.is-online]="newEvent.isOnline" (click)="newEvent.isOnline = !newEvent.isOnline">
+                <div class="toggle-checkbox">
+                  <input type="checkbox" [(ngModel)]="newEvent.isOnline" name="isOnline" (click)="$event.stopPropagation()" />
+                </div>
+                <div class="toggle-text">
+                  <span class="toggle-title">
+                    <i [class]="newEvent.isOnline ? 'ri-broadcast-line text-emerald' : 'ri-community-line'"></i> 
+                    {{ newEvent.isOnline ? '100% En Ligne' : 'Présentiel / Hybride' }}
+                  </span>
+                  <span class="toggle-subtitle">{{ newEvent.isOnline ? 'Accessible à distance partout' : 'Lieu physique avec public' }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Dates Début & Fin -->
+          <div class="form-row">
+            <div class="form-group flex-1">
+              <label for="startDate">Date & Heure de début <span class="required">*</span></label>
+              <input 
+                type="datetime-local" 
+                id="startDate" 
+                [(ngModel)]="newEvent.startDate" 
+                name="startDate" 
+                required />
+            </div>
+
+            <div class="form-group flex-1">
+              <label for="endDate">Date & Heure de fin (optionnel)</label>
+              <input 
+                type="datetime-local" 
+                id="endDate" 
+                [(ngModel)]="newEvent.endDate" 
+                name="endDate" />
+            </div>
+          </div>
+
+          <!-- Lieu -->
+          <div class="form-group">
+            <label for="location">
+              {{ newEvent.isOnline ? 'Plateforme / Lien de diffusion' : 'Lieu géographique (Ville, Pays, Salle)' }}
+            </label>
+            <div class="input-icon-wrap">
+              <i [class]="newEvent.isOnline ? 'ri-links-line input-icon' : 'ri-map-pin-2-line input-icon'"></i>
+              <input 
+                type="text" 
+                id="location" 
+                [(ngModel)]="newEvent.location" 
+                name="location" 
+                [placeholder]="newEvent.isOnline ? 'Ex: Google Meet, Zoom, YouTube Live...' : 'Ex: Dakar, Sénégal • Musée des Civilisations Noires'" />
+            </div>
+          </div>
+
+          <!-- Description -->
+          <div class="form-group">
+            <label for="description">Description détaillée <span class="required">*</span></label>
+            <textarea 
+              id="description" 
+              [(ngModel)]="newEvent.description" 
+              name="description" 
+              rows="4" 
+              placeholder="Présentez le programme, les conférenciers, les prérequis et ce que les participants vont apprendre..." 
+              required></textarea>
+          </div>
+
+          <!-- Lien officiel -->
+          <div class="form-group">
+            <label for="eventUrl">Lien d'inscription officiel / Billetterie</label>
+            <div class="input-icon-wrap">
+              <i class="ri-external-link-line input-icon"></i>
+              <input 
+                type="url" 
+                id="eventUrl" 
+                [(ngModel)]="newEvent.eventUrl" 
+                name="eventUrl" 
+                placeholder="https://eventbrite.com/... ou lien du site officiel" />
+            </div>
+          </div>
+
+          <!-- Bannière / Affiche -->
+          <div class="form-group">
+            <label>Affiche ou Image de l'événement</label>
+            <div *ngIf="newEvent.bannerUrl" class="banner-preview-box">
+              <img [src]="newEvent.bannerUrl" alt="Aperçu Affiche" />
+              <button type="button" (click)="removeBanner()" class="btn-remove-banner" title="Supprimer l'affiche">
+                <i class="ri-delete-bin-line"></i>
+              </button>
+            </div>
+
+            <div *ngIf="!newEvent.bannerUrl" class="banner-upload-row">
+              <div class="banner-dropzone">
+                <input 
+                  type="file" 
+                  id="bannerFileInput" 
+                  accept="image/png,image/jpeg,image/webp" 
+                  (change)="onBannerFileSelected($event)" 
+                  class="file-hidden" />
+                <label for="bannerFileInput" class="banner-drop-label">
+                  <i *ngIf="!isUploadingBanner" class="ri-image-add-line"></i>
+                  <i *ngIf="isUploadingBanner" class="ri-loader-4-line spinner"></i>
+                  <span>{{ isUploadingBanner ? 'Téléversement...' : 'Téléverser une affiche' }}</span>
+                </label>
+              </div>
+
+              <div class="banner-url-direct">
+                <span class="or-separator">ou</span>
+                <input 
+                  type="url" 
+                  [(ngModel)]="newEvent.bannerUrl" 
+                  name="bannerUrl" 
+                  placeholder="Coller l'URL d'une image (https://...)" />
+              </div>
+            </div>
+            <div *ngIf="bannerUploadError" class="field-error-msg">
+              <i class="ri-error-warning-line"></i> {{ bannerUploadError }}
+            </div>
+          </div>
+
+          <!-- Mots-clés / Tags -->
+          <div class="form-group">
+            <label for="tagsString">Mots-clés & Technologies</label>
+            <input 
+              type="text" 
+              id="tagsString" 
+              [(ngModel)]="newEvent.tagsString" 
+              name="tagsString" 
+              placeholder="Ex: Python, Django, Cloud, FinTech, Angular..." />
+            
+            <!-- Quick Tag Pills -->
+            <div class="quick-tags-row margin-top-xs">
+              <span class="quick-tag-label">Suggestions :</span>
+              <button 
+                type="button" 
+                *ngFor="let tag of popularTags" 
+                (click)="addTag(tag)" 
+                class="quick-tag-btn">
+                + {{ tag }}
+              </button>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Fixed Footer -->
+        <div class="modal-footer">
+          <button type="button" (click)="closeCreateModal()" class="btn-secondary">Annuler</button>
+          <button type="submit" [disabled]="isSubmitting" class="btn-primary">
+            <i *ngIf="!isSubmitting" class="ri-checkbox-circle-line"></i>
+            <i *ngIf="isSubmitting" class="ri-loader-4-line spinner"></i>
+            <span>{{ isSubmitting ? 'Publication en cours...' : 'Publier l\'événement' }}</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

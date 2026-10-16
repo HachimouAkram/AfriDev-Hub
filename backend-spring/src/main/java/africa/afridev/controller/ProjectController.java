@@ -21,6 +21,7 @@ import java.util.Map;
 public class ProjectController {
 
     private final ProjectService projectService;
+    private final africa.afridev.service.ProjectCollaborationService collaborationService;
 
     @GetMapping
     public ResponseEntity<ApiResponse<Page<ProjectDto>>> getAllProjects(
@@ -72,6 +73,15 @@ public class ProjectController {
     ) {
         Page<ProjectDto> projects = projectService.getMyProjects(authentication.getName(), PageRequest.of(page, size));
         return ResponseEntity.ok(ApiResponse.ok(projects, Map.of("page", page, "perPage", size, "total", projects.getTotalElements())));
+    }
+
+    @GetMapping("/my-collaborations")
+    public ResponseEntity<ApiResponse<java.util.List<africa.afridev.dto.collaboration.ProjectProgressDto>>> getMyCollaborations(
+            Authentication authentication
+    ) {
+        java.util.List<africa.afridev.dto.collaboration.ProjectProgressDto> collaborations = 
+                collaborationService.getMyCollaborativeProjectsProgress(authentication.getName());
+        return ResponseEntity.ok(ApiResponse.ok(collaborations));
     }
 
     @PutMapping("/{id}")

@@ -6,6 +6,7 @@ import { AuthService, User } from '../../../../core/services/auth.service';
 import { OpportunityService, Opportunity, Application } from '../../../../core/services/opportunity.service';
 import { AdminService } from '../../../../core/services/admin.service';
 import { MessageService, DirectMessage } from '../../../../core/services/message.service';
+import { ProfileService } from '../../../../core/services/profile.service';
 
 @Component({
   selector: 'app-dashboard-offers',
@@ -19,6 +20,12 @@ export class DashboardOffersComponent implements OnInit {
   private opportunityService = inject(OpportunityService);
   private adminService = inject(AdminService);
   private messageService = inject(MessageService);
+  private profileService = inject(ProfileService);
+
+  /** Résout les URLs relatives des fichiers téléversés (CV, lettre PDF) */
+  fileUrl(url: string | undefined | null): string {
+    return this.profileService.getFullFileUrl(url);
+  }
 
   user = this.authService.currentUser;
   myPostedOpportunities = signal<Opportunity[]>([]);

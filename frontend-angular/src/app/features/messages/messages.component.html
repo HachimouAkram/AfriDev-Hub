@@ -133,7 +133,7 @@
                 <div class="message-bubble">
                   <!-- Quoted Reply Box -->
                   <div class="reply-quoted-box" *ngIf="isReplyMessage(msg.content)">
-                    <span class="reply-quoted-sender">↩️ {{ parseReplySender(msg.content) }}</span>
+                    <span class="reply-quoted-sender"><i class="ri-reply-line"></i> {{ parseReplySender(msg.content) }}</span>
                     <p class="reply-quoted-text">{{ parseReplyQuote(msg.content) }}</p>
                   </div>
 
@@ -182,7 +182,7 @@
         <div class="reply-preview-banner" *ngIf="replyingToMessage">
           <div class="reply-preview-left">
             <span class="reply-preview-label">
-              ↩️ En réponse à <strong>{{ replyingToMessage.sender.profile?.fullName || replyingToMessage.sender.email }}</strong>
+              <i class="ri-reply-line"></i> En réponse à <strong>{{ replyingToMessage.sender.profile?.fullName || replyingToMessage.sender.email }}</strong>
             </span>
             <p class="reply-preview-snippet">{{ parseReplyText(replyingToMessage.content) }}</p>
           </div>

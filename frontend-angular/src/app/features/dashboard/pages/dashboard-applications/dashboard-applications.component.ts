@@ -2,6 +2,7 @@ import { Component, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { OpportunityService, Application } from '../../../../core/services/opportunity.service';
+import { ProfileService } from '../../../../core/services/profile.service';
 
 @Component({
   selector: 'app-dashboard-applications',
@@ -12,6 +13,12 @@ import { OpportunityService, Application } from '../../../../core/services/oppor
 })
 export class DashboardApplicationsComponent implements OnInit {
   private opportunityService = inject(OpportunityService);
+  private profileService = inject(ProfileService);
+
+  /** Résout les URLs relatives des fichiers téléversés (CV, lettre PDF) */
+  fileUrl(url: string | undefined | null): string {
+    return this.profileService.getFullFileUrl(url);
+  }
 
   mySubmittedApplications = signal<Application[]>([]);
   loading = signal<boolean>(true);

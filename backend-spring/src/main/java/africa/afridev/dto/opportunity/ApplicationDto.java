@@ -26,6 +26,8 @@ public class ApplicationDto {
     private UserDto applicant;
     private String message;
     private String cvUrl;
+    private String coverLetterUrl;
     private ApplicationStatus status;
+    private String rejectionReason;
     private LocalDateTime createdAt;
 }

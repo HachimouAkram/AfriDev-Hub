@@ -55,6 +55,7 @@ public class ProjectService {
                 .companyRole(request.getCompanyRole())
                 .youtubeUrl(request.getYoutubeUrl())
                 .documentationPdfUrl(request.getDocumentationPdfUrl())
+                .maxMembers(request.getMaxMembers())
                 .recognitionsCount(0)
                 .status(ContentStatus.PUBLISHED)
                 .build();
@@ -131,7 +132,7 @@ public class ProjectService {
     public Page<ProjectDto> getMyProjects(String userEmail, Pageable pageable) {
         UserEntity user = userRepository.findByEmail(userEmail)
                 .orElseThrow(() -> new IllegalArgumentException("Utilisateur non trouvé."));
-        Page<ProjectEntity> projects = projectRepository.findByAuthorIdOrderByCreatedAtDesc(user.getId(), pageable);
+        Page<ProjectEntity> projects = projectRepository.findMyProjects(user.getId(), pageable);
         return projects.map(p -> mapToProjectDto(p, userEmail));
     }
 
@@ -172,6 +173,7 @@ public class ProjectService {
         project.setCompanyRole(request.getCompanyRole());
         project.setYoutubeUrl(request.getYoutubeUrl());
         project.setDocumentationPdfUrl(request.getDocumentationPdfUrl());
+        project.setMaxMembers(request.getMaxMembers());
 
         ProjectEntity saved = projectRepository.save(project);
         return mapToProjectDto(saved, userEmail);
@@ -188,6 +190,14 @@ public class ProjectService {
         africa.afridev.model.enums.ProjectType type = request.getProjectType() != null ? request.getProjectType() : africa.afridev.model.enums.ProjectType.OPEN_SOURCE;
 
         switch (type) {
+            case COLLABORATIVE -> {
+                if (request.getStack() == null || request.getStack().isEmpty()) {
+                    throw new IllegalArgumentException("Les technologies / stack technique sont obligatoires pour un projet collaboratif.");
+                }
+                if (request.getMaxMembers() != null && request.getMaxMembers() < 1) {
+                    throw new IllegalArgumentException("Le nombre maximum de collaborateurs doit être au moins de 1 s'il est spécifié.");
+                }
+            }
             case OPEN_SOURCE -> {
                 if (request.getRepoUrl() == null || request.getRepoUrl().trim().isEmpty()) {
                     throw new IllegalArgumentException("Le lien du dépôt GitHub est obligatoire pour un projet Open Source.");
@@ -300,6 +310,7 @@ public class ProjectService {
                 .companyRole(project.getCompanyRole())
                 .youtubeUrl(project.getYoutubeUrl())
                 .documentationPdfUrl(project.getDocumentationPdfUrl())
+                .maxMembers(project.getMaxMembers())
                 .recognitionsCount(project.getRecognitionsCount())
                 .recognizedByCurrentUser(recognized)
                 .status(project.getStatus())

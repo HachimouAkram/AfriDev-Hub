@@ -1,0 +1,432 @@
+<div class="projects-dashboard-page animate-fade-in">
+  
+  <!-- Floating Toast -->
+  <div *ngIf="toastMessage" class="floating-toast">
+    <i class="ri-checkbox-circle-fill"></i>
+    <span>{{ toastMessage }}</span>
+  </div>
+
+  <!-- Header Bar (Same style as Mes Projets) -->
+  <div class="projects-header-card app-card">
+    <div class="header-text-group">
+      <h2>Mes Événements & Meetups</h2>
+      <p class="subtext">
+        Publiez et gérez vos conférences tech, hackathons, meetups locaux et webinaires auprès de la communauté panafricaine.
+      </p>
+    </div>
+
+    <div class="header-buttons-wrap">
+      <a routerLink="/events" class="btn btn-outline-clean btn-icon-text" title="Consulter l'agenda public">
+        <svg class="icon-svg icon-svg-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 21a9 9 0 100-18 9 9 0 000 18zM3.6 9h16.8M3.6 15h16.8M12 3a14.25 14.25 0 000 18 14.25 14.25 0 000-18z" />
+        </svg>
+        <span>Voir sur le site</span>
+      </a>
+
+      <button (click)="openCreateModal()" class="btn btn-emerald btn-icon-text">
+        <svg class="icon-svg icon-svg-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.5v15m7.5-7.5h-15" />
+        </svg>
+        <span>Publier un événement</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Category Filter Pills (Same style as Mes Projets) -->
+  <div class="category-filters-row">
+    <button 
+      (click)="selectedType = 'ALL'" 
+      class="filter-pill-btn" 
+      [class.active]="selectedType === 'ALL'">
+      <svg class="icon-svg icon-svg-xs" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.75 6A2.25 2.25 0 016 3.75h2.25A2.25 2.25 0 0110.5 6v2.25a2.25 2.25 0 01-2.25 2.25H6a2.25 2.25 0 01-2.25-2.25V6zM3.75 15.75A2.25 2.25 0 016 13.5h2.25a2.25 2.25 0 012.25 2.25V18a2.25 2.25 0 01-2.25 2.25H6A2.25 2.25 0 013.75 18v-2.25zM13.5 6a2.25 2.25 0 012.25-2.25H18A2.25 2.25 0 0120.25 6v2.25A2.25 2.25 0 0118 10.5h-2.25a2.25 2.25 0 01-2.25-2.25V6zM13.5 15.75a2.25 2.25 0 012.25-2.25H18a2.25 2.25 0 012.25 2.25V18A2.25 2.25 0 0118 20.25h-2.25A2.25 2.25 0 0113.5 18v-2.25z" />
+      </svg>
+      <span>Tous les types</span>
+    </button>
+    <button 
+      (click)="selectedType = 'CONFERENCE'" 
+      class="filter-pill-btn" 
+      [class.active]="selectedType === 'CONFERENCE'">
+      <svg class="icon-svg icon-svg-xs" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.75 3v11.25A2.25 2.25 0 006 16.5h12a2.25 2.25 0 002.25-2.25V3m-16.5 0h16.5M12 16.5v4.5m-3 0h6" />
+      </svg>
+      <span>Conférences Tech</span>
+    </button>
+    <button 
+      (click)="selectedType = 'MEETUP'" 
+      class="filter-pill-btn filter-pill-collab" 
+      [class.active]="selectedType === 'MEETUP'">
+      <svg class="icon-svg icon-svg-xs" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 18.72a9.094 9.094 0 003.741-.479 3 3 0 00-4.682-2.72m.94 3.198l.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0112 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 016 18.719m12 0a5.971 5.971 0 00-.941-3.197m0 0A5.995 5.995 0 0012 12.75a5.995 5.995 0 00-5.058 2.772m0 0a3 3 0 00-4.681 2.72 8.986 8.986 0 003.74.477m.999-3.199a5.971 5.971 0 00-.94 3.197M15 6.75a3 3 0 11-6 0 3 3 0 016 0zm6 3a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0zm-13.5 0a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z" />
+      </svg>
+      <span>Meetups Locaux</span>
+    </button>
+    <button 
+      (click)="selectedType = 'HACKATHON'" 
+      class="filter-pill-btn" 
+      [class.active]="selectedType === 'HACKATHON'">
+      <svg class="icon-svg icon-svg-xs" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z" />
+      </svg>
+      <span>Hackathons</span>
+    </button>
+    <button 
+      (click)="selectedType = 'WORKSHOP'" 
+      class="filter-pill-btn" 
+      [class.active]="selectedType === 'WORKSHOP'">
+      <svg class="icon-svg icon-svg-xs" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.25 6.75L22.5 12l-5.25 5.25m-10.5 0L1.5 12l5.25-5.25m7.5-3l-4.5 16.5" />
+      </svg>
+      <span>Ateliers & Masterclasses</span>
+    </button>
+  </div>
+
+  <!-- Search & Counter Bar (Same style as Mes Projets) -->
+  <div class="controls-bar app-card">
+    <div class="search-box">
+      <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
+      </svg>
+      <input 
+        type="text" 
+        [(ngModel)]="searchQuery" 
+        placeholder="Rechercher par titre, ville, pays ou mot-clé..." 
+        class="form-input search-input">
+    </div>
+
+    <div class="counter-badge">
+      Total : <strong>{{ filteredEvents.length }}</strong> événement(s)
+    </div>
+  </div>
+
+  <!-- Table Container Card (Same style as Mes Projets) -->
+  <div class="table-container-card app-card">
+    <div *ngIf="isLoading()" class="loading-state">
+      <div class="spinner"></div>
+      <p>Chargement de vos événements...</p>
+    </div>
+
+    <div *ngIf="!isLoading() && filteredEvents.length === 0" class="empty-projects-state">
+      <div class="empty-icon"><i class="ri-calendar-event-line"></i></div>
+      <h4>Aucun événement trouvé</h4>
+      <p class="text-muted">Vous n'avez pas encore publié d'événement dans cette catégorie ou aucun événement ne correspond à votre recherche.</p>
+      <button (click)="openCreateModal()" class="btn btn-emerald btn-sm">+ Publier un événement</button>
+    </div>
+
+    <div *ngIf="!isLoading() && filteredEvents.length > 0" class="table-responsive">
+      <table class="projects-table">
+        <thead>
+          <tr>
+            <th>Événement</th>
+            <th>Type</th>
+            <th>Détails & Date</th>
+            <th>Soutiens</th>
+            <th>Statut</th>
+            <th class="text-right">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let ev of filteredEvents">
+            
+            <!-- Event Title & Location (Identity column) -->
+            <td class="col-title">
+              <div class="project-identity">
+                <div class="project-avatar-icon" [style.background-image]="ev.bannerUrl ? 'url(' + ev.bannerUrl + ')' : null" [style.background-size]="'cover'" [style.background-position]="'center'">
+                  <span *ngIf="!ev.bannerUrl">{{ ev.title.charAt(0).toUpperCase() }}</span>
+                </div>
+                <div class="project-text-meta">
+                  <span class="proj-name">{{ ev.title }}</span>
+                  <span class="proj-subtext text-muted">
+                    <i class="ri-map-pin-2-line"></i> {{ ev.location || (ev.isOnline ? 'En ligne' : 'Afrique') }}
+                  </span>
+                </div>
+              </div>
+            </td>
+
+            <!-- Type Badge -->
+            <td class="col-type">
+              <span class="badge" [ngClass]="getTypeBadgeClass(ev.type)">
+                {{ getTypeLabel(ev.type) }}
+              </span>
+            </td>
+
+            <!-- Details & Date -->
+            <td class="col-details">
+              <div>
+                <span class="badge badge-teal badge-xs" *ngIf="ev.isOnline">
+                  <i class="ri-broadcast-line"></i> En ligne
+                </span>
+                <span class="badge badge-slate badge-xs" *ngIf="!ev.isOnline">
+                  <i class="ri-map-pin-user-line"></i> Présentiel
+                </span>
+              </div>
+              <div class="text-xs text-muted mt-1">
+                <i class="ri-time-line"></i> {{ formatDate(ev.startDate) }}
+              </div>
+            </td>
+
+            <!-- Recognitions / Votes -->
+            <td class="col-recognitions">
+              <div class="recognition-pill" title="Votes favorables reçus">
+                <span class="star-icon"><i class="ri-star-fill"></i></span>
+                <span class="count">{{ ev.agreeCount }}</span>
+              </div>
+            </td>
+
+            <!-- Status Badge -->
+            <td class="col-status">
+              <span class="status-badge status-published">
+                <span class="dot"></span>
+                Publié
+              </span>
+            </td>
+
+            <!-- Action Buttons -->
+            <td class="col-actions text-right">
+              <div class="action-buttons-group">
+                
+                <!-- 1. Voir la page de l'événement / Lien public -->
+                <a 
+                  [href]="ev.eventUrl || '/events'" 
+                  target="_blank" 
+                  class="action-btn btn-view" 
+                  title="Consulter l'événement">
+                  <svg class="action-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.573 16.49 16.638 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                  </svg>
+                </a>
+
+                <!-- 2. Modifier l'événement -->
+                <button 
+                  (click)="openEditModal(ev)" 
+                  class="action-btn btn-edit" 
+                  title="Modifier l'événement">
+                  <svg class="action-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" />
+                  </svg>
+                </button>
+
+                <!-- 3. Supprimer définitivement -->
+                <button 
+                  (click)="confirmDelete(ev)" 
+                  class="action-btn btn-delete" 
+                  title="Supprimer cet événement">
+                  <svg class="action-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
+                  </svg>
+                </button>
+
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ══ CREATE / EDIT MODAL ══ -->
+  <div class="modal-overlay" *ngIf="showModal" (click)="closeModal()">
+    <div class="app-card modal-card modal-card-large" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <div>
+          <h3>{{ isEditing ? 'Modifier l\'Événement' : 'Publier un Événement ou Meetup' }}</h3>
+          <p class="text-xs text-muted">
+            {{ isEditing ? 'Mettez à jour les détails, dates et liens de votre événement.' : 'Renseignez les détails pour publier votre événement sur AfriDev Hub.' }}
+          </p>
+        </div>
+        <button (click)="closeModal()" class="close-btn">&times;</button>
+      </div>
+
+      <div class="modal-body">
+        <div *ngIf="errorMessage" class="error-banner">
+          <i class="ri-error-warning-line"></i> {{ errorMessage }}
+        </div>
+
+        <form (ngSubmit)="submitForm()" class="event-form-content">
+          <!-- Titre -->
+          <div class="form-group">
+            <label>Titre de l'événement <span class="required">*</span></label>
+            <input 
+              type="text" 
+              [(ngModel)]="eventForm.title" 
+              name="title" 
+              placeholder="Ex: PyCon Africa 2026, Hackathon FinTech Dakar..." 
+              class="form-input" 
+              required />
+          </div>
+
+          <!-- Type & Format -->
+          <div class="form-row">
+            <div class="form-group flex-1">
+              <label>Type d'événement <span class="required">*</span></label>
+              <select [(ngModel)]="eventForm.type" name="type" class="form-input form-select" required>
+                <option value="CONFERENCE">Conférence Tech</option>
+                <option value="MEETUP">Meetup Local</option>
+                <option value="HACKATHON">Hackathon & Challenge</option>
+                <option value="WORKSHOP">Atelier & Masterclass</option>
+                <option value="WEBINAR">Webinaire en ligne</option>
+              </select>
+            </div>
+
+            <div class="form-group flex-1 format-toggle-wrap">
+              <label>Format</label>
+              <div class="checkbox-pill-wrap">
+                <label class="custom-checkbox-label">
+                  <input type="checkbox" [(ngModel)]="eventForm.isOnline" name="isOnline" />
+                  <span>Événement 100% En Ligne</span>
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <!-- Dates -->
+          <div class="form-row">
+            <div class="form-group flex-1">
+              <label>Date et heure de début <span class="required">*</span></label>
+              <input 
+                type="datetime-local" 
+                [(ngModel)]="eventForm.startDate" 
+                name="startDate" 
+                class="form-input" 
+                required />
+            </div>
+
+            <div class="form-group flex-1">
+              <label>Date et heure de fin</label>
+              <input 
+                type="datetime-local" 
+                [(ngModel)]="eventForm.endDate" 
+                name="endDate" 
+                class="form-input" />
+            </div>
+          </div>
+
+          <!-- Lieu (si présentiel) -->
+          <div class="form-group" *ngIf="!eventForm.isOnline">
+            <label>Lieu / Ville & Pays <span class="required">*</span></label>
+            <input 
+              type="text" 
+              [(ngModel)]="eventForm.location" 
+              name="location" 
+              placeholder="Ex: Dakar, Sénégal (Hôtel King Fahd) ou Abidjan, Côte d'Ivoire" 
+              class="form-input" 
+              required />
+          </div>
+
+          <!-- Lien officiel -->
+          <div class="form-group">
+            <label>Lien d'inscription ou d'accès (URL)</label>
+            <input 
+              type="url" 
+              [(ngModel)]="eventForm.eventUrl" 
+              name="eventUrl" 
+              placeholder="https://meetup.com/event/... ou https://pycon.africa" 
+              class="form-input" />
+          </div>
+
+          <!-- Description -->
+          <div class="form-group">
+            <label>Description détaillée <span class="required">*</span></label>
+            <textarea 
+              [(ngModel)]="eventForm.description" 
+              name="description" 
+              rows="4" 
+              placeholder="Décrivez les objectifs, conférenciers, prérequis ou programme de l'événement..." 
+              class="form-input form-textarea" 
+              required></textarea>
+          </div>
+
+          <!-- Tags -->
+          <div class="form-group">
+            <label>Mots-clés & Thématiques (séparés par des virgules)</label>
+            <input 
+              type="text" 
+              [(ngModel)]="eventForm.tagsString" 
+              name="tagsString" 
+              placeholder="Ex: Python, IA, Cloud, DevOps, FinTech" 
+              class="form-input" />
+            <div class="quick-tags-row mt-2">
+              <button 
+                type="button" 
+                *ngFor="let t of popularTags" 
+                (click)="addTag(t)" 
+                class="quick-tag-chip">
+                + {{ t }}
+              </button>
+            </div>
+          </div>
+
+          <!-- Banner / Affiche -->
+          <div class="form-group">
+            <label>Affiche ou Bannière de l'événement</label>
+            <div *ngIf="eventForm.bannerUrl" class="banner-preview-box">
+              <img [src]="eventForm.bannerUrl" alt="Bannière" />
+              <button type="button" (click)="removeBanner()" class="btn-remove-banner" title="Supprimer l'affiche">
+                <i class="ri-delete-bin-line"></i> Supprimer
+              </button>
+            </div>
+
+            <div *ngIf="!eventForm.bannerUrl" class="banner-upload-box">
+              <label class="banner-upload-label">
+                <input 
+                  type="file" 
+                  accept="image/jpeg,image/png,image/webp" 
+                  (change)="onBannerFileSelected($event)" 
+                  style="display: none;" />
+                <i class="ri-image-add-line"></i>
+                <span *ngIf="!isUploadingBanner">Téléverser une affiche / bannière (PNG, JPG)</span>
+                <span *ngIf="isUploadingBanner">Téléversement en cours...</span>
+              </label>
+              <div *ngIf="bannerUploadError" class="text-xs text-danger">{{ bannerUploadError }}</div>
+            </div>
+          </div>
+        </form>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" (click)="closeModal()" class="btn btn-secondary">
+          Annuler
+        </button>
+        <button 
+          type="button" 
+          (click)="submitForm()" 
+          [disabled]="isSubmitting" 
+          class="btn btn-emerald">
+          <span *ngIf="!isSubmitting">{{ isEditing ? 'Enregistrer les modifications' : 'Publier l\'événement' }}</span>
+          <span *ngIf="isSubmitting">Traitement en cours...</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ DELETE CONFIRM MODAL ══ -->
+  <div class="modal-overlay" *ngIf="eventToDelete" (click)="cancelDelete()">
+    <div class="app-card modal-card modal-card-sm" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3 class="text-danger">Confirmer la suppression</h3>
+        <button (click)="cancelDelete()" class="close-btn">&times;</button>
+      </div>
+      <div class="modal-body text-center">
+        <div class="delete-icon-box">
+          <i class="ri-delete-bin-line"></i>
+        </div>
+        <p class="mt-2">Êtes-vous sûr de vouloir supprimer définitivement cet événement ?</p>
+        <div class="delete-target-title font-bold mt-1">
+          "{{ eventToDelete.title }}"
+        </div>
+        <p class="text-xs text-muted mt-2">Cette action est irréversible. L'événement sera retiré de l'agenda communautaire.</p>
+      </div>
+      <div class="modal-footer justify-center">
+        <button (click)="cancelDelete()" class="btn btn-secondary" [disabled]="isDeleting">
+          Annuler
+        </button>
+        <button (click)="executeDelete()" class="btn btn-danger" [disabled]="isDeleting">
+          <span *ngIf="!isDeleting">Supprimer définitivement</span>
+          <span *ngIf="isDeleting">Suppression...</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+</div>

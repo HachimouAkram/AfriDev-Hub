@@ -38,4 +38,5 @@ public class ProjectCreateRequest {
     private String companyRole;
     private String youtubeUrl;
     private String documentationPdfUrl;
+    private Integer maxMembers;
 }

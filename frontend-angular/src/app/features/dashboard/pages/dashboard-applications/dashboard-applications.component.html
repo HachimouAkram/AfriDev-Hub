@@ -8,13 +8,23 @@
   </div>
 
   <div class="applications-grid" *ngIf="mySubmittedApplications().length > 0; else noSubmittedApps">
-    <div *ngFor="let app of mySubmittedApplications()" class="app-card application-card">
+    <div *ngFor="let app of mySubmittedApplications()" class="app-card application-card"
+         [class.card-accepted]="app.status === 'ACCEPTED'"
+         [class.card-rejected]="app.status === 'REJECTED'">
+
+      <!-- Top: Title + Status Badge -->
       <div class="app-card-top">
         <div class="app-title-group">
           <h4>{{ app.opportunityTitle || 'Opportunité' }}</h4>
           <div class="badge-row">
             <span class="badge badge-emerald" *ngIf="app.opportunityType">{{ app.opportunityType }}</span>
-            <span class="badge badge-gray" *ngIf="app.opportunityLocation"><i class="ri-map-pin-line"></i> {{ app.opportunityLocation }}</span>
+            <span class="badge badge-gray" *ngIf="app.opportunityLocation">
+              <svg class="inline-icon-xs" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" />
+              </svg>
+              {{ app.opportunityLocation }}
+            </span>
             <span class="budget-tag" *ngIf="app.opportunityBudget">{{ app.opportunityBudget }}</span>
           </div>
         </div>
@@ -26,25 +36,119 @@
           'status-accepted': app.status === 'ACCEPTED',
           'status-rejected': app.status === 'REJECTED'
         }">
+          <span class="status-dot"></span>
           <ng-container [ngSwitch]="app.status">
             <span *ngSwitchCase="'PENDING'">En attente</span>
             <span *ngSwitchCase="'REVIEWED'">En cours d'examen</span>
-            <span *ngSwitchCase="'ACCEPTED'">Candidature Acceptée</span>
+            <span *ngSwitchCase="'ACCEPTED'">Candidature Acceptée ✓</span>
             <span *ngSwitchCase="'REJECTED'">Non retenue</span>
           </ng-container>
         </span>
       </div>
 
+      <!-- ── Progress Stepper ────────────────────────────────────────────── -->
+      <div class="progress-stepper">
+        <!-- Step 1: Soumise -->
+        <div class="step" [class.done]="true">
+          <div class="step-circle">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+            </svg>
+          </div>
+          <span class="step-label">Soumise</span>
+        </div>
+        <div class="step-track" [class.done]="app.status === 'REVIEWED' || app.status === 'ACCEPTED' || app.status === 'REJECTED'"></div>
+
+        <!-- Step 2: En examen -->
+        <div class="step"
+             [class.done]="app.status === 'ACCEPTED'"
+             [class.active]="app.status === 'REVIEWED'"
+             [class.rejected]="app.status === 'REJECTED'">
+          <div class="step-circle">
+            <ng-container [ngSwitch]="app.status">
+              <svg *ngSwitchCase="'ACCEPTED'" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+              </svg>
+              <svg *ngSwitchCase="'REJECTED'" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+              <svg *ngSwitchDefault viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+              </svg>
+            </ng-container>
+          </div>
+          <span class="step-label">En examen</span>
+        </div>
+        <div class="step-track" [class.done]="app.status === 'ACCEPTED'" [class.rejected]="app.status === 'REJECTED'"></div>
+
+        <!-- Step 3: Décision finale -->
+        <div class="step"
+             [class.done]="app.status === 'ACCEPTED'"
+             [class.rejected]="app.status === 'REJECTED'"
+             [class.waiting]="app.status === 'PENDING' || app.status === 'REVIEWED'">
+          <div class="step-circle">
+            <svg *ngIf="app.status === 'ACCEPTED'" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <svg *ngIf="app.status === 'REJECTED'" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9.75 9.75l4.5 4.5m0-4.5l-4.5 4.5M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <svg *ngIf="app.status !== 'ACCEPTED' && app.status !== 'REJECTED'" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </div>
+          <span class="step-label">
+            <span *ngIf="app.status === 'ACCEPTED'">Acceptée</span>
+            <span *ngIf="app.status === 'REJECTED'">Refusée</span>
+            <span *ngIf="app.status !== 'ACCEPTED' && app.status !== 'REJECTED'">Décision</span>
+          </span>
+        </div>
+      </div>
+
+      <!-- ── Rejection Reason Box ─────────────────────────────────────────── -->
+      <div class="rejection-box" *ngIf="app.status === 'REJECTED'">
+        <div class="rejection-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
+          </svg>
+        </div>
+        <div class="rejection-content">
+          <strong>Motif du refus :</strong>
+          <p>{{ app.rejectionReason || 'Critères de sélection non satisfaits pour ce profil.' }}</p>
+        </div>
+      </div>
+
+      <!-- ── Acceptance Congrats Box ──────────────────────────────────────── -->
+      <div class="acceptance-box" *ngIf="app.status === 'ACCEPTED'">
+        <div class="acceptance-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+        </div>
+        <div class="acceptance-content">
+          <strong>Félicitations !</strong>
+          <p>Votre candidature a été acceptée par <strong>{{ app.publisherName }}</strong>. Connectez-vous via la messagerie pour finaliser les modalités.</p>
+        </div>
+      </div>
+
+      <!-- Card Body -->
       <div class="app-card-body">
         <p class="publisher-info">
           Émetteur de l'offre : <strong>{{ app.publisherName }}</strong>
         </p>
-        <div class="message-preview">
-          <span class="lbl">Votre message de motivation :</span>
+        <div class="message-preview" *ngIf="!app.coverLetterUrl">
+          <span class="lbl">Votre lettre de motivation :</span>
           <p>« {{ app.message }} »</p>
         </div>
-        <div *ngIf="app.cvUrl" class="cv-row">
-          <a [href]="app.cvUrl" target="_blank" class="btn btn-outline btn-sm">
+        <div *ngIf="app.cvUrl || app.coverLetterUrl" class="cv-row">
+          <a *ngIf="app.coverLetterUrl" [href]="fileUrl(app.coverLetterUrl)" target="_blank" rel="noopener" class="btn btn-emerald btn-sm">
+            <svg class="icon-svg icon-svg-xs" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75" />
+            </svg>
+            Ma lettre de motivation (PDF)
+          </a>
+          <a *ngIf="app.cvUrl" [href]="fileUrl(app.cvUrl)" target="_blank" rel="noopener" class="btn btn-outline btn-sm">
             <svg class="icon-svg icon-svg-xs" viewBox="0 0 24 24" fill="none" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
             </svg>
@@ -61,6 +165,9 @@
 
   <ng-template #noSubmittedApps>
     <div class="empty-box app-card">
+      <svg class="icon-svg icon-svg-xl text-muted" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
+      </svg>
       <p>Vous n'avez candidaté à aucune opportunité pour le moment.</p>
       <a routerLink="/opportunities" class="btn btn-emerald btn-sm">Découvrir les opportunités disponibles</a>
     </div>

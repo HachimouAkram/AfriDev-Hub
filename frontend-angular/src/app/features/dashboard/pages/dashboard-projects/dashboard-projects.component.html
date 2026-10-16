@@ -27,6 +27,15 @@
       <span>Tous les types</span>
     </button>
     <button 
+      (click)="filterByCategory('COLLABORATIVE')" 
+      class="filter-pill-btn filter-pill-collab" 
+      [class.active]="selectedCategory === 'COLLABORATIVE'">
+      <svg class="icon-svg icon-svg-xs" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 18.72a9.094 9.094 0 003.741-.479 3 3 0 00-4.682-2.72m.94 3.198l.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0112 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 016 18.719m12 0a5.971 5.971 0 00-.941-3.197m0 0A5.995 5.995 0 0012 12.75a5.995 5.995 0 00-5.058 2.772m0 0a3 3 0 00-4.681 2.72 8.986 8.986 0 003.74.477m.999-3.199a5.971 5.971 0 00-.94 3.197M15 6.75a3 3 0 11-6 0 3 3 0 016 0zm6 3a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0zm-13.5 0a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z" />
+      </svg>
+      <span>Projets Collaboratifs & Équipes</span>
+    </button>
+    <button 
       (click)="filterByCategory('OPEN_SOURCE')" 
       class="filter-pill-btn" 
       [class.active]="selectedCategory === 'OPEN_SOURCE'">
@@ -138,6 +147,9 @@
 
             <!-- Details & Price -->
             <td class="col-details">
+              <div *ngIf="proj.projectType === 'COLLABORATIVE'">
+                <span class="badge badge-teal badge-xs"><i class="ri-team-line"></i> Recrutement d'équipe</span>
+              </div>
               <div *ngIf="proj.projectType === 'FOR_SALE'">
                 <span class="price-highlight">{{ proj.price | number }} {{ proj.currency || 'XOF' }}</span>
               </div>
@@ -180,7 +192,31 @@
             <td class="col-actions text-right">
               <div class="action-buttons-group">
                 
-                <!-- 1. Voir Détail -->
+                <!-- 0. Espace Collaboration & Gestion Tâches (Leader / Créateur) -->
+                <button 
+                  *ngIf="proj.projectType === 'COLLABORATIVE' && isProjectOwner(proj)"
+                  (click)="openCollabModal(proj)" 
+                  class="btn btn-emerald btn-xs btn-collab-badge-action" 
+                  title="Piloter l'équipe, recruter & gérer les tâches Kanban">
+                  <svg class="action-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 18.72a9.094 9.094 0 003.741-.479 3 3 0 00-4.682-2.72m.94 3.198l.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0112 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 016 18.719m12 0a5.971 5.971 0 00-.941-3.197m0 0A5.995 5.995 0 0012 12.75a5.995 5.995 0 00-5.058 2.772m0 0a3 3 0 00-4.681 2.72 8.986 8.986 0 003.74.477m.999-3.199a5.971 5.971 0 00-.94 3.197M15 6.75a3 3 0 11-6 0 3 3 0 016 0zm6 3a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0zm-13.5 0a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z" />
+                  </svg>
+                  <span>Gérer l'Équipe</span>
+                </button>
+
+                <!-- 0 bis. Accéder à mes Tâches (Collaborateur / Développeur invité) -->
+                <button 
+                  *ngIf="proj.projectType === 'COLLABORATIVE' && !isProjectOwner(proj)"
+                  (click)="openCollabModal(proj)" 
+                  class="btn-tasks-badge-action" 
+                  title="Accéder à mes tâches assignées sur ce projet">
+                  <svg class="action-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+                  </svg>
+                  <span>Voir mes tâches</span>
+                </button>
+
+                <!-- 1. Voir Détail (Visible par tous) -->
                 <button 
                   (click)="openDetailModal(proj)" 
                   class="action-btn btn-view" 
@@ -191,8 +227,9 @@
                   </svg>
                 </button>
 
-                <!-- 2. Modifier -->
+                <!-- 2. Modifier (Réservé au Chef de Projet) -->
                 <button 
+                  *ngIf="isProjectOwner(proj)"
                   (click)="openEditModal(proj)" 
                   class="action-btn btn-edit" 
                   title="Modifier le projet">
@@ -201,8 +238,9 @@
                   </svg>
                 </button>
 
-                <!-- 3. Désactiver / Activer -->
+                <!-- 3. Désactiver / Activer (Réservé au Chef de Projet) -->
                 <button 
+                  *ngIf="isProjectOwner(proj)"
                   (click)="toggleStatus(proj)" 
                   class="action-btn btn-toggle" 
                   [class.is-disabled-state]="proj.status === 'ARCHIVED'"
@@ -215,8 +253,9 @@
                   </svg>
                 </button>
 
-                <!-- 4. Supprimer -->
+                <!-- 4. Supprimer (Réservé au Chef de Projet) -->
                 <button 
+                  *ngIf="isProjectOwner(proj)"
                   (click)="confirmDelete(proj)" 
                   class="action-btn btn-delete" 
                   title="Supprimer définitivement ce projet">
@@ -266,6 +305,19 @@
             <div class="tab-text">
               <span class="tab-label">Open Source</span>
               <span class="tab-desc">Code source public avec licence libre</span>
+            </div>
+          </button>
+
+          <button 
+            (click)="selectProjectType('COLLABORATIVE')"
+            class="type-tab-btn"
+            [class.active]="projectForm.projectType === 'COLLABORATIVE'">
+            <svg class="tab-svg text-teal" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 18.72a9.094 9.094 0 003.741-.479 3 3 0 00-4.682-2.72m.94 3.198l.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0112 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 016 18.719m12 0a5.971 5.971 0 00-.941-3.197m0 0A5.995 5.995 0 0012 12.75a5.995 5.995 0 00-5.058 2.772m0 0a3 3 0 00-4.681 2.72 8.986 8.986 0 003.74.477m.999-3.199a5.971 5.971 0 00-.94 3.197M15 6.75a3 3 0 11-6 0 3 3 0 016 0zm6 3a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0zm-13.5 0a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z" />
+            </svg>
+            <div class="tab-text">
+              <span class="tab-label">Collaboratif</span>
+              <span class="tab-desc">Idée de projet, recrutement & Kanban</span>
             </div>
           </button>
 
@@ -335,11 +387,37 @@
         </div>
 
         <div class="form-group">
-          <label class="form-label">Technologies / Stack Technique (séparées par virgule)</label>
+          <label class="form-label">
+            Technologies / Stack Technique requise
+            <span class="required-star" *ngIf="projectForm.projectType === 'COLLABORATIVE'">*</span>
+          </label>
           <input type="text" [(ngModel)]="projectForm.stackInput" placeholder="Spring Boot, Angular, PostgreSQL, Docker" class="form-input">
+          <span class="text-xs text-muted" *ngIf="projectForm.projectType === 'COLLABORATIVE'">Spécifiez les technologies indispensables recherchées chez vos futurs équipiers.</span>
         </div>
 
         <!-- DYNAMIC FIELDS PER PROJECT TYPE -->
+
+        <!-- TYPE: COLLABORATIVE -->
+        <div *ngIf="projectForm.projectType === 'COLLABORATIVE'" class="dynamic-type-box emerald-box">
+          <h5 class="type-box-title">
+            <svg class="icon-svg icon-svg-xs" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 18.72a9.094 9.094 0 003.741-.479 3 3 0 00-4.682-2.72m.94 3.198l.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0112 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 016 18.719m12 0a5.971 5.971 0 00-.941-3.197m0 0A5.995 5.995 0 0012 12.75a5.995 5.995 0 00-5.058 2.772m0 0a3 3 0 00-4.681 2.72 8.986 8.986 0 003.74.477m.999-3.199a5.971 5.971 0 00-.94 3.197M15 6.75a3 3 0 11-6 0 3 3 0 016 0zm6 3a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0zm-13.5 0a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z" />
+            </svg>
+            <span>Paramètres de Collaboration & Recrutement d'Équipe</span>
+          </h5>
+          <div class="form-row-2">
+            <div class="form-group">
+              <label class="form-label">Nombre maximum de personnes recherchées (Optionnel)</label>
+              <input type="number" [(ngModel)]="projectForm.maxMembers" min="1" placeholder="Ex: 3 ou 5 (Laisser vide si illimité)" class="form-input">
+              <span class="text-xs text-muted">Dès que ce quota est atteint lors de vos acceptations, les autres candidatures en attente seront automatiquement refusées avec une notification polie.</span>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Dépôt GitHub / Repo (Optionnel)</label>
+              <input type="url" [(ngModel)]="projectForm.repoUrl" placeholder="https://github.com/mon-organisation/projet" class="form-input">
+              <span class="text-xs text-muted">Facultatif si le code source est déjà initialisé.</span>
+            </div>
+          </div>
+        </div>
 
         <!-- TYPE: OPEN SOURCE -->
         <div *ngIf="projectForm.projectType === 'OPEN_SOURCE'" class="dynamic-type-box emerald-box">
@@ -494,8 +572,8 @@
         <div class="media-upload-section margin-top-md">
           <h5 class="section-subheading"><i class="ri-movie-line"></i> Médias & Documents de Présentation</h5>
           
-          <!-- YouTube Video -->
-          <div class="form-group">
+          <!-- YouTube Video (Désactivé pour projet Collaboratif) -->
+          <div class="form-group" *ngIf="projectForm.projectType !== 'COLLABORATIVE'">
             <label class="form-label">Lien Vidéo YouTube de Démo (Optionnel)</label>
             <input type="url" [(ngModel)]="projectForm.youtubeUrl" placeholder="https://www.youtube.com/watch?v=XXXXXXXXXXX" class="form-input">
           </div>
@@ -578,6 +656,18 @@
           </button>
 
           <button 
+            (click)="selectProjectType('COLLABORATIVE')"
+            class="type-tab-btn"
+            [class.active]="projectForm.projectType === 'COLLABORATIVE'">
+            <svg class="tab-svg text-teal" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 18.72a9.094 9.094 0 003.741-.479 3 3 0 00-4.682-2.72m.94 3.198l.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0112 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 016 18.719m12 0a5.971 5.971 0 00-.941-3.197m0 0A5.995 5.995 0 0012 12.75a5.995 5.995 0 00-5.058 2.772m0 0a3 3 0 00-4.681 2.72 8.986 8.986 0 003.74.477m.999-3.199a5.971 5.971 0 00-.94 3.197M15 6.75a3 3 0 11-6 0 3 3 0 016 0zm6 3a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0zm-13.5 0a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z" />
+            </svg>
+            <div class="tab-text">
+              <span class="tab-label">Collaboratif</span>
+            </div>
+          </button>
+
+          <button 
             (click)="selectProjectType('FOR_SALE')"
             class="type-tab-btn"
             [class.active]="projectForm.projectType === 'FOR_SALE'">
@@ -639,11 +729,27 @@
         </div>
 
         <div class="form-group">
-          <label class="form-label">Technologies / Stack Technique</label>
+          <label class="form-label">
+            Technologies / Stack Technique
+            <span class="required-star" *ngIf="projectForm.projectType === 'COLLABORATIVE'">*</span>
+          </label>
           <input type="text" [(ngModel)]="projectForm.stackInput" class="form-input">
         </div>
 
         <!-- DYNAMIC FIELDS PER TYPE -->
+        <div *ngIf="projectForm.projectType === 'COLLABORATIVE'" class="dynamic-type-box emerald-box">
+          <div class="form-row-2">
+            <div class="form-group">
+              <label class="form-label">Nombre maximum de personnes recherchées (Optionnel)</label>
+              <input type="number" [(ngModel)]="projectForm.maxMembers" min="1" placeholder="Ex: 3 ou 5 (Laisser vide si illimité)" class="form-input">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Lien Dépôt GitHub / Repo (Optionnel)</label>
+              <input type="url" [(ngModel)]="projectForm.repoUrl" placeholder="https://github.com/mon-organisation/projet" class="form-input">
+            </div>
+          </div>
+        </div>
+
         <div *ngIf="projectForm.projectType === 'OPEN_SOURCE'" class="dynamic-type-box emerald-box">
           <div class="form-row-2">
             <div class="form-group">
@@ -1065,6 +1171,661 @@
 
       <div class="modal-footer">
         <button (click)="closeDetailModal()" class="btn btn-outline">Fermer</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 5. MODAL DE GESTION COLLABORATIVE & KANBAN (LEADERSHIP) -->
+  <div class="modal-overlay" *ngIf="showCollabModal && collabProject" (click)="closeCollabModal()">
+    <div class="app-card modal-card collab-lead-modal" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <div class="header-titles">
+          <div *ngIf="isProjectLead()" class="type-pill-lead"><i class="ri-shield-check-line"></i> Pilotage du Projet</div>
+          <div *ngIf="!isProjectLead()" class="type-pill-dev"><i class="ri-user-star-line"></i> Mes Tâches & Suivi</div>
+          <h2>{{ collabProject.title }}</h2>
+        </div>
+        <button (click)="closeCollabModal()" class="close-btn" aria-label="Fermer"><i class="ri-close-line"></i></button>
+      </div>
+
+      <div class="modal-body">
+        
+        <!-- Progress Summary Header -->
+        <div class="lead-progress-summary">
+          <div class="prog-info-col">
+            <span class="prog-rate-num">{{ collabProgress?.completionPercentage || 0 }}%</span>
+            <span class="prog-rate-lbl">Avancement global</span>
+          </div>
+          <div class="prog-track-col">
+            <div class="lead-bar-track">
+              <div class="lead-bar-fill" [style.width.%]="collabProgress?.completionPercentage || 0"></div>
+            </div>
+            <div class="lead-kpis-mini">
+              <span class="kpi-pill"><i class="ri-task-line"></i> <strong>{{ collabProgress?.totalTasks || 0 }}</strong> Tâches</span>
+              <span class="kpi-pill text-emerald"><i class="ri-checkbox-circle-line"></i> <strong>{{ collabProgress?.completedTasks || 0 }}</strong> Terminées</span>
+              <span class="kpi-pill text-blue"><i class="ri-progress-4-line"></i> <strong>{{ collabProgress?.inProgressTasks || 0 }}</strong> En cours</span>
+              <span class="kpi-pill" [class.text-rose]="(collabProgress?.overdueTasks || 0) > 0" [class.font-bold]="(collabProgress?.overdueTasks || 0) > 0">
+                <i class="ri-alarm-warning-line"></i> <strong>{{ collabProgress?.overdueTasks || 0 }}</strong> En retard
+              </span>
+              <span class="kpi-pill"><i class="ri-team-line"></i> <strong>{{ collabProgress?.activeMembersCount || 1 }}</strong> Membre(s) actif(s)</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Navigation Tabs: Tasks vs Team/Applications (Uniquement pour le Chef de Projet) -->
+        <div class="collab-tabs-nav" *ngIf="isProjectLead()">
+          <button 
+            type="button" 
+            class="c-tab-btn" 
+            [class.active]="collabTab === 'tasks'" 
+            (click)="collabTab = 'tasks'">
+            <i class="ri-kanban-view"></i>
+            <span>Gestion des Tâches (Kanban)</span>
+          </button>
+          
+          <button 
+            type="button" 
+            class="c-tab-btn" 
+            [class.active]="collabTab === 'team'" 
+            (click)="collabTab = 'team'">
+            <i class="ri-team-line"></i>
+            <span>Équipe & Candidatures</span>
+            <span *ngIf="getPendingMembers().length > 0" class="badge-pending-count">
+              {{ getPendingMembers().length }} en attente
+            </span>
+          </button>
+        </div>
+
+        <!-- ══ TAB 1: KANBAN & TASK DEFINITION ══ -->
+        <div *ngIf="collabTab === 'tasks'" class="collab-tasks-tab">
+          
+          <!-- Task Creation Box (Réservé au Chef de Projet) -->
+          <div *ngIf="isProjectLead()" class="new-task-form-card">
+            <h4><i class="ri-add-circle-fill text-emerald"></i> Définir et Assigner une Nouvelle Tâche</h4>
+            <div class="new-task-grid">
+              
+              <div class="form-group span-2">
+                <label class="form-label">Titre de la tâche <span class="required">*</span></label>
+                <input 
+                  type="text" 
+                  [(ngModel)]="newTask.title" 
+                  placeholder="Ex: Implémenter l'authentification OAuth2, Créer l'UI profil..." 
+                  class="form-input">
+              </div>
+
+              <div class="form-group span-2">
+                <label class="form-label">Description (détails & consignes)</label>
+                <input 
+                  type="text" 
+                  [(ngModel)]="newTask.description" 
+                  placeholder="Détails du travail attendu, PR ou consignes techniques..." 
+                  class="form-input">
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Assigner à</label>
+                <div class="custom-select-wrap">
+                  <select [(ngModel)]="newTask.assignedToId" class="form-input custom-select">
+                    <option value="">Non assignée</option>
+                    <option *ngFor="let m of getAcceptedMembers()" [value]="m.userId">
+                      {{ m.userName }} ({{ m.role }})
+                    </option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Priorité</label>
+                <div class="custom-select-wrap">
+                  <select [(ngModel)]="newTask.priority" class="form-input custom-select">
+                    <option value="LOW">Faible (LOW)</option>
+                    <option value="MEDIUM">Moyenne (MEDIUM)</option>
+                    <option value="HIGH">Haute (HIGH)</option>
+                    <option value="URGENT">Urgent (Critique)</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Date d'échéance (Deadline)</label>
+                <input 
+                  type="date" 
+                  [(ngModel)]="newTask.dueDate" 
+                  class="form-input date-input">
+              </div>
+
+              <div class="form-group action-col">
+                <label class="form-label invisible-label">Action</label>
+                <button 
+                  (click)="onCreateTask()" 
+                  [disabled]="isCreatingTask || !newTask.title.trim()" 
+                  class="btn btn-emerald btn-sm btn-block">
+                  <i class="ri-add-line" *ngIf="!isCreatingTask"></i>
+                  <span *ngIf="!isCreatingTask">Ajouter la Tâche</span>
+                  <span *ngIf="isCreatingTask">Ajout...</span>
+                </button>
+              </div>
+
+            </div>
+          </div>
+
+          <!-- Bannière Espace Développeur (si non-lead) -->
+          <div *ngIf="!isProjectLead()" class="dev-view-banner">
+            <div class="dev-view-icon"><i class="ri-user-star-line"></i></div>
+            <div class="dev-view-text">
+              <strong>Espace Développeur :</strong> Vous visualisez exclusivement les tâches qui vous ont été attribuées sur ce projet. Lorsque vous terminez votre travail, passez la tâche au statut « En Revue » afin que le chef de projet puisse la vérifier et la valider.
+            </div>
+          </div>
+
+          <!-- Filtre par Développeur pour le Chef de Projet -->
+          <div *ngIf="isProjectLead() && getAcceptedMembers().length > 0" class="lead-filter-bar">
+            <span class="filter-lead-lbl"><i class="ri-filter-3-line"></i> Filtrer les tâches :</span>
+            <select [(ngModel)]="selectedDevFilter" class="form-input lead-dev-select">
+              <option value="ALL">Toutes les tâches de l'équipe ({{ collabTasks.length }})</option>
+              <option *ngFor="let m of getAcceptedMembers()" [value]="m.userId">
+                Tâches de {{ m.userName }} ({{ m.role }})
+              </option>
+            </select>
+          </div>
+
+          <!-- Kanban Board -->
+          <div class="lead-kanban-board">
+            
+            <!-- ── 1. À FAIRE (TODO) ── -->
+            <div class="col-lead-kanban col-todo">
+              <div class="col-hdr todo-hdr">
+                <div class="col-hdr-left">
+                  <span class="col-dot todo-dot"></span>
+                  <span class="col-title">À Faire</span>
+                </div>
+                <span class="col-counter">{{ filterCollabTasksByStatus('TODO').length }}</span>
+              </div>
+              <div class="col-cards-list">
+                <div *ngFor="let t of filterCollabTasksByStatus('TODO')" class="lead-task-card" [class.card-overdue]="t.isOverdue">
+                  <div class="card-head">
+                    <span class="badge badge-priority" [ngClass]="'prio-' + t.priority.toLowerCase()">{{ t.priority }}</span>
+                    <span *ngIf="t.isOverdue" class="badge-overdue-alert"><i class="ri-alarm-warning-line"></i> En retard</span>
+                    <div class="card-head-actions">
+                      <!-- Icône œil pour voir la description complète -->
+                      <button type="button" (click)="openTaskDetail(t)" class="btn-icon-view" title="Voir la description et les détails">
+                        <i class="ri-eye-line"></i>
+                      </button>
+                      <button *ngIf="isProjectLead()" type="button" (click)="onDeleteTask(t)" class="btn-icon-del" title="Supprimer la tâche">
+                        <i class="ri-delete-bin-line"></i>
+                      </button>
+                    </div>
+                  </div>
+
+                  <h5 class="task-title" (click)="openTaskDetail(t)">{{ t.title }}</h5>
+                  <p *ngIf="t.description" class="task-desc" (click)="openTaskDetail(t)" title="Cliquer pour voir la description complète">
+                    {{ t.description }}
+                  </p>
+
+                  <!-- Motif de rejet si existant -->
+                  <div *ngIf="t.rejectionReason" class="task-rejection-banner">
+                    <i class="ri-error-warning-fill"></i>
+                    <div class="rejection-text">
+                      <span class="rejection-label">Rejetée par le Chef de Projet :</span>
+                      <p class="rejection-desc">{{ t.rejectionReason }}</p>
+                    </div>
+                  </div>
+
+                  <div class="task-meta">
+                    <span *ngIf="t.assignedToName" class="assignee-tag"><i class="ri-user-3-line"></i> {{ t.assignedToName }}</span>
+                    <span *ngIf="!t.assignedToName" class="assignee-tag text-muted"><i class="ri-user-unfollow-line"></i> Non assignée</span>
+                    <span *ngIf="t.dueDate" class="due-tag" [class.text-danger]="t.isOverdue"><i class="ri-calendar-line"></i> {{ t.dueDate | date:'shortDate' }}</span>
+                  </div>
+
+                  <div class="move-ctrl">
+                    <select [ngModel]="t.status" (ngModelChange)="onUpdateTaskStatus(t, $event)" class="select-move">
+                      <option *ngFor="let opt of getAllowedNextStatuses(t)" [value]="opt.value" [disabled]="opt.value === t.status && getAllowedNextStatuses(t).length > 1">
+                        {{ opt.label }}
+                      </option>
+                    </select>
+                  </div>
+                </div>
+                <div *ngIf="filterCollabTasksByStatus('TODO').length === 0" class="empty-kanban-cell">
+                  <span>Aucune tâche</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- ── 2. EN COURS (IN_PROGRESS) ── -->
+            <div class="col-lead-kanban col-inprog">
+              <div class="col-hdr inprog-hdr">
+                <div class="col-hdr-left">
+                  <span class="col-dot inprog-dot"></span>
+                  <span class="col-title">En Cours</span>
+                </div>
+                <span class="col-counter">{{ filterCollabTasksByStatus('IN_PROGRESS').length }}</span>
+              </div>
+              <div class="col-cards-list">
+                <div *ngFor="let t of filterCollabTasksByStatus('IN_PROGRESS')" class="lead-task-card" [class.card-overdue]="t.isOverdue">
+                  <div class="card-head">
+                    <span class="badge badge-priority" [ngClass]="'prio-' + t.priority.toLowerCase()">{{ t.priority }}</span>
+                    <span *ngIf="t.isOverdue" class="badge-overdue-alert"><i class="ri-alarm-warning-line"></i> En retard</span>
+                    <div class="card-head-actions">
+                      <!-- Icône œil pour voir la description complète -->
+                      <button type="button" (click)="openTaskDetail(t)" class="btn-icon-view" title="Voir la description et les détails">
+                        <i class="ri-eye-line"></i>
+                      </button>
+                      <button *ngIf="isProjectLead()" type="button" (click)="onDeleteTask(t)" class="btn-icon-del" title="Supprimer la tâche">
+                        <i class="ri-delete-bin-line"></i>
+                      </button>
+                    </div>
+                  </div>
+
+                  <h5 class="task-title" (click)="openTaskDetail(t)">{{ t.title }}</h5>
+                  <p *ngIf="t.description" class="task-desc" (click)="openTaskDetail(t)" title="Cliquer pour voir la description complète">
+                    {{ t.description }}
+                  </p>
+
+                  <!-- Motif de rejet si existant -->
+                  <div *ngIf="t.rejectionReason" class="task-rejection-banner">
+                    <i class="ri-error-warning-fill"></i>
+                    <div class="rejection-text">
+                      <span class="rejection-label">Rejetée par le Chef de Projet :</span>
+                      <p class="rejection-desc">{{ t.rejectionReason }}</p>
+                    </div>
+                  </div>
+
+                  <div class="task-meta">
+                    <span *ngIf="t.assignedToName" class="assignee-tag"><i class="ri-user-3-line"></i> {{ t.assignedToName }}</span>
+                    <span *ngIf="!t.assignedToName" class="assignee-tag text-muted"><i class="ri-user-unfollow-line"></i> Non assignée</span>
+                    <span *ngIf="t.dueDate" class="due-tag" [class.text-danger]="t.isOverdue"><i class="ri-calendar-line"></i> {{ t.dueDate | date:'shortDate' }}</span>
+                  </div>
+
+                  <div class="move-ctrl">
+                    <select [ngModel]="t.status" (ngModelChange)="onUpdateTaskStatus(t, $event)" class="select-move">
+                      <option *ngFor="let opt of getAllowedNextStatuses(t)" [value]="opt.value" [disabled]="opt.value === t.status && getAllowedNextStatuses(t).length > 1">
+                        {{ opt.label }}
+                      </option>
+                    </select>
+                  </div>
+                </div>
+                <div *ngIf="filterCollabTasksByStatus('IN_PROGRESS').length === 0" class="empty-kanban-cell">
+                  <span>Aucune tâche</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- ── 3. EN REVUE (REVIEW) : VÉRIFICATION DU CHEF DE PROJET ── -->
+            <div class="col-lead-kanban col-review">
+              <div class="col-hdr review-hdr">
+                <div class="col-hdr-left">
+                  <span class="col-dot review-dot"></span>
+                  <span class="col-title">En Revue (À Valider)</span>
+                </div>
+                <span class="col-counter">{{ filterCollabTasksByStatus('REVIEW').length }}</span>
+              </div>
+              <div class="col-cards-list">
+                <div *ngFor="let t of filterCollabTasksByStatus('REVIEW')" class="lead-task-card card-review" [class.card-overdue]="t.isOverdue">
+                  <div class="card-head">
+                    <span class="badge badge-priority" [ngClass]="'prio-' + t.priority.toLowerCase()">{{ t.priority }}</span>
+                    <span *ngIf="t.isOverdue" class="badge-overdue-alert"><i class="ri-alarm-warning-line"></i> En retard</span>
+                    <div class="card-head-actions">
+                      <!-- Icône œil pour voir la description complète -->
+                      <button type="button" (click)="openTaskDetail(t)" class="btn-icon-view" title="Voir la description et les détails">
+                        <i class="ri-eye-line"></i>
+                      </button>
+                      <button *ngIf="isProjectLead()" type="button" (click)="onDeleteTask(t)" class="btn-icon-del" title="Supprimer la tâche">
+                        <i class="ri-delete-bin-line"></i>
+                      </button>
+                    </div>
+                  </div>
+
+                  <h5 class="task-title" (click)="openTaskDetail(t)">{{ t.title }}</h5>
+                  <p *ngIf="t.description" class="task-desc" (click)="openTaskDetail(t)" title="Cliquer pour voir la description complète">
+                    {{ t.description }}
+                  </p>
+
+                  <div class="task-meta">
+                    <span *ngIf="t.assignedToName" class="assignee-tag"><i class="ri-user-3-line"></i> {{ t.assignedToName }}</span>
+                    <span *ngIf="!t.assignedToName" class="assignee-tag text-muted"><i class="ri-user-unfollow-line"></i> Non assignée</span>
+                    <span *ngIf="t.dueDate" class="due-tag" [class.text-danger]="t.isOverdue"><i class="ri-calendar-line"></i> {{ t.dueDate | date:'shortDate' }}</span>
+                  </div>
+
+                  <!-- Actions du Chef de Projet : Valider ou Rejeter avec Motif -->
+                  <div *ngIf="isProjectLead()" class="lead-validation-actions">
+                    <button type="button" (click)="onValidateTask(t)" class="btn-validate-task" title="Vérifier et valider définitivement la tâche">
+                      <i class="ri-checkbox-circle-line"></i> Valider
+                    </button>
+                    <button type="button" (click)="openRejectModal(t)" class="btn-reject-task" title="Rejeter et demander des corrections avec un motif">
+                      <i class="ri-close-circle-line"></i> Rejeter
+                    </button>
+                  </div>
+
+                  <!-- Notification pour le Développeur (Attente de validation) -->
+                  <div *ngIf="!isProjectLead()" class="dev-review-status-notice">
+                    <i class="ri-hourglass-2-line"></i> En attente de validation du Chef de Projet
+                  </div>
+
+                  <!-- Contrôle de déplacement pour le chef de projet s'il souhaite déplacer manuellement -->
+                  <div *ngIf="isProjectLead()" class="move-ctrl">
+                    <select [ngModel]="t.status" (ngModelChange)="onUpdateTaskStatus(t, $event)" class="select-move">
+                      <option *ngFor="let opt of getAllowedNextStatuses(t)" [value]="opt.value">
+                        {{ opt.label }}
+                      </option>
+                    </select>
+                  </div>
+                </div>
+                <div *ngIf="filterCollabTasksByStatus('REVIEW').length === 0" class="empty-kanban-cell">
+                  <span>Aucune tâche</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- ── 4. TERMINÉ (DONE) : VALIDÉ PAR LE CHEF DE PROJET ── -->
+            <div class="col-lead-kanban col-done">
+              <div class="col-hdr done-hdr">
+                <div class="col-hdr-left">
+                  <span class="col-dot done-dot"></span>
+                  <span class="col-title">Terminé</span>
+                </div>
+                <span class="col-counter">{{ filterCollabTasksByStatus('DONE').length }}</span>
+              </div>
+              <div class="col-cards-list">
+                <div *ngFor="let t of filterCollabTasksByStatus('DONE')" class="lead-task-card card-completed">
+                  <div class="card-head">
+                    <span class="badge badge-emerald badge-xs"><i class="ri-checkbox-circle-fill"></i> Validée</span>
+                    <div class="card-head-actions">
+                      <!-- Icône œil pour voir la description complète -->
+                      <button type="button" (click)="openTaskDetail(t)" class="btn-icon-view" title="Voir la description et les détails">
+                        <i class="ri-eye-line"></i>
+                      </button>
+                      <button *ngIf="isProjectLead()" type="button" (click)="onDeleteTask(t)" class="btn-icon-del" title="Supprimer la tâche">
+                        <i class="ri-delete-bin-line"></i>
+                      </button>
+                    </div>
+                  </div>
+
+                  <h5 class="task-title text-strikethrough" (click)="openTaskDetail(t)">{{ t.title }}</h5>
+                  <p *ngIf="t.description" class="task-desc" (click)="openTaskDetail(t)" title="Cliquer pour voir la description complète">
+                    {{ t.description }}
+                  </p>
+
+                  <div class="task-meta">
+                    <span *ngIf="t.assignedToName" class="assignee-tag"><i class="ri-user-3-line"></i> {{ t.assignedToName }}</span>
+                    <span *ngIf="!t.assignedToName" class="assignee-tag text-muted"><i class="ri-user-unfollow-line"></i> Non assignée</span>
+                    <span *ngIf="t.completedAt" class="due-tag text-emerald font-semibold"><i class="ri-checkbox-circle-line"></i> {{ t.completedAt | date:'shortDate' }}</span>
+                  </div>
+
+                  <!-- Contrôle statut pour le chef de projet si besoin de réouverture -->
+                  <div *ngIf="isProjectLead()" class="move-ctrl">
+                    <select [ngModel]="t.status" (ngModelChange)="onUpdateTaskStatus(t, $event)" class="select-move">
+                      <option *ngFor="let opt of getAllowedNextStatuses(t)" [value]="opt.value">
+                        {{ opt.label }}
+                      </option>
+                    </select>
+                  </div>
+                  <!-- Statut verrouillé pour le développeur -->
+                  <div *ngIf="!isProjectLead()" class="move-ctrl-locked">
+                    <span class="badge-done-locked"><i class="ri-check-double-line"></i> Tâche validée & terminée</span>
+                  </div>
+                </div>
+                <div *ngIf="filterCollabTasksByStatus('DONE').length === 0" class="empty-kanban-cell">
+                  <span>Aucune tâche</span>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- ══ TAB 2: TEAM & CANDIDATURES ══ -->
+        <div *ngIf="collabTab === 'team'" class="collab-team-tab">
+          
+          <!-- Candidatures en attente -->
+          <div class="team-sub-block">
+            <h4><i class="ri-user-add-line text-amber"></i> Candidatures Reçues pour Rejoindre l'Équipe</h4>
+            
+            <div *ngIf="getPendingMembers().length === 0" class="empty-candidates-notice">
+              <p class="text-sm text-muted">Aucune candidature en attente d'examen pour le moment.</p>
+            </div>
+
+            <div class="candidates-cards-list" *ngIf="getPendingMembers().length > 0">
+              <div *ngFor="let cand of getPendingMembers()" class="candidate-row-card">
+                <div class="cand-avatar">
+                  {{ (cand.userName || cand.userEmail || 'D').charAt(0).toUpperCase() }}
+                </div>
+                <div class="cand-details">
+                  <div class="cand-name-row">
+                    <span class="cand-name">{{ cand.userName || cand.userEmail }}</span>
+                    <span class="badge badge-amber badge-xs">Rôle souhaité : {{ cand.role }}</span>
+                  </div>
+                  <p class="cand-title text-xs text-muted">{{ cand.userTitle || 'Développeur' }} • {{ cand.userEmail }}</p>
+                  <p *ngIf="cand.message" class="cand-message">« {{ cand.message }} »</p>
+                  <div *ngIf="cand.cvUrl" class="cand-cv-badge margin-top-xs">
+                    <a [href]="getCvDisplayUrl(cand.cvUrl)" target="_blank" class="cv-link-badge">
+                      <i class="ri-file-pdf-2-line"></i> Consulter le CV du Candidat
+                    </a>
+                  </div>
+                </div>
+                <div class="cand-actions">
+                  <button (click)="onUpdateMemberStatus(cand, 'ACCEPTED')" class="btn btn-emerald btn-sm">
+                    <i class="ri-check-line"></i> Accepter
+                  </button>
+                  <button (click)="onUpdateMemberStatus(cand, 'REJECTED')" class="btn btn-outline btn-sm btn-reject">
+                    <i class="ri-close-line"></i> Refuser
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Membres Confirmés -->
+          <div class="team-sub-block margin-top-md">
+            <h4><i class="ri-shield-user-line text-emerald"></i> Membres Actifs de l'Équipe</h4>
+            
+            <div class="active-members-table-wrap">
+              <table class="members-table">
+                <thead>
+                  <tr>
+                    <th>Membre</th>
+                    <th>Email</th>
+                    <th>Rôle Assigné</th>
+                    <th>Rejoint le</th>
+                    <th>CV</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <!-- Chef de projet (Lead) -->
+                  <tr class="lead-member-row">
+                    <td>
+                      <div class="table-member-cell">
+                        <span class="lead-badge-crown" title="Chef de Projet"><i class="ri-shield-star-fill text-amber"></i></span>
+                        <strong>{{ collabProject.author?.profile?.fullName || collabProject.author?.email }}</strong>
+                      </div>
+                    </td>
+                    <td>{{ collabProject.author?.email }}</td>
+                    <td><span class="badge badge-emerald badge-xs">Chef de Projet (Leader)</span></td>
+                    <td>Création</td>
+                    <td><span class="text-muted text-xs">—</span></td>
+                  </tr>
+
+                  <!-- Membres acceptés -->
+                  <tr *ngFor="let m of getAcceptedMembers()">
+                    <td>
+                      <div class="table-member-cell">
+                        <div class="table-mini-avatar">{{ (m.userName || 'D').charAt(0).toUpperCase() }}</div>
+                        <span>{{ m.userName }}</span>
+                      </div>
+                    </td>
+                    <td>{{ m.userEmail }}</td>
+                    <td><span class="badge badge-blue badge-xs">{{ m.role }}</span></td>
+                    <td>{{ (m.joinedAt || m.createdAt) | date:'shortDate' }}</td>
+                    <td>
+                      <a *ngIf="m.cvUrl" [href]="getCvDisplayUrl(m.cvUrl)" target="_blank" class="cv-link-badge-sm" title="Consulter le CV">
+                        <i class="ri-file-pdf-2-line"></i> CV
+                      </a>
+                      <span *ngIf="!m.cvUrl" class="text-muted text-xs">—</span>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+      <div class="modal-footer">
+        <button (click)="closeCollabModal()" class="btn btn-outline">Fermer</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 6. MODAL DÉTAILS DE LA TÂCHE (ICÔNE ŒIL) -->
+  <div class="modal-overlay task-detail-overlay" *ngIf="showTaskDetailModal && selectedTaskForDetail" (click)="closeTaskDetail()">
+    <div class="app-card modal-card task-detail-modal" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <div class="header-titles">
+          <div class="type-pill-lead"><i class="ri-file-list-3-line"></i> Détails de la Tâche</div>
+          <h2>{{ selectedTaskForDetail.title }}</h2>
+        </div>
+        <button (click)="closeTaskDetail()" class="close-btn" aria-label="Fermer"><i class="ri-close-line"></i></button>
+      </div>
+
+      <div class="modal-body">
+        
+        <!-- Status & Priority Badges -->
+        <div class="task-detail-badges-row">
+          <span class="badge badge-priority" [ngClass]="'prio-' + selectedTaskForDetail.priority.toLowerCase()">
+            Priorité : {{ selectedTaskForDetail.priority }}
+          </span>
+          <span class="badge-status-pill" [ngClass]="'status-' + selectedTaskForDetail.status.toLowerCase()">
+            <span class="status-dot"></span>
+            {{ selectedTaskForDetail.status === 'TODO' ? 'À Faire' : selectedTaskForDetail.status === 'IN_PROGRESS' ? 'En Cours' : selectedTaskForDetail.status === 'REVIEW' ? 'En Revue (À Valider)' : 'Terminé & Validé' }}
+          </span>
+          <span *ngIf="selectedTaskForDetail.isOverdue" class="badge-overdue-alert">
+            <i class="ri-alarm-warning-line"></i> Échéance dépassée
+          </span>
+        </div>
+
+        <!-- Alerte de Rejet avec Motif si applicable -->
+        <div *ngIf="selectedTaskForDetail.rejectionReason" class="detail-rejection-callout">
+          <div class="callout-header">
+            <i class="ri-error-warning-fill text-rose"></i>
+            <strong>Motif de Rejet par le Chef de Projet :</strong>
+          </div>
+          <p class="callout-content">{{ selectedTaskForDetail.rejectionReason }}</p>
+        </div>
+
+        <!-- Description Complète -->
+        <div class="detail-section">
+          <h4 class="detail-section-title"><i class="ri-text-wrap"></i> Description & Consignes</h4>
+          <div class="detail-description-box" *ngIf="selectedTaskForDetail.description">
+            {{ selectedTaskForDetail.description }}
+          </div>
+          <div class="detail-description-empty" *ngIf="!selectedTaskForDetail.description">
+            <span class="text-muted">Aucune description détaillée n'a été spécifiée pour cette tâche.</span>
+          </div>
+        </div>
+
+        <!-- Grille Métadonnées -->
+        <div class="detail-meta-grid">
+          <div class="meta-item">
+            <span class="meta-label"><i class="ri-user-shared-line"></i> Développeur Assigné</span>
+            <div class="meta-val-user">
+              <span class="user-avatar-circle" *ngIf="selectedTaskForDetail.assignedToName">
+                {{ selectedTaskForDetail.assignedToName.charAt(0).toUpperCase() }}
+              </span>
+              <span class="user-name-txt">{{ selectedTaskForDetail.assignedToName || 'Non assignée' }}</span>
+            </div>
+          </div>
+
+          <div class="meta-item">
+            <span class="meta-label"><i class="ri-calendar-check-line"></i> Date d'échéance (Deadline)</span>
+            <span class="meta-val" [class.text-rose]="selectedTaskForDetail.isOverdue">
+              {{ selectedTaskForDetail.dueDate ? (selectedTaskForDetail.dueDate | date:'longDate') : 'Aucune date limite' }}
+            </span>
+          </div>
+
+          <div class="meta-item">
+            <span class="meta-label"><i class="ri-user-star-line"></i> Créée par</span>
+            <span class="meta-val">{{ selectedTaskForDetail.createdByName || 'Chef de Projet' }}</span>
+          </div>
+
+          <div class="meta-item">
+            <span class="meta-label"><i class="ri-time-line"></i> Date de création</span>
+            <span class="meta-val">{{ selectedTaskForDetail.createdAt | date:'short' }}</span>
+          </div>
+
+          <div class="meta-item" *ngIf="selectedTaskForDetail.completedAt">
+            <span class="meta-label text-emerald"><i class="ri-checkbox-circle-line"></i> Validée & Clôturée le</span>
+            <span class="meta-val text-emerald font-bold">{{ selectedTaskForDetail.completedAt | date:'short' }}</span>
+          </div>
+        </div>
+
+        <!-- Décision du Chef de projet si la tâche est en revue -->
+        <div class="detail-lead-actions-bar" *ngIf="isProjectLead() && selectedTaskForDetail.status === 'REVIEW'">
+          <span class="review-prompt"><i class="ri-question-line"></i> Décision du Chef de Projet :</span>
+          <div class="actions-group">
+            <button type="button" (click)="onValidateTask(selectedTaskForDetail)" class="btn btn-emerald btn-sm">
+              <i class="ri-checkbox-circle-line"></i> Valider la Tâche
+            </button>
+            <button type="button" (click)="openRejectModal(selectedTaskForDetail)" class="btn btn-outline-rose btn-sm">
+              <i class="ri-close-circle-line"></i> Rejeter avec Motif
+            </button>
+          </div>
+        </div>
+
+        <!-- Information pour le Développeur si la tâche est en revue -->
+        <div class="detail-dev-notice-bar" *ngIf="!isProjectLead() && selectedTaskForDetail.status === 'REVIEW'">
+          <i class="ri-hourglass-2-line"></i>
+          <span>Cette tâche a été soumise pour vérification et est en attente de validation définitive par le Chef de Projet.</span>
+        </div>
+
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" (click)="closeTaskDetail()" class="btn btn-outline btn-sm">Fermer</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 7. MODAL DE REJET AVEC MOTIF (CHEF DE PROJET) -->
+  <div class="modal-overlay reject-modal-overlay" *ngIf="showRejectModal && taskToReject" (click)="closeRejectModal()">
+    <div class="app-card modal-card reject-task-modal" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <div class="header-titles">
+          <div class="type-pill-rose"><i class="ri-error-warning-line"></i> Demande de Corrections</div>
+          <h2>Rejeter la Tâche</h2>
+        </div>
+        <button (click)="closeRejectModal()" class="close-btn" aria-label="Fermer"><i class="ri-close-line"></i></button>
+      </div>
+
+      <div class="modal-body">
+        <div class="reject-task-context">
+          <span class="context-label">Tâche à corriger :</span>
+          <h4 class="context-title">{{ taskToReject.title }}</h4>
+          <span class="context-assignee" *ngIf="taskToReject.assignedToName">
+            <i class="ri-user-3-line"></i> Assignée à : <strong>{{ taskToReject.assignedToName }}</strong>
+          </span>
+        </div>
+
+        <div class="form-group margin-top-md">
+          <label class="form-label font-bold">Motif du rejet & Explications <span class="required">*</span></label>
+          <textarea 
+            [(ngModel)]="rejectionReasonInput" 
+            rows="4" 
+            placeholder="Ex: Le code ne compile pas / Des erreurs de tests surviennent / Respecter la maquette responsive..."
+            class="form-input reject-textarea"></textarea>
+          <span class="text-xs text-muted">Ce motif sera immédiatement affiché sur la tâche du développeur afin qu'il sache exactement quoi corriger. La tâche repassera en cours.</span>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" (click)="closeRejectModal()" class="btn btn-outline btn-sm" [disabled]="isRejectingTask">Annuler</button>
+        <button 
+          type="button" 
+          (click)="confirmRejectTask()" 
+          class="btn btn-rose btn-sm" 
+          [disabled]="isRejectingTask || !rejectionReasonInput.trim()">
+          <i class="ri-close-circle-line" *ngIf="!isRejectingTask"></i>
+          <span *ngIf="!isRejectingTask">Confirmer le Rejet</span>
+          <span *ngIf="isRejectingTask">Envoi du rejet...</span>
+        </button>
       </div>
     </div>
   </div>

@@ -887,3 +887,12 @@
   margin-top: 0.3rem;
   line-height: 1.3;
 }
+
+/* ────────── Candidate attachments (CV + Lettre PDF) ────────── */
+.candidate-links,
+.cand-cv {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}

@@ -40,6 +40,12 @@ export interface AuthResponse {
   user: User;
 }
 
+export interface RegisterResponse {
+  email: string;
+  requiresEmailVerification: boolean;
+  message: string;
+}
+
 export interface ApiResponse<T> {
   success: boolean;
   data: T;
@@ -60,14 +66,9 @@ export class AuthService {
   currentUser = signal<User | null>(this.getStoredUser());
   token = signal<string | null>(localStorage.getItem('afridev_token'));
 
-  register(data: any): Observable<ApiResponse<AuthResponse>> {
-    return this.http.post<ApiResponse<AuthResponse>>(`${this.apiUrl}/register`, data).pipe(
-      tap(res => {
-        if (res.success && res.data) {
-          this.handleAuthSuccess(res.data);
-        }
-      })
-    );
+  register(data: any): Observable<ApiResponse<RegisterResponse>> {
+    // Ne stocke plus de token – redirige vers vérification OTP
+    return this.http.post<ApiResponse<RegisterResponse>>(`${this.apiUrl}/register`, data);
   }
 
   login(data: any): Observable<ApiResponse<AuthResponse>> {
@@ -86,6 +87,16 @@ export class AuthService {
 
   verifyOtp(email: string, otpCode: string): Observable<ApiResponse<AuthResponse>> {
     return this.http.post<ApiResponse<AuthResponse>>(`${this.apiUrl}/email/verify-otp`, { email, otpCode }).pipe(
+      tap(res => {
+        if (res.success && res.data) {
+          this.handleAuthSuccess(res.data);
+        }
+      })
+    );
+  }
+
+  loginWithGoogle(idToken: string): Observable<ApiResponse<AuthResponse>> {
+    return this.http.post<ApiResponse<AuthResponse>>(`${this.apiUrl}/google`, { idToken }).pipe(
       tap(res => {
         if (res.success && res.data) {
           this.handleAuthSuccess(res.data);

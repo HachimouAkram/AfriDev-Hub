@@ -3,7 +3,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { ApiResponse, User } from './auth.service';
 
-export type ProjectType = 'OPEN_SOURCE' | 'FOR_SALE' | 'SAAS' | 'PORTFOLIO' | 'ENTERPRISE';
+export type ProjectType = 'OPEN_SOURCE' | 'FOR_SALE' | 'SAAS' | 'PORTFOLIO' | 'ENTERPRISE' | 'COLLABORATIVE';
 export type SaleType = 'LICENSED' | 'FULL_SOURCE_CODE' | 'EXCLUSIVE_CESSION';
 export type SaasPricingType = 'FREE' | 'FREEMIUM' | 'PAID_SUBSCRIPTION';
 
@@ -37,6 +37,7 @@ export interface Project {
   companyRole?: string;
   youtubeUrl?: string;
   documentationPdfUrl?: string;
+  maxMembers?: number;
 
   recognitionsCount: number;
   recognizedByCurrentUser: boolean;

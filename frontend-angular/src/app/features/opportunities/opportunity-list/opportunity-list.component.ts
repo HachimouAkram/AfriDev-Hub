@@ -38,6 +38,13 @@ export class OpportunityListComponent implements OnInit {
   applyErrorMessage = '';
   cvUploadError = '';
 
+  // Lettre de motivation : écrite ou PDF
+  letterMode: 'write' | 'pdf' = 'write';
+  coverLetterUrl = '';
+  coverLetterFileName = '';
+  isUploadingLetter = false;
+  letterUploadError = '';
+
   // Create Opportunity Modal
   showCreateModal = false;
   isSubmitting = false;
@@ -96,6 +103,12 @@ export class OpportunityListComponent implements OnInit {
     this.applyErrorMessage = '';
     this.cvUploadError = '';
     this.isUploadingCv = false;
+    this.applicationMessage = '';
+    this.letterMode = 'write';
+    this.coverLetterUrl = '';
+    this.coverLetterFileName = '';
+    this.letterUploadError = '';
+    this.isUploadingLetter = false;
     // Auto-fill CV from profile if available
     const profileCv = this.authService.currentUser()?.profile?.cvUrl;
     if (profileCv) {
@@ -114,13 +127,34 @@ export class OpportunityListComponent implements OnInit {
     this.selectedOpportunity = null;
   }
 
+  canSubmitApplication(): boolean {
+    if (this.isApplying || this.isUploadingCv || this.isUploadingLetter) return false;
+    return this.letterMode === 'write'
+      ? this.applicationMessage.trim().length > 0
+      : !!this.coverLetterUrl;
+  }
+
+  setLetterMode(mode: 'write' | 'pdf'): void {
+    this.letterMode = mode;
+    this.applyErrorMessage = '';
+  }
+
   onSubmitApplication(): void {
-    if (!this.selectedOpportunity || !this.applicationMessage) return;
+    if (!this.selectedOpportunity) return;
+    if (!this.canSubmitApplication()) {
+      this.applyErrorMessage = this.letterMode === 'write'
+        ? 'Veuillez écrire votre lettre de motivation.'
+        : 'Veuillez téléverser votre lettre de motivation (PDF).';
+      return;
+    }
 
     this.isApplying = true;
     this.applyErrorMessage = '';
 
-    this.opportunityService.applyToOpportunity(this.selectedOpportunity.id, this.applicationMessage, this.cvUrl).subscribe({
+    const message = this.letterMode === 'write' ? this.applicationMessage.trim() : '';
+    const letterUrl = this.letterMode === 'pdf' ? this.coverLetterUrl : undefined;
+
+    this.opportunityService.applyToOpportunity(this.selectedOpportunity.id, message, this.cvUrl, letterUrl).subscribe({
       next: (res) => {
         this.isApplying = false;
         if (res.success) {
@@ -133,6 +167,47 @@ export class OpportunityListComponent implements OnInit {
         this.applyErrorMessage = err.error?.error?.message || 'Erreur lors de l\'envoi de la candidature.';
       }
     });
+  }
+
+  onLetterFileSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (!input.files || input.files.length === 0) return;
+    const file = input.files[0];
+    input.value = '';
+
+    if (file.type !== 'application/pdf') {
+      this.letterUploadError = 'Seuls les fichiers PDF sont acceptés.';
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      this.letterUploadError = 'Le fichier ne doit pas dépasser 5 Mo.';
+      return;
+    }
+
+    this.isUploadingLetter = true;
+    this.letterUploadError = '';
+
+    // Réutilise l'endpoint d'upload PDF (même traitement que le CV)
+    this.profileService.uploadCv(file).subscribe({
+      next: (res) => {
+        this.isUploadingLetter = false;
+        if (res.success && res.data?.url) {
+          this.coverLetterUrl = res.data.url;
+          this.coverLetterFileName = file.name;
+        } else {
+          this.letterUploadError = 'Erreur lors du téléversement de la lettre.';
+        }
+      },
+      error: () => {
+        this.isUploadingLetter = false;
+        this.letterUploadError = 'Erreur lors du téléversement. Veuillez réessayer.';
+      }
+    });
+  }
+
+  removeLetterFile(): void {
+    this.coverLetterUrl = '';
+    this.coverLetterFileName = '';
   }
 
   onCvFileSelected(event: Event): void {

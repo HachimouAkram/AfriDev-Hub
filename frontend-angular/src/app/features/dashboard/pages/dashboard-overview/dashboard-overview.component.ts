@@ -8,6 +8,7 @@ import { AdminService, AdminStats } from '../../../../core/services/admin.servic
 import { ProjectService, Project } from '../../../../core/services/project.service';
 import { OpportunityService } from '../../../../core/services/opportunity.service';
 import { NetworkService } from '../../../../core/services/network.service';
+import { ProjectCollaborationService, ProjectProgress } from '../../../../core/services/project-collaboration.service';
 
 export interface TopViewedProject {
   id: string;
@@ -43,6 +44,7 @@ export class DashboardOverviewComponent implements OnInit {
   private projectService = inject(ProjectService);
   private opportunityService = inject(OpportunityService);
   private networkService = inject(NetworkService);
+  private collaborationService = inject(ProjectCollaborationService);
 
   user = this.authService.currentUser;
   reputationScore = signal<ReputationScore | null>(null);
@@ -56,6 +58,21 @@ export class DashboardOverviewComponent implements OnInit {
   totalOpportunitiesCount = signal<number>(0);
   totalRelationsCount = signal<number>(0);
   totalApplicationsCount = signal<number>(0);
+
+  // Collaboration Workspace Metrics & Projects
+  collaborations = signal<ProjectProgress[]>([]);
+  isLoadingCollab = signal<boolean>(true);
+
+  totalCollabTasks = computed(() => this.collaborations().reduce((acc, c) => acc + (c.totalTasks || 0), 0));
+  inProgressCollabTasks = computed(() => this.collaborations().reduce((acc, c) => acc + (c.inProgressTasks || 0), 0));
+  completedCollabTasks = computed(() => this.collaborations().reduce((acc, c) => acc + (c.completedTasks || 0), 0));
+  overdueCollabTasks = computed(() => this.collaborations().reduce((acc, c) => acc + (c.overdueTasks || 0), 0));
+  averageCollabProgress = computed(() => {
+    const list = this.collaborations();
+    if (list.length === 0) return 0;
+    const sum = list.reduce((acc, c) => acc + (c.completionPercentage || 0), 0);
+    return Math.round(sum / list.length);
+  });
 
   // Top 3 Most Viewed Projects
   topProjects = signal<TopViewedProject[]>([]);
@@ -82,6 +99,7 @@ export class DashboardOverviewComponent implements OnInit {
     if (!u) return;
 
     this.loadGlobalKPIs();
+    this.loadCollaborations();
 
     if (u.role === 'DEVELOPER') {
       this.loadDeveloperData(u.id);
@@ -90,30 +108,58 @@ export class DashboardOverviewComponent implements OnInit {
     }
   }
 
+  loadCollaborations(): void {
+    this.isLoadingCollab.set(true);
+    this.collaborationService.getMyCollaborations().subscribe({
+      next: (res) => {
+        this.isLoadingCollab.set(false);
+        if (res?.success && res.data) {
+          this.collaborations.set(res.data);
+        }
+      },
+      error: (err) => {
+        this.isLoadingCollab.set(false);
+        console.error('Erreur chargement collaborations', err);
+      }
+    });
+  }
+
   loadGlobalKPIs(): void {
-    // 1. Load Projects count & Top 3 projects
-    this.projectService.getProjects(0, 50).subscribe({
+    const u = this.user();
+    if (!u) return;
+
+    // 1. Load the CURRENT USER'S OWN projects
+    this.projectService.getMyProjects(0, 50).subscribe({
       next: (res) => {
         if (res.success && res.data) {
-          const projects: Project[] = res.data.content || [];
+          const projects: Project[] = res.data.content || res.data || [];
           this.totalProjectsCount.set(res.data.totalElements || projects.length);
-
-          // Build top 3 projects comparison with realistic view metrics
           this.calculateTopProjects(projects);
         }
       }
     });
 
-    // 2. Load Opportunities count
-    this.opportunityService.getOpportunities(undefined, 0, 10).subscribe({
+    // 2. Load MY OWN applications (as developer) AND my posted opportunities (as recruiter)
+    this.opportunityService.getMyApplications().subscribe({
       next: (res) => {
         if (res.success && res.data) {
-          this.totalOpportunitiesCount.set(res.data.totalElements || 0);
+          this.totalApplicationsCount.set(res.data.length);
+          // Build personal activity timeline from real data
+          this.buildPersonalActivityTimeline(res.data);
         }
       }
     });
 
-    // 3. Load Network Relations count
+    // 3. My posted opportunities count
+    this.opportunityService.getMyPostedOpportunities().subscribe({
+      next: (res) => {
+        if (res.success && res.data) {
+          this.totalOpportunitiesCount.set(res.data.length);
+        }
+      }
+    });
+
+    // 4. Relations: users who follow me or I follow (network)
     this.networkService.getNetworkUsers().subscribe({
       next: (res) => {
         if (res.success && res.data) {
@@ -121,58 +167,38 @@ export class DashboardOverviewComponent implements OnInit {
         }
       }
     });
+  }
 
-    // 4. Load Applications / Demandes count
-    this.opportunityService.getMyApplications().subscribe({
-      next: (res) => {
-        if (res.success && res.data) {
-          const myApps = res.data.length;
-          this.opportunityService.getReceivedApplications().subscribe({
-            next: (recRes: any) => {
-              const recApps = recRes.data ? recRes.data.length : 0;
-              this.totalApplicationsCount.set(myApps + recApps);
-            }
-          });
-        }
-      }
-    });
+  private buildPersonalActivityTimeline(applications: any[]): void {
+    // Group applications by month
+    const months = ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Juin', 'Juil', 'Août', 'Sept', 'Oct', 'Nov', 'Déc'];
+    const now = new Date();
+    const last6: ActivityMonthPoint[] = [];
+
+    for (let i = 5; i >= 0; i--) {
+      const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+      const monthLabel = months[d.getMonth()];
+      const yr = d.getFullYear();
+      const mo = d.getMonth();
+
+      const count = applications.filter(app => {
+        if (!app.appliedAt && !app.createdAt) return false;
+        const dt = new Date(app.appliedAt || app.createdAt);
+        return dt.getFullYear() === yr && dt.getMonth() === mo;
+      }).length;
+
+      last6.push({ month: monthLabel, demandes: count, offres: 0, candidatures: count, heightPercent: 0 });
+    }
+
+    const maxVal = Math.max(...last6.map(p => p.demandes), 1);
+    last6.forEach(p => { p.heightPercent = Math.round((p.demandes / maxVal) * 100); });
+    this.activityTimeline.set(last6);
   }
 
   private calculateTopProjects(projects: Project[]): void {
     if (!projects || projects.length === 0) {
-      // Mock rich fallback top 3 projects if empty database
-      this.topProjects.set([
-        {
-          id: '1',
-          title: 'PayTech Panafrica Gateway',
-          category: 'FinTech / SaaS',
-          stack: ['Spring Boot', 'Angular', 'PostgreSQL'],
-          views: 1420,
-          recognitions: 138,
-          percentage: 100,
-          color: '#10B981'
-        },
-        {
-          id: '2',
-          title: 'AfriAgri Marketplace & IoT',
-          category: 'AgriTech / Mobile Money',
-          stack: ['FastAPI', 'Python', 'Flutter'],
-          views: 980,
-          recognitions: 94,
-          percentage: 69,
-          color: '#06B6D4'
-        },
-        {
-          id: '3',
-          title: 'Kora Healthcare Telemedecine',
-          category: 'HealthTech / WebRTC',
-          stack: ['Node.js', 'WebRTC', 'MongoDB'],
-          views: 740,
-          recognitions: 67,
-          percentage: 52,
-          color: '#8B5CF6'
-        }
-      ]);
+      // User has no projects yet → show empty/encouragement state
+      this.topProjects.set([]);
       return;
     }
 

@@ -1,11 +1,12 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
+import { Router, RouterLink, ActivatedRoute } from '@angular/router';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { ProjectService, Project, ProjectComment, ProjectType, SaleType, SaasPricingType } from '../../../../core/services/project.service';
 import { AuthService } from '../../../../core/services/auth.service';
 import { FollowService, FollowStats } from '../../../../core/services/follow.service';
+import { ProjectCollaborationService, ProjectMember, ProjectTask, ProjectProgress, TaskStatus, TaskPriority, MemberStatus } from '../../../../core/services/project-collaboration.service';
 
 @Component({
   selector: 'app-dashboard-projects',
@@ -18,8 +19,10 @@ export class DashboardProjectsComponent implements OnInit {
   private projectService = inject(ProjectService);
   public authService = inject(AuthService);
   private followService = inject(FollowService);
+  private collaborationService = inject(ProjectCollaborationService);
   private sanitizer = inject(DomSanitizer);
   private router = inject(Router);
+  private route = inject(ActivatedRoute);
 
   currentUser = this.authService.currentUser;
   
@@ -55,11 +58,45 @@ export class DashboardProjectsComponent implements OnInit {
   // Project Types definition
   projectTypesList: { key: ProjectType; label: string; icon: string; desc: string }[] = [
     { key: 'OPEN_SOURCE', label: 'Open Source', icon: 'ri-flashlight-line', desc: 'Code source public avec licence libre' },
+    { key: 'COLLABORATIVE', label: 'Projet Collaboratif', icon: 'ri-team-line', desc: 'Idée de projet, recrutement d\'équipe & gestion de tâches' },
     { key: 'FOR_SALE', label: 'Projet en Vente', icon: 'ri-money-dollar-circle-line', desc: 'Cession de code ou d\'application' },
     { key: 'SAAS', label: 'Projet SaaS', icon: 'ri-rocket-line', desc: 'Service web hébergé avec abonnement' },
     { key: 'PORTFOLIO', label: 'Site / Portfolio', icon: 'ri-briefcase-line', desc: 'Vitrine de présentation personnelle' },
     { key: 'ENTERPRISE', label: 'Projet Entreprise', icon: 'ri-building-line', desc: 'Réalisation pro sous contrat NDA' }
   ];
+
+  // Collaboration Manager Modal State
+  showCollabModal = false;
+  collabProject: Project | null = null;
+  collabProgress: ProjectProgress | null = null;
+  collabMembers: ProjectMember[] = [];
+  collabTasks: ProjectTask[] = [];
+  isLoadingCollab = false;
+  collabTab: 'tasks' | 'team' = 'tasks';
+
+  // Task Details Modal State
+  selectedTaskForDetail: ProjectTask | null = null;
+  showTaskDetailModal = false;
+
+  // Task Rejection Modal State (Chef de Projet)
+  showRejectModal = false;
+  taskToReject: ProjectTask | null = null;
+  rejectionReasonInput = '';
+  isRejectingTask = false;
+
+  // Lead Filter by Developer
+  selectedDevFilter = 'ALL';
+
+  // Task creation state
+  newTask = {
+    title: '',
+    description: '',
+    assignedToId: '',
+    priority: 'MEDIUM' as TaskPriority,
+    status: 'TODO' as TaskStatus,
+    dueDate: ''
+  };
+  isCreatingTask = false;
 
   // Form Model
   projectForm = {
@@ -80,7 +117,8 @@ export class DashboardProjectsComponent implements OnInit {
     companyRole: '',
     youtubeUrl: '',
     documentationPdfUrl: '',
-    screenshots: [] as string[]
+    screenshots: [] as string[],
+    maxMembers: null as number | null
   };
 
   isSubmitting = false;
@@ -89,6 +127,40 @@ export class DashboardProjectsComponent implements OnInit {
   formSuccessMessage = '';
 
   ngOnInit(): void {
+    this.route.queryParamMap.subscribe(params => {
+      if (params.get('create') === 'true') {
+        const typeParam = params.get('type') as ProjectType;
+        setTimeout(() => {
+          this.openCreateModal();
+          if (typeParam) {
+            this.selectProjectType(typeParam);
+          }
+        }, 150);
+      }
+
+      const cat = params.get('category');
+      if (cat) {
+        this.selectedCategory = cat;
+      }
+
+      const collabId = params.get('openCollab');
+      if (collabId) {
+        setTimeout(() => {
+          const found = this.projects().find(p => p.id === collabId);
+          if (found) {
+            this.openCollabModal(found);
+          } else {
+            this.projectService.getProjectById(collabId).subscribe({
+              next: (res) => {
+                if (res.success && res.data) {
+                  this.openCollabModal(res.data);
+                }
+              }
+            });
+          }
+        }, 400);
+      }
+    });
     this.loadMyProjects();
   }
 
@@ -174,7 +246,8 @@ export class DashboardProjectsComponent implements OnInit {
       companyRole: '',
       youtubeUrl: '',
       documentationPdfUrl: '',
-      screenshots: []
+      screenshots: [],
+      maxMembers: null
     };
     this.formErrorMessage = '';
     this.formSuccessMessage = '';
@@ -252,7 +325,17 @@ export class DashboardProjectsComponent implements OnInit {
 
     const type = this.projectForm.projectType;
 
-    if (type === 'OPEN_SOURCE') {
+    if (type === 'COLLABORATIVE') {
+      if (!this.projectForm.stackInput.trim()) {
+        this.formErrorMessage = 'Veuillez renseigner les technologies / stack requises pour ce projet collaboratif.';
+        return false;
+      }
+      if (this.projectForm.maxMembers !== null && this.projectForm.maxMembers !== undefined && Number(this.projectForm.maxMembers) < 1) {
+        this.formErrorMessage = 'Le nombre maximum de collaborateurs doit être supérieur ou égal à 1 s\'il est renseigné.';
+        return false;
+      }
+      this.projectForm.youtubeUrl = '';
+    } else if (type === 'OPEN_SOURCE') {
       if (!this.projectForm.repoUrl.trim()) {
         this.formErrorMessage = 'Le lien du dépôt GitHub est obligatoire pour un projet Open Source.';
         return false;
@@ -283,7 +366,7 @@ export class DashboardProjectsComponent implements OnInit {
       }
     }
 
-    if (this.projectForm.youtubeUrl.trim()) {
+    if (this.projectForm.youtubeUrl && this.projectForm.youtubeUrl.trim()) {
       const ytRegex = /^(https?:\/\/)?(www\.)?(youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]{11})(\S*)?$/;
       if (!ytRegex.test(this.projectForm.youtubeUrl.trim())) {
         this.formErrorMessage = 'Le lien YouTube n\'est pas valide (Ex: https://www.youtube.com/watch?v=VIDEO_ID).';
@@ -321,9 +404,10 @@ export class DashboardProjectsComponent implements OnInit {
       demoAccountInfo: this.projectForm.demoAccountInfo.trim() || null,
       companyName: this.projectForm.companyName.trim() || null,
       companyRole: this.projectForm.companyRole.trim() || null,
-      youtubeUrl: this.projectForm.youtubeUrl.trim() || null,
+      youtubeUrl: this.projectForm.projectType === 'COLLABORATIVE' ? null : (this.projectForm.youtubeUrl.trim() || null),
       documentationPdfUrl: this.projectForm.documentationPdfUrl || null,
-      screenshots: this.projectForm.screenshots
+      screenshots: this.projectForm.screenshots,
+      maxMembers: this.projectForm.maxMembers ? Number(this.projectForm.maxMembers) : null
     };
 
     this.projectService.createProject(payload).subscribe({
@@ -342,6 +426,10 @@ export class DashboardProjectsComponent implements OnInit {
   }
 
   openEditModal(project: Project): void {
+    if (!this.isProjectOwner(project)) {
+      this.showToast('Action réservée au porteur du projet.');
+      return;
+    }
     this.selectedProject = project;
     this.projectForm = {
       title: project.title,
@@ -361,7 +449,8 @@ export class DashboardProjectsComponent implements OnInit {
       companyRole: project.companyRole || '',
       youtubeUrl: project.youtubeUrl || '',
       documentationPdfUrl: project.documentationPdfUrl || '',
-      screenshots: project.screenshots ? [...project.screenshots] : []
+      screenshots: project.screenshots ? [...project.screenshots] : [],
+      maxMembers: project.maxMembers || null
     };
     this.formErrorMessage = '';
     this.formSuccessMessage = '';
@@ -635,6 +724,8 @@ export class DashboardProjectsComponent implements OnInit {
     switch (type) {
       case 'OPEN_SOURCE':
         return { label: 'Open Source', class: 'badge-emerald' };
+      case 'COLLABORATIVE':
+        return { label: 'Collaboratif', class: 'badge-teal' };
       case 'FOR_SALE':
         return { label: 'En Vente', class: 'badge-amber' };
       case 'SAAS':
@@ -649,6 +740,10 @@ export class DashboardProjectsComponent implements OnInit {
   }
 
   toggleStatus(project: Project): void {
+    if (!this.isProjectOwner(project)) {
+      this.showToast('Action réservée au porteur du projet.');
+      return;
+    }
     this.projectService.toggleProjectStatus(project.id).subscribe({
       next: (res) => {
         if (res.success) {
@@ -662,6 +757,10 @@ export class DashboardProjectsComponent implements OnInit {
   }
 
   confirmDelete(project: Project): void {
+    if (!this.isProjectOwner(project)) {
+      this.showToast('Action réservée au porteur du projet.');
+      return;
+    }
     this.projectToDelete = project;
     this.showDeleteModal = true;
   }
@@ -684,5 +783,310 @@ export class DashboardProjectsComponent implements OnInit {
         this.closeDeleteModal();
       }
     });
+  }
+
+  // ── COLLABORATION LEAD MANAGER METHODS ──
+
+  openCollabModal(project: Project): void {
+    this.collabProject = project;
+    this.showCollabModal = true;
+    this.collabTab = 'tasks';
+    this.loadCollabData(project.id);
+  }
+
+  closeCollabModal(): void {
+    this.showCollabModal = false;
+    this.collabProject = null;
+    this.collabProgress = null;
+    this.collabMembers = [];
+    this.collabTasks = [];
+  }
+
+  loadCollabData(projectId: string): void {
+    this.isLoadingCollab = true;
+    this.collaborationService.getProgress(projectId).subscribe({
+      next: (res) => {
+        if (res.success) this.collabProgress = res.data;
+      }
+    });
+
+    this.collaborationService.getMembers(projectId).subscribe({
+      next: (res) => {
+        if (res.success) this.collabMembers = res.data;
+      }
+    });
+
+    this.collaborationService.getTasks(projectId).subscribe({
+      next: (res) => {
+        this.isLoadingCollab = false;
+        if (res.success) this.collabTasks = res.data;
+      },
+      error: () => {
+        this.isLoadingCollab = false;
+      }
+    });
+  }
+
+  onCreateTask(): void {
+    if (!this.collabProject || !this.newTask.title.trim()) return;
+
+    this.isCreatingTask = true;
+    const payload = {
+      title: this.newTask.title.trim(),
+      description: this.newTask.description?.trim() || undefined,
+      assignedToId: this.newTask.assignedToId || undefined,
+      priority: this.newTask.priority,
+      status: this.newTask.status,
+      dueDate: this.newTask.dueDate || undefined
+    };
+
+    this.collaborationService.createTask(this.collabProject.id, payload).subscribe({
+      next: (res) => {
+        this.isCreatingTask = false;
+        if (res.success) {
+          this.showToast('Nouvelle tâche assignée avec succès !');
+          this.newTask = {
+            title: '',
+            description: '',
+            assignedToId: '',
+            priority: 'MEDIUM',
+            status: 'TODO',
+            dueDate: ''
+          };
+          this.loadCollabData(this.collabProject!.id);
+        }
+      },
+      error: (err) => {
+        this.isCreatingTask = false;
+        const msg = err.error?.error?.message || 'Erreur lors de la création de la tâche.';
+        this.showToast(msg);
+      }
+    });
+  }
+
+  isProjectOwner(project: Project | null | undefined): boolean {
+    if (!project) return false;
+    const user = this.currentUser();
+    if (!user) return false;
+    if (project.author) {
+      if (user.id && project.author.id && project.author.id === user.id) return true;
+      if (user.email && project.author.email && project.author.email.toLowerCase() === user.email.toLowerCase()) return true;
+    }
+    return false;
+  }
+
+  isProjectLead(): boolean {
+    if (!this.collabProject) return false;
+    return this.isProjectOwner(this.collabProject) || !!this.collabProgress?.isProjectLead;
+  }
+
+  openTaskDetail(task: ProjectTask): void {
+    this.selectedTaskForDetail = task;
+    this.showTaskDetailModal = true;
+  }
+
+  closeTaskDetail(): void {
+    this.showTaskDetailModal = false;
+    this.selectedTaskForDetail = null;
+  }
+
+  openRejectModal(task: ProjectTask): void {
+    this.taskToReject = task;
+    this.rejectionReasonInput = '';
+    this.showRejectModal = true;
+  }
+
+  closeRejectModal(): void {
+    this.showRejectModal = false;
+    this.taskToReject = null;
+    this.rejectionReasonInput = '';
+    this.isRejectingTask = false;
+  }
+
+  confirmRejectTask(): void {
+    if (!this.collabProject || !this.taskToReject) return;
+    const reason = this.rejectionReasonInput.trim();
+    if (!reason) {
+      this.showToast('Veuillez indiquer le motif du rejet pour orienter le développeur.');
+      return;
+    }
+
+    this.isRejectingTask = true;
+    this.collaborationService.rejectTask(this.collabProject.id, this.taskToReject.id, reason).subscribe({
+      next: (res) => {
+        this.isRejectingTask = false;
+        if (res.success) {
+          this.showToast(`Tâche retournée au développeur avec le motif de rejet.`);
+          this.closeRejectModal();
+          if (this.selectedTaskForDetail?.id === res.data.id) {
+            this.selectedTaskForDetail = res.data;
+          }
+          this.loadCollabData(this.collabProject!.id);
+        }
+      },
+      error: (err) => {
+        this.isRejectingTask = false;
+        this.showToast(err.error?.error?.message || err.error?.message || 'Erreur lors du rejet de la tâche.');
+      }
+    });
+  }
+
+  onValidateTask(task: ProjectTask): void {
+    if (!this.collabProject) return;
+    this.collaborationService.validateTask(this.collabProject.id, task.id).subscribe({
+      next: (res) => {
+        if (res.success) {
+          this.showToast(`Tâche "${task.title}" validée avec succès !`);
+          if (this.selectedTaskForDetail?.id === res.data.id) {
+            this.selectedTaskForDetail = res.data;
+          }
+          this.loadCollabData(this.collabProject!.id);
+        }
+      },
+      error: (err) => {
+        this.showToast(err.error?.error?.message || err.error?.message || 'Erreur lors de la validation.');
+      }
+    });
+  }
+
+  getStatusRank(status?: TaskStatus): number {
+    switch (status) {
+      case 'TODO': return 0;
+      case 'IN_PROGRESS': return 1;
+      case 'REVIEW': return 2;
+      case 'DONE': return 3;
+      default: return 0;
+    }
+  }
+
+  getAllowedNextStatuses(task: ProjectTask): { value: TaskStatus; label: string }[] {
+    const isLead = this.isProjectLead();
+    if (isLead) {
+      return [
+        { value: 'TODO', label: 'À Faire' },
+        { value: 'IN_PROGRESS', label: 'En Cours' },
+        { value: 'REVIEW', label: 'En Revue' },
+        { value: 'DONE', label: 'Terminé' }
+      ];
+    }
+
+    // Le développeur ne peut pas retourner en arrière
+    const currentRank = this.getStatusRank(task.status);
+    const options: { value: TaskStatus; label: string }[] = [];
+
+    if (currentRank === 0) { // TODO
+      options.push({ value: 'TODO', label: 'À Faire' });
+      options.push({ value: 'IN_PROGRESS', label: 'Démarrer (En Cours)' });
+      options.push({ value: 'REVIEW', label: 'Soumettre pour validation' });
+    } else if (currentRank === 1) { // IN_PROGRESS
+      options.push({ value: 'IN_PROGRESS', label: 'En Cours' });
+      options.push({ value: 'REVIEW', label: 'Soumettre pour validation' });
+      options.push({ value: 'DONE', label: 'Terminer (Demander validation)' });
+    } else if (currentRank === 2) { // REVIEW
+      options.push({ value: 'REVIEW', label: 'En Revue (Attente validation)' });
+    } else if (currentRank === 3) { // DONE
+      options.push({ value: 'DONE', label: 'Terminée & Validée' });
+    }
+    return options;
+  }
+
+  onUpdateTaskStatus(task: ProjectTask, newStatus: TaskStatus): void {
+    if (!this.collabProject) return;
+    if (task.status === newStatus) return;
+
+    const isLead = this.isProjectLead();
+    if (!isLead) {
+      const currentRank = this.getStatusRank(task.status);
+      const newRank = this.getStatusRank(newStatus);
+      if (newRank < currentRank) {
+        this.showToast('Vous ne pouvez pas retourner en arrière sur le statut de cette tâche.');
+        return;
+      }
+    }
+
+    this.collaborationService.updateTask(this.collabProject.id, task.id, { status: newStatus }).subscribe({
+      next: (res) => {
+        if (res.success) {
+          if (!isLead && (newStatus === 'DONE' || newStatus === 'REVIEW')) {
+            this.showToast('Tâche soumise au chef de projet pour vérification et validation.');
+          } else {
+            this.showToast(`Statut mis à jour : ${newStatus}`);
+          }
+          this.loadCollabData(this.collabProject!.id);
+        }
+      },
+      error: (err) => {
+        this.showToast(err.error?.error?.message || err.error?.message || 'Erreur lors de la mise à jour.');
+      }
+    });
+  }
+
+  onDeleteTask(task: ProjectTask): void {
+    if (!this.collabProject) return;
+    if (!this.isProjectLead()) {
+      this.showToast('Seul le chef de projet peut supprimer une tâche.');
+      return;
+    }
+    if (!confirm(`Supprimer la tâche "${task.title}" ?`)) return;
+
+    this.collaborationService.deleteTask(this.collabProject.id, task.id).subscribe({
+      next: (res) => {
+        if (res.success) {
+          this.showToast('Tâche supprimée avec succès.');
+          this.loadCollabData(this.collabProject!.id);
+        }
+      },
+      error: (err) => {
+        this.showToast(err.error?.error?.message || err.error?.message || 'Erreur lors de la suppression.');
+      }
+    });
+  }
+
+  onUpdateMemberStatus(member: ProjectMember, newStatus: MemberStatus): void {
+    if (!this.collabProject) return;
+    this.collaborationService.updateMemberStatus(this.collabProject.id, member.id, newStatus).subscribe({
+      next: (res) => {
+        if (res.success) {
+          const actionText = newStatus === 'ACCEPTED' ? 'acceptée' : 'refusée';
+          this.showToast(`Candidature de ${member.userName} ${actionText} !`);
+          this.loadCollabData(this.collabProject!.id);
+        }
+      },
+      error: (err) => {
+        this.showToast(err.error?.error?.message || err.error?.message || 'Erreur lors de la mise à jour du membre.');
+      }
+    });
+  }
+
+  getCvDisplayUrl(url?: string): string {
+    if (!url) return '';
+    if (url.startsWith('http://') || url.startsWith('https://')) {
+      return url;
+    }
+    return 'http://localhost:8081/api/v1' + url;
+  }
+
+  filterCollabTasksByStatus(status: TaskStatus): ProjectTask[] {
+    const currentUserId = this.currentUser()?.id;
+    const isLead = this.isProjectLead();
+
+    let list = this.collabTasks.filter(t => t.status === status);
+
+    if (!isLead) {
+      // Règle : chaque développeur ne voit que les tâches qui lui ont été attribuées
+      list = list.filter(t => t.assignedToId === currentUserId);
+    } else if (this.selectedDevFilter && this.selectedDevFilter !== 'ALL') {
+      list = list.filter(t => t.assignedToId === this.selectedDevFilter);
+    }
+
+    return list;
+  }
+
+  getAcceptedMembers(): ProjectMember[] {
+    return this.collabMembers.filter(m => m.status === 'ACCEPTED');
+  }
+
+  getPendingMembers(): ProjectMember[] {
+    return this.collabMembers.filter(m => m.status === 'PENDING');
   }
 }

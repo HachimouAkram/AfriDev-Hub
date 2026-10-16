@@ -24,6 +24,8 @@ remove_emojis.py
 # IDE & OS
 .idea/
 .vscode/
-*.swp
-.DS_Store
+# Environment variables & secrets
+.env
+*.env
+!.env.example
 

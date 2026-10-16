@@ -33,7 +33,9 @@ export interface Application {
   applicant: User;
   message: string;
   cvUrl?: string;
+  coverLetterUrl?: string;
   status: 'PENDING' | 'REVIEWED' | 'ACCEPTED' | 'REJECTED';
+  rejectionReason?: string;
   createdAt: string;
 }
 
@@ -74,8 +76,8 @@ export class OpportunityService {
     return this.http.delete<ApiResponse<any>>(`${this.apiUrl}/${id}`);
   }
 
-  applyToOpportunity(id: string, message: string, cvUrl?: string): Observable<ApiResponse<Application>> {
-    return this.http.post<ApiResponse<Application>>(`${this.apiUrl}/${id}/apply`, { message, cvUrl });
+  applyToOpportunity(id: string, message: string, cvUrl?: string, coverLetterUrl?: string): Observable<ApiResponse<Application>> {
+    return this.http.post<ApiResponse<Application>>(`${this.apiUrl}/${id}/apply`, { message, cvUrl, coverLetterUrl });
   }
 
   getApplications(id: string): Observable<ApiResponse<Application[]>> {
@@ -94,9 +96,11 @@ export class OpportunityService {
     return this.http.get<ApiResponse<Application[]>>(`${this.apiUrl}/my-received-applications`);
   }
 
-  updateApplicationStatus(applicationId: string, status: string): Observable<ApiResponse<Application>> {
-    return this.http.patch<ApiResponse<Application>>(`${this.apiUrl}/applications/${applicationId}/status`, {}, {
-      params: new HttpParams().set('status', status)
-    });
+  updateApplicationStatus(applicationId: string, status: string, reason?: string): Observable<ApiResponse<Application>> {
+    let params = new HttpParams().set('status', status);
+    if (reason && status === 'REJECTED') {
+      params = params.set('reason', reason);
+    }
+    return this.http.patch<ApiResponse<Application>>(`${this.apiUrl}/applications/${applicationId}/status`, {}, { params });
   }
 }

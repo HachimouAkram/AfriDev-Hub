@@ -40,6 +40,7 @@ public class ProjectDto {
     private String companyRole;
     private String youtubeUrl;
     private String documentationPdfUrl;
+    private Integer maxMembers;
 
     private Integer recognitionsCount;
     private Boolean recognizedByCurrentUser;

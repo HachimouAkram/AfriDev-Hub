@@ -5,5 +5,6 @@ public enum ProjectType {
     FOR_SALE,
     SAAS,
     PORTFOLIO,
-    ENTERPRISE
+    ENTERPRISE,
+    COLLABORATIVE
 }

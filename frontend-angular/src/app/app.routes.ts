@@ -15,6 +15,10 @@ export const routes: Routes = [
     loadComponent: () => import('./features/auth/register/register.component').then(m => m.RegisterComponent)
   },
   {
+    path: 'verify-otp',
+    loadComponent: () => import('./features/auth/verify-otp/verify-otp.component').then(m => m.VerifyOtpComponent)
+  },
+  {
     path: 'dashboard',
     loadComponent: () => import('./features/dashboard/dashboard-layout/dashboard-layout.component').then(m => m.DashboardLayoutComponent),
     canActivate: [authGuard],
@@ -42,6 +46,10 @@ export const routes: Routes = [
       {
         path: 'evaluations',
         loadComponent: () => import('./features/evaluations/evaluation-list/evaluation-list.component').then(m => m.EvaluationListComponent)
+      },
+      {
+        path: 'events',
+        loadComponent: () => import('./features/dashboard/pages/dashboard-events/dashboard-events.component').then(m => m.DashboardEventsComponent)
       },
       {
         path: 'profile',
@@ -88,6 +96,10 @@ export const routes: Routes = [
   {
     path: 'network',
     loadComponent: () => import('./features/network/network.component').then(m => m.NetworkComponent)
+  },
+  {
+    path: 'events',
+    loadComponent: () => import('./features/events/events.component').then(m => m.EventsComponent)
   },
   {
     path: 'admin',

@@ -236,6 +236,18 @@
   border-radius: 999px;
 }
 
+.nav-item .nav-badge.badge-event {
+  background: rgba(14, 165, 233, 0.2);
+  color: #38BDF8;
+  border: 1px solid rgba(14, 165, 233, 0.35);
+}
+
+body.light-theme .nav-item .nav-badge.badge-event {
+  background: #E0F2FE;
+  color: #0284C7;
+  border-color: #BAE6FD;
+}
+
 .link-site-btn {
   color: var(--emerald-500);
   border: 1px dashed rgba(16, 185, 129, 0.3);

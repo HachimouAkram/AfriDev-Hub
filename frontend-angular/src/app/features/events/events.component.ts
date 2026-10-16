@@ -1,0 +1,280 @@
+import { Component, inject, OnInit, signal } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { RouterLink } from '@angular/router';
+import { TechEventService, TechEvent, TechEventType, VoteType } from '../../core/services/tech-event.service';
+import { AuthService } from '../../core/services/auth.service';
+import { ProjectService } from '../../core/services/project.service';
+
+@Component({
+  selector: 'app-events',
+  standalone: true,
+  imports: [CommonModule, FormsModule, RouterLink],
+  templateUrl: './events.component.html',
+  styleUrl: './events.component.css'
+})
+export class EventsComponent implements OnInit {
+  private eventService = inject(TechEventService);
+  public authService = inject(AuthService);
+  private projectService = inject(ProjectService);
+
+  currentUser = this.authService.currentUser;
+
+  events = signal<TechEvent[]>([]);
+  isLoading = signal<boolean>(true);
+  activeFilter: string = 'ALL';
+  searchQuery: string = '';
+
+  // Create Modal State
+  showCreateModal = false;
+  isSubmitting = false;
+  isUploadingBanner = false;
+  bannerUploadError = '';
+  errorMessage = '';
+  successToast = '';
+
+  popularTags: string[] = ['Python', 'Angular', 'React', 'IA & ML', 'FinTech', 'Cloud & DevOps', 'Mobile', 'Web3', 'Open Source'];
+
+  newEvent = {
+    title: '',
+    description: '',
+    type: 'MEETUP' as TechEventType,
+    startDate: '',
+    endDate: '',
+    location: '',
+    isOnline: false,
+    eventUrl: '',
+    bannerUrl: '',
+    tagsString: ''
+  };
+
+  eventTypes: { key: TechEventType | 'ALL'; label: string; icon: string }[] = [
+    { key: 'ALL', label: 'Tous les événements', icon: 'ri-calendar-event-line' },
+    { key: 'CONFERENCE', label: 'Conférences Tech', icon: 'ri-presentation-line' },
+    { key: 'MEETUP', label: 'Meetups Locaux', icon: 'ri-community-line' },
+    { key: 'HACKATHON', label: 'Hackathons', icon: 'ri-flashlight-line' },
+    { key: 'WORKSHOP', label: 'Ateliers & Masterclasses', icon: 'ri-code-box-line' }
+  ];
+
+  ngOnInit(): void {
+    this.loadEvents();
+  }
+
+  loadEvents(): void {
+    this.isLoading.set(true);
+    const filterType = this.activeFilter === 'ALL' ? undefined : (this.activeFilter as TechEventType);
+    this.eventService.getEvents(filterType, 0, 30).subscribe({
+      next: (res) => {
+        this.isLoading.set(false);
+        if (res.success && res.data) {
+          this.events.set(res.data.content || []);
+        }
+      },
+      error: (err) => {
+        this.isLoading.set(false);
+        console.error('Erreur chargement événements', err);
+      }
+    });
+  }
+
+  setFilter(filter: string): void {
+    this.activeFilter = filter;
+    this.loadEvents();
+  }
+
+  get filteredEvents(): TechEvent[] {
+    const list = this.events();
+    if (!this.searchQuery) return list;
+    const q = this.searchQuery.toLowerCase();
+    return list.filter(e =>
+      e.title.toLowerCase().includes(q) ||
+      e.description.toLowerCase().includes(q) ||
+      e.location?.toLowerCase().includes(q) ||
+      e.tags?.some(t => t.toLowerCase().includes(q))
+    );
+  }
+
+  isMyEvent(event: TechEvent): boolean {
+    const user = this.currentUser();
+    if (!user) return false;
+    return user.id === event.organizerId || user.email === event.organizerId;
+  }
+
+  onVote(event: TechEvent, voteType: VoteType, e: MouseEvent): void {
+    e.stopPropagation();
+    if (!this.authService.isLoggedIn()) {
+      this.showToast('Veuillez vous connecter pour soutenir ou réagir à cet événement.');
+      return;
+    }
+
+    this.eventService.voteEvent(event.id, voteType).subscribe({
+      next: (res) => {
+        if (res.success && res.data) {
+          // Mettre à jour l'événement localement
+          this.events.update(list => list.map(item => item.id === event.id ? res.data : item));
+        }
+      },
+      error: (err) => {
+        this.showToast(err.error?.error?.message || 'Erreur lors du vote.');
+      }
+    });
+  }
+
+  openCreateModal(): void {
+    if (!this.authService.isLoggedIn()) {
+      this.showToast('Connectez-vous pour proposer un événement ou un meetup.');
+      return;
+    }
+    this.errorMessage = '';
+    this.newEvent = {
+      title: '',
+      description: '',
+      type: 'MEETUP',
+      startDate: '',
+      endDate: '',
+      location: '',
+      isOnline: false,
+      eventUrl: '',
+      bannerUrl: '',
+      tagsString: ''
+    };
+    this.showCreateModal = true;
+  }
+
+  closeCreateModal(): void {
+    this.showCreateModal = false;
+    this.bannerUploadError = '';
+    this.isUploadingBanner = false;
+  }
+
+  onBannerFileSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (!input.files || input.files.length === 0) return;
+
+    const file = input.files[0];
+    if (!file.type.startsWith('image/')) {
+      this.bannerUploadError = 'Veuillez sélectionner un fichier image valide (JPG, PNG, WebP).';
+      return;
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      this.bannerUploadError = 'L\'image dépasse la taille maximale autorisée (5 Mo).';
+      return;
+    }
+
+    this.isUploadingBanner = true;
+    this.bannerUploadError = '';
+
+    this.projectService.uploadImage(file).subscribe({
+      next: (res) => {
+        this.isUploadingBanner = false;
+        if (res.success && res.data?.url) {
+          const url = res.data.url;
+          this.newEvent.bannerUrl = url.startsWith('http') ? url : 'http://localhost:8081/api/v1' + url;
+          this.showToast('Image d\'affiche téléversée avec succès !');
+        }
+      },
+      error: (err) => {
+        this.isUploadingBanner = false;
+        this.bannerUploadError = err.error?.error?.message || 'Erreur lors du téléversement de l\'image.';
+      }
+    });
+  }
+
+  removeBanner(): void {
+    this.newEvent.bannerUrl = '';
+    this.bannerUploadError = '';
+  }
+
+  addTag(tag: string): void {
+    const currentTags = this.newEvent.tagsString
+      ? this.newEvent.tagsString.split(',').map(t => t.trim()).filter(Boolean)
+      : [];
+    if (!currentTags.includes(tag)) {
+      currentTags.push(tag);
+      this.newEvent.tagsString = currentTags.join(', ');
+    }
+  }
+
+  submitEvent(): void {
+    if (!this.newEvent.title || !this.newEvent.description || !this.newEvent.startDate) {
+      this.errorMessage = 'Le titre, la description et la date de début sont obligatoires.';
+      return;
+    }
+
+    this.isSubmitting = true;
+    this.errorMessage = '';
+
+    const tags = this.newEvent.tagsString
+      ? this.newEvent.tagsString.split(',').map(t => t.trim()).filter(Boolean)
+      : [];
+
+    this.eventService.createEvent({
+      title: this.newEvent.title,
+      description: this.newEvent.description,
+      type: this.newEvent.type,
+      startDate: this.newEvent.startDate,
+      endDate: this.newEvent.endDate || undefined,
+      location: this.newEvent.location || (this.newEvent.isOnline ? 'En ligne' : 'Afrique'),
+      isOnline: this.newEvent.isOnline,
+      eventUrl: this.newEvent.eventUrl || undefined,
+      bannerUrl: this.newEvent.bannerUrl || undefined,
+      tags: tags
+    }).subscribe({
+      next: (res) => {
+        this.isSubmitting = false;
+        if (res.success && res.data) {
+          this.events.update(list => [res.data, ...list]);
+          this.closeCreateModal();
+          this.showToast('Événement publié avec succès sur la communauté !');
+        }
+      },
+      error: (err) => {
+        this.isSubmitting = false;
+        this.errorMessage = err.error?.error?.message || 'Erreur lors de la publication de l\'événement.';
+      }
+    });
+  }
+
+  showToast(msg: string): void {
+    this.successToast = msg;
+    setTimeout(() => this.successToast = '', 4000);
+  }
+
+  formatDate(dateStr: string): string {
+    if (!dateStr) return '';
+    try {
+      const d = new Date(dateStr);
+      return d.toLocaleDateString('fr-FR', {
+        day: 'numeric',
+        month: 'short',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+    } catch {
+      return dateStr;
+    }
+  }
+
+  getTypeBadgeClass(type: TechEventType): string {
+    switch (type) {
+      case 'CONFERENCE': return 'badge-conference';
+      case 'HACKATHON': return 'badge-hackathon';
+      case 'MEETUP': return 'badge-meetup';
+      case 'WORKSHOP': return 'badge-workshop';
+      default: return 'badge-default';
+    }
+  }
+
+  getTypeLabel(type: TechEventType): string {
+    switch (type) {
+      case 'CONFERENCE': return 'Conférence';
+      case 'HACKATHON': return 'Hackathon';
+      case 'MEETUP': return 'Meetup';
+      case 'WORKSHOP': return 'Atelier Masterclass';
+      case 'WEBINAR': return 'Webinaire';
+      default: return type;
+    }
+  }
+}

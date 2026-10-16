@@ -14,6 +14,7 @@ import africa.afridev.repository.ApplicationRepository;
 import africa.afridev.repository.OpportunityRepository;
 import africa.afridev.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -24,12 +25,14 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class OpportunityService {
 
     private final OpportunityRepository opportunityRepository;
     private final ApplicationRepository applicationRepository;
     private final UserRepository userRepository;
     private final AuthService authService;
+    private final EmailService emailService;
 
     @Transactional
     public OpportunityDto createOpportunity(String userEmail, OpportunityCreateRequest request) {
@@ -97,11 +100,18 @@ public class OpportunityService {
             throw new IllegalStateException("Vous avez déjà candidaté à cette opportunité.");
         }
 
+        boolean hasText = request.getMessage() != null && !request.getMessage().isBlank();
+        boolean hasPdf = request.getCoverLetterUrl() != null && !request.getCoverLetterUrl().isBlank();
+        if (!hasText && !hasPdf) {
+            throw new IllegalArgumentException("Veuillez écrire ou téléverser (PDF) une lettre de motivation.");
+        }
+
         ApplicationEntity application = ApplicationEntity.builder()
                 .opportunity(opportunity)
                 .applicant(applicant)
-                .message(request.getMessage())
+                .message(hasText ? request.getMessage() : "Lettre de motivation jointe en PDF.")
                 .cvUrl(request.getCvUrl())
+                .coverLetterUrl(hasPdf ? request.getCoverLetterUrl() : null)
                 .status(ApplicationStatus.PENDING)
                 .build();
 
@@ -161,7 +171,8 @@ public class OpportunityService {
     }
 
     @Transactional
-    public ApplicationDto updateApplicationStatus(String userEmail, String applicationId, ApplicationStatus newStatus) {
+    public ApplicationDto updateApplicationStatus(String userEmail, String applicationId,
+                                                   ApplicationStatus newStatus, String reason) {
         UserEntity user = userRepository.findByEmail(userEmail)
                 .orElseThrow(() -> new IllegalArgumentException("Utilisateur non trouvé."));
 
@@ -173,18 +184,40 @@ public class OpportunityService {
             throw new IllegalStateException("Seul l'émetteur de cette opportunité peut changer le statut des candidatures.");
         }
 
-        ApplicationStatus oldStatus = application.getStatus();
         application.setStatus(newStatus);
+
+        // Save rejection reason if provided
+        if (newStatus == ApplicationStatus.REJECTED && reason != null && !reason.isBlank()) {
+            application.setRejectionReason(reason);
+        } else if (newStatus != ApplicationStatus.REJECTED) {
+            application.setRejectionReason(null);
+        }
+
         ApplicationEntity saved = applicationRepository.save(application);
 
-        // Recalculer le nombre de candidats acceptés pour cette opportunité
+        // Recalculate accepted count
         long countAccepted = applicationRepository.findByOpportunityId(opportunity.getId())
                 .stream()
                 .filter(a -> a.getStatus() == ApplicationStatus.ACCEPTED)
                 .count();
-
         opportunity.setAcceptedCount((int) countAccepted);
         opportunityRepository.save(opportunity);
+
+        // Send email notification to applicant
+        UserEntity applicant = application.getApplicant();
+        String applicantEmail = applicant.getEmail();
+        String applicantName = applicant.getProfile() != null && applicant.getProfile().getFullName() != null
+                ? applicant.getProfile().getFullName() : applicant.getEmail();
+        String oppTitle = opportunity.getTitle();
+        String pubName = opportunity.getPublisher().getProfile() != null
+                ? opportunity.getPublisher().getProfile().getFullName() : opportunity.getPublisher().getEmail();
+
+        if (newStatus == ApplicationStatus.REJECTED) {
+            String motif = (reason != null && !reason.isBlank()) ? reason : "Critères de sélection non satisfaits.";
+            emailService.sendApplicationRejectionEmail(applicantEmail, applicantName, oppTitle, motif);
+        } else if (newStatus == ApplicationStatus.ACCEPTED) {
+            emailService.sendApplicationAcceptanceEmail(applicantEmail, applicantName, oppTitle, pubName);
+        }
 
         return mapToApplicationDto(saved);
     }
@@ -296,7 +329,9 @@ public class OpportunityService {
                 .applicant(authService.mapToUserDto(application.getApplicant()))
                 .message(application.getMessage())
                 .cvUrl(application.getCvUrl())
+                .coverLetterUrl(application.getCoverLetterUrl())
                 .status(application.getStatus())
+                .rejectionReason(application.getRejectionReason())
                 .createdAt(application.getCreatedAt())
                 .build();
     }

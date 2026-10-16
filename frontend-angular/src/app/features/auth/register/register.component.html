@@ -58,15 +58,86 @@
       </div>
 
       <div class="form-group">
-        <label for="password">Mot de passe (Min 8 caractères)</label>
-        <input 
-          type="password" 
-          id="password" 
-          [(ngModel)]="password" 
-          name="password" 
-          placeholder="••••••••" 
-          required 
-          class="form-control">
+        <label for="password">Mot de passe</label>
+        <div class="password-input-wrapper">
+          <input
+            [type]="showPassword ? 'text' : 'password'"
+            id="password"
+            [(ngModel)]="password"
+            name="password"
+            placeholder="••••••••"
+            required
+            class="form-control"
+            (input)="onPasswordInput()">
+          <button type="button" class="pwd-eye-btn" (click)="showPassword = !showPassword" tabindex="-1">
+            <svg *ngIf="!showPassword" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.964-7.178z" />
+              <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+            </svg>
+            <svg *ngIf="showPassword" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.242 4.242L9.88 9.88" />
+            </svg>
+          </button>
+        </div>
+
+        <!-- Password strength indicators -->
+        <div class="pwd-rules" *ngIf="password.length > 0">
+          <div class="pwd-rule" [class.ok]="pwdHasMin">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" /></svg>
+            <span>8 caractères minimum</span>
+          </div>
+          <div class="pwd-rule" [class.ok]="pwdHasUpper">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" /></svg>
+            <span>Une lettre majuscule (A-Z)</span>
+          </div>
+          <div class="pwd-rule" [class.ok]="pwdHasLower">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" /></svg>
+            <span>Une lettre minuscule (a-z)</span>
+          </div>
+          <div class="pwd-rule" [class.ok]="pwdHasNumber">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" /></svg>
+            <span>Un chiffre (0-9)</span>
+          </div>
+          <div class="pwd-rule" [class.ok]="pwdHasSpecial">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" /></svg>
+            <span>Un caractère spécial (!&#64;#$%...)</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Confirm Password -->
+      <div class="form-group">
+        <label for="confirmPassword">Confirmer le mot de passe</label>
+        <div class="password-input-wrapper">
+          <input
+            [type]="showConfirmPassword ? 'text' : 'password'"
+            id="confirmPassword"
+            [(ngModel)]="confirmPassword"
+            name="confirmPassword"
+            placeholder="••••••••"
+            required
+            class="form-control"
+            [class.input-error]="confirmPassword.length > 0 && confirmPassword !== password"
+            [class.input-ok]="confirmPassword.length > 0 && confirmPassword === password">
+          <button type="button" class="pwd-eye-btn" (click)="showConfirmPassword = !showConfirmPassword" tabindex="-1">
+            <svg *ngIf="!showConfirmPassword" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.964-7.178z" />
+              <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+            </svg>
+            <svg *ngIf="showConfirmPassword" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.242 4.242L9.88 9.88" />
+            </svg>
+          </button>
+        </div>
+        <div class="pwd-match-hint" *ngIf="confirmPassword.length > 0">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path *ngIf="confirmPassword === password" stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+            <path *ngIf="confirmPassword !== password" stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+          <span [class.match-ok]="confirmPassword === password" [class.match-err]="confirmPassword !== password">
+            {{ confirmPassword === password ? 'Les mots de passe correspondent ✓' : 'Les mots de passe ne correspondent pas' }}
+          </span>
+        </div>
       </div>
 
       <button type="submit" class="btn btn-emerald btn-full">
@@ -75,29 +146,111 @@
           <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
         </svg>
       </button>
+
+      <!-- Google OAuth Divider & Button -->
+      <div class="auth-divider">
+        <span>ou s'inscrire avec</span>
+      </div>
+
+      <div class="google-btn-wrapper">
+        <div id="google-btn-register"></div>
+      </div>
     </form>
+
 
     <!-- STEP 2 FORM -->
     <form *ngIf="step === 2" (ngSubmit)="onSubmitRegister()" class="auth-form">
       <div class="form-row">
+
+        <!-- ── Country Searchable Dropdown ────────────────────── -->
         <div class="form-group flex-1">
-          <label for="country">Pays de résidence</label>
-          <select id="country" [(ngModel)]="country" name="country" class="form-control">
-            <option *ngFor="let c of africanCountries" [value]="c">{{ c }}</option>
-          </select>
+          <label>Pays de résidence</label>
+          <div class="custom-select-wrapper" [class.open]="countryDropdownOpen">
+            <button
+              type="button"
+              class="custom-select-trigger form-control"
+              (click)="$event.stopPropagation(); openCountryDropdown()">
+              <span [class.placeholder]="!country">{{ country || 'Sélectionner un pays' }}</span>
+              <svg class="select-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+              </svg>
+            </button>
+
+            <div class="custom-dropdown" *ngIf="countryDropdownOpen" (click)="$event.stopPropagation()">
+              <div class="dropdown-search-box">
+                <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
+                </svg>
+                <input
+                  id="country-search-input"
+                  type="text"
+                  [(ngModel)]="countrySearch"
+                  name="countrySearch"
+                  placeholder="Rechercher un pays..."
+                  class="dropdown-search-input">
+              </div>
+              <ul class="dropdown-list">
+                <li
+                  *ngFor="let c of filteredCountries"
+                  class="dropdown-item"
+                  [class.selected]="c === country"
+                  (click)="selectCountry(c)">
+                  <span>{{ c }}</span>
+                  <svg *ngIf="c === country" class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                  </svg>
+                </li>
+                <li *ngIf="filteredCountries.length === 0" class="dropdown-empty">Aucun résultat</li>
+              </ul>
+            </div>
+          </div>
         </div>
 
+        <!-- ── City Searchable Dropdown ───────────────────────── -->
         <div class="form-group flex-1">
-          <label for="city">Ville</label>
-          <input 
-            type="text" 
-            id="city" 
-            [(ngModel)]="city" 
-            name="city" 
-            placeholder="Ex: Dakar, Lagos, Nairobi..." 
-            required 
-            class="form-control">
+          <label>Ville</label>
+          <div class="custom-select-wrapper" [class.open]="cityDropdownOpen" [class.disabled]="!country">
+            <button
+              type="button"
+              class="custom-select-trigger form-control"
+              [disabled]="!country"
+              (click)="$event.stopPropagation(); openCityDropdown()">
+              <span [class.placeholder]="!city">{{ city || (country ? 'Sélectionner une ville' : 'Choisir un pays d\'abord') }}</span>
+              <svg class="select-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+              </svg>
+            </button>
+
+            <div class="custom-dropdown" *ngIf="cityDropdownOpen" (click)="$event.stopPropagation()">
+              <div class="dropdown-search-box">
+                <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
+                </svg>
+                <input
+                  id="city-search-input"
+                  type="text"
+                  [(ngModel)]="citySearch"
+                  name="citySearch"
+                  placeholder="Rechercher une ville..."
+                  class="dropdown-search-input">
+              </div>
+              <ul class="dropdown-list">
+                <li
+                  *ngFor="let c of filteredCities"
+                  class="dropdown-item"
+                  [class.selected]="c === city"
+                  (click)="selectCity(c)">
+                  <span>{{ c }}</span>
+                  <svg *ngIf="c === city" class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                  </svg>
+                </li>
+                <li *ngIf="filteredCities.length === 0" class="dropdown-empty">Aucune ville trouvée</li>
+              </ul>
+            </div>
+          </div>
         </div>
+
       </div>
 
       <div class="form-group">

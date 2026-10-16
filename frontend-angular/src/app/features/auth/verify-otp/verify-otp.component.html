@@ -1,0 +1,87 @@
+<div class="verify-page">
+  <div class="verify-card">
+    <!-- Logo -->
+    <div class="brand">
+      <div class="brand-icon">🌍</div>
+      <h1 class="brand-name">AfriDev Hub</h1>
+    </div>
+
+    <!-- Header -->
+    <div class="verify-header">
+      <div class="shield-icon">🔐</div>
+      <h2>Vérification Email</h2>
+      <p class="subtitle">
+        Nous avons envoyé un code à 6 chiffres à<br/>
+        <strong class="email-display">{{ email }}</strong>
+      </p>
+      <p class="subtitle-small" *ngIf="mode === 'register'">
+        Votre compte est créé – vérifiez votre email pour y accéder.
+      </p>
+    </div>
+
+    <!-- Success / Error messages -->
+    <div class="alert alert-success" *ngIf="successMessage">
+      ✅ {{ successMessage }}
+    </div>
+    <div class="alert alert-error" *ngIf="errorMessage">
+      ❌ {{ errorMessage }}
+    </div>
+
+    <!-- OTP Input Grid -->
+    <div class="otp-grid" (paste)="onPaste($event)">
+      <input
+        *ngFor="let d of digits; let i = index; trackBy: trackByIndex"
+        [id]="'otp-digit-' + i"
+        type="text"
+        inputmode="numeric"
+        pattern="[0-9]*"
+        maxlength="1"
+        class="otp-cell"
+        [class.filled]="digits[i] !== ''"
+        [class.error]="!!errorMessage"
+        [value]="digits[i]"
+        (focus)="onCellFocus(i)"
+        (input)="onDigitInput($event, i)"
+        (keydown)="onDigitKeydown($event, i)"
+        autocomplete="one-time-code"
+        [autofocus]="i === 0"
+      />
+    </div>
+
+    <!-- Quick action: clear -->
+    <div class="otp-actions" *ngIf="otpCode.length > 0">
+      <button type="button" class="btn-clear" (click)="clearAll()">✕ Effacer tout</button>
+    </div>
+
+    <!-- Verify Button -->
+    <button
+      class="btn-verify"
+      (click)="onVerify()"
+      [disabled]="isLoading || !isCodeComplete"
+    >
+      <span *ngIf="!isLoading">✅ Vérifier le code</span>
+      <span *ngIf="isLoading" class="spinner">⏳ Vérification…</span>
+    </button>
+
+    <!-- Resend -->
+    <div class="resend-section">
+      <p class="resend-label">Vous n'avez pas reçu le code ?</p>
+      <button
+        class="btn-resend"
+        (click)="onResend()"
+        [disabled]="resendCountdown > 0 || isResending"
+      >
+        <span *ngIf="!isResending && resendCountdown === 0"><i class="ri-refresh-line"></i> Renvoyer le code</span>
+        <span *ngIf="isResending"><i class="ri-send-plane-line"></i> Envoi en cours…</span>
+        <span *ngIf="!isResending && resendCountdown > 0">
+          <i class="ri-timer-line"></i> Réessayer dans {{ resendCountdown }}s
+        </span>
+      </button>
+    </div>
+
+    <!-- Back link -->
+    <div class="back-link">
+      <a routerLink="/login"><i class="ri-arrow-left-line"></i> Retour à la connexion</a>
+    </div>
+  </div>
+</div>

@@ -29,8 +29,37 @@ spring:
       host: ${REDIS_HOST:localhost}
       port: ${REDIS_PORT:6380}
       password: ${REDIS_PASSWORD:redis_secret}
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 12MB
+
+  mail:
+    host: ${SPRING_MAIL_HOST:${MAIL_HOST:smtp-relay.brevo.com}}
+    port: ${SPRING_MAIL_PORT:${MAIL_PORT:587}}
+    username: ${SPRING_MAIL_USERNAME:${MAIL_USERNAME:bbe5ae001@smtp-brevo.com}}
+    password: ${SPRING_MAIL_PASSWORD:${MAIL_PASSWORD:xsmtpsib-060a73d5e93e6b64a7161492f83c438c61d2db8040de3eeea3c66f2b9bea249b-8fQI1uT33evhV8Gk}}
+    default-encoding: UTF-8
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+            required: true
+          ssl:
+            trust: ${SPRING_MAIL_HOST:${MAIL_HOST:smtp-relay.brevo.com}}
+          connectiontimeout: 10000
+          timeout: 10000
+          writetimeout: 10000
+        debug: false
 
 app:
   jwt:
-    secret: 9a6e8b12f4c781d09e3a5b6c7d8e9f0a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e
-    expiration-ms: 604800000 # 7 days
+    secret: ${JWT_SECRET:9a6e8b12f4c781d09e3a5b6c7d8e9f0a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e}
+    expiration-ms: ${JWT_EXPIRATION_MS:604800000} # 7 days
+  mail:
+    from-address: ${MAIL_FROM_ADDRESS:abdou.soilihi65@gmail.com}
+    from-name: ${MAIL_FROM_NAME:AfriDev Hub}
+  google:
+    client-id: ${GOOGLE_CLIENT_ID:496829118154-ifg5amooc56vptf4oorlfs3u77t51rem.apps.googleusercontent.com}

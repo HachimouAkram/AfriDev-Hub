@@ -12,4 +12,10 @@ public interface ProjectRepository extends JpaRepository<ProjectEntity, String> 
     Page<ProjectEntity> findByStatusOrderByCreatedAtDesc(ContentStatus status, Pageable pageable);
     Page<ProjectEntity> findByAuthorIdAndStatus(String authorId, ContentStatus status, Pageable pageable);
     Page<ProjectEntity> findByAuthorIdOrderByCreatedAtDesc(String authorId, Pageable pageable);
+
+    @org.springframework.data.jpa.repository.Query("SELECT DISTINCT p FROM ProjectEntity p " +
+           "LEFT JOIN ProjectMemberEntity m ON m.project = p AND m.status = africa.afridev.model.enums.MemberStatus.ACCEPTED AND m.user.id = :userId " +
+           "WHERE p.author.id = :userId OR m.user.id = :userId " +
+           "ORDER BY p.createdAt DESC")
+    Page<ProjectEntity> findMyProjects(@org.springframework.data.repository.query.Param("userId") String userId, Pageable pageable);
 }

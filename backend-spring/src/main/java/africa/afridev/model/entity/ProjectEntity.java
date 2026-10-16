@@ -85,6 +85,9 @@ public class ProjectEntity {
     private String youtubeUrl;
     private String documentationPdfUrl;
 
+    @Column(name = "max_members")
+    private Integer maxMembers;
+
     @Builder.Default
     private Integer recognitionsCount = 0;
 

@@ -59,9 +59,11 @@ public class OpportunityController {
     public ResponseEntity<ApiResponse<ApplicationDto>> updateApplicationStatus(
             @PathVariable String applicationId,
             @RequestParam ApplicationStatus status,
+            @RequestParam(required = false) String reason,
             Authentication authentication
     ) {
-        ApplicationDto updated = opportunityService.updateApplicationStatus(authentication.getName(), applicationId, status);
+        ApplicationDto updated = opportunityService.updateApplicationStatus(
+                authentication.getName(), applicationId, status, reason);
         return ResponseEntity.ok(ApiResponse.ok(updated));
     }
 
