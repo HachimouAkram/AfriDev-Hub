@@ -31,4 +31,11 @@ public class OpportunityDto {
     private Boolean isPaid;
     private ContentStatus status;
     private LocalDateTime createdAt;
+
+    // Champs de recommandation et affinité intelligente
+    private Double matchPercentage;
+    private String suggestionReason;
+    private List<String> matchedStack;
+    private Boolean isPublisherFollowed;
+    private Boolean hasApplied;
 }

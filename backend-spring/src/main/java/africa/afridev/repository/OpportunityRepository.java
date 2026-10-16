@@ -12,5 +12,7 @@ import org.springframework.stereotype.Repository;
 public interface OpportunityRepository extends JpaRepository<OpportunityEntity, String> {
     Page<OpportunityEntity> findByStatusOrderByCreatedAtDesc(ContentStatus status, Pageable pageable);
     Page<OpportunityEntity> findByTypeAndStatusOrderByCreatedAtDesc(OpportunityType type, ContentStatus status, Pageable pageable);
+    java.util.List<OpportunityEntity> findByStatus(ContentStatus status);
+    java.util.List<OpportunityEntity> findByTypeAndStatus(OpportunityType type, ContentStatus status);
     java.util.List<OpportunityEntity> findByPublisherIdOrderByCreatedAtDesc(String publisherId);
 }

@@ -12,4 +12,7 @@ public interface ApplicationRepository extends JpaRepository<ApplicationEntity, 
     List<ApplicationEntity> findByOpportunityId(String opportunityId);
     List<ApplicationEntity> findByApplicantIdOrderByCreatedAtDesc(String applicantId);
     List<ApplicationEntity> findByOpportunityPublisherIdOrderByCreatedAtDesc(String publisherId);
+
+    @org.springframework.data.jpa.repository.Query("SELECT a.opportunity.id FROM ApplicationEntity a WHERE a.applicant.id = :applicantId")
+    java.util.Set<String> findAppliedOpportunityIdsByApplicantId(@org.springframework.data.repository.query.Param("applicantId") String applicantId);
 }

@@ -50,6 +50,7 @@ public class FollowService {
             redisCacheService.addFollow(follower.getId(), target.getId());
             redisCacheService.evictNetworkCache();
             redisCacheService.evictProjectsCache();
+            redisCacheService.evictOpportunitiesCache();
         }
 
         return getFollowStats(currentUserEmail, target.getId());
@@ -68,6 +69,7 @@ public class FollowService {
                     redisCacheService.removeFollow(follower.getId(), target.getId());
                     redisCacheService.evictNetworkCache();
                     redisCacheService.evictProjectsCache();
+                    redisCacheService.evictOpportunitiesCache();
                 });
 
         return getFollowStats(currentUserEmail, target.getId());

@@ -19,6 +19,7 @@ export class OpportunityListComponent implements OnInit {
 
   opportunities: Opportunity[] = [];
   selectedType: string = 'ALL';
+  currentSort: string = 'SUGGESTED';
   isLoading = true;
   isLoadingMore = false;
   hasMoreOpportunities = true;
@@ -75,7 +76,7 @@ export class OpportunityListComponent implements OnInit {
     this.hasMoreOpportunities = true;
     const typeParam = this.selectedType === 'ALL' ? undefined : this.selectedType;
 
-    this.opportunityService.getOpportunities(typeParam, 0, this.pageSize).subscribe({
+    this.opportunityService.getOpportunities(typeParam, 0, this.pageSize, this.currentSort).subscribe({
       next: (res: any) => {
         this.isLoading = false;
         let fetched: Opportunity[] = [];
@@ -112,7 +113,7 @@ export class OpportunityListComponent implements OnInit {
     const nextPage = this.page + 1;
     const typeParam = this.selectedType === 'ALL' ? undefined : this.selectedType;
 
-    this.opportunityService.getOpportunities(typeParam, nextPage, this.pageSize).subscribe({
+    this.opportunityService.getOpportunities(typeParam, nextPage, this.pageSize, this.currentSort).subscribe({
       next: (res: any) => {
         this.isLoadingMore = false;
         let newItems: Opportunity[] = [];
@@ -161,6 +162,18 @@ export class OpportunityListComponent implements OnInit {
   filterByType(type: string): void {
     this.selectedType = type;
     this.loadOpportunities();
+  }
+
+  setSort(sort: string): void {
+    if (this.currentSort === sort) return;
+    this.currentSort = sort;
+    this.loadOpportunities();
+  }
+
+  isMatchedTech(tech: string, opt: Opportunity): boolean {
+    if (!tech || !opt?.matchedStack || !Array.isArray(opt.matchedStack)) return false;
+    const cleanTech = tech.trim().toLowerCase();
+    return opt.matchedStack.some(t => t?.trim().toLowerCase() === cleanTech);
   }
 
   openApplyModal(opt: Opportunity): void {

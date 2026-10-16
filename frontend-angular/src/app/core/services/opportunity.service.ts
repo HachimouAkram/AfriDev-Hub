@@ -19,6 +19,11 @@ export interface Opportunity {
   isPaid?: boolean;
   status: string;
   createdAt: string;
+  matchPercentage?: number;
+  suggestionReason?: string;
+  matchedStack?: string[];
+  isPublisherFollowed?: boolean;
+  hasApplied?: boolean;
 }
 
 export interface Application {
@@ -46,8 +51,9 @@ export class OpportunityService {
   private http = inject(HttpClient);
   private apiUrl = 'http://localhost:8081/api/v1/opportunities';
 
-  getOpportunities(type?: string, page = 0, size = 20): Observable<ApiResponse<any>> {
+  getOpportunities(type?: string, page = 0, size = 20, sort = 'SUGGESTED'): Observable<ApiResponse<any>> {
     let params = new HttpParams()
+      .set('sort', sort)
       .set('page', page.toString())
       .set('size', size.toString());
 

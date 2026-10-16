@@ -30,10 +30,13 @@ public class OpportunityController {
     @GetMapping
     public ResponseEntity<ApiResponse<Page<OpportunityDto>>> getAllOpportunities(
             @RequestParam(required = false) OpportunityType type,
+            @RequestParam(defaultValue = "SUGGESTED") String sort,
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "20") int size
+            @RequestParam(defaultValue = "20") int size,
+            Authentication authentication
     ) {
-        Page<OpportunityDto> opportunities = opportunityService.getAllOpportunities(type, PageRequest.of(page, size));
+        String currentUserEmail = authentication != null ? authentication.getName() : null;
+        Page<OpportunityDto> opportunities = opportunityService.getAllOpportunities(currentUserEmail, type, sort, PageRequest.of(page, size));
         return ResponseEntity.ok(ApiResponse.ok(opportunities, Map.of("page", page, "perPage", size, "total", opportunities.getTotalElements())));
     }
 
