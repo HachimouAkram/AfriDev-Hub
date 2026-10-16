@@ -14,6 +14,7 @@ import java.util.List;
 public interface TechEventRepository extends JpaRepository<TechEventEntity, String> {
     Page<TechEventEntity> findAllByOrderByStartDateAsc(Pageable pageable);
     Page<TechEventEntity> findByTypeOrderByStartDateAsc(TechEventType type, Pageable pageable);
+    List<TechEventEntity> findByType(TechEventType type);
     List<TechEventEntity> findByOrganizerId(String organizerId);
     List<TechEventEntity> findByOrganizerIdOrderByStartDateDesc(String organizerId);
 }

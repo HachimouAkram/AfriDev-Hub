@@ -25,6 +25,10 @@ export interface TechEvent {
   disagreeCount: number;
   userVote?: VoteType | null;
   createdAt: string;
+  matchPercentage?: number;
+  suggestionReason?: string;
+  matchedTags?: string[];
+  isOrganizerFollowed?: boolean;
 }
 
 export interface PageResponse<T> {
@@ -44,8 +48,9 @@ export class TechEventService {
   private http = inject(HttpClient);
   private apiUrl = 'http://localhost:8081/api/v1/events';
 
-  getEvents(type?: TechEventType, page: number = 0, size: number = 20): Observable<ApiResponse<PageResponse<TechEvent>>> {
+  getEvents(type?: TechEventType, page: number = 0, size: number = 20, sort: string = 'SUGGESTED'): Observable<ApiResponse<PageResponse<TechEvent>>> {
     let params = new HttpParams()
+      .set('sort', sort)
       .set('page', page.toString())
       .set('size', size.toString());
 

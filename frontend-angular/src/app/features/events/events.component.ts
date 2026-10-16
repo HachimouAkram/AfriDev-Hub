@@ -28,7 +28,18 @@ export class EventsComponent implements OnInit {
   page = 0;
   readonly pageSize = 20;
   activeFilter: string = 'ALL';
+  currentSort: string = 'SUGGESTED';
   searchQuery: string = '';
+
+  sortOptions: { key: string; label: string; icon: string }[] = [
+    { key: 'SUGGESTED', label: 'Pour vous (IA)', icon: 'ri-magic-line' },
+    { key: 'FOLLOWING', label: 'Organisateurs suivis', icon: 'ri-user-follow-line' },
+    { key: 'MATCHING_TAGS', label: 'Mes compétences', icon: 'ri-code-box-line' },
+    { key: 'SAME_COUNTRY', label: 'Mon pays / Ville', icon: 'ri-map-pin-user-line' },
+    { key: 'ONLINE', label: '100% En ligne', icon: 'ri-global-line' },
+    { key: 'POPULAR', label: 'Les plus attendus', icon: 'ri-fire-line' },
+    { key: 'UPCOMING', label: 'Prochainement', icon: 'ri-time-line' }
+  ];
 
   // Create Modal State
   showCreateModal = false;
@@ -70,7 +81,7 @@ export class EventsComponent implements OnInit {
     this.page = 0;
     this.hasMoreEvents.set(true);
     const filterType = this.activeFilter === 'ALL' ? undefined : (this.activeFilter as TechEventType);
-    this.eventService.getEvents(filterType, 0, this.pageSize).subscribe({
+    this.eventService.getEvents(filterType, 0, this.pageSize, this.currentSort).subscribe({
       next: (res) => {
         this.isLoading.set(false);
         if (res.success && res.data) {
@@ -93,7 +104,7 @@ export class EventsComponent implements OnInit {
     const nextPage = this.page + 1;
     const filterType = this.activeFilter === 'ALL' ? undefined : (this.activeFilter as TechEventType);
 
-    this.eventService.getEvents(filterType, nextPage, this.pageSize).subscribe({
+    this.eventService.getEvents(filterType, nextPage, this.pageSize, this.currentSort).subscribe({
       next: (res) => {
         this.isLoadingMore.set(false);
         if (res.success && res.data) {
@@ -130,6 +141,16 @@ export class EventsComponent implements OnInit {
   setFilter(filter: string): void {
     this.activeFilter = filter;
     this.loadEvents();
+  }
+
+  setSort(sort: string): void {
+    this.currentSort = sort;
+    this.loadEvents();
+  }
+
+  isMatchedTag(tag: string, event: TechEvent): boolean {
+    if (!event.matchedTags || event.matchedTags.length === 0) return false;
+    return event.matchedTags.some(t => t.toLowerCase() === tag.toLowerCase());
   }
 
   get filteredEvents(): TechEvent[] {

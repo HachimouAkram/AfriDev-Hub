@@ -51,6 +51,7 @@ public class FollowService {
             redisCacheService.evictNetworkCache();
             redisCacheService.evictProjectsCache();
             redisCacheService.evictOpportunitiesCache();
+            redisCacheService.evictEventsCache();
         }
 
         return getFollowStats(currentUserEmail, target.getId());
@@ -70,6 +71,7 @@ public class FollowService {
                     redisCacheService.evictNetworkCache();
                     redisCacheService.evictProjectsCache();
                     redisCacheService.evictOpportunitiesCache();
+                    redisCacheService.evictEventsCache();
                 });
 
         return getFollowStats(currentUserEmail, target.getId());

@@ -27,11 +27,12 @@ public class TechEventController {
     @GetMapping
     public ResponseEntity<ApiResponse<Page<TechEventDto>>> getEvents(
             @RequestParam(required = false) TechEventType type,
+            @RequestParam(defaultValue = "SUGGESTED") String sort,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size,
             Authentication authentication) {
         String email = authentication != null ? authentication.getName() : null;
-        Page<TechEventDto> events = eventService.getEvents(type, PageRequest.of(page, size), email);
+        Page<TechEventDto> events = eventService.getEvents(type, sort, PageRequest.of(page, size), email);
         return ResponseEntity.ok(ApiResponse.ok(events));
     }
 

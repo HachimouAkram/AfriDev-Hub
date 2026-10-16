@@ -31,4 +31,10 @@ public class TechEventDto {
     private Integer disagreeCount;
     private VoteType userVote; // AGREE, DISAGREE, or null
     private LocalDateTime createdAt;
+
+    // Champs de recommandation intelligente
+    private Double matchPercentage;
+    private String suggestionReason;
+    private List<String> matchedTags;
+    private Boolean isOrganizerFollowed;
 }

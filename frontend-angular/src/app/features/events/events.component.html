@@ -50,6 +50,23 @@
     </button>
   </div>
 
+  <!-- Sort / Recommendation Pills -->
+  <div class="sort-pills-bar">
+    <span class="sort-pills-label">
+      <i class="ri-sparkling-fill"></i> Trier & Recommander :
+    </span>
+    <div class="sort-pills">
+      <button 
+        *ngFor="let opt of sortOptions" 
+        class="sort-pill" 
+        [class.active]="currentSort === opt.key"
+        (click)="setSort(opt.key)">
+        <i [class]="opt.icon"></i>
+        <span>{{ opt.label }}</span>
+      </button>
+    </div>
+  </div>
+
   <!-- Events Grid -->
   <div class="events-content">
     <div *ngIf="isLoading()" class="loading-state">
@@ -77,6 +94,12 @@
           <span *ngIf="event.isOnline" class="online-badge">
             <i class="ri-broadcast-line"></i> En ligne
           </span>
+          <span *ngIf="event.matchPercentage && event.matchPercentage > 0" class="badge-match" [class.badge-match-high]="event.matchPercentage >= 70">
+            <i class="ri-magic-line"></i> {{ event.matchPercentage }}% Match
+          </span>
+          <span *ngIf="event.isOrganizerFollowed" class="badge-organizer-followed">
+            <i class="ri-user-follow-line"></i> Suivi
+          </span>
           <a *ngIf="isMyEvent(event)" routerLink="/dashboard/events" class="my-event-badge" title="Gérer ou modifier dans mon tableau de bord">
             <i class="ri-user-settings-line"></i> Mon événement
           </a>
@@ -95,12 +118,20 @@
             </div>
           </div>
 
+          <!-- Suggestion Reason -->
+          <div *ngIf="event.suggestionReason" class="event-reason-row">
+            <i class="ri-sparkling-fill sparkle-icon"></i>
+            <span>{{ event.suggestionReason }}</span>
+          </div>
+
           <h3 class="event-title">{{ event.title }}</h3>
           <p class="event-description">{{ event.description }}</p>
 
           <!-- Tags -->
           <div *ngIf="event.tags && event.tags.length > 0" class="event-tags">
-            <span *ngFor="let tag of event.tags" class="tag">#{{ tag }}</span>
+            <span *ngFor="let tag of event.tags" class="tag" [class.badge-tag-matched]="isMatchedTag(tag, event)">
+              <i *ngIf="isMatchedTag(tag, event)" class="ri-check-line tag-icon-match"></i>#{{ tag }}
+            </span>
           </div>
 
           <!-- Organizer -->
