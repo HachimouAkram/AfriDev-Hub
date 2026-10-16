@@ -8,6 +8,7 @@ import { AdminService, AdminStats } from '../../../../core/services/admin.servic
 import { ProjectService, Project } from '../../../../core/services/project.service';
 import { OpportunityService } from '../../../../core/services/opportunity.service';
 import { NetworkService } from '../../../../core/services/network.service';
+import { FollowService } from '../../../../core/services/follow.service';
 import { ProjectCollaborationService, ProjectProgress } from '../../../../core/services/project-collaboration.service';
 
 export interface TopViewedProject {
@@ -44,6 +45,7 @@ export class DashboardOverviewComponent implements OnInit {
   private projectService = inject(ProjectService);
   private opportunityService = inject(OpportunityService);
   private networkService = inject(NetworkService);
+  private followService = inject(FollowService);
   private collaborationService = inject(ProjectCollaborationService);
 
   user = this.authService.currentUser;
@@ -159,14 +161,23 @@ export class DashboardOverviewComponent implements OnInit {
       }
     });
 
-    // 4. Relations: users who follow me or I follow (network)
-    this.networkService.getNetworkUsers().subscribe({
-      next: (res) => {
-        if (res.success && res.data) {
-          this.totalRelationsCount.set(res.data.length);
+    // 4. Relations: utilisateurs suivis par l'utilisateur connecté
+    if (u?.id) {
+      this.followService.getStats(u.id).subscribe({
+        next: (res) => {
+          if (res?.success && res.data) {
+            this.totalRelationsCount.set(res.data.followingCount ?? 0);
+          } else {
+            this.totalRelationsCount.set(0);
+          }
+        },
+        error: () => {
+          this.totalRelationsCount.set(0);
         }
-      }
-    });
+      });
+    } else {
+      this.totalRelationsCount.set(0);
+    }
   }
 
   private buildPersonalActivityTimeline(applications: any[]): void {

@@ -34,7 +34,7 @@
         </div>
       </div>
       <div class="kpi-value-row">
-        <span class="kpi-number">{{ totalProjectsCount() }}</span>
+        <span class="kpi-number">{{ totalProjectsCount() ?? 0 }}</span>
         <span class="kpi-trend positive">+14% ce mois</span>
       </div>
       <div class="kpi-footer">
@@ -53,7 +53,7 @@
         </div>
       </div>
       <div class="kpi-value-row">
-        <span class="kpi-number">{{ totalOpportunitiesCount() }}</span>
+        <span class="kpi-number">{{ totalOpportunitiesCount() ?? 0 }}</span>
         <span class="kpi-trend positive">Recrutements en cours</span>
       </div>
       <div class="kpi-footer">
@@ -72,7 +72,7 @@
         </div>
       </div>
       <div class="kpi-value-row">
-        <span class="kpi-number">{{ totalRelationsCount() }}</span>
+        <span class="kpi-number">{{ totalRelationsCount() ?? 0 }}</span>
         <span class="kpi-trend highlight">54 pays couverts</span>
       </div>
       <div class="kpi-footer">
@@ -91,7 +91,7 @@
         </div>
       </div>
       <div class="kpi-value-row">
-        <span class="kpi-number">{{ totalApplicationsCount() }}</span>
+        <span class="kpi-number">{{ totalApplicationsCount() ?? 0 }}</span>
         <span class="kpi-trend positive">Activité suivie</span>
       </div>
       <div class="kpi-footer">
