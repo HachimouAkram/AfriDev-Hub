@@ -2209,5 +2209,68 @@ body.light-theme .cv-dropzone {
   box-shadow: 0 1px 4px rgba(16, 185, 129, 0.15) !important;
 }
 
+/* ==========================================================================
+   LIGHT THEME OVERRIDES FOR PROJECTS (CRISP & CONTRASTED)
+   ========================================================================== */
+:host-context(body.light-theme) .p-sort-pill-btn,
+body.light-theme .p-sort-pill-btn {
+  background: #FFFFFF;
+  border: 1px solid #CBD5E1;
+  color: #334155;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+:host-context(body.light-theme) .p-sort-pill-btn:hover,
+body.light-theme .p-sort-pill-btn:hover {
+  background: #F1F5F9;
+  color: #0F172A;
+  border-color: #94A3B8;
+}
+
+:host-context(body.light-theme) .p-sort-pill-btn.active,
+body.light-theme .p-sort-pill-btn.active {
+  background: #ECFDF5;
+  color: #047857;
+  border-color: #10B981;
+  box-shadow: 0 2px 6px rgba(16, 185, 129, 0.18);
+}
+
+:host-context(body.light-theme) .p-sort-pill-btn.highlight-following.active,
+body.light-theme .p-sort-pill-btn.highlight-following.active {
+  background: #EFF6FF;
+  color: #1D4ED8;
+  border-color: #3B82F6;
+  box-shadow: 0 2px 6px rgba(59, 130, 246, 0.18);
+}
+
+:host-context(body.light-theme) .project-affinity-pill,
+body.light-theme .project-affinity-pill {
+  background: #ECFDF5;
+  color: #047857;
+  border-color: #6EE7B7;
+}
+
+:host-context(body.light-theme) .author-followed-badge,
+body.light-theme .author-followed-badge {
+  background: #EFF6FF;
+  color: #1D4ED8;
+  border-color: #93C5FD;
+}
+
+:host-context(body.light-theme) .project-reason-row,
+body.light-theme .project-reason-row {
+  background: #FFFBEB;
+  border: 1px solid #FDE68A;
+  color: #92400E; /* Deep amber-brown, perfectly legible on light background */
+}
+
+:host-context(body.light-theme) .badge-tech-matched,
+body.light-theme .badge-tech-matched {
+  background: #ECFDF5 !important;
+  color: #047857 !important;
+  border-color: #10B981 !important;
+}
+
+
 
 
