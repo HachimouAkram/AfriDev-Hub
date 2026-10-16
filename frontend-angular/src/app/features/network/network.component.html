@@ -237,6 +237,19 @@
       </div>
     </div>
 
+    <!-- Infinite Scroll & Load More Loader (20 par 20) -->
+    <div *ngIf="isLoadingMore" class="scroll-loader-container">
+      <div class="spinner-sm"></div>
+      <span>Chargement des profils suivants (20 par 20)...</span>
+    </div>
+
+    <div *ngIf="!hasMoreUsers && users.length > 0 && !isLoading" class="end-of-list-notice">
+      <svg class="icon-svg icon-svg-xs text-muted" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+      </svg>
+      <span>Tous les profils du réseau ont été chargés ({{ users.length }})</span>
+    </div>
+
     <ng-template #emptyOrLoading>
       <div class="empty-box app-card" *ngIf="!isLoading && users.length === 0">
         Aucun membre correspondant aux critères de recherche actuels.

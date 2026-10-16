@@ -38,14 +38,18 @@ export class NetworkService {
     query?: string;
     skill?: string;
     country?: string;
-  }): Observable<ApiResponse<UserNetwork[]>> {
+    page?: number;
+    size?: number;
+  }): Observable<ApiResponse<any>> {
     let httpParams = new HttpParams();
     if (params?.role && params.role !== 'ALL') httpParams = httpParams.set('role', params.role);
     if (params?.query) httpParams = httpParams.set('query', params.query);
     if (params?.skill) httpParams = httpParams.set('skill', params.skill);
     if (params?.country) httpParams = httpParams.set('country', params.country);
+    if (params?.page !== undefined) httpParams = httpParams.set('page', params.page.toString());
+    if (params?.size !== undefined) httpParams = httpParams.set('size', params.size.toString());
 
-    return this.http.get<ApiResponse<UserNetwork[]>>(`${this.apiUrl}/users`, { params: httpParams });
+    return this.http.get<ApiResponse<any>>(`${this.apiUrl}/users`, { params: httpParams });
   }
 
   getNetworkSuggestions(limit: number = 10): Observable<ApiResponse<NetworkSuggestion[]>> {

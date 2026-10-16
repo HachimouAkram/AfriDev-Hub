@@ -1,11 +1,14 @@
 package africa.afridev.service;
 
+import com.fasterxml.jackson.databind.JavaType;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
@@ -13,6 +16,7 @@ import java.time.Duration;
 public class RedisCacheService {
 
     private final StringRedisTemplate redisTemplate;
+    private final ObjectMapper objectMapper;
 
     private static final String FOLLOWING_KEY_PREFIX = "user:following:";
     private static final String FOLLOWERS_KEY_PREFIX = "user:followers:";
@@ -81,5 +85,74 @@ public class RedisCacheService {
         } catch (Exception e) {
             return null;
         }
+    }
+
+    // --- Méthodes génériques de mise en cache avec sérialisation JSON ---
+
+    public <T> void set(String key, T value, Duration ttl) {
+        if (key == null || value == null) return;
+        try {
+            String json = objectMapper.writeValueAsString(value);
+            redisTemplate.opsForValue().set(key, json, ttl);
+        } catch (Exception e) {
+            log.warn("Erreur d'enregistrement Redis [clé: {}]: {}", key, e.getMessage());
+        }
+    }
+
+    public <T> T get(String key, Class<T> clazz) {
+        if (key == null) return null;
+        try {
+            String json = redisTemplate.opsForValue().get(key);
+            if (json == null || json.isBlank()) return null;
+            return objectMapper.readValue(json, clazz);
+        } catch (Exception e) {
+            log.warn("Erreur de désérialisation Redis [clé: {}]: {}", key, e.getMessage());
+            return null;
+        }
+    }
+
+    public <T> T get(String key, JavaType javaType) {
+        if (key == null) return null;
+        try {
+            String json = redisTemplate.opsForValue().get(key);
+            if (json == null || json.isBlank()) return null;
+            return objectMapper.readValue(json, javaType);
+        } catch (Exception e) {
+            log.warn("Erreur de désérialisation complexe Redis [clé: {}]: {}", key, e.getMessage());
+            return null;
+        }
+    }
+
+    public ObjectMapper getObjectMapper() {
+        return this.objectMapper;
+    }
+
+    public void evictByPrefix(String prefix) {
+        if (prefix == null) return;
+        try {
+            Set<String> keys = redisTemplate.keys(prefix + "*");
+            if (keys != null && !keys.isEmpty()) {
+                redisTemplate.delete(keys);
+                log.info("Redis: {} clés purgées avec le préfixe '{}'", keys.size(), prefix);
+            }
+        } catch (Exception e) {
+            log.warn("Erreur de purge Redis pour le préfixe '{}': {}", prefix, e.getMessage());
+        }
+    }
+
+    public void evictProjectsCache() {
+        evictByPrefix("cache:projects:");
+    }
+
+    public void evictOpportunitiesCache() {
+        evictByPrefix("cache:opportunities:");
+    }
+
+    public void evictNetworkCache() {
+        evictByPrefix("cache:network:");
+    }
+
+    public void evictEventsCache() {
+        evictByPrefix("cache:events:");
     }
 }

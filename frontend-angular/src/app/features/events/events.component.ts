@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, inject, OnInit, signal, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
@@ -22,6 +22,11 @@ export class EventsComponent implements OnInit {
 
   events = signal<TechEvent[]>([]);
   isLoading = signal<boolean>(true);
+  isLoadingMore = signal<boolean>(false);
+  hasMoreEvents = signal<boolean>(true);
+  totalEvents = signal<number>(0);
+  page = 0;
+  readonly pageSize = 20;
   activeFilter: string = 'ALL';
   searchQuery: string = '';
 
@@ -62,12 +67,17 @@ export class EventsComponent implements OnInit {
 
   loadEvents(): void {
     this.isLoading.set(true);
+    this.page = 0;
+    this.hasMoreEvents.set(true);
     const filterType = this.activeFilter === 'ALL' ? undefined : (this.activeFilter as TechEventType);
-    this.eventService.getEvents(filterType, 0, 30).subscribe({
+    this.eventService.getEvents(filterType, 0, this.pageSize).subscribe({
       next: (res) => {
         this.isLoading.set(false);
         if (res.success && res.data) {
-          this.events.set(res.data.content || []);
+          const fetched = res.data.content || [];
+          this.totalEvents.set(res.data.totalElements || fetched.length);
+          this.hasMoreEvents.set(!res.data.last && fetched.length >= this.pageSize);
+          this.events.set(fetched);
         }
       },
       error: (err) => {
@@ -75,6 +85,46 @@ export class EventsComponent implements OnInit {
         console.error('Erreur chargement événements', err);
       }
     });
+  }
+
+  loadMoreEvents(): void {
+    if (this.isLoadingMore() || !this.hasMoreEvents() || this.isLoading()) return;
+    this.isLoadingMore.set(true);
+    const nextPage = this.page + 1;
+    const filterType = this.activeFilter === 'ALL' ? undefined : (this.activeFilter as TechEventType);
+
+    this.eventService.getEvents(filterType, nextPage, this.pageSize).subscribe({
+      next: (res) => {
+        this.isLoadingMore.set(false);
+        if (res.success && res.data) {
+          const newItems = res.data.content || [];
+          const isLast = res.data.last || newItems.length < this.pageSize;
+          if (newItems.length > 0) {
+            this.page = nextPage;
+            const existingIds = new Set(this.events().map(e => e.id));
+            const toAdd = newItems.filter(e => !existingIds.has(e.id));
+            this.events.update(list => [...list, ...toAdd]);
+          }
+          if (isLast || newItems.length < this.pageSize || (this.totalEvents() > 0 && this.events().length >= this.totalEvents())) {
+            this.hasMoreEvents.set(false);
+          }
+        }
+      },
+      error: () => {
+        this.isLoadingMore.set(false);
+      }
+    });
+  }
+
+  @HostListener('window:scroll', ['$event'])
+  onWindowScroll(): void {
+    if (this.isLoadingMore() || !this.hasMoreEvents() || this.isLoading()) return;
+    const threshold = 400;
+    const position = window.innerHeight + window.scrollY;
+    const height = document.documentElement.scrollHeight;
+    if (position >= height - threshold) {
+      this.loadMoreEvents();
+    }
   }
 
   setFilter(filter: string): void {

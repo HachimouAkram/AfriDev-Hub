@@ -52,10 +52,14 @@ export class ProjectService {
   private http = inject(HttpClient);
   private apiUrl = 'http://localhost:8081/api/v1/projects';
 
-  getProjects(page = 0, size = 10): Observable<ApiResponse<any>> {
-    const params = new HttpParams()
+  getProjects(page = 0, size = 20, projectType?: string): Observable<ApiResponse<any>> {
+    let params = new HttpParams()
       .set('page', page.toString())
       .set('size', size.toString());
+
+    if (projectType && projectType !== 'ALL') {
+      params = params.set('projectType', projectType);
+    }
 
     return this.http.get<ApiResponse<any>>(this.apiUrl, { params });
   }

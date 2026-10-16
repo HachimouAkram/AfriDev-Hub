@@ -24,6 +24,7 @@ public class ProfileService {
     private final ProfileRepository profileRepository;
     private final UserRepository userRepository;
     private final AuthService authService;
+    private final RedisCacheService redisCacheService;
 
     private final RestTemplate restTemplate = new RestTemplate();
     private static final String FASTAPI_GITHUB_URL = "http://localhost:8000/api/v1/github/stats/";
@@ -73,6 +74,7 @@ public class ProfileService {
         profile.setCompletionScore(calculateCompletionScore(profile));
 
         ProfileEntity savedProfile = profileRepository.save(profile);
+        redisCacheService.evictNetworkCache();
         return authService.mapToProfileDto(savedProfile);
     }
 
@@ -117,6 +119,7 @@ public class ProfileService {
         profile.setCompletionScore(calculateCompletionScore(profile));
 
         ProfileEntity saved = profileRepository.save(profile);
+        redisCacheService.evictNetworkCache();
         return authService.mapToProfileDto(saved);
     }
 

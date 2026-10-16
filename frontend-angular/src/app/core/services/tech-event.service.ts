@@ -33,6 +33,8 @@ export interface PageResponse<T> {
   totalPages: number;
   number: number;
   size: number;
+  last?: boolean;
+  first?: boolean;
 }
 
 @Injectable({
@@ -42,7 +44,7 @@ export class TechEventService {
   private http = inject(HttpClient);
   private apiUrl = 'http://localhost:8081/api/v1/events';
 
-  getEvents(type?: TechEventType, page: number = 0, size: number = 12): Observable<ApiResponse<PageResponse<TechEvent>>> {
+  getEvents(type?: TechEventType, page: number = 0, size: number = 20): Observable<ApiResponse<PageResponse<TechEvent>>> {
     let params = new HttpParams()
       .set('page', page.toString())
       .set('size', size.toString());

@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AuthService } from '../../../core/services/auth.service';
@@ -20,6 +20,11 @@ export class OpportunityListComponent implements OnInit {
   opportunities: Opportunity[] = [];
   selectedType: string = 'ALL';
   isLoading = true;
+  isLoadingMore = false;
+  hasMoreOpportunities = true;
+  totalOpportunities = 0;
+  page = 0;
+  readonly pageSize = 20;
 
   isLoggedIn(): boolean {
     return this.authService.isLoggedIn();
@@ -66,20 +71,30 @@ export class OpportunityListComponent implements OnInit {
 
   loadOpportunities(): void {
     this.isLoading = true;
+    this.page = 0;
+    this.hasMoreOpportunities = true;
     const typeParam = this.selectedType === 'ALL' ? undefined : this.selectedType;
 
-    this.opportunityService.getOpportunities(typeParam).subscribe({
+    this.opportunityService.getOpportunities(typeParam, 0, this.pageSize).subscribe({
       next: (res: any) => {
         this.isLoading = false;
         let fetched: Opportunity[] = [];
         if (res?.success && res?.data?.content && Array.isArray(res.data.content)) {
           fetched = res.data.content;
+          this.totalOpportunities = res.data.totalElements || fetched.length;
+          this.hasMoreOpportunities = !res.data.last && fetched.length >= this.pageSize;
         } else if (res?.data && Array.isArray(res.data)) {
           fetched = res.data;
+          this.totalOpportunities = fetched.length;
+          this.hasMoreOpportunities = false;
         } else if (res?.content && Array.isArray(res.content)) {
           fetched = res.content;
+          this.totalOpportunities = res.totalElements || fetched.length;
+          this.hasMoreOpportunities = !res.last && fetched.length >= this.pageSize;
         } else if (Array.isArray(res)) {
           fetched = res;
+          this.totalOpportunities = fetched.length;
+          this.hasMoreOpportunities = false;
         }
 
         this.opportunities = fetched;
@@ -89,6 +104,58 @@ export class OpportunityListComponent implements OnInit {
         this.opportunities = [];
       }
     });
+  }
+
+  loadMoreOpportunities(): void {
+    if (this.isLoadingMore || !this.hasMoreOpportunities || this.isLoading) return;
+    this.isLoadingMore = true;
+    const nextPage = this.page + 1;
+    const typeParam = this.selectedType === 'ALL' ? undefined : this.selectedType;
+
+    this.opportunityService.getOpportunities(typeParam, nextPage, this.pageSize).subscribe({
+      next: (res: any) => {
+        this.isLoadingMore = false;
+        let newItems: Opportunity[] = [];
+        let isLast = false;
+
+        if (res?.success && res?.data?.content && Array.isArray(res.data.content)) {
+          newItems = res.data.content;
+          isLast = res.data.last;
+          if (res.data.totalElements) this.totalOpportunities = res.data.totalElements;
+        } else if (res?.data && Array.isArray(res.data)) {
+          newItems = res.data;
+          isLast = newItems.length < this.pageSize;
+        } else if (res?.content && Array.isArray(res.content)) {
+          newItems = res.content;
+          isLast = res.last;
+        }
+
+        if (newItems.length > 0) {
+          this.page = nextPage;
+          const existingIds = new Set(this.opportunities.map(o => o.id));
+          const toAdd = newItems.filter(o => !existingIds.has(o.id));
+          this.opportunities = [...this.opportunities, ...toAdd];
+        }
+
+        if (isLast || newItems.length < this.pageSize || (this.totalOpportunities > 0 && this.opportunities.length >= this.totalOpportunities)) {
+          this.hasMoreOpportunities = false;
+        }
+      },
+      error: () => {
+        this.isLoadingMore = false;
+      }
+    });
+  }
+
+  @HostListener('window:scroll', ['$event'])
+  onWindowScroll(): void {
+    if (this.isLoadingMore || !this.hasMoreOpportunities || this.isLoading) return;
+    const threshold = 400;
+    const position = window.innerHeight + window.scrollY;
+    const height = document.documentElement.scrollHeight;
+    if (position >= height - threshold) {
+      this.loadMoreOpportunities();
+    }
   }
 
   filterByType(type: string): void {

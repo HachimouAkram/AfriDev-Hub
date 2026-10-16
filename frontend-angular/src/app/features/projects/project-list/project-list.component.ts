@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink, ActivatedRoute } from '@angular/router';
@@ -27,6 +27,9 @@ export class ProjectListComponent implements OnInit {
   projects: Project[] = [];
   filteredProjects: Project[] = [];
   isLoading = false;
+  isLoadingMore = false;
+  hasMoreProjects = true;
+  totalProjects = 0;
   isServerOffline = false;
   selectedCategory: string = 'ALL';
   searchQuery: string = '';
@@ -150,19 +153,30 @@ export class ProjectListComponent implements OnInit {
   loadProjects(): void {
     this.isLoading = true;
     this.isServerOffline = false;
-    this.projectService.getProjects().subscribe({
+    this.hasMoreProjects = true;
+    const cat = this.selectedCategory !== 'ALL' ? this.selectedCategory : undefined;
+
+    this.projectService.getProjects(0, 20, cat).subscribe({
       next: (res: any) => {
         this.isLoading = false;
         this.isServerOffline = false;
         let fetched: Project[] = [];
         if (res?.success && res?.data?.content && Array.isArray(res.data.content)) {
           fetched = res.data.content;
+          this.totalProjects = res.data.totalElements || fetched.length;
+          this.hasMoreProjects = !res.data.last && fetched.length >= 20;
         } else if (res?.data && Array.isArray(res.data)) {
           fetched = res.data;
+          this.totalProjects = fetched.length;
+          this.hasMoreProjects = false;
         } else if (res?.content && Array.isArray(res.content)) {
           fetched = res.content;
+          this.totalProjects = res.totalElements || fetched.length;
+          this.hasMoreProjects = !res.last && fetched.length >= 20;
         } else if (Array.isArray(res)) {
           fetched = res;
+          this.totalProjects = fetched.length;
+          this.hasMoreProjects = false;
         }
 
         this.projects = fetched;
@@ -177,9 +191,63 @@ export class ProjectListComponent implements OnInit {
     });
   }
 
+  loadMoreProjects(): void {
+    if (this.isLoadingMore || !this.hasMoreProjects || this.isLoading || this.isServerOffline) return;
+    this.isLoadingMore = true;
+
+    // Chargement 2 par 2 lors du défilement
+    const nextPage = Math.floor(this.projects.length / 2);
+    const cat = this.selectedCategory !== 'ALL' ? this.selectedCategory : undefined;
+
+    this.projectService.getProjects(nextPage, 2, cat).subscribe({
+      next: (res: any) => {
+        this.isLoadingMore = false;
+        let newItems: Project[] = [];
+        let isLast = false;
+
+        if (res?.success && res?.data?.content && Array.isArray(res.data.content)) {
+          newItems = res.data.content;
+          isLast = res.data.last;
+          if (res.data.totalElements) this.totalProjects = res.data.totalElements;
+        } else if (res?.data && Array.isArray(res.data)) {
+          newItems = res.data;
+          isLast = newItems.length < 2;
+        } else if (res?.content && Array.isArray(res.content)) {
+          newItems = res.content;
+          isLast = res.last;
+        }
+
+        if (newItems.length > 0) {
+          const existingIds = new Set(this.projects.map(p => p.id));
+          const toAdd = newItems.filter(p => !existingIds.has(p.id));
+          this.projects = [...this.projects, ...toAdd];
+          this.applyFilter();
+        }
+
+        if (isLast || newItems.length < 2 || (this.totalProjects > 0 && this.projects.length >= this.totalProjects)) {
+          this.hasMoreProjects = false;
+        }
+      },
+      error: () => {
+        this.isLoadingMore = false;
+      }
+    });
+  }
+
+  @HostListener('window:scroll', ['$event'])
+  onWindowScroll(): void {
+    if (this.isLoadingMore || !this.hasMoreProjects || this.isLoading || this.isServerOffline) return;
+    const threshold = 400;
+    const position = window.innerHeight + window.scrollY;
+    const height = document.documentElement.scrollHeight;
+    if (position >= height - threshold) {
+      this.loadMoreProjects();
+    }
+  }
+
   filterByCategory(cat: string): void {
     this.selectedCategory = cat;
-    this.applyFilter();
+    this.loadProjects();
   }
 
   resetFilters(): void {

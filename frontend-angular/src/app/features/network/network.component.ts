@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
@@ -27,13 +27,17 @@ export class NetworkComponent implements OnInit {
     return this.profileService.getFullAvatarUrl(url);
   }
 
-
   activeTab: 'ALL' | 'DEVELOPER' | 'RECRUITER' | 'SUGGESTIONS' = 'ALL';
   searchQuery = '';
   selectedSkill = '';
   selectedCountry = '';
 
   isLoading = true;
+  isLoadingMore = false;
+  hasMoreUsers = true;
+  totalUsers = 0;
+  page = 0;
+  readonly pageSize = 20;
   isLoadingSuggestions = false;
 
   isLoggedIn(): boolean {
@@ -51,24 +55,79 @@ export class NetworkComponent implements OnInit {
 
   loadNetworkUsers(): void {
     this.isLoading = true;
+    this.page = 0;
+    this.hasMoreUsers = true;
     const roleParam = this.activeTab === 'SUGGESTIONS' ? 'ALL' : this.activeTab;
 
     this.networkService.getNetworkUsers({
       role: roleParam,
       query: this.searchQuery,
       skill: this.selectedSkill,
-      country: this.selectedCountry
+      country: this.selectedCountry,
+      page: 0,
+      size: this.pageSize
     }).subscribe({
       next: (res) => {
         this.isLoading = false;
         if (res.success && res.data) {
-          this.users = res.data;
+          const fetched: UserNetwork[] = res.data?.content || (Array.isArray(res.data) ? res.data : []);
+          this.totalUsers = res.data?.totalElements || fetched.length;
+          this.hasMoreUsers = !res.data?.last && fetched.length >= this.pageSize;
+          this.users = fetched;
         }
       },
       error: () => {
         this.isLoading = false;
+        this.users = [];
       }
     });
+  }
+
+  loadMoreUsers(): void {
+    if (this.isLoadingMore || !this.hasMoreUsers || this.isLoading || this.activeTab === 'SUGGESTIONS') return;
+    this.isLoadingMore = true;
+    const nextPage = this.page + 1;
+    const roleParam = this.activeTab;
+
+    this.networkService.getNetworkUsers({
+      role: roleParam,
+      query: this.searchQuery,
+      skill: this.selectedSkill,
+      country: this.selectedCountry,
+      page: nextPage,
+      size: this.pageSize
+    }).subscribe({
+      next: (res) => {
+        this.isLoadingMore = false;
+        if (res.success && res.data) {
+          const newItems: UserNetwork[] = res.data?.content || (Array.isArray(res.data) ? res.data : []);
+          const isLast = res.data?.last || newItems.length < this.pageSize;
+          if (newItems.length > 0) {
+            this.page = nextPage;
+            const existingIds = new Set(this.users.map(u => u.id));
+            const toAdd = newItems.filter(u => !existingIds.has(u.id));
+            this.users = [...this.users, ...toAdd];
+          }
+          if (isLast || newItems.length < this.pageSize || (this.totalUsers > 0 && this.users.length >= this.totalUsers)) {
+            this.hasMoreUsers = false;
+          }
+        }
+      },
+      error: () => {
+        this.isLoadingMore = false;
+      }
+    });
+  }
+
+  @HostListener('window:scroll', ['$event'])
+  onWindowScroll(): void {
+    if (this.isLoadingMore || !this.hasMoreUsers || this.isLoading || this.activeTab === 'SUGGESTIONS') return;
+    const threshold = 400;
+    const position = window.innerHeight + window.scrollY;
+    const height = document.documentElement.scrollHeight;
+    if (position >= height - threshold) {
+      this.loadMoreUsers();
+    }
   }
 
   loadSuggestions(): void {

@@ -11,11 +11,14 @@ import africa.afridev.repository.TechEventRepository;
 import africa.afridev.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import africa.afridev.dto.PagedResult;
+import com.fasterxml.jackson.databind.JavaType;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Duration;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -28,16 +31,32 @@ public class TechEventService {
     private final TechEventRepository eventRepository;
     private final EventVoteRepository voteRepository;
     private final UserRepository userRepository;
+    private final RedisCacheService redisCacheService;
 
     @Transactional(readOnly = true)
     public Page<TechEventDto> getEvents(TechEventType type, Pageable pageable, String userEmail) {
+        String cacheKey = "cache:events:t:" + (type != null ? type.name() : "ALL")
+                + ":u:" + (userEmail != null ? userEmail : "anon")
+                + ":p:" + pageable.getPageNumber()
+                + ":s:" + pageable.getPageSize();
+
+        try {
+            JavaType javaType = redisCacheService.getObjectMapper().getTypeFactory()
+                    .constructParametricType(PagedResult.class, TechEventDto.class);
+            PagedResult<TechEventDto> cached = redisCacheService.get(cacheKey, javaType);
+            if (cached != null) {
+                return cached.toPage();
+            }
+        } catch (Exception ignored) {}
+
         Page<TechEventEntity> page = (type != null)
                 ? eventRepository.findByTypeOrderByStartDateAsc(type, pageable)
                 : eventRepository.findAllByOrderByStartDateAsc(pageable);
 
         UserEntity currentUser = userEmail != null ? userRepository.findByEmail(userEmail).orElse(null) : null;
-
-        return page.map(e -> mapToDto(e, currentUser));
+        Page<TechEventDto> result = page.map(e -> mapToDto(e, currentUser));
+        redisCacheService.set(cacheKey, PagedResult.from(result), Duration.ofMinutes(10));
+        return result;
     }
 
     @Transactional(readOnly = true)
@@ -99,6 +118,7 @@ public class TechEventService {
         }
 
         TechEventEntity saved = eventRepository.save(event);
+        redisCacheService.evictEventsCache();
         log.info("[EVENT] Événement {} mis à jour par {}", eventId, userEmail);
         return mapToDto(saved, user);
     }
@@ -132,6 +152,7 @@ public class TechEventService {
                 .build();
 
         TechEventEntity saved = eventRepository.save(event);
+        redisCacheService.evictEventsCache();
         log.info("[EVENT] Nouvel événement créé: '{}' par {}", saved.getTitle(), organizerName);
         return mapToDto(saved, organizer);
     }
@@ -172,6 +193,7 @@ public class TechEventService {
         event.setAgreeCount((int) agrees);
         event.setDisagreeCount((int) disagrees);
         TechEventEntity saved = eventRepository.save(event);
+        redisCacheService.evictEventsCache();
 
         return mapToDto(saved, user);
     }
@@ -190,6 +212,7 @@ public class TechEventService {
         }
 
         eventRepository.delete(event);
+        redisCacheService.evictEventsCache();
         log.info("[EVENT] Événement {} supprimé", eventId);
     }
 

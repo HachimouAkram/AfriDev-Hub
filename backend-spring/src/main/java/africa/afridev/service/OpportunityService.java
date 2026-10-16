@@ -17,9 +17,12 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import africa.afridev.dto.PagedResult;
+import com.fasterxml.jackson.databind.JavaType;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -33,6 +36,7 @@ public class OpportunityService {
     private final UserRepository userRepository;
     private final AuthService authService;
     private final EmailService emailService;
+    private final RedisCacheService redisCacheService;
 
     @Transactional
     public OpportunityDto createOpportunity(String userEmail, OpportunityCreateRequest request) {
@@ -56,18 +60,34 @@ public class OpportunityService {
                 .build();
 
         OpportunityEntity saved = opportunityRepository.save(opportunity);
+        redisCacheService.evictOpportunitiesCache();
         return mapToOpportunityDto(saved);
     }
 
     @Transactional(readOnly = true)
     public Page<OpportunityDto> getAllOpportunities(OpportunityType type, Pageable pageable) {
+        String cacheKey = "cache:opportunities:t:" + (type != null ? type.name() : "ALL")
+                + ":p:" + pageable.getPageNumber()
+                + ":s:" + pageable.getPageSize();
+
+        try {
+            JavaType javaType = redisCacheService.getObjectMapper().getTypeFactory()
+                    .constructParametricType(PagedResult.class, OpportunityDto.class);
+            PagedResult<OpportunityDto> cached = redisCacheService.get(cacheKey, javaType);
+            if (cached != null) {
+                return cached.toPage();
+            }
+        } catch (Exception ignored) {}
+
         Page<OpportunityEntity> page;
         if (type != null) {
             page = opportunityRepository.findByTypeAndStatusOrderByCreatedAtDesc(type, ContentStatus.PUBLISHED, pageable);
         } else {
             page = opportunityRepository.findByStatusOrderByCreatedAtDesc(ContentStatus.PUBLISHED, pageable);
         }
-        return page.map(this::mapToOpportunityDto);
+        Page<OpportunityDto> result = page.map(this::mapToOpportunityDto);
+        redisCacheService.set(cacheKey, PagedResult.from(result), Duration.ofMinutes(10));
+        return result;
     }
 
     @Transactional(readOnly = true)
@@ -250,6 +270,7 @@ public class OpportunityService {
         }
 
         OpportunityEntity saved = opportunityRepository.save(opportunity);
+        redisCacheService.evictOpportunitiesCache();
         return mapToOpportunityDto(saved);
     }
 
@@ -272,6 +293,7 @@ public class OpportunityService {
         }
 
         OpportunityEntity saved = opportunityRepository.save(opportunity);
+        redisCacheService.evictOpportunitiesCache();
         return mapToOpportunityDto(saved);
     }
 
@@ -288,6 +310,7 @@ public class OpportunityService {
         }
 
         opportunityRepository.delete(opportunity);
+        redisCacheService.evictOpportunitiesCache();
     }
 
     private OpportunityDto mapToOpportunityDto(OpportunityEntity opportunity) {

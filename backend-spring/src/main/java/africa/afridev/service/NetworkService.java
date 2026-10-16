@@ -11,10 +11,16 @@ import africa.afridev.repository.FollowRepository;
 import africa.afridev.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import africa.afridev.dto.PagedResult;
+import com.fasterxml.jackson.databind.JavaType;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 
+import java.time.Duration;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -30,6 +36,51 @@ public class NetworkService {
 
     private final RestTemplate restTemplate = new RestTemplate();
     private static final String FASTAPI_SUGGESTIONS_URL = "http://localhost:8000/api/v1/suggestions/network";
+
+    @Transactional(readOnly = true)
+    public Page<UserNetworkDto> getNetworkUsers(
+            String currentEmail,
+            String roleStr,
+            String query,
+            String skill,
+            String country,
+            Pageable pageable
+    ) {
+        UserEntity currentUser = currentEmail != null ? userRepository.findByEmail(currentEmail).orElse(null) : null;
+        String currentUserId = currentUser != null ? currentUser.getId() : null;
+
+        String cacheKey = "cache:network:r:" + (roleStr != null ? roleStr : "ALL")
+                + ":q:" + (query != null ? query.trim().toLowerCase() : "")
+                + ":s:" + (skill != null ? skill.trim().toLowerCase() : "")
+                + ":c:" + (country != null ? country.trim().toLowerCase() : "")
+                + ":u:" + (currentUserId != null ? currentUserId : "anon")
+                + ":p:" + pageable.getPageNumber()
+                + ":sz:" + pageable.getPageSize();
+
+        try {
+            JavaType type = redisCacheService.getObjectMapper().getTypeFactory()
+                    .constructParametricType(PagedResult.class, UserNetworkDto.class);
+            PagedResult<UserNetworkDto> cached = redisCacheService.get(cacheKey, type);
+            if (cached != null) {
+                return cached.toPage();
+            }
+        } catch (Exception ignored) {}
+
+        List<UserNetworkDto> allFiltered = getNetworkUsers(currentEmail, roleStr, query, skill, country);
+        int total = allFiltered.size();
+        int fromIndex = (int) pageable.getOffset();
+        List<UserNetworkDto> pagedList;
+        if (fromIndex >= total) {
+            pagedList = Collections.emptyList();
+        } else {
+            int toIndex = Math.min(fromIndex + pageable.getPageSize(), total);
+            pagedList = allFiltered.subList(fromIndex, toIndex);
+        }
+
+        Page<UserNetworkDto> pageResult = new PageImpl<>(pagedList, pageable, total);
+        redisCacheService.set(cacheKey, PagedResult.from(pageResult), Duration.ofMinutes(10));
+        return pageResult;
+    }
 
     @Transactional(readOnly = true)
     public List<UserNetworkDto> getNetworkUsers(

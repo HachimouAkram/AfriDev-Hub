@@ -46,7 +46,7 @@ export class OpportunityService {
   private http = inject(HttpClient);
   private apiUrl = 'http://localhost:8081/api/v1/opportunities';
 
-  getOpportunities(type?: string, page = 0, size = 10): Observable<ApiResponse<any>> {
+  getOpportunities(type?: string, page = 0, size = 20): Observable<ApiResponse<any>> {
     let params = new HttpParams()
       .set('page', page.toString())
       .set('size', size.toString());

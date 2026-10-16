@@ -9,12 +9,15 @@ import africa.afridev.model.enums.ContentStatus;
 import africa.afridev.repository.ProjectRepository;
 import africa.afridev.repository.RecognitionRepository;
 import africa.afridev.repository.UserRepository;
+import africa.afridev.dto.PagedResult;
+import com.fasterxml.jackson.databind.JavaType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Duration;
 import java.util.ArrayList;
 
 @Service
@@ -25,6 +28,7 @@ public class ProjectService {
     private final RecognitionRepository recognitionRepository;
     private final UserRepository userRepository;
     private final AuthService authService;
+    private final RedisCacheService redisCacheService;
 
     @Transactional
     public ProjectDto createProject(String userEmail, ProjectCreateRequest request) {
@@ -61,13 +65,38 @@ public class ProjectService {
                 .build();
 
         ProjectEntity saved = projectRepository.save(project);
+        redisCacheService.evictProjectsCache();
         return mapToProjectDto(saved, userEmail);
     }
 
     @Transactional(readOnly = true)
     public Page<ProjectDto> getAllProjects(String currentUserEmail, Pageable pageable) {
-        Page<ProjectEntity> projects = projectRepository.findByStatusOrderByCreatedAtDesc(ContentStatus.PUBLISHED, pageable);
-        return projects.map(p -> mapToProjectDto(p, currentUserEmail));
+        return getAllProjects(currentUserEmail, null, pageable);
+    }
+
+    @Transactional(readOnly = true)
+    public Page<ProjectDto> getAllProjects(String currentUserEmail, africa.afridev.model.enums.ProjectType projectType, Pageable pageable) {
+        String cacheKey = "cache:projects:" + (projectType != null ? projectType.name() : "ALL")
+                + ":u:" + (currentUserEmail != null ? currentUserEmail : "anon")
+                + ":p:" + pageable.getPageNumber()
+                + ":s:" + pageable.getPageSize();
+
+        try {
+            JavaType type = redisCacheService.getObjectMapper().getTypeFactory()
+                    .constructParametricType(PagedResult.class, ProjectDto.class);
+            PagedResult<ProjectDto> cached = redisCacheService.get(cacheKey, type);
+            if (cached != null) {
+                return cached.toPage();
+            }
+        } catch (Exception ignored) {}
+
+        Page<ProjectEntity> projects = (projectType != null)
+                ? projectRepository.findByStatusAndProjectTypeOrderByCreatedAtDesc(ContentStatus.PUBLISHED, projectType, pageable)
+                : projectRepository.findByStatusOrderByCreatedAtDesc(ContentStatus.PUBLISHED, pageable);
+
+        Page<ProjectDto> result = projects.map(p -> mapToProjectDto(p, currentUserEmail));
+        redisCacheService.set(cacheKey, PagedResult.from(result), Duration.ofMinutes(10));
+        return result;
     }
 
     @Transactional(readOnly = true)
@@ -107,6 +136,7 @@ public class ProjectService {
         recognitionRepository.save(recognition);
         project.setRecognitionsCount(project.getRecognitionsCount() + 1);
         ProjectEntity saved = projectRepository.save(project);
+        redisCacheService.evictProjectsCache();
 
         return mapToProjectDto(saved, userEmail);
     }
@@ -123,6 +153,7 @@ public class ProjectService {
             recognitionRepository.deleteByProjectIdAndUserId(projectId, user.getId());
             project.setRecognitionsCount(Math.max(0, project.getRecognitionsCount() - 1));
             projectRepository.save(project);
+            redisCacheService.evictProjectsCache();
         }
 
         return mapToProjectDto(project, userEmail);
@@ -176,6 +207,7 @@ public class ProjectService {
         project.setMaxMembers(request.getMaxMembers());
 
         ProjectEntity saved = projectRepository.save(project);
+        redisCacheService.evictProjectsCache();
         return mapToProjectDto(saved, userEmail);
     }
 
@@ -254,6 +286,7 @@ public class ProjectService {
         }
 
         ProjectEntity saved = projectRepository.save(project);
+        redisCacheService.evictProjectsCache();
         return mapToProjectDto(saved, userEmail);
     }
 
@@ -269,6 +302,7 @@ public class ProjectService {
         }
 
         projectRepository.delete(project);
+        redisCacheService.evictProjectsCache();
     }
 
     private ProjectDto mapToProjectDto(ProjectEntity project, String currentUserEmail) {

@@ -28,7 +28,7 @@ public class TechEventController {
     public ResponseEntity<ApiResponse<Page<TechEventDto>>> getEvents(
             @RequestParam(required = false) TechEventType type,
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "12") int size,
+            @RequestParam(defaultValue = "20") int size,
             Authentication authentication) {
         String email = authentication != null ? authentication.getName() : null;
         Page<TechEventDto> events = eventService.getEvents(type, PageRequest.of(page, size), email);

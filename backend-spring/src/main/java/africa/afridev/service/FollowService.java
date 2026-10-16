@@ -48,6 +48,7 @@ public class FollowService {
                     .build();
             followRepository.save(follow);
             redisCacheService.addFollow(follower.getId(), target.getId());
+            redisCacheService.evictNetworkCache();
         }
 
         return getFollowStats(currentUserEmail, target.getId());
@@ -64,6 +65,7 @@ public class FollowService {
                 .ifPresent(f -> {
                     followRepository.delete(f);
                     redisCacheService.removeFollow(follower.getId(), target.getId());
+                    redisCacheService.evictNetworkCache();
                 });
 
         return getFollowStats(currentUserEmail, target.getId());
