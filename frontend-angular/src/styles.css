@@ -682,3 +682,11 @@ svg {
   background: var(--emerald-500);
 }
 
+/* Responsive Global Helpers */
+@media (max-width: 990px) {
+  .desktop-only {
+    display: none !important;
+  }
+}
+
+

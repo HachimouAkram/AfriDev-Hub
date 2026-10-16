@@ -959,16 +959,18 @@ body.light-theme .dashboard-body::-webkit-scrollbar-thumb:hover {
     gap: 0.75rem;
   }
 
+  .topbar-collapse-btn,
+  .desktop-only,
+  .desktop-title-only {
+    display: none !important;
+  }
+
   .mobile-hamburger-btn {
     display: flex;
   }
 
   .mobile-topbar-brand {
     display: flex;
-  }
-
-  .desktop-title-only {
-    display: none;
   }
 
   /* Compact User Profile Pill on Mobile matching reference */
