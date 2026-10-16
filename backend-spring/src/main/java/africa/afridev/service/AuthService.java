@@ -1,13 +1,17 @@
 package africa.afridev.service;
 
 import africa.afridev.dto.auth.*;
+import africa.afridev.model.entity.LoginSessionEntity;
 import africa.afridev.model.entity.ProfileEntity;
 import africa.afridev.model.entity.UserEntity;
 import africa.afridev.model.enums.Availability;
 import africa.afridev.model.enums.Role;
 import africa.afridev.model.enums.UserStatus;
+import africa.afridev.repository.LoginSessionRepository;
 import africa.afridev.repository.UserRepository;
+import africa.afridev.security.DeviceParserUtil;
 import africa.afridev.security.JwtTokenProvider;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -16,7 +20,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 @Service
@@ -28,6 +34,8 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenProvider tokenProvider;
     private final OtpService otpService;
+    private final EmailService emailService;
+    private final LoginSessionRepository loginSessionRepository;
 
     @Value("${app.google.client-id:}")
     private String googleClientId;
@@ -79,8 +87,12 @@ public class AuthService {
                 .build();
     }
 
-    @Transactional(readOnly = true)
     public AuthResponse login(LoginRequest request) {
+        return login(request, null);
+    }
+
+    @Transactional
+    public AuthResponse login(LoginRequest request, HttpServletRequest httpRequest) {
         UserEntity user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new IllegalArgumentException("Identifiants invalides (email ou mot de passe incorrect)."));
 
@@ -103,11 +115,150 @@ public class AuthService {
             throw new IllegalStateException("EMAIL_NOT_VERIFIED");
         }
 
+        // ── Device & 2FA Check ──
+        DeviceParserUtil.DeviceInfo deviceInfo = DeviceParserUtil.parse(httpRequest);
+        String deviceId = (request.getDeviceId() != null && !request.getDeviceId().isBlank())
+                ? request.getDeviceId()
+                : "dev_" + Math.abs((deviceInfo.ipAddress() + deviceInfo.deviceName()).hashCode());
+
+        boolean isKnownDevice = loginSessionRepository.existsByUserIdAndDeviceIdAndStatus(user.getId(), deviceId, "ACTIVE");
+        boolean requires2fa = Boolean.TRUE.equals(user.getTwoFactorEnabled()) || !isKnownDevice;
+
+        if (requires2fa) {
+            String code = otpService.generateAndSaveOtp(user.getEmail());
+            try {
+                emailService.sendSecurityOtpEmail(user.getEmail(), code, deviceInfo.deviceName(), deviceInfo.ipAddress(), !isKnownDevice);
+            } catch (Exception e) {
+                log.warn("[AUTH 2FA] Échec envoi email sécurité: {}", e.getMessage());
+            }
+
+            String promptMessage = isKnownDevice
+                    ? "Authentification à deux facteurs requise. Un code de sécurité à 6 chiffres a été envoyé à votre adresse email."
+                    : "Nouvel appareil détecté (" + deviceInfo.deviceName() + "). Un code de sécurité à 6 chiffres a été envoyé à votre adresse email pour confirmer votre identité.";
+
+            return AuthResponse.builder()
+                    .twoFactorRequired(true)
+                    .email(user.getEmail())
+                    .message(promptMessage)
+                    .build();
+        }
+
+        // Enregistrer la session active de l'appareil
+        recordOrUpdateSession(user, deviceId, deviceInfo, httpRequest);
+
         String token = tokenProvider.generateToken(user.getEmail());
         return AuthResponse.builder()
                 .token(token)
                 .user(mapToUserDto(user))
                 .build();
+    }
+
+    @Transactional
+    public AuthResponse verify2fa(TwoFactorVerifyRequest request, HttpServletRequest httpRequest) {
+        boolean valid = otpService.verifyOtp(request.getEmail(), request.getOtpCode());
+        if (!valid) {
+            throw new IllegalArgumentException("Code de sécurité 2FA invalide ou expiré.");
+        }
+
+        UserEntity user = userRepository.findByEmail(request.getEmail())
+                .orElseThrow(() -> new IllegalArgumentException("Utilisateur introuvable."));
+
+        DeviceParserUtil.DeviceInfo deviceInfo = DeviceParserUtil.parse(httpRequest);
+        String deviceId = (request.getDeviceId() != null && !request.getDeviceId().isBlank())
+                ? request.getDeviceId()
+                : "dev_" + Math.abs((deviceInfo.ipAddress() + deviceInfo.deviceName()).hashCode());
+
+        recordOrUpdateSession(user, deviceId, deviceInfo, httpRequest);
+
+        String token = tokenProvider.generateToken(user.getEmail());
+        return AuthResponse.builder()
+                .token(token)
+                .user(mapToUserDto(user))
+                .build();
+    }
+
+    private void recordOrUpdateSession(UserEntity user, String deviceId, DeviceParserUtil.DeviceInfo deviceInfo, HttpServletRequest httpRequest) {
+        LoginSessionEntity session = loginSessionRepository.findByUserIdAndDeviceId(user.getId(), deviceId)
+                .orElse(LoginSessionEntity.builder()
+                        .user(user)
+                        .deviceId(deviceId)
+                        .deviceType(deviceInfo.deviceType())
+                        .deviceName(deviceInfo.deviceName())
+                        .browser(deviceInfo.browser())
+                        .operatingSystem(deviceInfo.operatingSystem())
+                        .ipAddress(deviceInfo.ipAddress())
+                        .userAgent(httpRequest != null ? httpRequest.getHeader("User-Agent") : "")
+                        .status("ACTIVE")
+                        .build());
+
+        session.setStatus("ACTIVE");
+        session.setIpAddress(deviceInfo.ipAddress());
+        session.setLastActiveAt(LocalDateTime.now());
+        loginSessionRepository.save(session);
+    }
+
+    @Transactional(readOnly = true)
+    public List<LoginSessionDto> getUserSessions(String email, String currentDeviceId) {
+        UserEntity user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new IllegalArgumentException("Utilisateur introuvable."));
+
+        return loginSessionRepository.findByUserIdOrderByLastActiveAtDesc(user.getId())
+                .stream()
+                .map(session -> LoginSessionDto.builder()
+                        .id(session.getId())
+                        .deviceId(session.getDeviceId())
+                        .deviceType(session.getDeviceType())
+                        .deviceName(session.getDeviceName())
+                        .browser(session.getBrowser())
+                        .operatingSystem(session.getOperatingSystem())
+                        .ipAddress(session.getIpAddress())
+                        .location(session.getLocation())
+                        .status(session.getStatus())
+                        .createdAt(session.getCreatedAt())
+                        .lastActiveAt(session.getLastActiveAt())
+                        .isCurrent(currentDeviceId != null && currentDeviceId.equals(session.getDeviceId()))
+                        .build())
+                .toList();
+    }
+
+    @Transactional
+    public void revokeSession(String email, String sessionId) {
+        UserEntity user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new IllegalArgumentException("Utilisateur introuvable."));
+
+        LoginSessionEntity session = loginSessionRepository.findById(sessionId)
+                .orElseThrow(() -> new IllegalArgumentException("Session introuvable."));
+
+        if (!session.getUser().getId().equals(user.getId())) {
+            throw new IllegalStateException("Vous n'êtes pas autorisé à révoquer cette session.");
+        }
+
+        session.setStatus("REVOKED");
+        loginSessionRepository.save(session);
+    }
+
+    @Transactional
+    public void revokeOtherSessions(String email, String currentDeviceId) {
+        UserEntity user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new IllegalArgumentException("Utilisateur introuvable."));
+
+        List<LoginSessionEntity> sessions = loginSessionRepository.findByUserIdAndStatus(user.getId(), "ACTIVE");
+        for (LoginSessionEntity s : sessions) {
+            if (currentDeviceId == null || !currentDeviceId.equals(s.getDeviceId())) {
+                s.setStatus("REVOKED");
+                loginSessionRepository.save(s);
+            }
+        }
+    }
+
+    @Transactional
+    public UserDto toggleTwoFactor(String email, boolean enabled) {
+        UserEntity user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new IllegalArgumentException("Utilisateur introuvable."));
+
+        user.setTwoFactorEnabled(enabled);
+        userRepository.save(user);
+        return mapToUserDto(user);
     }
 
     public String requestOtp(OtpRequest request) {
@@ -252,6 +403,7 @@ public class AuthService {
                 .id(user.getId())
                 .email(user.getEmail())
                 .emailVerified(user.getEmailVerified())
+                .twoFactorEnabled(Boolean.TRUE.equals(user.getTwoFactorEnabled()))
                 .githubId(user.getGithubId())
                 .role(user.getRole())
                 .status(user.getStatus())

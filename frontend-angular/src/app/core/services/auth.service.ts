@@ -24,10 +24,26 @@ export interface Profile {
   portfolioUrl?: string;
 }
 
+export interface LoginSession {
+  id: string;
+  deviceId: string;
+  deviceType: string;
+  deviceName: string;
+  browser: string;
+  operatingSystem: string;
+  ipAddress: string;
+  location?: string;
+  status: string;
+  createdAt: string;
+  lastActiveAt: string;
+  isCurrent?: boolean;
+}
+
 export interface User {
   id: string;
   email: string;
   emailVerified: boolean;
+  twoFactorEnabled?: boolean;
   githubId?: string;
   role: string;
   status: string;
@@ -35,9 +51,12 @@ export interface User {
 }
 
 export interface AuthResponse {
-  token: string;
-  tokenType: string;
-  user: User;
+  token?: string;
+  tokenType?: string;
+  user?: User;
+  twoFactorRequired?: boolean;
+  message?: string;
+  email?: string;
 }
 
 export interface RegisterResponse {
@@ -62,9 +81,19 @@ export interface ApiResponse<T> {
 export class AuthService {
   private http = inject(HttpClient);
   private apiUrl = 'http://localhost:8081/api/v1/auth';
+  private profileUrl = 'http://localhost:8081/api/v1/profiles';
 
   currentUser = signal<User | null>(this.getStoredUser());
   token = signal<string | null>(localStorage.getItem('afridev_token'));
+
+  getDeviceId(): string {
+    let id = localStorage.getItem('afridev_device_id');
+    if (!id) {
+      id = 'dev_' + Math.random().toString(36).substring(2, 10) + '_' + Date.now();
+      localStorage.setItem('afridev_device_id', id);
+    }
+    return id;
+  }
 
   register(data: any): Observable<ApiResponse<RegisterResponse>> {
     // Ne stocke plus de token – redirige vers vérification OTP
@@ -72,10 +101,53 @@ export class AuthService {
   }
 
   login(data: any): Observable<ApiResponse<AuthResponse>> {
-    return this.http.post<ApiResponse<AuthResponse>>(`${this.apiUrl}/login`, data).pipe(
+    const payload = { ...data, deviceId: this.getDeviceId() };
+    return this.http.post<ApiResponse<AuthResponse>>(`${this.apiUrl}/login`, payload).pipe(
       tap(res => {
         if (res.success && res.data) {
           this.handleAuthSuccess(res.data);
+        }
+      })
+    );
+  }
+
+  verify2fa(email: string, otpCode: string): Observable<ApiResponse<AuthResponse>> {
+    const payload = { email, otpCode, deviceId: this.getDeviceId() };
+    return this.http.post<ApiResponse<AuthResponse>>(`${this.apiUrl}/login/verify-2fa`, payload).pipe(
+      tap(res => {
+        if (res.success && res.data) {
+          this.handleAuthSuccess(res.data);
+        }
+      })
+    );
+  }
+
+  getSecuritySessions(): Observable<ApiResponse<LoginSession[]>> {
+    return this.http.get<ApiResponse<LoginSession[]>>(`${this.profileUrl}/me/security/sessions`, {
+      headers: { 'X-Device-Id': this.getDeviceId() }
+    });
+  }
+
+  revokeSession(sessionId: string): Observable<ApiResponse<any>> {
+    return this.http.delete<ApiResponse<any>>(`${this.profileUrl}/me/security/sessions/${sessionId}`);
+  }
+
+  revokeOtherSessions(): Observable<ApiResponse<any>> {
+    return this.http.delete<ApiResponse<any>>(`${this.profileUrl}/me/security/sessions/other`, {
+      headers: { 'X-Device-Id': this.getDeviceId() }
+    });
+  }
+
+  toggleTwoFactor(enabled: boolean): Observable<ApiResponse<User>> {
+    return this.http.put<ApiResponse<User>>(`${this.profileUrl}/me/security/2fa`, { enabled }).pipe(
+      tap(res => {
+        if (res.success && res.data) {
+          const user = this.currentUser();
+          if (user) {
+            user.twoFactorEnabled = res.data.twoFactorEnabled;
+            localStorage.setItem('afridev_user', JSON.stringify(user));
+            this.currentUser.set({ ...user });
+          }
         }
       })
     );
@@ -121,10 +193,15 @@ export class AuthService {
   }
 
   private handleAuthSuccess(authData: AuthResponse): void {
-    localStorage.setItem('afridev_token', authData.token);
-    localStorage.setItem('afridev_user', JSON.stringify(authData.user));
-    this.token.set(authData.token);
-    this.currentUser.set(authData.user);
+    if (authData.twoFactorRequired) {
+      return;
+    }
+    if (authData.token && authData.user) {
+      localStorage.setItem('afridev_token', authData.token);
+      localStorage.setItem('afridev_user', JSON.stringify(authData.user));
+      this.token.set(authData.token);
+      this.currentUser.set(authData.user);
+    }
   }
 
   updateProfileInUser(profile: Profile): void {

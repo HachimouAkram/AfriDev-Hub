@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Location } from '@angular/common';
 import { Router, ActivatedRoute, RouterLink } from '@angular/router';
-import { AuthService, Profile, User } from '../../../core/services/auth.service';
+import { AuthService, Profile, User, LoginSession } from '../../../core/services/auth.service';
 import { ProfileService, GitHubStats } from '../../../core/services/profile.service';
 import { FollowService, FollowStats } from '../../../core/services/follow.service';
 import { MessageService, DirectMessage } from '../../../core/services/message.service';
@@ -41,7 +41,14 @@ export class ProfileDetailComponent implements OnInit {
   userEvaluations: Evaluation[] = [];
   reputationScore: ReputationScore | null = null;
   isLoadingActivities = false;
-  activeTab: 'projects' | 'evaluations' | 'github' = 'projects';
+  activeTab: 'projects' | 'evaluations' | 'github' | 'security' = 'projects';
+
+  // Security & Active Sessions
+  sessions: LoginSession[] = [];
+  isLoadingSessions = false;
+  sessionActionMessage = '';
+  sessionErrorMessage = '';
+  isUpdating2fa = false;
 
   // Follow State
   followStats: FollowStats | null = null;
@@ -550,6 +557,73 @@ export class ProfileDetailComponent implements OnInit {
       error: (err) => {
         this.isSavingProfile = false;
         this.editErrorMessage = err.error?.error?.message || 'Erreur lors de la mise à jour du profil.';
+      }
+    });
+  }
+
+  // ── SÉCURITÉ & HISTORIQUE DES SESSIONS ──
+
+  loadSessions(): void {
+    if (!this.isOwnProfile) return;
+    this.isLoadingSessions = true;
+    this.sessionErrorMessage = '';
+    this.authService.getSecuritySessions().subscribe({
+      next: (res) => {
+        this.isLoadingSessions = false;
+        if (res.success && res.data) {
+          this.sessions = res.data;
+        }
+      },
+      error: (err) => {
+        this.isLoadingSessions = false;
+        this.sessionErrorMessage = 'Impossible de charger l\'historique des connexions.';
+      }
+    });
+  }
+
+  toggleTwoFactor(targetState: boolean): void {
+    this.isUpdating2fa = true;
+    this.sessionActionMessage = '';
+    this.sessionErrorMessage = '';
+    this.authService.toggleTwoFactor(targetState).subscribe({
+      next: (res) => {
+        this.isUpdating2fa = false;
+        this.sessionActionMessage = targetState 
+          ? '🔒 Double authentification activée avec succès ! Vos connexions sont protégées par code email.' 
+          : 'Double authentification désactivée.';
+        setTimeout(() => this.sessionActionMessage = '', 4500);
+      },
+      error: (err) => {
+        this.isUpdating2fa = false;
+        this.sessionErrorMessage = err.error?.error?.message || 'Erreur lors de la modification du 2FA.';
+      }
+    });
+  }
+
+  revokeSession(sessionId: string): void {
+    if (!confirm('Voulez-vous vraiment déconnecter cet appareil ?')) return;
+    this.authService.revokeSession(sessionId).subscribe({
+      next: () => {
+        this.sessionActionMessage = 'Session révoquée avec succès.';
+        this.loadSessions();
+        setTimeout(() => this.sessionActionMessage = '', 4000);
+      },
+      error: () => {
+        this.sessionErrorMessage = 'Erreur lors de la révocation de la session.';
+      }
+    });
+  }
+
+  revokeOtherSessions(): void {
+    if (!confirm('Voulez-vous vraiment déconnecter tous les autres appareils connectés ?')) return;
+    this.authService.revokeOtherSessions().subscribe({
+      next: () => {
+        this.sessionActionMessage = 'Tous les autres appareils ont été déconnectés avec succès.';
+        this.loadSessions();
+        setTimeout(() => this.sessionActionMessage = '', 4000);
+      },
+      error: () => {
+        this.sessionErrorMessage = 'Erreur lors de la déconnexion des autres sessions.';
       }
     });
   }

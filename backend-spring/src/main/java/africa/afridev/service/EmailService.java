@@ -54,6 +54,53 @@ public class EmailService {
         sendHtmlEmailChecked(toEmail, subject, body);
     }
 
+    // ── Security OTP Email (2FA / Nouvel Appareil) ──────────────────────────
+    public void sendSecurityOtpEmail(String toEmail, String otpCode, String deviceName, String ipAddress, boolean isNewDevice) throws Exception {
+        String alertTitle = isNewDevice ? "Connexion sur un nouvel appareil détectée" : "Code d'authentification à deux facteurs (2FA)";
+        String alertDescription = isNewDevice 
+            ? "Une tentative de connexion a été initiée depuis un <strong>appareil non reconnu</strong>. Pour valider cet appareil et accéder à votre compte, veuillez saisir le code de sécurité ci-dessous :"
+            : "Une tentative de connexion requiert votre vérification à deux facteurs. Veuillez saisir le code de sécurité ci-dessous :";
+
+        String subject = "\uD83D\uDD12 Code de sécurité AfriDev Hub – " + (isNewDevice ? "Nouvel appareil" : "Double authentification");
+        String body = """
+            <div style="font-family: Inter, Arial, sans-serif; max-width: 520px; margin: auto; background: #0F1828; color: #E2E8F0; border-radius: 16px; overflow: hidden; border: 1px solid rgba(255,255,255,0.08);">
+              <div style="background: linear-gradient(135deg, #10B981, #059669); padding: 32px; text-align: center;">
+                <h1 style="margin: 0; color: #fff; font-size: 24px; font-weight: 800;">AfriDev Hub</h1>
+                <p style="margin: 8px 0 0; color: rgba(255,255,255,0.9); font-size: 14px;">Sécurité du Compte Développeur</p>
+              </div>
+              <div style="padding: 32px;">
+                <div style="background: rgba(16, 185, 129, 0.1); border-left: 4px solid #10B981; padding: 12px 16px; border-radius: 8px; margin-bottom: 20px;">
+                  <h3 style="margin: 0; color: #34D399; font-size: 16px; font-weight: 700;">%s</h3>
+                </div>
+                <p style="color: #94A3B8; font-size: 14px; line-height: 1.6; margin-bottom: 20px;">
+                  %s
+                </p>
+                <div style="background: #1E293B; border-radius: 12px; padding: 20px; margin-bottom: 24px; border: 1px solid #334155;">
+                  <div style="font-size: 12px; color: #94A3B8; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px; text-align: center;">Détails de la tentative :</div>
+                  <div style="display: flex; justify-content: space-between; font-size: 13px; color: #E2E8F0; margin-bottom: 6px;">
+                    <span style="color: #64748B;">Appareil :</span> <strong>%s</strong>
+                  </div>
+                  <div style="display: flex; justify-content: space-between; font-size: 13px; color: #E2E8F0;">
+                    <span style="color: #64748B;">Adresse IP :</span> <strong>%s</strong>
+                  </div>
+                </div>
+                <div style="background: #0B1120; border-radius: 12px; padding: 20px; text-align: center; margin-bottom: 24px; border: 1px solid rgba(16,185,129,0.3);">
+                  <div style="font-size: 12px; color: #34D399; margin-bottom: 8px; font-weight: 600;">VOTRE CODE DE SÉCURITÉ (VALABLE 10 MIN)</div>
+                  <span style="font-size: 38px; font-weight: 900; letter-spacing: 10px; color: #10B981; font-family: monospace;">%s</span>
+                </div>
+                <p style="color: #EF4444; font-size: 12px; line-height: 1.5; margin: 0;">
+                  ⚠️ Si vous n'êtes pas à l'origine de cette tentative, nous vous recommandons de modifier immédiatement votre mot de passe et de révoquer vos sessions.
+                </p>
+              </div>
+              <div style="background: #070B14; padding: 16px; text-align: center;">
+                <p style="margin: 0; color: #475569; font-size: 12px;">© 2026 AfriDev Hub · Plateforme Panafricaine des Développeurs</p>
+              </div>
+            </div>
+            """.formatted(alertTitle, alertDescription, deviceName, ipAddress, otpCode);
+
+        sendHtmlEmailChecked(toEmail, subject, body);
+    }
+
     // ── Application Rejection Email ────────────────────────────────────────────
     @Async
     public void sendApplicationRejectionEmail(String toEmail, String applicantName,

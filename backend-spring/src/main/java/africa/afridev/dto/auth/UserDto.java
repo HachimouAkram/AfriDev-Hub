@@ -15,6 +15,7 @@ public class UserDto {
     private String id;
     private String email;
     private Boolean emailVerified;
+    private Boolean twoFactorEnabled;
     private String githubId;
     private Role role;
     private UserStatus status;

@@ -29,6 +29,10 @@ export class LoginComponent implements AfterViewInit {
   errorMessage = '';
   successMessage = '';
 
+  // 2FA / New Device State
+  is2faRequired = false;
+  twoFactorMessage = '';
+
   onLoginPassword(): void {
     if (!this.email || !this.password) {
       this.errorMessage = 'Veuillez remplir l\'email et le mot de passe.';
@@ -42,6 +46,12 @@ export class LoginComponent implements AfterViewInit {
       next: (res) => {
         this.isLoading = false;
         if (res.success) {
+          if (res.data?.twoFactorRequired) {
+            this.is2faRequired = true;
+            this.twoFactorMessage = res.data.message || 'Un code de sécurité a été envoyé à votre adresse email.';
+            this.otpCode = '';
+            return;
+          }
           this.router.navigate(['/dashboard']);
         }
       },
@@ -56,6 +66,36 @@ export class LoginComponent implements AfterViewInit {
         }
       }
     });
+  }
+
+  onVerify2fa(): void {
+    if (!this.email || !this.otpCode || this.otpCode.length < 6) {
+      this.errorMessage = 'Veuillez saisir le code de vérification à 6 chiffres.';
+      return;
+    }
+
+    this.isLoading = true;
+    this.errorMessage = '';
+
+    this.authService.verify2fa(this.email, this.otpCode).subscribe({
+      next: (res) => {
+        this.isLoading = false;
+        if (res.success && res.data?.token) {
+          this.router.navigate(['/dashboard']);
+        }
+      },
+      error: (err) => {
+        this.isLoading = false;
+        this.errorMessage = err.error?.error?.message || 'Code de sécurité invalide ou expiré.';
+      }
+    });
+  }
+
+  cancel2fa(): void {
+    this.is2faRequired = false;
+    this.otpCode = '';
+    this.errorMessage = '';
+    this.twoFactorMessage = '';
   }
 
   onRequestOtp(): void {

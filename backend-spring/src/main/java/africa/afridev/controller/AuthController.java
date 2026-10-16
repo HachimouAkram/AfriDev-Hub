@@ -26,9 +26,9 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<ApiResponse<AuthResponse>> login(@Valid @RequestBody LoginRequest request) {
+    public ResponseEntity<ApiResponse<AuthResponse>> login(@Valid @RequestBody LoginRequest request, jakarta.servlet.http.HttpServletRequest httpRequest) {
         try {
-            AuthResponse response = authService.login(request);
+            AuthResponse response = authService.login(request, httpRequest);
             return ResponseEntity.ok(ApiResponse.ok(response));
         } catch (IllegalStateException e) {
             if ("EMAIL_NOT_VERIFIED".equals(e.getMessage())) {
@@ -40,6 +40,12 @@ public class AuthController {
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
                     .body(ApiResponse.error("FORBIDDEN", e.getMessage()));
         }
+    }
+
+    @PostMapping("/login/verify-2fa")
+    public ResponseEntity<ApiResponse<AuthResponse>> verify2fa(@Valid @RequestBody TwoFactorVerifyRequest request, jakarta.servlet.http.HttpServletRequest httpRequest) {
+        AuthResponse response = authService.verify2fa(request, httpRequest);
+        return ResponseEntity.ok(ApiResponse.ok(response));
     }
 
     @PostMapping("/email/request-otp")

@@ -313,6 +313,16 @@
           </svg>
           Contributions GitHub
         </button>
+        <button 
+          *ngIf="isOwnProfile"
+          class="tab-btn" 
+          [class.active]="activeTab === 'security'" 
+          (click)="activeTab = 'security'; loadSessions()">
+          <svg class="icon-svg icon-svg-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
+          </svg>
+          Sécurité & Connexions
+        </button>
       </div>
 
       <!-- Tab Content: Projects -->
@@ -505,6 +515,136 @@
               </button>
             </div>
           </ng-template>
+        </div>
+      </div>
+
+      <!-- Tab Content: Security & Active Sessions -->
+      <div *ngIf="activeTab === 'security'" class="tab-content security-tab-content">
+        <!-- Notification Banners -->
+        <div *ngIf="sessionActionMessage" class="alert alert-success">
+          <svg class="icon-svg icon-svg-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <span>{{ sessionActionMessage }}</span>
+        </div>
+        <div *ngIf="sessionErrorMessage" class="alert alert-error">
+          <svg class="icon-svg icon-svg-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
+          </svg>
+          <span>{{ sessionErrorMessage }}</span>
+        </div>
+
+        <!-- Section 1: Double Authentification (2FA) -->
+        <div class="app-card security-card">
+          <div class="security-card-header">
+            <div class="security-header-left">
+              <div class="security-icon-badge" [class.badge-active]="currentUser()?.twoFactorEnabled">
+                <svg class="icon-svg icon-svg-md" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
+                </svg>
+              </div>
+              <div class="security-info">
+                <div class="security-title-row">
+                  <h4>Authentification à Deux Facteurs (2FA par Email)</h4>
+                  <span class="badge" [ngClass]="currentUser()?.twoFactorEnabled ? 'badge-emerald' : 'badge-gray'">
+                    {{ currentUser()?.twoFactorEnabled ? 'Activée' : 'Désactivée' }}
+                  </span>
+                </div>
+                <p class="security-desc">
+                  Renforce la sécurité de votre compte en exigeant un code de vérification à 6 chiffres envoyé instantanément par email à chaque tentative de connexion.
+                </p>
+              </div>
+            </div>
+            <div class="security-action-btn">
+              <button 
+                *ngIf="!currentUser()?.twoFactorEnabled" 
+                (click)="toggleTwoFactor(true)" 
+                [disabled]="isUpdating2fa" 
+                class="btn btn-emerald btn-sm">
+                <span *ngIf="!isUpdating2fa">Activer la 2FA</span>
+                <span *ngIf="isUpdating2fa">Activation...</span>
+              </button>
+              <button 
+                *ngIf="currentUser()?.twoFactorEnabled" 
+                (click)="toggleTwoFactor(false)" 
+                [disabled]="isUpdating2fa" 
+                class="btn btn-outline btn-sm btn-danger-hover">
+                <span *ngIf="!isUpdating2fa">Désactiver</span>
+                <span *ngIf="isUpdating2fa">Désactivation...</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Section 2: Appareils & Historique des Connexions -->
+        <div class="app-card security-card">
+          <div class="security-card-header">
+            <div>
+              <h4>Appareils & Sessions Actives</h4>
+              <p class="security-desc">
+                Voici la liste des téléphones, tablettes et ordinateurs qui se sont connectés à votre compte. Vous pouvez révoquer l'accès à tout moment.
+              </p>
+            </div>
+            <button 
+              *ngIf="sessions.length > 1" 
+              (click)="revokeOtherSessions()" 
+              class="btn btn-outline btn-sm btn-danger-hover">
+              Déconnecter les autres appareils
+            </button>
+          </div>
+
+          <div *ngIf="isLoadingSessions" class="sessions-loading">
+            <div class="spinner"></div>
+            <span>Chargement des sessions...</span>
+          </div>
+
+          <div *ngIf="!isLoadingSessions && sessions.length > 0" class="sessions-list">
+            <div *ngFor="let s of sessions" class="session-item" [class.current-session]="s.isCurrent">
+              <!-- Device Icon -->
+              <div class="session-device-icon" [ngClass]="s.isCurrent ? 'icon-current' : 'icon-other'">
+                <!-- Phone Icon -->
+                <svg *ngIf="s.deviceType === 'MOBILE'" class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.5 1.5H8.25A2.25 2.25 0 006 3.75v16.5a2.25 2.25 0 002.25 2.25h7.5A2.25 2.25 0 0018 20.25V3.75a2.25 2.25 0 00-2.25-2.25H13.5m-3 0V3h3V1.5m-3 0h3m-3 18.75h3" />
+                </svg>
+                <!-- Tablet Icon -->
+                <svg *ngIf="s.deviceType === 'TABLET'" class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.5 19.5h3m-6.75 2.25h10.5a2.25 2.25 0 002.25-2.25v-15a2.25 2.25 0 00-2.25-2.25H6.75A2.25 2.25 0 004.5 4.5v15a2.25 2.25 0 002.25 2.25z" />
+                </svg>
+                <!-- Desktop Icon -->
+                <svg *ngIf="s.deviceType !== 'MOBILE' && s.deviceType !== 'TABLET'" class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17.25v1.007a3 3 0 01-.879 2.122L7.5 21h9l-.621-.621A3 3 0 0115 18.257V17.25m6-12V15a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 15V5.25m18 0A2.25 2.25 0 0018.75 3H5.25A2.25 2.25 0 003 5.25m18 0H3" />
+                </svg>
+              </div>
+
+              <!-- Session Details -->
+              <div class="session-info">
+                <div class="session-name-row">
+                  <span class="session-name">{{ s.deviceName || 'Appareil Web' }}</span>
+                  <span *ngIf="s.isCurrent" class="badge badge-emerald">Cet appareil (Session actuelle)</span>
+                  <span *ngIf="!s.isCurrent && s.status === 'ACTIVE'" class="badge badge-gray">Actif</span>
+                  <span *ngIf="s.status === 'REVOKED'" class="badge badge-red">Déconnecté</span>
+                </div>
+                <div class="session-meta">
+                  <span>IP : {{ s.ipAddress }}</span>
+                  <span class="dot-sep">&bull;</span>
+                  <span>{{ s.operatingSystem }} • {{ s.browser }}</span>
+                  <span class="dot-sep">&bull;</span>
+                  <span>Dernière activité : {{ s.lastActiveAt | date:'medium' }}</span>
+                </div>
+              </div>
+
+              <!-- Action button -->
+              <div class="session-action" *ngIf="!s.isCurrent && s.status === 'ACTIVE'">
+                <button (click)="revokeSession(s.id)" class="btn btn-outline btn-xs btn-danger-hover" title="Déconnecter cette session">
+                  Déconnecter
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div *ngIf="!isLoadingSessions && sessions.length === 0" class="empty-sessions">
+            <p class="text-muted">Aucune autre session enregistrée.</p>
+          </div>
         </div>
       </div>
     </div>
