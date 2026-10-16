@@ -32,6 +32,7 @@ export class ProjectListComponent implements OnInit {
   totalProjects = 0;
   isServerOffline = false;
   selectedCategory: string = 'ALL';
+  currentSort: 'SUGGESTED' | 'FOLLOWING' | 'POPULAR' | 'SAME_COUNTRY' | 'COLLABORATION' | 'RECENT' = 'SUGGESTED';
   searchQuery: string = '';
 
   // Advanced Filters
@@ -41,6 +42,17 @@ export class ProjectListComponent implements OnInit {
 
   isLoggedIn(): boolean {
     return this.authService.isLoggedIn();
+  }
+
+  setSort(sort: 'SUGGESTED' | 'FOLLOWING' | 'POPULAR' | 'SAME_COUNTRY' | 'COLLABORATION' | 'RECENT'): void {
+    if (this.currentSort === sort) return;
+    this.currentSort = sort;
+    this.loadProjects();
+  }
+
+  isMatchedTech(project: Project, tech: string): boolean {
+    if (!project.matchedStack || project.matchedStack.length === 0) return false;
+    return project.matchedStack.some(t => t.toLowerCase() === tech.toLowerCase());
   }
 
   // Create Modal State
@@ -156,7 +168,7 @@ export class ProjectListComponent implements OnInit {
     this.hasMoreProjects = true;
     const cat = this.selectedCategory !== 'ALL' ? this.selectedCategory : undefined;
 
-    this.projectService.getProjects(0, 20, cat).subscribe({
+    this.projectService.getProjects(0, 20, cat, this.currentSort).subscribe({
       next: (res: any) => {
         this.isLoading = false;
         this.isServerOffline = false;
@@ -199,7 +211,7 @@ export class ProjectListComponent implements OnInit {
     const nextPage = Math.floor(this.projects.length / 2);
     const cat = this.selectedCategory !== 'ALL' ? this.selectedCategory : undefined;
 
-    this.projectService.getProjects(nextPage, 2, cat).subscribe({
+    this.projectService.getProjects(nextPage, 2, cat, this.currentSort).subscribe({
       next: (res: any) => {
         this.isLoadingMore = false;
         let newItems: Project[] = [];

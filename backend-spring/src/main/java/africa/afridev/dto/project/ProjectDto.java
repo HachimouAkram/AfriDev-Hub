@@ -46,4 +46,8 @@ public class ProjectDto {
     private Boolean recognizedByCurrentUser;
     private ContentStatus status;
     private LocalDateTime createdAt;
+    private Double matchPercentage;
+    private String suggestionReason;
+    private List<String> matchedStack;
+    private Boolean isAuthorFollowed;
 }

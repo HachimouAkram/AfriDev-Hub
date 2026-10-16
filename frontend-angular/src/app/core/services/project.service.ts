@@ -43,6 +43,10 @@ export interface Project {
   recognizedByCurrentUser: boolean;
   status: string;
   createdAt: string;
+  matchPercentage?: number;
+  suggestionReason?: string;
+  matchedStack?: string[];
+  isAuthorFollowed?: boolean;
 }
 
 @Injectable({
@@ -52,13 +56,17 @@ export class ProjectService {
   private http = inject(HttpClient);
   private apiUrl = 'http://localhost:8081/api/v1/projects';
 
-  getProjects(page = 0, size = 20, projectType?: string): Observable<ApiResponse<any>> {
+  getProjects(page = 0, size = 20, projectType?: string, sort?: string): Observable<ApiResponse<any>> {
     let params = new HttpParams()
       .set('page', page.toString())
       .set('size', size.toString());
 
     if (projectType && projectType !== 'ALL') {
       params = params.set('projectType', projectType);
+    }
+
+    if (sort) {
+      params = params.set('sort', sort);
     }
 
     return this.http.get<ApiResponse<any>>(this.apiUrl, { params });

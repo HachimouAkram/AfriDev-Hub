@@ -146,6 +146,56 @@
     </button>
   </div>
 
+  <!-- Sort Pills Row (IA / Suivis / Populaires / Même pays / Collaboration / Récents) -->
+  <div class="project-sort-bar-row">
+    <span class="project-sort-label">Trier par :</span>
+    <div class="project-sort-pills">
+      <button 
+        type="button"
+        (click)="setSort('SUGGESTED')" 
+        [class.active]="currentSort === 'SUGGESTED'" 
+        class="p-sort-pill-btn">
+        <span>✨ Recommandés pour vous</span>
+      </button>
+      <button 
+        *ngIf="isLoggedIn()"
+        type="button"
+        (click)="setSort('FOLLOWING')" 
+        [class.active]="currentSort === 'FOLLOWING'" 
+        class="p-sort-pill-btn highlight-following">
+        <span>👥 Personnes que je suis</span>
+      </button>
+      <button 
+        type="button"
+        (click)="setSort('POPULAR')" 
+        [class.active]="currentSort === 'POPULAR'" 
+        class="p-sort-pill-btn">
+        <span>🔥 Plus populaires</span>
+      </button>
+      <button 
+        type="button"
+        (click)="setSort('SAME_COUNTRY')" 
+        [class.active]="currentSort === 'SAME_COUNTRY'" 
+        class="p-sort-pill-btn">
+        <span>🌍 Même pays</span>
+      </button>
+      <button 
+        type="button"
+        (click)="setSort('COLLABORATION')" 
+        [class.active]="currentSort === 'COLLABORATION'" 
+        class="p-sort-pill-btn">
+        <span>🤝 Collaborations</span>
+      </button>
+      <button 
+        type="button"
+        (click)="setSort('RECENT')" 
+        [class.active]="currentSort === 'RECENT'" 
+        class="p-sort-pill-btn">
+        <span>⏱️ Récents</span>
+      </button>
+    </div>
+  </div>
+
   <!-- Offline Server Warning State -->
   <div *ngIf="isServerOffline && !isLoading" class="app-card server-offline-card">
     <div class="offline-content">
@@ -189,16 +239,24 @@
 
   <!-- Projects Grid -->
   <div class="projects-grid" *ngIf="!isLoading && !isServerOffline && filteredProjects.length > 0; else loadingState">
-    <div *ngFor="let p of filteredProjects" class="app-card project-card" (click)="openDetailModal(p)">
+    <div *ngFor="let p of filteredProjects" class="app-card project-card" [class.is-recommended-project]="p.matchPercentage && p.matchPercentage >= 75" (click)="openDetailModal(p)">
       <div class="card-top">
         <div class="author-info">
           <div class="author-avatar">
             {{ (p.author?.profile?.fullName || p.author?.email || 'A').charAt(0).toUpperCase() }}
           </div>
           <div class="author-meta">
-            <a [routerLink]="['/profile', p.author?.profile?.id || p.author?.id]" (click)="$event.stopPropagation()" class="author-name">
-              {{ p.author?.profile?.fullName || p.author?.email || 'Développeur' }}
-            </a>
+            <div class="author-name-row">
+              <a [routerLink]="['/profile', p.author?.profile?.id || p.author?.id]" (click)="$event.stopPropagation()" class="author-name">
+                {{ p.author?.profile?.fullName || p.author?.email || 'Développeur' }}
+              </a>
+              <span class="author-followed-badge" *ngIf="p.isAuthorFollowed" title="Vous suivez cet auteur">
+                <svg class="icon-svg icon-svg-xs" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7.5v3m0 0v3m0-3h3m-3 0h-3m-2.25-1.5a4.5 4.5 0 11-9 0 4.5 4.5 0 019 0zM3.751 20.105a8.25 8.25 0 0116.498 0 .75.75 0 01-.437.695A18.683 18.683 0 0112 22.5c-2.786 0-5.433-.608-7.812-1.7a.75.75 0 01-.437-.695z" />
+                </svg>
+                Suivi
+              </span>
+            </div>
             <span class="author-country" *ngIf="p.author?.profile?.country">
               <svg class="inline-icon-xs" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -209,14 +267,27 @@
           </div>
         </div>
 
-        <span class="badge" [ngClass]="getProjectTypeBadge(p.projectType).class">
-          {{ getProjectTypeBadge(p.projectType).label }}
-        </span>
+        <div class="card-badges-group">
+          <span class="project-affinity-pill" *ngIf="p.matchPercentage">
+            ✨ {{ p.matchPercentage | number:'1.0-0' }}% Match
+          </span>
+          <span class="badge" [ngClass]="getProjectTypeBadge(p.projectType).class">
+            {{ getProjectTypeBadge(p.projectType).label }}
+          </span>
+        </div>
       </div>
 
       <div class="card-main">
         <h3 class="project-title">{{ p.title }}</h3>
         <p class="project-desc">{{ p.description }}</p>
+
+        <!-- Raison explicite de la recommandation -->
+        <div class="project-reason-row" *ngIf="p.suggestionReason">
+          <svg class="icon-svg icon-svg-xs text-amber" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18v-5.25m0 0a6.01 6.01 0 001.5-.189m-1.5.189a6.01 6.01 0 01-1.5-.189m3.75 2.625a3.375 3.375 0 00-3.75-3.375m-3.75 3.375a3.375 3.375 0 013.75-3.375m0 0V5.25m0 0a2.25 2.25 0 00-2.25-2.25h-1.5A2.25 2.25 0 006 5.25v2.25m6-4.5a2.25 2.25 0 012.25 2.25v2.25" />
+          </svg>
+          <span class="reason-text">{{ p.suggestionReason }}</span>
+        </div>
 
         <!-- Company if enterprise -->
         <div *ngIf="p.companyName" class="enterprise-tag-line text-xs text-muted">
@@ -235,7 +306,12 @@
         </div>
 
         <div class="stack-list" *ngIf="p.stack && p.stack.length">
-          <span *ngFor="let tech of p.stack" class="badge badge-gray">
+          <span *ngFor="let tech of p.stack" 
+                class="badge" 
+                [ngClass]="isMatchedTech(p, tech) ? 'badge-tech-matched' : 'badge-gray'">
+            <svg *ngIf="isMatchedTech(p, tech)" class="icon-svg icon-svg-xs text-emerald" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M4.5 12.75l6 6 9-13.5" />
+            </svg>
             {{ tech }}
           </span>
         </div>

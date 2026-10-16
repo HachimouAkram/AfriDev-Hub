@@ -27,11 +27,12 @@ public class ProjectController {
     public ResponseEntity<ApiResponse<Page<ProjectDto>>> getAllProjects(
             Authentication authentication,
             @RequestParam(required = false) africa.afridev.model.enums.ProjectType projectType,
+            @RequestParam(defaultValue = "SUGGESTED") String sort,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size
     ) {
         String email = authentication != null ? authentication.getName() : null;
-        Page<ProjectDto> projects = projectService.getAllProjects(email, projectType, PageRequest.of(page, size));
+        Page<ProjectDto> projects = projectService.getAllProjects(email, projectType, sort, PageRequest.of(page, size));
         return ResponseEntity.ok(ApiResponse.ok(projects, Map.of("page", page, "perPage", size, "total", projects.getTotalElements())));
     }
 

@@ -11,6 +11,8 @@ import org.springframework.stereotype.Repository;
 public interface ProjectRepository extends JpaRepository<ProjectEntity, String> {
     Page<ProjectEntity> findByStatusOrderByCreatedAtDesc(ContentStatus status, Pageable pageable);
     Page<ProjectEntity> findByStatusAndProjectTypeOrderByCreatedAtDesc(ContentStatus status, africa.afridev.model.enums.ProjectType projectType, Pageable pageable);
+    java.util.List<ProjectEntity> findByStatus(ContentStatus status);
+    java.util.List<ProjectEntity> findByStatusAndProjectType(ContentStatus status, africa.afridev.model.enums.ProjectType projectType);
     Page<ProjectEntity> findByAuthorIdAndStatus(String authorId, ContentStatus status, Pageable pageable);
     Page<ProjectEntity> findByAuthorIdOrderByCreatedAtDesc(String authorId, Pageable pageable);
 
