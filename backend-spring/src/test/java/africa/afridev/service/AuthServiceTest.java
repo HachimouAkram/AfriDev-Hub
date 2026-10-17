@@ -23,6 +23,8 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
+import africa.afridev.repository.LoginSessionRepository;
+
 @ExtendWith(MockitoExtension.class)
 class AuthServiceTest {
 
@@ -38,8 +40,15 @@ class AuthServiceTest {
     @Mock
     private OtpService otpService;
 
+    @Mock
+    private EmailService emailService;
+
+    @Mock
+    private LoginSessionRepository loginSessionRepository;
+
     @InjectMocks
     private AuthService authService;
+
 
     private UserEntity mockUser;
 
@@ -86,12 +95,14 @@ class AuthServiceTest {
 
         when(userRepository.findByEmail("test@afridev.africa")).thenReturn(Optional.of(mockUser));
         when(passwordEncoder.matches("password123", "hashed_pass")).thenReturn(true);
+        when(loginSessionRepository.existsByUserIdAndDeviceIdAndStatus(any(), any(), eq("ACTIVE"))).thenReturn(true);
         when(tokenProvider.generateToken("test@afridev.africa")).thenReturn("mocked_jwt_token");
 
         AuthResponse response = authService.login(request);
 
         assertNotNull(response);
         assertEquals("mocked_jwt_token", response.getToken());
+
     }
 
     @Test

@@ -2,24 +2,34 @@ import httpx
 import json
 import redis
 import os
+from datetime import datetime, timezone
 from typing import Optional, Dict, Any, List
-from app.schemas.github import GitHubStatsResponse, LanguageStat
+from app.schemas.github import (
+    GitHubStatsResponse,
+    LanguageStat,
+    GitHubVerifyResponse,
+    GitHubRateLimitResponse
+)
 
-# Connection Redis avec fallback
+# Connection Redis avec fallback robuste
 REDIS_HOST = os.getenv("REDIS_HOST", "localhost")
 REDIS_PORT = int(os.getenv("REDIS_PORT", "6380"))
 REDIS_PASSWORD = os.getenv("REDIS_PASSWORD", "redis_secret")
 
-try:
-    redis_client = redis.Redis(
-        host=REDIS_HOST,
-        port=REDIS_PORT,
-        password=REDIS_PASSWORD,
-        decode_responses=True,
-        socket_connect_timeout=2
-    )
-except Exception as e:
-    redis_client = None
+def get_redis_client():
+    try:
+        client = redis.Redis(
+            host=REDIS_HOST,
+            port=REDIS_PORT,
+            password=REDIS_PASSWORD,
+            decode_responses=True,
+            socket_connect_timeout=2,
+            socket_timeout=2
+        )
+        client.ping()
+        return client
+    except Exception:
+        return None
 
 LANGUAGE_COLORS = {
     "JavaScript": "#F7DF1E",
@@ -31,19 +41,102 @@ LANGUAGE_COLORS = {
     "Go": "#00ADD8",
     "Rust": "#DEA584",
     "C++": "#F34B7D",
-    "PHP": "#4F5D95"
+    "C": "#555555",
+    "PHP": "#4F5D95",
+    "Ruby": "#701516",
+    "Swift": "#F05138",
+    "Kotlin": "#A97BFF",
+    "Dart": "#00B4AB",
+    "Shell": "#89E051",
+    "C#": "#178600"
 }
 
 class GitHubService:
 
     @staticmethod
-    async def fetch_user_github_stats(username: str) -> GitHubStatsResponse:
-        cache_key = f"github:stats:{username.lower()}"
+    def get_headers() -> Dict[str, str]:
+        headers = {
+            "User-Agent": "AfriDevHub-App",
+            "Accept": "application/vnd.github.v3+json"
+        }
+        token = os.getenv("GITHUB_TOKEN")
+        if token and token.strip():
+            headers["Authorization"] = f"Bearer {token.strip()}"
+        return headers
 
-        # 1. Verification du cache Redis (24h)
-        if redis_client:
+    @staticmethod
+    async def get_rate_limit() -> GitHubRateLimitResponse:
+        """Vérifie la connectivité à l'API GitHub et retourne le quota de requêtes restant."""
+        headers = GitHubService.get_headers()
+        async with httpx.AsyncClient(timeout=10.0) as client:
             try:
-                cached_data = redis_client.get(cache_key)
+                res = await client.get("https://api.github.com/rate_limit", headers=headers)
+                if res.status_code == 200:
+                    data = res.json().get("resources", {}).get("core", {})
+                    limit = data.get("limit", 60)
+                    remaining = data.get("remaining", 0)
+                    reset_epoch = data.get("reset", 0)
+                    reset_dt = datetime.fromtimestamp(reset_epoch, tz=timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC")
+                    authenticated = "Authorization" in headers
+                    status = "OK" if remaining > 0 else "RATE_LIMITED"
+
+                    return GitHubRateLimitResponse(
+                        limit=limit,
+                        remaining=remaining,
+                        reset_epoch=reset_epoch,
+                        reset_datetime=reset_dt,
+                        authenticated=authenticated,
+                        status=status
+                    )
+                else:
+                    raise RuntimeError(f"Erreur GitHub API: code {res.status_code}")
+            except httpx.RequestError as e:
+                raise RuntimeError(f"Impossible de joindre GitHub API: {str(e)}")
+
+    @staticmethod
+    async def verify_user(username: str) -> GitHubVerifyResponse:
+        """Vérifie si un compte GitHub existe et renvoie les informations de base."""
+        headers = GitHubService.get_headers()
+        async with httpx.AsyncClient(timeout=10.0) as client:
+            user_url = f"https://api.github.com/users/{username}"
+            try:
+                res = await client.get(user_url, headers=headers)
+            except httpx.RequestError as e:
+                raise RuntimeError(f"Erreur réseau lors de la vérification GitHub: {str(e)}")
+
+            if res.status_code == 404:
+                return GitHubVerifyResponse(
+                    username=username,
+                    exists=False,
+                    message=f"Le profil GitHub '{username}' n'existe pas."
+                )
+            elif res.status_code == 403:
+                raise RuntimeError("Limite d'appels GitHub API atteinte (Rate Limit 403).")
+            elif res.status_code != 200:
+                raise RuntimeError(f"Erreur API GitHub ({res.status_code}).")
+
+            data = res.json()
+            return GitHubVerifyResponse(
+                username=data.get("login", username),
+                exists=True,
+                name=data.get("name"),
+                avatar_url=data.get("avatar_url"),
+                html_url=data.get("html_url"),
+                bio=data.get("bio"),
+                public_repos=data.get("public_repos", 0),
+                followers=data.get("followers", 0),
+                message="Compte GitHub validé avec succès."
+            )
+
+    @staticmethod
+    async def fetch_user_github_stats(username: str, bypass_cache: bool = False) -> GitHubStatsResponse:
+        cache_key = f"github:stats:{username.lower()}"
+        r_client = get_redis_client()
+
+        # 1. Vérification du cache Redis (24h)
+        if r_client and not bypass_cache:
+            try:
+                cached_data = r_client.get(cache_key)
                 if cached_data:
                     parsed = json.loads(cached_data)
                     parsed["cached"] = True
@@ -51,20 +144,29 @@ class GitHubService:
             except Exception:
                 pass
 
-        # 2. Appel des API GitHub (REST API fallback sans token)
+        # 2. Appel des API GitHub
+        headers = GitHubService.get_headers()
         async with httpx.AsyncClient(timeout=10.0) as client:
             user_url = f"https://api.github.com/users/{username}"
-            user_res = await client.get(user_url, headers={"User-Agent": "AfriDevHub-App"})
+            try:
+                user_res = await client.get(user_url, headers=headers)
+            except httpx.RequestError as e:
+                raise RuntimeError(f"Erreur réseau vers GitHub: {str(e)}")
 
             if user_res.status_code == 404:
                 raise ValueError(f"Utilisateur GitHub '{username}' introuvable.")
+            if user_res.status_code == 403:
+                raise RuntimeError("Limite de requêtes GitHub API dépassée (Rate limit). Configurez un GITHUB_TOKEN.")
             if user_res.status_code != 200:
                 raise RuntimeError(f"Erreur API GitHub ({user_res.status_code}).")
 
             user_data = user_res.json()
             repos_url = f"https://api.github.com/users/{username}/repos?per_page=100&sort=updated"
-            repos_res = await client.get(repos_url, headers={"User-Agent": "AfriDevHub-App"})
-            repos_data = repos_res.json() if repos_res.status_code == 200 else []
+            try:
+                repos_res = await client.get(repos_url, headers=headers)
+                repos_data = repos_res.json() if repos_res.status_code == 200 else []
+            except Exception:
+                repos_data = []
 
         # 3. Traitement & Calcul des Statistiques
         total_stars = 0
@@ -100,10 +202,11 @@ class GitHubService:
         )
 
         # 4. Sauvegarde dans Redis (Cache 24 heures = 86400s)
-        if redis_client:
+        if r_client:
             try:
-                redis_client.setex(cache_key, 86400, stats.model_dump_json())
+                r_client.setex(cache_key, 86400, stats.model_dump_json())
             except Exception:
                 pass
 
         return stats
+

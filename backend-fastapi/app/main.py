@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from datetime import datetime
+from datetime import datetime, timezone
 from app.routers import github, reputation, suggestions
 
 app = FastAPI(
@@ -34,5 +34,6 @@ def health_check():
     return {
         "status": "UP",
         "service": "backend-fastapi",
-        "timestamp": datetime.utcnow().isoformat()
+        "timestamp": datetime.now(timezone.utc).isoformat()
     }
+
