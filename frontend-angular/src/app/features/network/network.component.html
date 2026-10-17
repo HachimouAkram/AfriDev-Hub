@@ -99,28 +99,32 @@
           (click)="setSort('SUGGESTED')" 
           [class.active]="currentSort === 'SUGGESTED'" 
           class="sort-pill-btn">
-          <span>✨ Recommandés pour vous</span>
+          <i class="ri-magic-line"></i>
+          <span>Recommandés pour vous</span>
         </button>
         <button 
           type="button"
           (click)="setSort('POPULAR')" 
           [class.active]="currentSort === 'POPULAR'" 
           class="sort-pill-btn">
-          <span>🔥 Plus populaires</span>
+          <i class="ri-fire-line"></i>
+          <span>Plus populaires</span>
         </button>
         <button 
           type="button"
           (click)="setSort('SAME_COUNTRY')" 
           [class.active]="currentSort === 'SAME_COUNTRY'" 
           class="sort-pill-btn">
-          <span>🌍 Même pays</span>
+          <i class="ri-map-pin-user-line"></i>
+          <span>Même pays</span>
         </button>
         <button 
           type="button"
           (click)="setSort('RECENT')" 
           [class.active]="currentSort === 'RECENT'" 
           class="sort-pill-btn">
-          <span>⏱️ Nouveaux arrivants</span>
+          <i class="ri-time-line"></i>
+          <span>Nouveaux arrivants</span>
         </button>
       </div>
     </div>

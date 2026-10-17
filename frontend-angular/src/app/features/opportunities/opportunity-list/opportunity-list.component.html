@@ -32,22 +32,22 @@
     </span>
     <div class="sort-pills">
       <button class="sort-pill" [class.active]="currentSort === 'SUGGESTED'" (click)="setSort('SUGGESTED')">
-        <span class="pill-icon">✨</span> Recommandées
+        <i class="ri-magic-line pill-icon"></i> Recommandées
       </button>
       <button class="sort-pill" [class.active]="currentSort === 'MATCHING_SKILLS'" (click)="setSort('MATCHING_SKILLS')">
-        <span class="pill-icon">💻</span> Mes Compétences
+        <i class="ri-code-box-line pill-icon"></i> Mes Compétences
       </button>
       <button class="sort-pill" [class.active]="currentSort === 'FOLLOWING'" (click)="setSort('FOLLOWING')">
-        <span class="pill-icon">👥</span> Recruteurs suivis
+        <i class="ri-user-follow-line pill-icon"></i> Recruteurs suivis
       </button>
       <button class="sort-pill" [class.active]="currentSort === 'REMOTE'" (click)="setSort('REMOTE')">
-        <span class="pill-icon">🌍</span> Télétravail
+        <i class="ri-broadcast-line pill-icon"></i> Télétravail
       </button>
       <button class="sort-pill" [class.active]="currentSort === 'SAME_COUNTRY'" (click)="setSort('SAME_COUNTRY')">
-        <span class="pill-icon">📍</span> Même pays
+        <i class="ri-map-pin-user-line pill-icon"></i> Même pays
       </button>
       <button class="sort-pill" [class.active]="currentSort === 'RECENT'" (click)="setSort('RECENT')">
-        <span class="pill-icon">🕒</span> Plus récentes
+        <i class="ri-time-line pill-icon"></i> Plus récentes
       </button>
     </div>
   </div>

@@ -155,7 +155,8 @@
         (click)="setSort('SUGGESTED')" 
         [class.active]="currentSort === 'SUGGESTED'" 
         class="p-sort-pill-btn">
-        <span>✨ Recommandés pour vous</span>
+        <i class="ri-magic-line"></i>
+        <span>Recommandés pour vous</span>
       </button>
       <button 
         *ngIf="isLoggedIn()"
@@ -163,35 +164,40 @@
         (click)="setSort('FOLLOWING')" 
         [class.active]="currentSort === 'FOLLOWING'" 
         class="p-sort-pill-btn highlight-following">
-        <span>👥 Personnes que je suis</span>
+        <i class="ri-user-follow-line"></i>
+        <span>Personnes que je suis</span>
       </button>
       <button 
         type="button"
         (click)="setSort('POPULAR')" 
         [class.active]="currentSort === 'POPULAR'" 
         class="p-sort-pill-btn">
-        <span>🔥 Plus populaires</span>
+        <i class="ri-fire-line"></i>
+        <span>Plus populaires</span>
       </button>
       <button 
         type="button"
         (click)="setSort('SAME_COUNTRY')" 
         [class.active]="currentSort === 'SAME_COUNTRY'" 
         class="p-sort-pill-btn">
-        <span>🌍 Même pays</span>
+        <i class="ri-map-pin-user-line"></i>
+        <span>Même pays</span>
       </button>
       <button 
         type="button"
         (click)="setSort('COLLABORATION')" 
         [class.active]="currentSort === 'COLLABORATION'" 
         class="p-sort-pill-btn">
-        <span>🤝 Collaborations</span>
+        <i class="ri-team-line"></i>
+        <span>Collaborations</span>
       </button>
       <button 
         type="button"
         (click)="setSort('RECENT')" 
         [class.active]="currentSort === 'RECENT'" 
         class="p-sort-pill-btn">
-        <span>⏱️ Récents</span>
+        <i class="ri-time-line"></i>
+        <span>Récents</span>
       </button>
     </div>
   </div>
