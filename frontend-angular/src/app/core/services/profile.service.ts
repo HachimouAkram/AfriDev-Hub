@@ -2,6 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { ApiResponse, Profile } from './auth.service';
+import { getUploadApiUrl } from '../utils/upload-helper';
 
 export interface GitHubLanguageStat {
   name: string;
@@ -56,13 +57,13 @@ export class ProfileService {
   uploadAvatar(file: File): Observable<ApiResponse<{ url: string }>> {
     const formData = new FormData();
     formData.append('file', file);
-    return this.http.post<ApiResponse<{ url: string }>>('/api/v1/uploads/image', formData);
+    return this.http.post<ApiResponse<{ url: string }>>(getUploadApiUrl('image'), formData);
   }
 
   uploadCv(file: File): Observable<ApiResponse<{ url: string }>> {
     const formData = new FormData();
     formData.append('file', file);
-    return this.http.post<ApiResponse<{ url: string }>>('/api/v1/uploads/pdf', formData);
+    return this.http.post<ApiResponse<{ url: string }>>(getUploadApiUrl('pdf'), formData);
   }
 
   /** Generic URL resolver for any uploaded file (image or PDF) */

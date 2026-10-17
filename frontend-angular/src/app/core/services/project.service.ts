@@ -2,6 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { ApiResponse, User } from './auth.service';
+import { getUploadApiUrl } from '../utils/upload-helper';
 
 export type ProjectType = 'OPEN_SOURCE' | 'FOR_SALE' | 'SAAS' | 'PORTFOLIO' | 'ENTERPRISE' | 'COLLABORATIVE';
 export type SaleType = 'LICENSED' | 'FULL_SOURCE_CODE' | 'EXCLUSIVE_CESSION';
@@ -127,13 +128,13 @@ export class ProjectService {
   uploadImage(file: File): Observable<ApiResponse<{ url: string }>> {
     const formData = new FormData();
     formData.append('file', file);
-    return this.http.post<ApiResponse<{ url: string }>>('/api/v1/uploads/image', formData);
+    return this.http.post<ApiResponse<{ url: string }>>(getUploadApiUrl('image'), formData);
   }
 
   uploadPdf(file: File): Observable<ApiResponse<{ url: string }>> {
     const formData = new FormData();
     formData.append('file', file);
-    return this.http.post<ApiResponse<{ url: string }>>('/api/v1/uploads/pdf', formData);
+    return this.http.post<ApiResponse<{ url: string }>>(getUploadApiUrl('pdf'), formData);
   }
 }
 

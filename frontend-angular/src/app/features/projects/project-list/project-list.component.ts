@@ -633,7 +633,13 @@ export class ProjectListComponent implements OnInit {
       },
       error: (err) => {
         this.isUploadingCv = false;
-        this.cvUploadError = err.error?.error?.message || 'Erreur lors du téléversement du CV.';
+        if (err.status === 413) {
+          this.cvUploadError = 'Le fichier PDF est trop volumineux pour le réseau (413).';
+        } else if (err.status === 502) {
+          this.cvUploadError = 'Le serveur est temporairement inaccessible (502). Veuillez réessayer.';
+        } else {
+          this.cvUploadError = err.error?.error?.message || err.error?.message || 'Erreur lors du téléversement du CV.';
+        }
       }
     });
   }

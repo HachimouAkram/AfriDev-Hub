@@ -7,6 +7,7 @@ import { ProjectService, Project, ProjectComment, ProjectType, SaleType, SaasPri
 import { AuthService } from '../../../../core/services/auth.service';
 import { FollowService, FollowStats } from '../../../../core/services/follow.service';
 import { ProjectCollaborationService, ProjectMember, ProjectTask, ProjectProgress, TaskStatus, TaskPriority, MemberStatus } from '../../../../core/services/project-collaboration.service';
+import { compressImage } from '../../../../core/utils/upload-helper';
 
 @Component({
   selector: 'app-dashboard-projects',
@@ -253,32 +254,48 @@ export class DashboardProjectsComponent implements OnInit {
     this.formSuccessMessage = '';
   }
 
-  onImageSelected(event: any): void {
+  async onImageSelected(event: any): Promise<void> {
     const file: File = event.target.files[0];
     if (!file) return;
 
-    if (file.size > 5 * 1024 * 1024) {
-      this.formErrorMessage = 'L\'image dépasse la taille maximale autorisée de 5 Mo.';
+    if (this.projectForm.screenshots.length >= 5) {
+      this.formErrorMessage = 'Nombre maximal de 5 captures atteint.';
+      this.showToast(this.formErrorMessage);
       return;
     }
 
     this.isUploadingMedia = true;
-    this.projectService.uploadImage(file).subscribe({
-      next: (res) => {
-        this.isUploadingMedia = false;
-        if (res.success && res.data?.url) {
-          if (this.projectForm.screenshots.length < 5) {
+    this.formErrorMessage = '';
+
+    try {
+      // Compression automatique côté client pour éviter la limite 4.5 Mo de Vercel (413) et accélérer l'envoi
+      const fileToUpload = await compressImage(file);
+
+      this.projectService.uploadImage(fileToUpload).subscribe({
+        next: (res) => {
+          this.isUploadingMedia = false;
+          if (res.success && res.data?.url) {
             this.projectForm.screenshots.push(res.data.url);
-          } else {
-            this.formErrorMessage = 'Nombre maximal de 5 captures atteint.';
+            this.showToast('Capture d\'écran téléversée avec succès !');
           }
+        },
+        error: (err) => {
+          this.isUploadingMedia = false;
+          if (err.status === 413) {
+            this.formErrorMessage = 'Le fichier est trop volumineux (413). Veuillez choisir une image plus légère.';
+          } else if (err.status === 502) {
+            this.formErrorMessage = 'Le serveur est temporairement inaccessible (502). Veuillez réessayer dans un instant.';
+          } else {
+            this.formErrorMessage = err.error?.error?.message || err.error?.message || 'Erreur lors du téléversement de l\'image.';
+          }
+          this.showToast(this.formErrorMessage);
         }
-      },
-      error: (err) => {
-        this.isUploadingMedia = false;
-        this.formErrorMessage = err.error?.message || 'Erreur lors du téléversement de l\'image.';
-      }
-    });
+      });
+    } catch {
+      this.isUploadingMedia = false;
+      this.formErrorMessage = 'Erreur lors du traitement de l\'image.';
+      this.showToast(this.formErrorMessage);
+    }
   }
 
   removeScreenshot(index: number): void {
@@ -291,20 +308,31 @@ export class DashboardProjectsComponent implements OnInit {
 
     if (file.size > 10 * 1024 * 1024) {
       this.formErrorMessage = 'Le document PDF dépasse la taille maximale autorisée de 10 Mo.';
+      this.showToast(this.formErrorMessage);
       return;
     }
 
     this.isUploadingMedia = true;
+    this.formErrorMessage = '';
+
     this.projectService.uploadPdf(file).subscribe({
       next: (res) => {
         this.isUploadingMedia = false;
         if (res.success && res.data?.url) {
           this.projectForm.documentationPdfUrl = res.data.url;
+          this.showToast('Document PDF téléversé avec succès !');
         }
       },
       error: (err) => {
         this.isUploadingMedia = false;
-        this.formErrorMessage = err.error?.message || 'Erreur lors du téléversement du PDF.';
+        if (err.status === 413) {
+          this.formErrorMessage = 'Le document PDF est trop volumineux pour le réseau (413).';
+        } else if (err.status === 502) {
+          this.formErrorMessage = 'Le serveur est temporairement inaccessible (502). Veuillez réessayer.';
+        } else {
+          this.formErrorMessage = err.error?.error?.message || err.error?.message || 'Erreur lors du téléversement du PDF.';
+        }
+        this.showToast(this.formErrorMessage);
       }
     });
   }
