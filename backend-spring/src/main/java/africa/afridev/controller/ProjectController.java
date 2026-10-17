@@ -131,4 +131,14 @@ public class ProjectController {
         ProjectDto project = projectService.unrecognizeProject(authentication.getName(), id);
         return ResponseEntity.ok(ApiResponse.ok(project));
     }
+
+    @PostMapping("/{id}/view")
+    public ResponseEntity<ApiResponse<ProjectDto>> recordProjectView(
+            @PathVariable String id,
+            Authentication authentication
+    ) {
+        String email = authentication != null ? authentication.getName() : null;
+        ProjectDto project = projectService.recordView(id, email);
+        return ResponseEntity.ok(ApiResponse.ok(project));
+    }
 }

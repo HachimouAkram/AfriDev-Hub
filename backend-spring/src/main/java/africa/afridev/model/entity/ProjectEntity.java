@@ -91,6 +91,10 @@ public class ProjectEntity {
     @Builder.Default
     private Integer recognitionsCount = 0;
 
+    @Column(name = "views_count")
+    @Builder.Default
+    private Integer viewsCount = 0;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     @Builder.Default

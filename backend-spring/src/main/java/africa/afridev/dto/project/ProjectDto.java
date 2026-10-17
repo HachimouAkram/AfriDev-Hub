@@ -43,6 +43,7 @@ public class ProjectDto {
     private Integer maxMembers;
 
     private Integer recognitionsCount;
+    private Integer viewsCount;
     private Boolean recognizedByCurrentUser;
     private ContentStatus status;
     private LocalDateTime createdAt;

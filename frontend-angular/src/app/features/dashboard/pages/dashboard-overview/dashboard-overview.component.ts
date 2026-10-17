@@ -213,16 +213,22 @@ export class DashboardOverviewComponent implements OnInit {
       return;
     }
 
-    // Sort by recognitionsCount or length, compute top 3
-    const sorted = [...projects].sort((a, b) => (b.recognitionsCount || 0) - (a.recognitionsCount || 0));
+    // Sort by real viewsCount (descending), secondary sort by recognitionsCount
+    const sorted = [...projects].sort((a, b) => {
+      const vDiff = (b.viewsCount || 0) - (a.viewsCount || 0);
+      if (vDiff !== 0) return vDiff;
+      return (b.recognitionsCount || 0) - (a.recognitionsCount || 0);
+    });
     const top3 = sorted.slice(0, 3);
     const colors = ['#10B981', '#06B6D4', '#8B5CF6'];
 
-    // Map each project to top viewed item
-    const highestScore = Math.max(...top3.map(p => (p.recognitionsCount || 1) * 24 + 150), 300);
+    // Map each project to top viewed item using real database views
+    const maxRealViews = Math.max(...top3.map(p => p.viewsCount || 0));
+    const highestScore = Math.max(maxRealViews, 1);
 
     const mapped: TopViewedProject[] = top3.map((p, idx) => {
-      const views = (p.recognitionsCount || 0) * 24 + 180 + (3 - idx) * 95;
+      const views = p.viewsCount || 0;
+      const percentage = maxRealViews > 0 ? Math.max(Math.round((views / highestScore) * 100), 5) : 5;
       return {
         id: p.id,
         title: p.title,
@@ -230,7 +236,7 @@ export class DashboardOverviewComponent implements OnInit {
         stack: p.stack && p.stack.length ? p.stack.slice(0, 3) : ['Tech'],
         views: views,
         recognitions: p.recognitionsCount || 0,
-        percentage: Math.round((views / highestScore) * 100),
+        percentage: percentage,
         color: colors[idx % colors.length]
       };
     });

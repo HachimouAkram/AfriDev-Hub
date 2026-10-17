@@ -251,6 +251,16 @@ public class ProjectService {
         return mapToProjectDto(project, userEmail);
     }
 
+    @Transactional
+    public ProjectDto recordView(String projectId, String currentUserEmail) {
+        ProjectEntity project = projectRepository.findById(projectId)
+                .orElseThrow(() -> new IllegalArgumentException("Projet introuvable."));
+        project.setViewsCount((project.getViewsCount() == null ? 0 : project.getViewsCount()) + 1);
+        ProjectEntity saved = projectRepository.save(project);
+        redisCacheService.evictProjectsCache();
+        return mapToProjectDto(saved, currentUserEmail);
+    }
+
     @Transactional(readOnly = true)
     public Page<ProjectDto> getMyProjects(String userEmail, Pageable pageable) {
         UserEntity user = userRepository.findByEmail(userEmail)
@@ -557,6 +567,7 @@ public class ProjectService {
                 .documentationPdfUrl(project.getDocumentationPdfUrl())
                 .maxMembers(project.getMaxMembers())
                 .recognitionsCount(recognitions)
+                .viewsCount(project.getViewsCount() != null ? project.getViewsCount() : 0)
                 .recognizedByCurrentUser(recognized)
                 .status(project.getStatus())
                 .createdAt(project.getCreatedAt())

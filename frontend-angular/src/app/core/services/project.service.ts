@@ -40,6 +40,7 @@ export interface Project {
   documentationPdfUrl?: string;
   maxMembers?: number;
 
+  viewsCount?: number;
   recognitionsCount: number;
   recognizedByCurrentUser: boolean;
   status: string;
@@ -115,6 +116,10 @@ export class ProjectService {
 
   unrecognizeProject(id: string): Observable<ApiResponse<Project>> {
     return this.http.delete<ApiResponse<Project>>(`${this.apiUrl}/${id}/recognize`);
+  }
+
+  recordView(projectId: string): Observable<ApiResponse<Project>> {
+    return this.http.post<ApiResponse<Project>>(`${this.apiUrl}/${projectId}/view`, {});
   }
 
   getComments(projectId: string): Observable<ApiResponse<ProjectComment[]>> {

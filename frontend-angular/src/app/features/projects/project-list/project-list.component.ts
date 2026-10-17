@@ -487,6 +487,22 @@ export class ProjectListComponent implements OnInit {
     this.loadComments(project.id);
     this.loadCollaborationData(project.id);
 
+    // Enregistrer la vue en temps réel
+    this.projectService.recordView(project.id).subscribe({
+      next: (res) => {
+        if (res?.success && res.data) {
+          project.viewsCount = res.data.viewsCount;
+          if (this.selectedProject && this.selectedProject.id === project.id) {
+            this.selectedProject.viewsCount = res.data.viewsCount;
+          }
+        }
+      },
+      error: () => {
+        // En cas d'erreur réseau temporaire, incrémenter localement
+        project.viewsCount = (project.viewsCount || 0) + 1;
+      }
+    });
+
     const authorUserId = project.author?.id;
     const currentUserId = this.authService.currentUser()?.id;
 
