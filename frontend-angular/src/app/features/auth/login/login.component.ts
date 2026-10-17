@@ -23,6 +23,7 @@ export class LoginComponent implements AfterViewInit {
   email = '';
   password = '';
   otpCode = '';
+  showPassword = false;
 
   otpSent = false;
   isLoading = false;
@@ -35,7 +36,7 @@ export class LoginComponent implements AfterViewInit {
 
   onLoginPassword(): void {
     if (!this.email || !this.password) {
-      this.errorMessage = 'Veuillez remplir l\'email et le mot de passe.';
+      this.errorMessage = 'Veuillez saisir votre adresse email et votre mot de passe.';
       return;
     }
 
@@ -57,12 +58,17 @@ export class LoginComponent implements AfterViewInit {
       },
       error: (err) => {
         this.isLoading = false;
+        console.error('[AUTH] Login error:', err);
         const code = err.error?.error?.code;
         if (code === 'EMAIL_NOT_VERIFIED') {
           // Un OTP a été renvoyé automatiquement par le backend
           this.router.navigate(['/verify-otp'], { queryParams: { email: this.email, mode: 'login' } });
         } else {
-          this.errorMessage = err.error?.error?.message || 'Identifiants invalides ou serveur indisponible.';
+          this.errorMessage = err.error?.error?.message 
+            || err.error?.message 
+            || (err.status === 400 || err.status === 401 
+                ? 'Identifiants invalides (email ou mot de passe incorrect).' 
+                : 'Impossible de joindre le serveur. Veuillez vérifier votre connexion.');
         }
       }
     });
