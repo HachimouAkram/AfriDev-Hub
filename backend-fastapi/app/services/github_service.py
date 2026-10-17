@@ -11,21 +11,30 @@ from app.schemas.github import (
     GitHubRateLimitResponse
 )
 
-# Connection Redis avec fallback robuste
+# Connection Redis avec support REDIS_URL ou HOST/PORT/PASSWORD et fallback robuste
+REDIS_URL = os.getenv("REDIS_URL")
 REDIS_HOST = os.getenv("REDIS_HOST", "localhost")
-REDIS_PORT = int(os.getenv("REDIS_PORT", "6380"))
+REDIS_PORT = int(os.getenv("REDIS_PORT", "6379" if not os.getenv("REDIS_PORT") and not REDIS_URL else os.getenv("REDIS_PORT", "6380")))
 REDIS_PASSWORD = os.getenv("REDIS_PASSWORD", "redis_secret")
 
 def get_redis_client():
     try:
-        client = redis.Redis(
-            host=REDIS_HOST,
-            port=REDIS_PORT,
-            password=REDIS_PASSWORD,
-            decode_responses=True,
-            socket_connect_timeout=2,
-            socket_timeout=2
-        )
+        if REDIS_URL:
+            client = redis.from_url(
+                REDIS_URL,
+                decode_responses=True,
+                socket_connect_timeout=2,
+                socket_timeout=2
+            )
+        else:
+            client = redis.Redis(
+                host=REDIS_HOST,
+                port=REDIS_PORT,
+                password=REDIS_PASSWORD if REDIS_PASSWORD else None,
+                decode_responses=True,
+                socket_connect_timeout=2,
+                socket_timeout=2
+            )
         client.ping()
         return client
     except Exception:
