@@ -1075,45 +1075,6 @@ body.light-theme .dashboard-body::-webkit-scrollbar-thumb:hover {
   }
 }
 
-/* Sidebar Quick Preferences */
-.sidebar-pref-row {
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
-  padding: 0.45rem 0.65rem;
-  margin-top: 0.5rem;
-  background: var(--bg-surface-hover);
-  border-radius: 10px;
-  border: 1px solid var(--border-subtle);
-}
-
-.sidebar-quick-btn {
-  flex: 1;
-  background: transparent;
-  border: none;
-  color: var(--text-heading);
-  font-size: 0.8rem;
-  font-weight: 600;
-  cursor: pointer;
-  padding: 0.35rem 0.4rem;
-  border-radius: 6px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.35rem;
-  transition: all 0.2s ease;
-  text-decoration: none;
-}
-
-.sidebar-quick-btn:hover {
-  background: rgba(16, 185, 129, 0.15);
-  color: var(--emerald-500);
-}
-
-.sidebar-quick-btn.lang-badge-link {
-  border-left: 1px solid var(--border-subtle);
-}
-
 /* Dropdown Quick Preferences (accessible on mobile & desktop) */
 .dropdown-quick-prefs {
   padding: 0.65rem 0.85rem;

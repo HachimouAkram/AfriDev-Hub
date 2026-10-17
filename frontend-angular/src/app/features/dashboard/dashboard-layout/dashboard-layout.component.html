@@ -86,16 +86,6 @@
         </svg>
         <span class="nav-label">Voir le site</span>
       </a>
-
-      <!-- Quick Theme & Language Toggle (useful on mobile & collapsed sidebar) -->
-      <div class="sidebar-pref-row" *ngIf="!isSidebarCollapsed()">
-        <button type="button" (click)="toggleTheme()" class="sidebar-quick-btn" [title]="isDark() ? 'Passer en Mode Clair' : 'Passer en Mode Sombre'">
-          <span>{{ isDark() ? '🌙 Sombre' : '☀️ Clair' }}</span>
-        </button>
-        <a routerLink="/dashboard/profile" (click)="closeMobileSidebar()" class="sidebar-quick-btn lang-badge-link" title="Paramètres d'affichage & langue">
-          <span>{{ currentLang().flag }} {{ currentLang().code.toUpperCase() }}</span>
-        </a>
-      </div>
     </div>
   </aside>
 
