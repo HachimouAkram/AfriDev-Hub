@@ -24,7 +24,7 @@ export interface GitHubStats {
 })
 export class ProfileService {
   private http = inject(HttpClient);
-  private apiUrl = 'http://localhost:8081/api/v1/profiles';
+  private apiUrl = '/api/v1/profiles';
 
   getProfiles(country?: string, skill?: string, page = 0, size = 20): Observable<ApiResponse<any>> {
     let params = new HttpParams()
@@ -56,13 +56,13 @@ export class ProfileService {
   uploadAvatar(file: File): Observable<ApiResponse<{ url: string }>> {
     const formData = new FormData();
     formData.append('file', file);
-    return this.http.post<ApiResponse<{ url: string }>>('http://localhost:8081/api/v1/uploads/image', formData);
+    return this.http.post<ApiResponse<{ url: string }>>('/api/v1/uploads/image', formData);
   }
 
   uploadCv(file: File): Observable<ApiResponse<{ url: string }>> {
     const formData = new FormData();
     formData.append('file', file);
-    return this.http.post<ApiResponse<{ url: string }>>('http://localhost:8081/api/v1/uploads/pdf', formData);
+    return this.http.post<ApiResponse<{ url: string }>>('/api/v1/uploads/pdf', formData);
   }
 
   /** Generic URL resolver for any uploaded file (image or PDF) */
@@ -77,12 +77,12 @@ export class ProfileService {
     }
     // If backend returns /uploads/files/... prepend context path and host
     if (url.startsWith('/uploads')) {
-      return `http://localhost:8081/api/v1${url}`;
+      return `/api/v1${url}`;
     }
     if (url.startsWith('/api/v1')) {
-      return `http://localhost:8081${url}`;
+      return `${url}`;
     }
-    return `http://localhost:8081/api/v1/uploads/files/${url}`;
+    return `/api/v1/uploads/files/${url}`;
   }
 }
 

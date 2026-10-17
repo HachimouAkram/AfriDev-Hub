@@ -49,7 +49,7 @@ export interface Application {
 })
 export class OpportunityService {
   private http = inject(HttpClient);
-  private apiUrl = 'http://localhost:8081/api/v1/opportunities';
+  private apiUrl = '/api/v1/opportunities';
 
   getOpportunities(type?: string, page = 0, size = 20, sort = 'SUGGESTED'): Observable<ApiResponse<any>> {
     let params = new HttpParams()

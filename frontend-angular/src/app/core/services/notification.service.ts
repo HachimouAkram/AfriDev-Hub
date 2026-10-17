@@ -18,7 +18,7 @@ export interface NotificationItem {
 })
 export class NotificationService {
   private http = inject(HttpClient);
-  private apiUrl = 'http://localhost:8081/api/v1/notifications';
+  private apiUrl = '/api/v1/notifications';
 
   notifications = signal<NotificationItem[]>([]);
   unreadCount = signal<number>(0);

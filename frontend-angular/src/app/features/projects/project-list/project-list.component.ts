@@ -643,7 +643,7 @@ export class ProjectListComponent implements OnInit {
     if (url.startsWith('http://') || url.startsWith('https://')) {
       return url;
     }
-    return 'http://localhost:8081/api/v1' + url;
+    return '/api/v1' + url;
   }
 
   submitApplication(): void {

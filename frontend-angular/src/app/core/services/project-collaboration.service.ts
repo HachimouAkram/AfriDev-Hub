@@ -63,7 +63,7 @@ export interface ProjectProgress {
 })
 export class ProjectCollaborationService {
   private http = inject(HttpClient);
-  private baseUrl = 'http://localhost:8081/api/v1/projects';
+  private baseUrl = '/api/v1/projects';
 
   // ── MEMBRES ──
   applyToJoin(projectId: string, role: string, message?: string, cvUrl?: string): Observable<ApiResponse<ProjectMember>> {
@@ -109,6 +109,6 @@ export class ProjectCollaborationService {
   }
 
   getMyCollaborations(): Observable<ApiResponse<ProjectProgress[]>> {
-    return this.http.get<ApiResponse<ProjectProgress[]>>(`http://localhost:8081/api/v1/projects/my-collaborations`);
+    return this.http.get<ApiResponse<ProjectProgress[]>>(`/api/v1/projects/my-collaborations`);
   }
 }

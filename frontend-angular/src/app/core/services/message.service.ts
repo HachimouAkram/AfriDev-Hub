@@ -25,7 +25,7 @@ export interface ConversationSummary {
 })
 export class MessageService {
   private http = inject(HttpClient);
-  private apiUrl = 'http://localhost:8081/api/v1/messages';
+  private apiUrl = '/api/v1/messages';
 
   sendMessage(recipientId: string, content: string): Observable<ApiResponse<DirectMessage>> {
     return this.http.post<ApiResponse<DirectMessage>>(this.apiUrl, { recipientId, content });

@@ -50,8 +50,8 @@ export interface ReputationScore {
 })
 export class EvaluationService {
   private http = inject(HttpClient);
-  private evalApi = 'http://localhost:8081/api/v1/evaluations';
-  private collabApi = 'http://localhost:8081/api/v1/collaborations';
+  private evalApi = '/api/v1/evaluations';
+  private collabApi = '/api/v1/collaborations';
 
   declareCollaboration(partnerId: string, type: string, proofUrl: string): Observable<ApiResponse<Collaboration>> {
     return this.http.post<ApiResponse<Collaboration>>(this.collabApi, { partnerId, type, proofUrl });

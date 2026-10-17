@@ -40,7 +40,7 @@ export interface AuditLog {
 })
 export class AdminService {
   private http = inject(HttpClient);
-  private apiUrl = 'http://localhost:8081/api/v1/admin';
+  private apiUrl = '/api/v1/admin';
 
   getStats(): Observable<ApiResponse<AdminStats>> {
     return this.http.get<ApiResponse<AdminStats>>(`${this.apiUrl}/stats`);
@@ -63,7 +63,7 @@ export class AdminService {
   }
 
   createReport(resource: string, resourceId: string, reason: string): Observable<ApiResponse<Report>> {
-    return this.http.post<ApiResponse<Report>>('http://localhost:8081/api/v1/reports', { resource, resourceId, reason });
+    return this.http.post<ApiResponse<Report>>('/api/v1/reports', { resource, resourceId, reason });
   }
 
   getAuditLogs(page = 0, size = 20): Observable<ApiResponse<any>> {

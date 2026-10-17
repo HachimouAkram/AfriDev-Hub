@@ -34,7 +34,7 @@ export interface NetworkSuggestion {
 })
 export class NetworkService {
   private http = inject(HttpClient);
-  private apiUrl = 'http://localhost:8081/api/v1/network';
+  private apiUrl = '/api/v1/network';
 
   getNetworkUsers(params?: {
     role?: string;

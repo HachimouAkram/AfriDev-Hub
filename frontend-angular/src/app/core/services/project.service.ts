@@ -54,7 +54,7 @@ export interface Project {
 })
 export class ProjectService {
   private http = inject(HttpClient);
-  private apiUrl = 'http://localhost:8081/api/v1/projects';
+  private apiUrl = '/api/v1/projects';
 
   getProjects(page = 0, size = 20, projectType?: string, sort?: string): Observable<ApiResponse<any>> {
     let params = new HttpParams()
@@ -127,13 +127,13 @@ export class ProjectService {
   uploadImage(file: File): Observable<ApiResponse<{ url: string }>> {
     const formData = new FormData();
     formData.append('file', file);
-    return this.http.post<ApiResponse<{ url: string }>>('http://localhost:8081/api/v1/uploads/image', formData);
+    return this.http.post<ApiResponse<{ url: string }>>('/api/v1/uploads/image', formData);
   }
 
   uploadPdf(file: File): Observable<ApiResponse<{ url: string }>> {
     const formData = new FormData();
     formData.append('file', file);
-    return this.http.post<ApiResponse<{ url: string }>>('http://localhost:8081/api/v1/uploads/pdf', formData);
+    return this.http.post<ApiResponse<{ url: string }>>('/api/v1/uploads/pdf', formData);
   }
 }
 

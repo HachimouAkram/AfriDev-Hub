@@ -15,7 +15,7 @@ export interface FollowStats {
 })
 export class FollowService {
   private http = inject(HttpClient);
-  private apiUrl = 'http://localhost:8081/api/v1/profiles';
+  private apiUrl = '/api/v1/profiles';
 
   getStats(userId: string): Observable<ApiResponse<FollowStats>> {
     return this.http.get<ApiResponse<FollowStats>>(`${this.apiUrl}/${userId}/follow/stats`);

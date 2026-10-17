@@ -80,8 +80,8 @@ export interface ApiResponse<T> {
 })
 export class AuthService {
   private http = inject(HttpClient);
-  private apiUrl = 'http://localhost:8081/api/v1/auth';
-  private profileUrl = 'http://localhost:8081/api/v1/profiles';
+  private apiUrl = '/api/v1/auth';
+  private profileUrl = '/api/v1/profiles';
 
   currentUser = signal<User | null>(this.getStoredUser());
   token = signal<string | null>(localStorage.getItem('afridev_token'));

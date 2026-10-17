@@ -261,7 +261,7 @@ export class DashboardEventsComponent implements OnInit {
         this.isUploadingBanner = false;
         if (res.success && res.data?.url) {
           const url = res.data.url;
-          this.eventForm.bannerUrl = url.startsWith('http') ? url : 'http://localhost:8081/api/v1' + url;
+          this.eventForm.bannerUrl = url.startsWith('http') ? url : '/api/v1' + url;
           this.showToast('Image d\'affiche téléversée avec succès !');
         }
       },

@@ -46,7 +46,7 @@ export interface PageResponse<T> {
 })
 export class TechEventService {
   private http = inject(HttpClient);
-  private apiUrl = 'http://localhost:8081/api/v1/events';
+  private apiUrl = '/api/v1/events';
 
   getEvents(type?: TechEventType, page: number = 0, size: number = 20, sort: string = 'SUGGESTED'): Observable<ApiResponse<PageResponse<TechEvent>>> {
     let params = new HttpParams()

@@ -12,9 +12,9 @@ spring:
   application:
     name: afridev-hub-backend
   datasource:
-    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:15432}/${DB_NAME:afridev_db}${DB_PARAMS:}
-    username: ${DB_USER:afridev}
-    password: ${DB_PASSWORD:afridev_secret}
+    url: jdbc:postgresql://${DB_HOST:postgres-dbaas-postgres-afridev-db-afridev-db.systalinkdatabases.com}:${DB_PORT:33041}/${DB_NAME:afridev_db}?sslmode=${DB_SSL_MODE:require}${DB_PARAMS:}
+    username: ${DB_USER:afridev_db_u}
+    password: ${DB_PASSWORD:yUcVbDGuDoXuzAAWeKYkXy4P}
     driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
@@ -26,10 +26,10 @@ spring:
         dialect: org.hibernate.dialect.PostgreSQLDialect
   data:
     redis:
-      host: ${REDIS_HOST:localhost}
-      port: ${REDIS_PORT:6380}
-      username: ${REDIS_USER:}
-      password: ${REDIS_PASSWORD:redis_secret}
+      host: ${REDIS_HOST:redis-dbaas-redis-afridev-redis-afridev-redis.systalinkdatabases.com}
+      port: ${REDIS_PORT:33042}
+      username: ${REDIS_USER:afridev_redis_u}
+      password: ${REDIS_PASSWORD:HVLXG0EL-b90WWeWtvVVCWY0}
   servlet:
     multipart:
       max-file-size: 10MB
