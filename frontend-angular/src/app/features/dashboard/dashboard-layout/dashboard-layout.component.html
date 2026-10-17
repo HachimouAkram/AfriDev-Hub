@@ -291,31 +291,6 @@
 
             <div class="dropdown-divider"></div>
 
-            <!-- Mobile & Compact Quick Settings: Theme & Language -->
-            <div class="dropdown-quick-prefs">
-              <div class="quick-pref-row">
-                <span class="quick-pref-title">Thème :</span>
-                <button type="button" (click)="toggleTheme()" class="quick-toggle-btn">
-                  <span>{{ isDark() ? '🌙 Sombre' : '☀️ Clair' }}</span>
-                </button>
-              </div>
-              <div class="quick-pref-row">
-                <span class="quick-pref-title">Langue :</span>
-                <div class="quick-lang-flags">
-                  <button *ngFor="let lang of availableLanguages" 
-                          type="button"
-                          class="quick-flag-btn" 
-                          [class.active]="lang.code === currentLang().code"
-                          [title]="lang.label"
-                          (click)="selectLanguage(lang)">
-                    {{ lang.flag }}
-                  </button>
-                </div>
-              </div>
-            </div>
-
-            <div class="dropdown-divider"></div>
-
             <button (click)="logout()" class="dropdown-link-item logout-red">
               <svg class="icon-svg icon-svg-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l3 3m0 0l-3 3m3-3H2.25" />
