@@ -86,6 +86,16 @@
         </svg>
         <span class="nav-label">Voir le site</span>
       </a>
+
+      <!-- Quick Theme & Language Toggle (useful on mobile & collapsed sidebar) -->
+      <div class="sidebar-pref-row" *ngIf="!isSidebarCollapsed()">
+        <button type="button" (click)="toggleTheme()" class="sidebar-quick-btn" [title]="isDark() ? 'Passer en Mode Clair' : 'Passer en Mode Sombre'">
+          <span>{{ isDark() ? '🌙 Sombre' : '☀️ Clair' }}</span>
+        </button>
+        <a routerLink="/dashboard/profile" (click)="closeMobileSidebar()" class="sidebar-quick-btn lang-badge-link" title="Paramètres d'affichage & langue">
+          <span>{{ currentLang().flag }} {{ currentLang().code.toUpperCase() }}</span>
+        </a>
+      </div>
     </div>
   </aside>
 
@@ -122,8 +132,8 @@
       </div>
 
       <div class="topbar-right">
-        <!-- Multilingual Language Selector with Voice -->
-        <div class="lang-dropdown-wrapper">
+        <!-- Multilingual Language Selector with Voice (Desktop header only; on mobile accessible in Profile & Dropdown) -->
+        <div class="lang-dropdown-wrapper desktop-header-only">
           <button (click)="toggleLangMenu($event)" class="topbar-icon-btn lang-pill-btn" title="Changer de langue / Làkk">
             <span class="lang-flag">{{ currentLang().flag }}</span>
             <span class="lang-code desktop-only">{{ currentLang().code.toUpperCase() }}</span>
@@ -212,8 +222,8 @@
           </div>
         </div>
 
-        <!-- Theme Toggle Button -->
-        <button (click)="toggleTheme()" class="topbar-icon-btn theme-btn" [title]="isDark() ? 'Passer au Mode Clair' : 'Passer au Mode Sombre'">
+        <!-- Theme Toggle Button (Desktop header only; on mobile accessible in Profile & Dropdown) -->
+        <button (click)="toggleTheme()" class="topbar-icon-btn theme-btn desktop-header-only" [title]="isDark() ? 'Passer au Mode Clair' : 'Passer au Mode Sombre'">
           <svg *ngIf="isDark()" class="icon-svg icon-svg-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v2.25m0 13.5V21m8.966-8.966h-2.25M4.284 12h-2.25m15.364 6.364l-1.591-1.591M6.759 6.759L5.168 5.168m12.728 0l-1.591 1.591M6.759 17.241l-1.591 1.591M12 8.25a3.75 3.75 0 100 7.5 3.75 3.75 0 000-7.5z" />
           </svg>
@@ -287,6 +297,31 @@
                 </svg>
                 <span>Voir le site</span>
               </a>
+            </div>
+
+            <div class="dropdown-divider"></div>
+
+            <!-- Mobile & Compact Quick Settings: Theme & Language -->
+            <div class="dropdown-quick-prefs">
+              <div class="quick-pref-row">
+                <span class="quick-pref-title">Thème :</span>
+                <button type="button" (click)="toggleTheme()" class="quick-toggle-btn">
+                  <span>{{ isDark() ? '🌙 Sombre' : '☀️ Clair' }}</span>
+                </button>
+              </div>
+              <div class="quick-pref-row">
+                <span class="quick-pref-title">Langue :</span>
+                <div class="quick-lang-flags">
+                  <button *ngFor="let lang of availableLanguages" 
+                          type="button"
+                          class="quick-flag-btn" 
+                          [class.active]="lang.code === currentLang().code"
+                          [title]="lang.label"
+                          (click)="selectLanguage(lang)">
+                    {{ lang.flag }}
+                  </button>
+                </div>
+              </div>
             </div>
 
             <div class="dropdown-divider"></div>

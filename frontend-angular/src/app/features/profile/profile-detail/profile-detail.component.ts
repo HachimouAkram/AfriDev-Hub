@@ -9,6 +9,8 @@ import { FollowService, FollowStats } from '../../../core/services/follow.servic
 import { MessageService, DirectMessage } from '../../../core/services/message.service';
 import { ProjectService, Project } from '../../../core/services/project.service';
 import { EvaluationService, Evaluation, ReputationScore } from '../../../core/services/evaluation.service';
+import { ThemeService, ThemeMode } from '../../../core/services/theme.service';
+import { TranslationService, Language } from '../../../core/services/translation.service';
 
 @Component({
   selector: 'app-profile-detail',
@@ -24,6 +26,8 @@ export class ProfileDetailComponent implements OnInit {
   private messageService = inject(MessageService);
   private projectService = inject(ProjectService);
   private evaluationService = inject(EvaluationService);
+  public themeService = inject(ThemeService);
+  public translationService = inject(TranslationService);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private location = inject(Location);
@@ -41,7 +45,7 @@ export class ProfileDetailComponent implements OnInit {
   userEvaluations: Evaluation[] = [];
   reputationScore: ReputationScore | null = null;
   isLoadingActivities = false;
-  activeTab: 'projects' | 'evaluations' | 'github' | 'security' = 'projects';
+  activeTab: 'projects' | 'evaluations' | 'github' | 'security' | 'preferences' = 'projects';
 
   // Security & Active Sessions
   sessions: LoginSession[] = [];
@@ -634,6 +638,31 @@ export class ProfileDetailComponent implements OnInit {
       return url;
     }
     return '/api/v1' + url;
+  }
+
+  // Preferences: Theme & Language management
+  currentLang = this.translationService.currentLang;
+  availableLanguages = this.translationService.languages;
+
+  isDark(): boolean {
+    return this.themeService.isDark();
+  }
+
+  toggleTheme(): void {
+    this.themeService.toggleTheme();
+  }
+
+  setTheme(mode: ThemeMode): void {
+    this.themeService.setTheme(mode);
+  }
+
+  selectLanguage(lang: Language): void {
+    this.translationService.setLanguage(lang);
+  }
+
+  speakVoice(lang: Language, event?: Event): void {
+    if (event) event.stopPropagation();
+    this.translationService.speakGreeting(lang);
   }
 }
 

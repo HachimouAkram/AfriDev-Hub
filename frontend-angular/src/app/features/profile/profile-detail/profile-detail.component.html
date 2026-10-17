@@ -279,6 +279,28 @@
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" />
           </svg>
         </a>
+
+        <!-- Quick Preferences in Sidebar (Theme & Language) -->
+        <div class="quick-prefs-sidebar-card" *ngIf="isOwnProfile">
+          <div class="qp-header">
+            <span class="qp-title">Affichage & Langue</span>
+            <button (click)="activeTab = 'preferences'" class="qp-link-btn" title="Ouvrir les réglages complets">
+              Gérer
+            </button>
+          </div>
+          <div class="qp-row">
+            <span class="qp-lbl">Thème :</span>
+            <button (click)="toggleTheme()" class="btn btn-outline btn-xs qp-toggle-btn">
+              <span>{{ isDark() ? '🌙 Sombre' : '☀️ Clair' }}</span>
+            </button>
+          </div>
+          <div class="qp-row">
+            <span class="qp-lbl">Langue :</span>
+            <button (click)="activeTab = 'preferences'" class="btn btn-outline btn-xs qp-toggle-btn">
+              <span>{{ currentLang().flag }} {{ currentLang().label }}</span>
+            </button>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -322,6 +344,16 @@
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
           </svg>
           Sécurité & Connexions
+        </button>
+        <button 
+          *ngIf="isOwnProfile"
+          class="tab-btn" 
+          [class.active]="activeTab === 'preferences'" 
+          (click)="activeTab = 'preferences'">
+          <svg class="icon-svg icon-svg-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.5 21l5.25-11.25L21 21m-9-3h7.5M3 5.621a48.474 48.474 0 016-.371m0 0c1.12 0 2.233.038 3.334.114M9 5.25V3m3.334 2.364C11.176 10.658 7.69 15.08 3 17.502m9.334-12.138c.896 3.025 2.158 5.764 3.73 8.163" />
+          </svg>
+          Affichage & Langue
         </button>
       </div>
 
@@ -644,6 +676,128 @@
 
           <div *ngIf="!isLoadingSessions && sessions.length === 0" class="empty-sessions">
             <p class="text-muted">Aucune autre session enregistrée.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab Content: Display & Language Preferences -->
+      <div *ngIf="activeTab === 'preferences'" class="tab-content preferences-tab-content">
+        <!-- 1. Mode d'Éclairage / Theme Section -->
+        <div class="app-card pref-main-card">
+          <div class="pref-card-header">
+            <div class="pref-header-left">
+              <div class="pref-icon-circle theme-icon-emerald">
+                <svg class="icon-svg icon-svg-md" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v2.25m0 13.5V21m8.966-8.966h-2.25M4.284 12h-2.25m15.364 6.364l-1.591-1.591M6.759 6.759L5.168 5.168m12.728 0l-1.591 1.591M6.759 17.241l-1.591 1.591M12 8.25a3.75 3.75 0 100 7.5 3.75 3.75 0 000-7.5z" />
+                </svg>
+              </div>
+              <div>
+                <h4>Mode d'Éclairage & Thème Visuel</h4>
+                <p class="pref-subtitle">Choisissez entre le thème sombre haute-fidélité Obsidian ou le thème clair épuré Émeraude.</p>
+              </div>
+            </div>
+            <span class="badge" [ngClass]="isDark() ? 'badge-purple' : 'badge-emerald'">
+              Actuel : {{ isDark() ? '🌙 Sombre' : '☀️ Clair' }}
+            </span>
+          </div>
+
+          <div class="theme-options-grid">
+            <!-- Dark Theme Option Card -->
+            <div class="theme-option-card" [class.active-theme]="isDark()" (click)="setTheme('dark')">
+              <div class="theme-preview-box dark-preview">
+                <div class="preview-mini-header">
+                  <span class="preview-dot dot-red"></span>
+                  <span class="preview-dot dot-amber"></span>
+                  <span class="preview-dot dot-emerald"></span>
+                </div>
+                <div class="preview-mini-content">
+                  <div class="preview-bar preview-bar-title"></div>
+                  <div class="preview-bar preview-bar-sub"></div>
+                  <div class="preview-bar preview-bar-green"></div>
+                </div>
+              </div>
+              <div class="theme-info-row">
+                <div class="theme-info-text">
+                  <strong>🌙 Mode Sombre (Obsidian & Emerald)</strong>
+                  <span class="theme-desc">Recommandé pour réduire la fatigue oculaire et maximiser l'autonomie sur mobile.</span>
+                </div>
+                <button type="button" class="btn btn-sm" [ngClass]="isDark() ? 'btn-emerald' : 'btn-outline'">
+                  {{ isDark() ? '✓ Thème Actif' : 'Sélectionner' }}
+                </button>
+              </div>
+            </div>
+
+            <!-- Light Theme Option Card -->
+            <div class="theme-option-card" [class.active-theme]="!isDark()" (click)="setTheme('light')">
+              <div class="theme-preview-box light-preview">
+                <div class="preview-mini-header">
+                  <span class="preview-dot dot-red"></span>
+                  <span class="preview-dot dot-amber"></span>
+                  <span class="preview-dot dot-emerald"></span>
+                </div>
+                <div class="preview-mini-content">
+                  <div class="preview-bar preview-bar-title"></div>
+                  <div class="preview-bar preview-bar-sub"></div>
+                  <div class="preview-bar preview-bar-green"></div>
+                </div>
+              </div>
+              <div class="theme-info-row">
+                <div class="theme-info-text">
+                  <strong>☀️ Mode Clair (Pure White & Emerald)</strong>
+                  <span class="theme-desc">Contraste lumineux maximal pour une lecture limpide même en plein soleil.</span>
+                </div>
+                <button type="button" class="btn btn-sm" [ngClass]="!isDark() ? 'btn-emerald' : 'btn-outline'">
+                  {{ !isDark() ? '✓ Thème Actif' : 'Sélectionner' }}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 2. Multilingual Panafrican & International Languages -->
+        <div class="app-card pref-main-card">
+          <div class="pref-card-header">
+            <div class="pref-header-left">
+              <div class="pref-icon-circle lang-icon-cyan">
+                <svg class="icon-svg icon-svg-md" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.5 21l5.25-11.25L21 21m-9-3h7.5M3 5.621a48.474 48.474 0 016-.371m0 0c1.12 0 2.233.038 3.334.114M9 5.25V3m3.334 2.364C11.176 10.658 7.69 15.08 3 17.502m9.334-12.138c.896 3.025 2.158 5.764 3.73 8.163" />
+                </svg>
+              </div>
+              <div>
+                <h4>Langues Panafricaines & Internationales</h4>
+                <p class="pref-subtitle">Choisissez votre langue préférée. Vous pouvez écouter la salutation vocale pour chaque langue.</p>
+              </div>
+            </div>
+            <span class="badge badge-emerald">
+              {{ currentLang().flag }} {{ currentLang().label }}
+            </span>
+          </div>
+
+          <div class="languages-grid">
+            <div *ngFor="let lang of availableLanguages" 
+                 class="language-card-item"
+                 [class.active-lang]="lang.code === currentLang().code"
+                 (click)="selectLanguage(lang)">
+              <div class="lang-card-top">
+                <span class="lang-flag-hero">{{ lang.flag }}</span>
+                <span class="badge" [ngClass]="lang.code === currentLang().code ? 'badge-emerald' : 'badge-gray'">
+                  {{ lang.code === currentLang().code ? '✓ Active' : lang.code.toUpperCase() }}
+                </span>
+              </div>
+              <div class="lang-card-body">
+                <h4>{{ lang.label }}</h4>
+                <span class="lang-native-name">{{ lang.greeting }}</span>
+              </div>
+              <div class="lang-card-footer">
+                <button type="button" class="btn btn-outline btn-xs voice-preview-btn" (click)="speakVoice(lang, $event)">
+                  <svg class="icon-svg icon-svg-xs" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.114 5.636a9 9 0 010 12.728M16.463 8.288a5.25 5.25 0 010 7.424M6.75 8.25l4.72-4.72a.75.75 0 011.28.53v15.88a.75.75 0 01-1.28.53l-4.72-4.72H4.51c-.88 0-1.704-.507-1.938-1.354A9.01 9.01 0 012.25 12c0-.83.112-1.633.322-2.396C2.806 8.757 3.63 8.25 4.51 8.25H6.75z" />
+                  </svg>
+                  Écouter la voix
+                </button>
+                <span class="apply-hint" *ngIf="lang.code !== currentLang().code">Cliquer pour activer</span>
+              </div>
+            </div>
           </div>
         </div>
       </div>
