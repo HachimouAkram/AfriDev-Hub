@@ -1,6 +1,7 @@
-# Ignore root markdown files except README.md
+# Ignore root markdown files except README.md and DEPLOYMENT_GUIDE.md
 /*.md
 !/README.md
+!/DEPLOYMENT_GUIDE.md
 
 # Dependencies & Build Outputs
 **/node_modules/

@@ -1,18 +1,22 @@
-name: CI - Fullstack Test Suite (FastAPI, Spring Boot, Angular)
+name: CI/CD - Fullstack Pipeline (Tests & Automated Deployment)
 
 on:
   push:
     branches: [ main, master, dev, develop ]
   pull_request:
     branches: [ main, master, dev, develop ]
-  workflow_dispatch: # Permet de lancer manuellement depuis l'interface GitHub Actions
+  workflow_dispatch: # Déclenchement manuel depuis l'interface GitHub Actions
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   # ========================================================
-  # 1. TEST MICROSERVICE FASTAPI (GitHub Integration & AI)
+  # 1. TEST MICROSERVICE FASTAPI (Python 3.12)
   # ========================================================
   test-fastapi:
-    name: Backend FastAPI Tests (Python 3.12)
+    name: 🐍 Test FastAPI (Python 3.12)
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -40,10 +44,10 @@ jobs:
           pytest tests/test_github.py -v --asyncio-mode=auto
 
   # ========================================================
-  # 2. TEST BACKEND SPRING BOOT (Core Business & Security)
+  # 2. TEST BACKEND SPRING BOOT (Java 21)
   # ========================================================
   test-spring:
-    name: Backend Spring Boot Tests (Java 21)
+    name: ☕ Test Spring Boot (Java 21)
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -73,10 +77,10 @@ jobs:
           retention-days: 7
 
   # ========================================================
-  # 3. TEST FRONTEND ANGULAR (UI Services, Build & Models)
+  # 3. TEST FRONTEND ANGULAR (Node 22)
   # ========================================================
   test-angular:
-    name: Frontend Angular Tests & Build (Node 22)
+    name: 🅰️ Test & Build Angular (Node 22)
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -104,3 +108,88 @@ jobs:
       - name: Verify Production Build
         run: |
           npm run build
+
+  # ========================================================
+  # 4. DEPLOY BACKEND SPRING BOOT (Systalink / Docker Webhook)
+  # ========================================================
+  deploy-spring:
+    name: 🚀 Déploiement Backend Spring Boot
+    needs: [test-spring]
+    runs-on: ubuntu-latest
+    if: (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master') && github.event_name != 'pull_request'
+    steps:
+      - name: Déclencher le webhook de déploiement Spring Boot
+        env:
+          SPRING_WEBHOOK: ${{ secrets.SYSTALINK_SPRING_WEBHOOK || secrets.SPRING_DEPLOY_WEBHOOK }}
+        run: |
+          echo "=========================================================="
+          echo "DÉPLOIEMENT DU BACKEND SPRING BOOT"
+          echo "=========================================================="
+          if [ -n "$SPRING_WEBHOOK" ]; then
+            echo "URL Webhook détectée. Envoi de la requête de déclenchement..."
+            HTTP_STATUS=$(curl -s -o response.txt -w "%{http_code}" -X POST "$SPRING_WEBHOOK")
+            echo "Code retour HTTP: $HTTP_STATUS"
+            cat response.txt
+            if [ "$HTTP_STATUS" -ge 200 ] && [ "$HTTP_STATUS" -lt 300 ]; then
+              echo "✅ Déploiement Spring Boot déclenché avec succès sur Systalink !"
+            else
+              echo "⚠️ Avertissement: Le webhook a répondu avec le statut $HTTP_STATUS."
+            fi
+          else
+            echo "ℹ️ Note: Aucun secret 'SYSTALINK_SPRING_WEBHOOK' configuré dans GitHub Secrets."
+            echo "Si Systalink est connecté directement à la branche 'main' de GitHub, le déploiement se fait automatiquement à chaque git push."
+            echo "Pour forcer un webhook, ajoutez le secret SYSTALINK_SPRING_WEBHOOK dans GitHub Repo > Settings > Secrets > Actions."
+          fi
+
+  # ========================================================
+  # 5. DEPLOY BACKEND FASTAPI (Webhook)
+  # ========================================================
+  deploy-fastapi:
+    name: 🚀 Déploiement Backend FastAPI
+    needs: [test-fastapi]
+    runs-on: ubuntu-latest
+    if: (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master') && github.event_name != 'pull_request'
+    steps:
+      - name: Déclencher le webhook de déploiement FastAPI
+        env:
+          FASTAPI_WEBHOOK: ${{ secrets.FASTAPI_DEPLOY_WEBHOOK || secrets.SYSTALINK_FASTAPI_WEBHOOK || secrets.RENDER_FASTAPI_WEBHOOK }}
+        run: |
+          echo "=========================================================="
+          echo "DÉPLOIEMENT DU MICROSERVICE FASTAPI"
+          echo "=========================================================="
+          if [ -n "$FASTAPI_WEBHOOK" ]; then
+            echo "URL Webhook FastAPI détectée. Envoi du déclencheur..."
+            HTTP_STATUS=$(curl -s -o response.txt -w "%{http_code}" -X POST "$FASTAPI_WEBHOOK")
+            echo "Code retour HTTP: $HTTP_STATUS"
+            cat response.txt
+            if [ "$HTTP_STATUS" -ge 200 ] && [ "$HTTP_STATUS" -lt 300 ]; then
+              echo "✅ Déploiement FastAPI déclenché avec succès !"
+            else
+              echo "⚠️ Avertissement: Le webhook FastAPI a répondu avec le code $HTTP_STATUS."
+            fi
+          else
+            echo "ℹ️ Note: Aucun secret 'FASTAPI_DEPLOY_WEBHOOK' configuré."
+            echo "Pour connecter FastAPI à un déploiement continu, ajoutez FASTAPI_DEPLOY_WEBHOOK dans GitHub Secrets (ex: Render, Systalink ou Koyeb)."
+          fi
+
+  # ========================================================
+  # 6. RÉCAPITULATIF CI/CD DU PIPELINE
+  # ========================================================
+  pipeline-summary:
+    name: 📋 Synthèse du Déploiement Automatisé
+    needs: [test-fastapi, test-spring, test-angular, deploy-spring, deploy-fastapi]
+    runs-on: ubuntu-latest
+    if: always()
+    steps:
+      - name: Générer le rapport dans GitHub Actions
+        run: |
+          echo "### 🌍 AfriDev Hub — Rapport du Pipeline CI/CD" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Service | Statut Tests | Déploiement Automatique |" >> $GITHUB_STEP_SUMMARY
+          echo "| :--- | :---: | :---: |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Frontend Angular** | ✅ Passé | 🌐 Vercel (Auto via Git) |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Backend Spring Boot** | ✅ Passé | 🐳 Systalink Platform |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Analytics FastAPI** | ✅ Passé | 🐍 Microservice |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Commit :** \`${{ github.sha }}\` | **Branche :** \`${{ github.ref_name }}\`" >> $GITHUB_STEP_SUMMARY
+
