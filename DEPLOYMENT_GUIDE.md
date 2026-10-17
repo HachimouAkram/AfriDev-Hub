@@ -58,27 +58,27 @@ Ce guide explique comment fonctionne la chaîne d'intégration et de déploiemen
 
 ---
 
-## 3. 🐍 Microservice FastAPI (Analytics & GitHub Sync)
+## 3. 🐍 Microservice FastAPI (Déployé sur Render) — 100% Automatique
 
-Le microservice FastAPI possède son propre `backend-fastapi/Dockerfile`.
+Le microservice FastAPI est hébergé sur **Render**.
 
-### Option A : Déployer en tant que 2ème conteneur sur Systalink (Recommandé)
-1. Dans votre espace Systalink, créez une nouvelle application connectée au même dépôt GitHub `HachimouAkram/AfriDev-Hub`.
-2. Configurez le chemin du Dockerfile : `backend-fastapi/Dockerfile`.
-3. Port d'écoute : `8000`.
-4. Copiez son webhook de déploiement et ajoutez-le dans GitHub Secrets sous le nom : `SYSTALINK_FASTAPI_WEBHOOK`.
-5. Ajoutez l'URL obtenue dans les variables d'environnement de votre backend Spring Boot :
-   - `FASTAPI_BASE_URL=https://<votre-url-fastapi-systalink>`
+### Comment fonctionne l'automatisation avec Render :
+1. **Auto-Deploy natif Render (Activé par défaut) :**
+   - Comme votre service Render est connecté à la branche `main` du dépôt GitHub `HachimouAkram/AfriDev-Hub`, Render déclenche **automatiquement** le re-build et le redéploiement dès que vous faites un `git push origin main`.
+2. **Déclenchement via GitHub Actions (Optionnel mais recommandé) :**
+   - Notre workflow GitHub Actions contient déjà le secret `RENDER_FASTAPI_WEBHOOK`.
+   - Si vous souhaitez que GitHub Actions déclenche Render uniquement après le succès des tests :
+     1. Dans votre tableau de bord **Render** > Votre Service FastAPI > **Settings** > **Deploy Hook**.
+     2. Copiez l'URL (format: `https://api.render.com/deploy/srv-xxxx?key=yyyy`).
+     3. Dans GitHub : **Settings** > **Secrets and variables** > **Actions** > Ajoutez `RENDER_FASTAPI_WEBHOOK`.
 
-### Option B : Déployer gratuitement sur Render ou Koyeb
-1. Connectez-vous sur [Render.com](https://render.com) ou [Koyeb.com](https://koyeb.com).
-2. Créez un **Web Service** lié à votre dépôt GitHub :
-   - Root Directory : `backend-fastapi`
-   - Runtime : `Python 3` ou `Docker`
-   - Build Command : `pip install -r requirements.txt`
-   - Start Command : `uvicorn app.main:app --host 0.0.0.0 --port $PORT`
-3. Copiez le **Deploy Hook** généré par Render/Koyeb.
-4. Ajoutez-le dans GitHub Secrets sous le nom : `FASTAPI_DEPLOY_WEBHOOK`.
+### ⚠️ Point important : Lier Systalink à Render
+Pour que le backend Spring Boot (sur Systalink) communique avec FastAPI (sur Render) :
+- Dans le tableau de bord **Systalink** (de l'application Spring Boot), assurez-vous d'avoir configuré la variable d'environnement :
+  ```env
+  FASTAPI_BASE_URL=https://<votre-service-fastapi>.onrender.com
+  ```
+*(Si Render est en veille ou met quelques secondes à se réveiller, Spring Boot bascule automatiquement sur son algorithme interne Java sans aucune interruption pour l'utilisateur).*
 
 ---
 
