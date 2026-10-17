@@ -205,6 +205,7 @@ export class RegisterComponent implements AfterViewInit {
   goToStep1(): void {
     this.step = 1;
     this.errorMessage = '';
+    setTimeout(() => this.initGoogleSignIn(), 50);
   }
 
   onSubmitRegister(): void {
@@ -250,6 +251,9 @@ export class RegisterComponent implements AfterViewInit {
     this.initGoogleSignIn();
   }
 
+  private resizeHandler?: () => void;
+  private resizeTimeout: any;
+
   private initGoogleSignIn(): void {
     const checkGoogle = () => {
       if (typeof google !== 'undefined' && google.accounts?.id) {
@@ -259,16 +263,33 @@ export class RegisterComponent implements AfterViewInit {
             callback: (response: any) => this.handleGoogleCredential(response)
           });
 
-          const btnElement = document.getElementById('google-btn-register');
-          if (btnElement) {
-            google.accounts.id.renderButton(btnElement, {
-              theme: 'filled_black',
-              size: 'large',
-              width: 360,
-              text: 'signup_with',
-              shape: 'rectangular',
-              logo_alignment: 'left'
-            });
+          const renderBtn = () => {
+            const btnElement = document.getElementById('google-btn-register');
+            if (btnElement) {
+              btnElement.innerHTML = '';
+              const parentWidth = btnElement.parentElement?.clientWidth || (window.innerWidth - 48);
+              // Largeur fluide bornée entre 200px et 360px selon l'écran mobile
+              const targetWidth = Math.max(200, Math.min(360, Math.floor(parentWidth)));
+
+              google.accounts.id.renderButton(btnElement, {
+                theme: 'filled_black',
+                size: 'large',
+                width: targetWidth,
+                text: 'signup_with',
+                shape: 'rectangular',
+                logo_alignment: 'left'
+              });
+            }
+          };
+
+          renderBtn();
+
+          if (!this.resizeHandler) {
+            this.resizeHandler = () => {
+              clearTimeout(this.resizeTimeout);
+              this.resizeTimeout = setTimeout(renderBtn, 200);
+            };
+            window.addEventListener('resize', this.resizeHandler);
           }
         } catch (e) {
           console.warn('Google Identity initialization error', e);
