@@ -34,6 +34,7 @@ public class ProjectService {
     private final FollowRepository followRepository;
     private final AuthService authService;
     private final RedisCacheService redisCacheService;
+    private final XpService xpService;
 
     @Transactional
     public ProjectDto createProject(String userEmail, ProjectCreateRequest request) {
@@ -71,6 +72,7 @@ public class ProjectService {
 
         ProjectEntity saved = projectRepository.save(project);
         redisCacheService.evictProjectsCache();
+        xpService.awardXp(author, XpService.XP_PROJECT_PUBLISHED, africa.afridev.model.enums.XpSourceType.PROJECT_PUBLISHED, saved.getId(), "Publication du projet: " + saved.getTitle());
         return mapToProjectDto(saved, userEmail);
     }
 
@@ -230,6 +232,10 @@ public class ProjectService {
         ProjectEntity saved = projectRepository.save(project);
         redisCacheService.evictProjectsCache();
 
+        if (project.getAuthor() != null) {
+            xpService.awardXp(project.getAuthor(), XpService.XP_RECOGNITION_RECEIVED, africa.afridev.model.enums.XpSourceType.RECOGNITION_RECEIVED, project.getId(), "Soutien reçu sur le projet: " + project.getTitle());
+        }
+
         return mapToProjectDto(saved, userEmail);
     }
 
@@ -258,6 +264,10 @@ public class ProjectService {
         project.setViewsCount((project.getViewsCount() == null ? 0 : project.getViewsCount()) + 1);
         ProjectEntity saved = projectRepository.save(project);
         redisCacheService.evictProjectsCache();
+
+        if (project.getAuthor() != null) {
+            xpService.awardXp(project.getAuthor(), XpService.XP_PROJECT_VIEW, africa.afridev.model.enums.XpSourceType.PROJECT_VIEW, project.getId(), "Vue sur le projet: " + project.getTitle());
+        }
         return mapToProjectDto(saved, currentUserEmail);
     }
 

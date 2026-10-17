@@ -8,6 +8,7 @@ import java.util.List;
 
 @Repository
 public interface EvaluationRepository extends JpaRepository<EvaluationEntity, String> {
+    List<EvaluationEntity> findByEvaluateeId(String evaluateeId);
     List<EvaluationEntity> findByEvaluateeIdAndIsPublicTrueOrderByCreatedAtDesc(String evaluateeId);
     List<EvaluationEntity> findByEvaluatorIdOrderByCreatedAtDesc(String evaluatorId);
     boolean existsByEvaluatorIdAndEvaluateeIdAndCollaborationId(String evaluatorId, String evaluateeId, String collaborationId);

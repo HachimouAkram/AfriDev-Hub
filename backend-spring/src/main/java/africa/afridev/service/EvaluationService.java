@@ -24,6 +24,7 @@ public class EvaluationService {
     private final EvaluationRepository evaluationRepository;
     private final UserRepository userRepository;
     private final AuthService authService;
+    private final XpService xpService;
 
     private final RestTemplate restTemplate = new RestTemplate();
     @org.springframework.beans.factory.annotation.Value("${app.fastapi.url:http://localhost:8000}")
@@ -130,6 +131,13 @@ public class EvaluationService {
                 .build();
 
         EvaluationEntity saved = evaluationRepository.save(evaluation);
+
+        // Attribution XP : au développeur évalué et à l'évaluateur pour sa contribution
+        double avgScore = (request.getCodeQuality() + request.getCollaborationRating() + request.getTechnicalDepth() + request.getReliability()) / 4.0;
+        long evaluateeXp = avgScore >= 4.0 ? XpService.XP_EVALUATION_HIGH : XpService.XP_EVALUATION_MEDIUM;
+        xpService.awardXp(evaluatee, evaluateeXp, africa.afridev.model.enums.XpSourceType.PEER_EVALUATION, saved.getId(), "Évaluation par les pairs reçue (" + String.format("%.1f", avgScore) + "⭐)");
+        xpService.awardXp(evaluator, XpService.XP_EVALUATOR_REWARD, africa.afridev.model.enums.XpSourceType.EVALUATOR_REWARD, saved.getId(), "Participation civique à l'évaluation d'un pair");
+
         return mapToEvaluationDto(saved);
     }
 

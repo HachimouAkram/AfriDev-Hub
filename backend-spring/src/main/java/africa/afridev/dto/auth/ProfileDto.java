@@ -35,4 +35,7 @@ public class ProfileDto {
     private String cvUrl;
     private Integer completionScore;
     private Boolean mobileMoneyVerified;
+    private Long xpPoints;
+    private String levelTitle;
+    private Integer levelNumber;
 }

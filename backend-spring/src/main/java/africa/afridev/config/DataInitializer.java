@@ -32,6 +32,7 @@ public class DataInitializer implements CommandLineRunner {
     private final TechEventRepository eventRepository;
     private final ProjectTaskRepository taskRepository;
     private final ProjectMemberRepository memberRepository;
+    private final africa.afridev.service.XpService xpService;
 
     @Override
     @Transactional
@@ -482,6 +483,9 @@ public class DataInitializer implements CommandLineRunner {
                     .disagreeCount(0)
                     .build());
         }
+
+        // Calcul et initialisation des points XP et des niveaux de chaque développeur
+        xpService.initializeAllProfilesXp();
 
         log.info("Initialisation terminée avec succès ! Nombre d'utilisateurs en base: {}", userRepository.count());
     }

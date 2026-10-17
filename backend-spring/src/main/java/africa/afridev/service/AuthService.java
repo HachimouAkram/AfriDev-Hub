@@ -434,6 +434,9 @@ public class AuthService {
                 .cvUrl(profile.getCvUrl())
                 .completionScore(profile.getCompletionScore())
                 .mobileMoneyVerified(profile.getMobileMoneyVerified())
+                .xpPoints(profile.getXpPoints())
+                .levelTitle(profile.getLevelTitle())
+                .levelNumber(profile.getLevelNumber())
                 .build();
     }
 }

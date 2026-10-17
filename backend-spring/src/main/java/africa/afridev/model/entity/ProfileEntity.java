@@ -13,7 +13,8 @@ import java.util.List;
 
 @Entity
 @Table(name = "profiles", indexes = {
-    @Index(name = "idx_profile_country", columnList = "country")
+    @Index(name = "idx_profile_country", columnList = "country"),
+    @Index(name = "idx_profile_xp", columnList = "xp_points DESC")
 })
 @Getter
 @Setter
@@ -82,6 +83,18 @@ public class ProfileEntity {
 
     @Builder.Default
     private Boolean mobileMoneyVerified = false;
+
+    @Column(name = "xp_points", nullable = false)
+    @Builder.Default
+    private Long xpPoints = 0L;
+
+    @Column(name = "level_title", nullable = false)
+    @Builder.Default
+    private String levelTitle = "Junior";
+
+    @Column(name = "level_number", nullable = false)
+    @Builder.Default
+    private Integer levelNumber = 1;
 
     @CreationTimestamp
     @Column(updatable = false)
