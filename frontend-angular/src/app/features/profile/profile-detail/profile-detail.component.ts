@@ -627,5 +627,13 @@ export class ProfileDetailComponent implements OnInit {
       }
     });
   }
+
+  getMediaUrl(url: string | undefined | null): string {
+    if (!url) return '';
+    if (url.startsWith('http://') || url.startsWith('https://')) {
+      return url;
+    }
+    return '/api/v1' + url;
+  }
 }
 

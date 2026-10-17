@@ -793,6 +793,18 @@
   color: var(--emerald-400);
 }
 
+.pdf-chip-link {
+  color: var(--emerald-400);
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.pdf-chip-link:hover {
+  text-decoration: underline;
+}
+
 .btn-remove-pdf {
   background: transparent;
   border: none;

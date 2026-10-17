@@ -608,8 +608,8 @@
             <!-- Preview Grid -->
             <div *ngIf="projectForm.screenshots.length > 0" class="screenshots-preview-grid">
               <div *ngFor="let img of projectForm.screenshots; let i = index" class="screenshot-thumb-box">
-                <img [src]="'/api/v1' + img" alt="Capture d'écran">
-                <button type="button" (click)="removeScreenshot(i)" class="btn-remove-thumb">&times;</button>
+                <img [src]="getMediaUrl(img)" alt="Capture d'écran">
+                <button type="button" (click)="removeScreenshot(i)" class="btn-remove-thumb" title="Supprimer">&times;</button>
               </div>
             </div>
           </div>
@@ -619,12 +619,14 @@
             <label class="form-label">Document de présentation PDF (Max 10 Mo)</label>
             <div class="file-upload-row">
               <label class="btn btn-outline btn-sm file-input-label">
-                <i class="ri-file-text-line"></i> Joindre un PDF
+                <i class="ri-file-text-line"></i> {{ projectForm.documentationPdfUrl ? 'Remplacer le PDF' : 'Joindre un PDF' }}
                 <input type="file" accept="application/pdf" (change)="onPdfSelected($event)" class="hidden-file-input">
               </label>
               <div *ngIf="projectForm.documentationPdfUrl" class="pdf-file-chip">
-                <span><i class="ri-file-text-line"></i> Document PDF joint</span>
-                <button type="button" (click)="removePdf()" class="btn-remove-pdf">&times;</button>
+                <a [href]="getMediaUrl(projectForm.documentationPdfUrl)" target="_blank" class="pdf-chip-link">
+                  <i class="ri-file-text-line"></i> Consulter le PDF
+                </a>
+                <button type="button" (click)="removePdf()" class="btn-remove-pdf" title="Supprimer le PDF">&times;</button>
               </div>
             </div>
           </div>
@@ -850,6 +852,54 @@
           </div>
         </div>
 
+        <!-- MEDIA ATTACHMENTS (YOUTUBE, SCREENSHOTS, PDF) DANS LA MODIFICATION -->
+        <div class="media-upload-section margin-top-md">
+          <h5 class="section-subheading"><i class="ri-movie-line"></i> Médias & Documents de Présentation</h5>
+          
+          <!-- YouTube Video -->
+          <div class="form-group" *ngIf="projectForm.projectType !== 'COLLABORATIVE'">
+            <label class="form-label">Lien Vidéo YouTube de Démo (Optionnel)</label>
+            <input type="url" [(ngModel)]="projectForm.youtubeUrl" placeholder="https://www.youtube.com/watch?v=XXXXXXXXXXX" class="form-input">
+          </div>
+
+          <!-- Screenshots Dropzone -->
+          <div class="form-group">
+            <label class="form-label">Captures d'écran (Jusqu'à 5 images PNG/JPG/WEBP max 5 Mo)</label>
+            <div class="file-upload-row">
+              <label class="btn btn-outline btn-sm file-input-label">
+                <i class="ri-camera-line"></i> Ajouter une image
+                <input type="file" accept="image/png, image/jpeg, image/webp" (change)="onImageSelected($event)" class="hidden-file-input">
+              </label>
+              <span *ngIf="isUploadingMedia" class="text-xs text-emerald spinner-text">Téléversement en cours...</span>
+            </div>
+
+            <!-- Preview Grid with Delete Button -->
+            <div *ngIf="projectForm.screenshots.length > 0" class="screenshots-preview-grid">
+              <div *ngFor="let img of projectForm.screenshots; let i = index" class="screenshot-thumb-box">
+                <img [src]="getMediaUrl(img)" alt="Capture d'écran">
+                <button type="button" (click)="removeScreenshot(i)" class="btn-remove-thumb" title="Supprimer cette capture">&times;</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Documentation PDF -->
+          <div class="form-group">
+            <label class="form-label">Document de présentation PDF (Max 10 Mo)</label>
+            <div class="file-upload-row">
+              <label class="btn btn-outline btn-sm file-input-label">
+                <i class="ri-file-text-line"></i> {{ projectForm.documentationPdfUrl ? 'Remplacer le PDF' : 'Joindre un PDF' }}
+                <input type="file" accept="application/pdf" (change)="onPdfSelected($event)" class="hidden-file-input">
+              </label>
+              <div *ngIf="projectForm.documentationPdfUrl" class="pdf-file-chip">
+                <a [href]="getMediaUrl(projectForm.documentationPdfUrl)" target="_blank" class="pdf-chip-link">
+                  <i class="ri-file-text-line"></i> Consulter le PDF
+                </a>
+                <button type="button" (click)="removePdf()" class="btn-remove-pdf" title="Supprimer le document PDF">&times;</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <div *ngIf="formErrorMessage" class="error-box margin-top-sm">{{ formErrorMessage }}</div>
       </div>
 
@@ -858,7 +908,7 @@
           ⚠️ {{ formErrorMessage }}
         </span>
         <button (click)="closeEditModal()" class="btn btn-outline">Annuler</button>
-        <button (click)="submitEdit()" [disabled]="isSubmitting" class="btn btn-emerald">
+        <button (click)="submitEdit()" [disabled]="isSubmitting || isUploadingMedia" class="btn btn-emerald">
           <span *ngIf="!isSubmitting">Enregistrer les modifications</span>
           <span *ngIf="isSubmitting">Enregistrement...</span>
         </button>
@@ -1110,7 +1160,7 @@
                 </svg>
                 <span>Démo en Ligne</span>
               </a>
-              <a *ngIf="selectedProject.documentationPdfUrl" [href]="'/api/v1' + selectedProject.documentationPdfUrl" target="_blank" class="btn btn-outline btn-sm">
+              <a *ngIf="selectedProject.documentationPdfUrl" [href]="getMediaUrl(selectedProject.documentationPdfUrl)" target="_blank" class="btn btn-outline btn-sm">
                 <svg class="icon-svg icon-svg-xs" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
                 </svg>
@@ -1141,8 +1191,8 @@
             <h4>Captures d'écran ({{ selectedProject.screenshots.length }})</h4>
           </div>
           <div class="detail-gallery-row">
-            <a *ngFor="let s of selectedProject.screenshots" [href]="'/api/v1' + s" target="_blank" class="gallery-thumb">
-              <img [src]="'/api/v1' + s" alt="Capture d'écran">
+            <a *ngFor="let s of selectedProject.screenshots" [href]="getMediaUrl(s)" target="_blank" class="gallery-thumb">
+              <img [src]="getMediaUrl(s)" alt="Capture d'écran">
             </a>
           </div>
         </div>

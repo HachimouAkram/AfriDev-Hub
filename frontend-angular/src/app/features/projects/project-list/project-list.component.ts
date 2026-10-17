@@ -646,6 +646,20 @@ export class ProjectListComponent implements OnInit {
     return '/api/v1' + url;
   }
 
+  getMediaUrl(url: string | undefined | null): string {
+    if (!url) return '';
+    if (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('data:')) {
+      return url;
+    }
+    if (url.startsWith('/uploads')) {
+      return `/api/v1${url}`;
+    }
+    if (url.startsWith('/api/v1')) {
+      return url;
+    }
+    return `/api/v1/uploads/files/${url}`;
+  }
+
   submitApplication(): void {
     if (!this.selectedProject || !this.applyRole.trim()) return;
 
