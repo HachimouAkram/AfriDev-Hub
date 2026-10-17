@@ -76,8 +76,12 @@
   border-bottom: 1px solid var(--border-subtle);
   display: flex;
   align-items: center;
-  justify-content: flex-start;
+  justify-content: space-between;
   gap: 0.5rem;
+}
+
+.mobile-sidebar-close-btn {
+  display: none;
 }
 
 .sidebar-toggle-desktop {
@@ -218,6 +222,20 @@
   background: rgba(16, 185, 129, 0.12);
   color: var(--emerald-500);
   font-weight: 600;
+}
+
+.nav-item.logout-nav-item {
+  color: #ef4444;
+  margin-top: 0.25rem;
+}
+
+.nav-item.logout-nav-item:hover {
+  background: rgba(239, 68, 68, 0.12);
+  color: #ef4444;
+}
+
+.nav-item.logout-nav-item .nav-icon {
+  stroke: #ef4444;
 }
 
 .nav-item .nav-icon {
@@ -997,24 +1015,71 @@ body.light-theme .dashboard-body::-webkit-scrollbar-thumb:hover {
     gap: 0.35rem;
   }
 
+  .mobile-sidebar-close-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--border-subtle);
+    color: var(--text-muted);
+    width: 30px;
+    height: 30px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+  }
+
+  .mobile-sidebar-close-btn:hover {
+    background: rgba(239, 68, 68, 0.15);
+    color: #ef4444;
+    border-color: rgba(239, 68, 68, 0.4);
+  }
+
+  .mobile-sidebar-close-btn svg {
+    width: 18px;
+    height: 18px;
+  }
+
   /* Off-canvas Slide-over Sidebar for Mobile */
   .dashboard-sidebar {
     position: fixed;
     top: 0;
     left: 0;
-    width: 270px;
-    min-width: 270px;
+    width: 280px;
+    min-width: 280px;
+    max-width: 85vw;
     height: 100vh;
+    height: 100dvh;
+    max-height: 100dvh;
     z-index: 2050;
     transform: translateX(-100%);
     transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
     box-shadow: 10px 0 30px rgba(0, 0, 0, 0.5);
     border-right: 1px solid var(--border-subtle);
     border-bottom: none;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto !important;
+    overflow-x: hidden;
+    -webkit-overflow-scrolling: touch;
+    padding: 1.15rem 1rem calc(2.5rem + env(safe-area-inset-bottom, 0px));
+    box-sizing: border-box;
   }
 
   .dashboard-sidebar.mobile-open {
     transform: translateX(0);
+  }
+
+  .dashboard-sidebar .sidebar-nav {
+    flex: none;
+    overflow-y: visible;
+  }
+
+  .dashboard-sidebar .sidebar-footer {
+    margin-top: 1.25rem;
+    flex-shrink: 0;
+    padding-bottom: 2rem;
   }
 
   /* Backdrop Overlay */

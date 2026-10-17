@@ -1,6 +1,6 @@
 <div class="dashboard-app-container" *ngIf="user() as u">
   <!-- Full-Height Left Sidebar -->
-  <aside class="dashboard-sidebar" [class.mobile-open]="isMobileSidebarOpen()" [class.collapsed]="isSidebarCollapsed()">
+  <aside class="dashboard-sidebar" [class.mobile-open]="isMobileSidebarOpen()" [class.collapsed]="isSidebarCollapsed()" (click)="$event.stopPropagation()">
     <!-- Sidebar Top Logo (Fixed) -->
     <div class="sidebar-header">
       <a routerLink="/" (click)="closeMobileSidebar()" class="sidebar-logo">
@@ -10,6 +10,11 @@
           <span class="logo-subtitle">Connexion Développeurs Africains</span>
         </div>
       </a>
+      <button class="mobile-sidebar-close-btn" (click)="closeMobileSidebar()" aria-label="Fermer le menu">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
     </div>
 
     <!-- Sidebar Navigation Items -->
@@ -86,6 +91,13 @@
         </svg>
         <span class="nav-label">Voir le site</span>
       </a>
+
+      <button (click)="logout()" class="nav-item logout-nav-item" [title]="isSidebarCollapsed() ? 'Se déconnecter' : ''">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l-3 3m0 0l3 3m-3-3h12.75" />
+        </svg>
+        <span class="nav-label">Se déconnecter</span>
+      </button>
     </div>
   </aside>
 

@@ -168,6 +168,7 @@ export class DashboardLayoutComponent implements OnInit {
   logout(): void {
     this.authService.logout();
     this.closeProfileMenu();
+    this.closeMobileSidebar();
     this.router.navigate(['/login']);
   }
 }
