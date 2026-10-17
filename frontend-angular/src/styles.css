@@ -702,7 +702,7 @@ svg {
     word-break: break-word;
   }
 
-  .app-card {
+  .app-card:not([class*="dropdown"]) {
     padding: 1.15rem 1rem;
     max-width: 100%;
     box-sizing: border-box;
