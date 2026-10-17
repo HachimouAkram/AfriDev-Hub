@@ -10,7 +10,7 @@ import { TranslationService, Language } from './core/services/translation.servic
   standalone: true,
   imports: [CommonModule, RouterOutlet, RouterLink, RouterLinkActive],
   template: `
-    <nav class="app-nav" [class.nav-scrolled]="isScrolled" [class.nav-light]="!isDark()" *ngIf="!isDashboardPage()">
+    <nav class="app-nav" [class.nav-scrolled]="isScrolled" [class.nav-light]="!isDark()" *ngIf="!hideNavAndFooter()">
       <div class="nav-content">
         <!-- Logo Left -->
         <a routerLink="/" (click)="closeAllMenus()" class="logo">
@@ -218,12 +218,12 @@ import { TranslationService, Language } from './core/services/translation.servic
         </div>
       </div>
     </nav>
-    <main [class.has-fixed-nav]="!isDashboardPage()">
+    <main [class.has-fixed-nav]="!hideNavAndFooter()">
       <router-outlet></router-outlet>
     </main>
 
     <!-- ELEGANT PROFESSIONAL FOOTER -->
-    <footer class="app-footer" *ngIf="!isDashboardPage()">
+    <footer class="app-footer" *ngIf="!hideNavAndFooter()">
       <div class="footer-top-glow"></div>
       <div class="footer-container">
         <div class="footer-grid">
@@ -1226,6 +1226,14 @@ export class AppComponent {
 
   isDashboardPage(): boolean {
     return this.router.url.startsWith('/dashboard');
+  }
+
+  hideNavAndFooter(): boolean {
+    const url = this.router.url.split('?')[0];
+    return url.startsWith('/dashboard') || 
+           url === '/login' || 
+           url === '/register' || 
+           url === '/verify-otp';
   }
 
   isDark(): boolean {

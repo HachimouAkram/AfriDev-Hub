@@ -2,8 +2,8 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  min-height: calc(85vh - 80px);
-  padding: 2rem 1rem;
+  min-height: 100vh;
+  padding: 2.5rem 1rem;
 }
 
 .auth-card {
@@ -22,16 +22,56 @@
   align-items: center;
 }
 
-.auth-icon-badge {
-  width: 52px;
-  height: 52px;
-  border-radius: 14px;
-  background: rgba(16, 185, 129, 0.12);
-  border: 1px solid rgba(16, 185, 129, 0.25);
-  display: flex;
+.auth-brand {
+  display: inline-flex;
   align-items: center;
+  gap: 0.65rem;
+  text-decoration: none;
+  margin-bottom: 1.25rem;
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.auth-brand:hover {
+  transform: translateY(-2px);
+}
+
+.auth-brand-logo {
+  width: 44px;
+  height: 44px;
+  object-fit: contain;
+}
+
+.auth-brand-text {
+  font-family: var(--font-heading);
+  font-size: 1.45rem;
+  font-weight: 800;
+  color: var(--text-heading);
+  letter-spacing: -0.02em;
+}
+
+.auth-brand-text .accent {
+  color: var(--emerald);
+}
+
+.auth-back-home {
+  margin-top: 1rem;
+  display: flex;
   justify-content: center;
-  margin-bottom: 1rem;
+}
+
+.link-back-home {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.link-back-home:hover {
+  color: var(--emerald);
+  text-decoration: underline;
 }
 
 .auth-header h2 {

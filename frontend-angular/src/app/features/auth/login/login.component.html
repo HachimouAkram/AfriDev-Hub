@@ -1,11 +1,10 @@
 <div class="auth-container">
   <div class="app-card auth-card">
     <div class="auth-header">
-      <div class="auth-icon-badge">
-        <svg class="icon-svg icon-svg-lg text-emerald" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" />
-        </svg>
-      </div>
+      <a routerLink="/" class="auth-brand" title="Retour à l'accueil">
+        <img src="/logo-africa.png" alt="AfriDev Hub Logo" class="auth-brand-logo" />
+        <span class="auth-brand-text">AfriDev <span class="accent">Hub</span></span>
+      </a>
       <h2>Connexion à AfriDev Hub</h2>
       <p>Accédez à votre espace développeur et votre réputation certifiée</p>
     </div>
@@ -194,6 +193,14 @@
 
       <div class="auth-footer">
         <p>Pas encore inscrit ? <a routerLink="/register" class="link">Créer un compte</a></p>
+        <div class="auth-back-home">
+          <a routerLink="/" class="link-back-home">
+            <svg class="icon-svg icon-svg-xs" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
+            </svg>
+            <span>Retour à l'accueil</span>
+          </a>
+        </div>
       </div>
     </ng-container>
   </div>

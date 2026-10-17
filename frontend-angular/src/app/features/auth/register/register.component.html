@@ -1,11 +1,10 @@
 <div class="auth-container">
   <div class="app-card auth-card">
     <div class="auth-header">
-      <div class="auth-icon-badge">
-        <svg class="icon-svg icon-svg-lg text-emerald" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M12 21a9.004 9.004 0 008.716-6.747M12 21a9.004 9.004 0 01-8.716-6.747M12 21c2.485 0 4.5-4.03 4.5-9S14.485 3 12 3m0 18c-2.485 0-4.5-4.03-4.5-9S9.515 3 12 3m0 0a8.997 8.997 0 017.843 4.582M12 3a8.997 8.997 0 00-7.843 4.582m15.686 0A11.953 11.953 0 0112 10.5c-2.998 0-5.74-1.1-7.843-2.918m15.686 0A8.959 8.959 0 0121 12c0 .778-.099 1.533-.284 2.253m-15.432-4.5A8.959 8.959 0 003 12c0 .778.099 1.533.284 2.253" />
-        </svg>
-      </div>
+      <a routerLink="/" class="auth-brand" title="Retour à l'accueil">
+        <img src="/logo-africa.png" alt="AfriDev Hub Logo" class="auth-brand-logo" />
+        <span class="auth-brand-text">AfriDev <span class="accent">Hub</span></span>
+      </a>
       <h2>Créer votre profil AfriDev Hub</h2>
       <p>Rejoignez la plateforme de réputation certifiée des développeurs africains</p>
     </div>
@@ -306,6 +305,14 @@
 
     <div class="auth-footer">
       <p>Déjà un compte ? <a routerLink="/login" class="link">Se connecter</a></p>
+      <div class="auth-back-home">
+        <a routerLink="/" class="link-back-home">
+          <svg class="icon-svg icon-svg-xs" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
+          </svg>
+          <span>Retour à l'accueil</span>
+        </a>
+      </div>
     </div>
   </div>
 </div>
