@@ -2,6 +2,10 @@
   "outputDirectory": "dist/frontend-angular/browser",
   "rewrites": [
     {
+      "source": "/api/v1/:path*",
+      "destination": "https://afridev-hub-711d9935.platform-systalink.com/api/v1/:path*"
+    },
+    {
       "source": "/(.*)",
       "destination": "/index.html"
     }
