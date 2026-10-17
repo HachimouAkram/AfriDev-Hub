@@ -26,7 +26,8 @@ public class EvaluationService {
     private final AuthService authService;
 
     private final RestTemplate restTemplate = new RestTemplate();
-    private static final String FASTAPI_REPUTATION_URL = "http://localhost:8000/api/v1/reputation/calculate";
+    @org.springframework.beans.factory.annotation.Value("${app.fastapi.url:http://localhost:8000}")
+    private String fastApiBaseUrl = "http://localhost:8000";
 
     @Transactional
     public CollaborationDto declareCollaboration(String userEmail, CollaborationCreateRequest request) {
@@ -192,7 +193,8 @@ public class EvaluationService {
 
             payload.put("evaluations", evalInputs);
 
-            ReputationScoreDto response = restTemplate.postForObject(FASTAPI_REPUTATION_URL, payload, ReputationScoreDto.class);
+            String url = fastApiBaseUrl.replaceAll("/+$", "") + "/api/v1/reputation/calculate";
+            ReputationScoreDto response = restTemplate.postForObject(url, payload, ReputationScoreDto.class);
             if (response != null && response.getOverallReputationScore() != null) {
                 return response;
             }

@@ -27,7 +27,8 @@ public class ProfileService {
     private final RedisCacheService redisCacheService;
 
     private final RestTemplate restTemplate = new RestTemplate();
-    private static final String FASTAPI_GITHUB_URL = "http://localhost:8000/api/v1/github/stats/";
+    @org.springframework.beans.factory.annotation.Value("${app.fastapi.url:http://localhost:8000}")
+    private String fastApiBaseUrl = "http://localhost:8000";
 
     @Transactional(readOnly = true)
     public ProfileDto getProfileById(String id) {
@@ -93,7 +94,7 @@ public class ProfileService {
 
         // Appel au microservice FastAPI pour la synchronisation GitHub
         try {
-            String url = FASTAPI_GITHUB_URL + username;
+            String url = fastApiBaseUrl.replaceAll("/+$", "") + "/api/v1/github/stats/" + username;
             String jsonStats = restTemplate.getForObject(url, String.class);
             if (jsonStats != null) {
                 profile.setGithubStatsJson(jsonStats);

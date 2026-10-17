@@ -35,7 +35,8 @@ public class NetworkService {
     private final RedisCacheService redisCacheService;
 
     private final RestTemplate restTemplate = new RestTemplate();
-    private static final String FASTAPI_SUGGESTIONS_URL = "http://localhost:8000/api/v1/suggestions/network";
+    @org.springframework.beans.factory.annotation.Value("${app.fastapi.url:http://localhost:8000}")
+    private String fastApiBaseUrl = "http://localhost:8000";
 
     @Transactional(readOnly = true)
     public Page<UserNetworkDto> getNetworkUsers(
@@ -241,7 +242,8 @@ public class NetworkService {
             payload.put("candidates", candidateMaps);
             payload.put("limit", limit);
 
-            Map<?, ?> response = restTemplate.postForObject(FASTAPI_SUGGESTIONS_URL, payload, Map.class);
+            String url = fastApiBaseUrl.replaceAll("/+$", "") + "/api/v1/suggestions/network";
+            Map<?, ?> response = restTemplate.postForObject(url, payload, Map.class);
             if (response != null && response.containsKey("suggestions")) {
                 List<?> suggestionsList = (List<?>) response.get("suggestions");
                 List<NetworkSuggestionDto> dtoList = new ArrayList<>();

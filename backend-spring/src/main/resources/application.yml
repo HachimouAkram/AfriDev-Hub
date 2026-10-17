@@ -63,3 +63,5 @@ app:
     from-name: ${MAIL_FROM_NAME:AfriDev Hub}
   google:
     client-id: ${GOOGLE_CLIENT_ID:496829118154-ifg5amooc56vptf4oorlfs3u77t51rem.apps.googleusercontent.com}
+  fastapi:
+    url: ${FASTAPI_BASE_URL:http://localhost:8000}
