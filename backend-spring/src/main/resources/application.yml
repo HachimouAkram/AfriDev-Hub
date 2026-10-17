@@ -12,7 +12,7 @@ spring:
   application:
     name: afridev-hub-backend
   datasource:
-    url: jdbc:postgresql://${DB_HOST:postgres-dbaas-postgres-afridev-db-afridev-db.systalinkdatabases.com}:${DB_PORT:33041}/${DB_NAME:afridev_db}?sslmode=${DB_SSL_MODE:require}${DB_PARAMS:}
+    url: ${SPRING_DATASOURCE_URL:${DB_URL:jdbc:postgresql://${DB_HOST:postgres-dbaas-postgres-afridev-db-afridev-db.systalinkdatabases.com}:${DB_PORT:33041}/${DB_NAME:afridev_db}${DB_PARAMS:?sslmode=require}}}
     username: ${DB_USER:afridev_db_u}
     password: ${DB_PASSWORD:yUcVbDGuDoXuzAAWeKYkXy4P}
     driver-class-name: org.postgresql.Driver
@@ -23,7 +23,6 @@ spring:
     properties:
       hibernate:
         format_sql: false
-        dialect: org.hibernate.dialect.PostgreSQLDialect
   data:
     redis:
       host: ${REDIS_HOST:redis-dbaas-redis-afridev-redis-afridev-redis.systalinkdatabases.com}
