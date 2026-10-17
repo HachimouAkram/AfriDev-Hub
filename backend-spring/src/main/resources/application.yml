@@ -68,6 +68,7 @@ app:
 
 cloudinary:
   cloud-name: ${CLOUDINARY_CLOUD_NAME:dgq3cm81e}
-  api-key: ${CLOUDINARY_API_KEY:477553963134949}
-  api-secret: ${CLOUDINARY_API_SECRET:NbjF6b-vPCW63tpfIRr293Qdjl4}
+  api-key: ${CLOUDINARY_API_KEY:313376246725814}
+  api-secret: ${CLOUDINARY_API_SECRET:PlaBz4HE8KDgjFziRt6EW2PjIOc}
+
 

@@ -12,10 +12,10 @@ public class CloudinaryConfig {
     @Value("${cloudinary.cloud-name:dgq3cm81e}")
     private String cloudName;
 
-    @Value("${cloudinary.api-key:477553963134949}")
+    @Value("${cloudinary.api-key:313376246725814}")
     private String apiKey;
 
-    @Value("${cloudinary.api-secret:NbjF6b-vPCW63tpfIRr293Qdjl4}")
+    @Value("${cloudinary.api-secret:PlaBz4HE8KDgjFziRt6EW2PjIOc}")
     private String apiSecret;
 
     @Bean
