@@ -65,3 +65,9 @@ app:
     client-id: ${GOOGLE_CLIENT_ID:496829118154-ifg5amooc56vptf4oorlfs3u77t51rem.apps.googleusercontent.com}
   fastapi:
     url: ${FASTAPI_BASE_URL:http://localhost:8000}
+
+cloudinary:
+  cloud-name: ${CLOUDINARY_CLOUD_NAME:dgq3cm81e}
+  api-key: ${CLOUDINARY_API_KEY:477553963134949}
+  api-secret: ${CLOUDINARY_API_SECRET:NbjF6b-vPCW63tpfIRr293Qdjl4}
+

@@ -1,5 +1,8 @@
 package africa.afridev.service;
 
+import com.cloudinary.Cloudinary;
+import com.cloudinary.utils.ObjectUtils;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
@@ -14,35 +17,39 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
+@Slf4j
 @Service
 public class FileStorageService {
 
+    private final Cloudinary cloudinary;
     private final Path uploadLocation;
     private static final List<String> ALLOWED_IMAGE_EXTENSIONS = List.of("png", "jpg", "jpeg", "webp");
     private static final List<String> ALLOWED_PDF_EXTENSIONS = List.of("pdf");
     private static final long MAX_IMAGE_SIZE = 5 * 1024 * 1024; // 5 MB
     private static final long MAX_PDF_SIZE = 10 * 1024 * 1024; // 10 MB
 
-    public FileStorageService(@Value("${file.upload-dir:uploads}") String uploadDir) {
+    public FileStorageService(Cloudinary cloudinary, @Value("${file.upload-dir:uploads}") String uploadDir) {
+        this.cloudinary = cloudinary;
         this.uploadLocation = Paths.get(uploadDir).toAbsolutePath().normalize();
         try {
             Files.createDirectories(this.uploadLocation);
         } catch (IOException e) {
-            throw new RuntimeException("Impossible de créer le répertoire de stockage des fichiers.", e);
+            log.warn("Impossible de créer le répertoire local de stockage: {}", e.getMessage());
         }
     }
 
     public String storeImage(MultipartFile file) {
-        return storeFile(file, ALLOWED_IMAGE_EXTENSIONS, MAX_IMAGE_SIZE, "L'image doit être au format PNG, JPG, JPEG ou WEBP et ne pas dépasser 5 Mo.");
+        return storeToCloudinaryOrLocal(file, ALLOWED_IMAGE_EXTENSIONS, MAX_IMAGE_SIZE, "L'image doit être au format PNG, JPG, JPEG ou WEBP et ne pas dépasser 5 Mo.", "afridev/images", "image");
     }
 
     public String storePdf(MultipartFile file) {
-        return storeFile(file, ALLOWED_PDF_EXTENSIONS, MAX_PDF_SIZE, "Le document doit être au format PDF et ne pas dépasser 10 Mo.");
+        return storeToCloudinaryOrLocal(file, ALLOWED_PDF_EXTENSIONS, MAX_PDF_SIZE, "Le document doit être au format PDF et ne pas dépasser 10 Mo.", "afridev/documents", "raw");
     }
 
-    private String storeFile(MultipartFile file, List<String> allowedExtensions, long maxSize, String errorMessage) {
+    private String storeToCloudinaryOrLocal(MultipartFile file, List<String> allowedExtensions, long maxSize, String errorMessage, String folder, String resourceType) {
         if (file.isEmpty()) {
             throw new IllegalArgumentException("Fichier vide non autorisé.");
         }
@@ -58,7 +65,27 @@ public class FileStorageService {
             throw new IllegalArgumentException(errorMessage);
         }
 
-        // Sanitization & Security against directory traversal attacks
+        // 1. Essai d'upload sécurisé vers Cloudinary
+        try {
+            if (cloudinary != null) {
+                Map<?, ?> uploadResult = cloudinary.uploader().upload(file.getBytes(), ObjectUtils.asMap(
+                        "folder", folder,
+                        "resource_type", resourceType,
+                        "use_filename", true,
+                        "unique_filename", true
+                ));
+
+                String secureUrl = (String) uploadResult.get("secure_url");
+                if (secureUrl != null && !secureUrl.isBlank()) {
+                    log.info("[CLOUDINARY] Fichier uploadé avec succès : {}", secureUrl);
+                    return secureUrl;
+                }
+            }
+        } catch (Exception e) {
+            log.error("[CLOUDINARY] Erreur lors de l'upload vers Cloudinary, fallback local : {}", e.getMessage());
+        }
+
+        // 2. Fallback stockage disque local en cas de problème réseau
         String newFilename = UUID.randomUUID().toString() + "." + fileExtension;
         Path targetLocation = this.uploadLocation.resolve(newFilename);
 
