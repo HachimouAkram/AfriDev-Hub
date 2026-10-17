@@ -12,7 +12,10 @@ from app.schemas.github import (
 )
 
 # Connection Redis avec support REDIS_URL ou HOST/PORT/PASSWORD et fallback robuste
-REDIS_URL = os.getenv("REDIS_URL")
+REDIS_URL = os.getenv(
+    "REDIS_URL",
+    "redis://afridev_redis_u:HVLXG0EL-b90WWeWtvVVCWY0@redis-dbaas-redis-afridev-redis-afridev-redis.systalinkdatabases.com:33042/afridev_redis"
+)
 REDIS_HOST = os.getenv("REDIS_HOST", "localhost")
 REDIS_PORT = int(os.getenv("REDIS_PORT", "6379" if not os.getenv("REDIS_PORT") and not REDIS_URL else os.getenv("REDIS_PORT", "6380")))
 REDIS_PASSWORD = os.getenv("REDIS_PASSWORD", "redis_secret")

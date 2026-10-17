@@ -1,7 +1,10 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from datetime import datetime, timezone
+from dotenv import load_dotenv
 from app.routers import github, reputation, suggestions
+
+load_dotenv()
 
 app = FastAPI(
     title="AfriDev Hub - FastAPI Analytics & Reputation Service",
