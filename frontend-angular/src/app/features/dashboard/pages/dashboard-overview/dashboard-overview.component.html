@@ -6,19 +6,27 @@
 
   <!-- Welcome Header Banner -->
   <section class="welcome-banner app-card">
-    <div class="welcome-title-row">
-      <h1>Bonjour {{ u.profile?.fullName || u.email }} <span class="wave"><i class="ri-hand-coin-line"></i></span></h1>
-      <span class="badge badge-emerald" *ngIf="u.profile?.mobileMoneyVerified">
-        <svg class="icon-svg icon-svg-xs" viewBox="0 0 24 24" fill="currentColor">
-          <path fill-rule="evenodd" d="M8.603 3.799A4.49 4.49 0 0112 2.25c1.357 0 2.573.6 3.397 1.549a4.49 4.49 0 013.498 1.307 4.491 4.491 0 011.307 3.497A4.49 4.49 0 0121.75 12a4.49 4.49 0 01-1.549 3.397 4.491 4.491 0 01-1.307 3.497 4.491 4.491 0 01-3.497 1.307A4.49 4.49 0 0112 21.75a4.49 4.49 0 01-3.397-1.549 4.49 4.49 0 01-3.498-1.306 4.491 4.491 0 01-1.307-3.498A4.49 4.49 0 012.25 12c0-1.357.6-2.573 1.549-3.397a4.49 4.49 0 011.307-3.497 4.49 4.49 0 013.497-1.307zm7.643 6.951a.75.75 0 00-1.06-1.06L10.5 14.44l-1.69-1.69a.75.75 0 00-1.06 1.06l2.22 2.22a.75.75 0 001.06 0l4.216-4.28z" clip-rule="evenodd" />
-        </svg>
-        <span>Membre Vérifié</span>
-      </span>
-      <span class="badge badge-emerald" *ngIf="!u.profile?.mobileMoneyVerified">
-        {{ u.profile?.title || u.role }}
-      </span>
+    <div class="welcome-banner-top">
+      <div class="welcome-title-row">
+        <h1>Bonjour {{ u.profile?.fullName || u.email }} <span class="wave"><i class="ri-hand-coin-line"></i></span></h1>
+        <span class="badge badge-emerald" *ngIf="u.profile?.mobileMoneyVerified">
+          <svg class="icon-svg icon-svg-xs" viewBox="0 0 24 24" fill="currentColor">
+            <path fill-rule="evenodd" d="M8.603 3.799A4.49 4.49 0 0112 2.25c1.357 0 2.573.6 3.397 1.549a4.49 4.49 0 013.498 1.307 4.491 4.491 0 011.307 3.497A4.49 4.49 0 0121.75 12a4.49 4.49 0 01-1.549 3.397 4.491 4.491 0 01-1.307 3.497 4.491 4.491 0 01-3.497 1.307A4.49 4.49 0 0112 21.75a4.49 4.49 0 01-3.397-1.549 4.49 4.49 0 01-3.498-1.306 4.491 4.491 0 01-1.307-3.498A4.49 4.49 0 012.25 12c0-1.357.6-2.573 1.549-3.397a4.49 4.49 0 011.307-3.497 4.49 4.49 0 013.497-1.307zm7.643 6.951a.75.75 0 00-1.06-1.06L10.5 14.44l-1.69-1.69a.75.75 0 00-1.06 1.06l2.22 2.22a.75.75 0 001.06 0l4.216-4.28z" clip-rule="evenodd" />
+          </svg>
+          <span>Membre Vérifié</span>
+        </span>
+        <span class="badge badge-emerald" *ngIf="!u.profile?.mobileMoneyVerified">
+          {{ u.profile?.title || u.role }}
+        </span>
+      </div>
+
+      <!-- Quick Level Badge & XP Pill -->
+      <a routerLink="/leaderboard" class="overview-level-pill" *ngIf="u.role !== 'RECRUITER'" title="Consulter mon classement panafricain">
+        <span class="o-level-badge">{{ getLevelBadge(u.profile?.levelNumber || 1) }} {{ u.profile?.levelTitle || 'Junior' }}</span>
+        <span class="o-xp-points">{{ u.profile?.xpPoints || 0 }} XP</span>
+      </a>
     </div>
-    <p class="welcome-sub">Voici où en est votre activité globale sur AfriDev Hub.</p>
+    <p class="welcome-sub">Voici où en est votre activité globale et votre progression sur AfriDev Hub.</p>
   </section>
 
   <!-- Modern Top KPI Cards Row -->
@@ -96,6 +104,27 @@
       </div>
       <div class="kpi-footer">
         <a routerLink="/dashboard/applications" class="kpi-link">Voir mes candidatures →</a>
+      </div>
+    </div>
+
+    <!-- KPI 5: Gamification XP & Niveau -->
+    <div class="kpi-card app-card kpi-card-xp" routerLink="/leaderboard" *ngIf="u.role !== 'RECRUITER'" style="cursor: pointer;" title="Accéder au classement des développeurs">
+      <div class="kpi-card-top">
+        <span class="kpi-label">Niveau & Points XP</span>
+        <div class="kpi-icon-wrap xp-wrap">
+          <span class="kpi-xp-emoji">{{ getLevelBadge(u.profile?.levelNumber || 1) }}</span>
+        </div>
+      </div>
+      <div class="kpi-value-row">
+        <span class="kpi-number">{{ u.profile?.xpPoints || 0 }} <span class="kpi-unit">XP</span></span>
+        <span class="kpi-trend highlight">{{ u.profile?.levelTitle || 'Junior' }}</span>
+      </div>
+      <!-- Mini XP Progress -->
+      <div class="kpi-xp-progress-track">
+        <div class="kpi-xp-progress-bar" [style.width.%]="getXpProgress(u.profile?.xpPoints || 0).percent"></div>
+      </div>
+      <div class="kpi-footer">
+        <span class="kpi-link">Voir le classement panafricain →</span>
       </div>
     </div>
   </section>
@@ -348,7 +377,7 @@
           <div class="proj-comp-head">
             <div class="proj-comp-left">
               <span class="rank-badge" [class.rank-1]="i === 0" [class.rank-2]="i === 1" [class.rank-3]="i === 2">
-                #{{ i + 1 }}
+                {{ i + 1 }}
               </span>
               <div class="proj-details">
                 <span class="proj-title">{{ proj.title }}</span>

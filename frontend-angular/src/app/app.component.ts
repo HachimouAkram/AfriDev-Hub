@@ -29,6 +29,7 @@ import { TranslationService, Language } from './core/services/translation.servic
             <a routerLink="/opportunities" routerLinkActive="active" class="nav-link">Opportunités</a>
             <a routerLink="/network" routerLinkActive="active" class="nav-link">Réseau</a>
             <a routerLink="/events" routerLinkActive="active" class="nav-link">Événements</a>
+            <a routerLink="/leaderboard" routerLinkActive="active" class="nav-link">Classement</a>
           </ng-container>
         </div>
 
@@ -37,7 +38,6 @@ import { TranslationService, Language } from './core/services/translation.servic
           <!-- Language Selector Dropdown with Voice Audio -->
           <div class="lang-dropdown-container">
             <button (click)="toggleLangMenu($event)" class="lang-toggle-btn" title="Changer de langue / Wàllu làkk">
-              <span class="lang-flag">{{ currentLang().flag }}</span>
               <span class="lang-code">{{ currentLang().code.toUpperCase() }}</span>
               <svg class="chevron-svg" [class.rotated]="isLangMenuOpen" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
@@ -55,7 +55,7 @@ import { TranslationService, Language } from './core/services/translation.servic
                      [class.selected]="lang.code === currentLang().code"
                      (click)="selectLanguage(lang)">
                   <div class="lang-item-left">
-                    <span class="lang-flag-sm">{{ lang.flag }}</span>
+                    <span class="lang-code-pill">{{ lang.code.toUpperCase() }}</span>
                     <span class="lang-name">{{ lang.label }}</span>
                   </div>
                   <button type="button" 
@@ -105,6 +105,10 @@ import { TranslationService, Language } from './core/services/translation.servic
                 <div class="dropdown-user-info">
                   <span class="user-name">{{ getUserFullName() }}</span>
                   <span class="user-role">{{ getUserTitle() }}</span>
+                  <div class="dropdown-gamification-row" *ngIf="getUserXp() !== null">
+                    <span class="dropdown-level-tag">{{ getUserLevelBadge() }} {{ getUserLevelTitle() }}</span>
+                    <span class="dropdown-xp-pill">{{ getUserXp() }} XP</span>
+                  </div>
                 </div>
               </div>
 
@@ -116,6 +120,13 @@ import { TranslationService, Language } from './core/services/translation.servic
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
                   </svg>
                   <span>Mon Profil</span>
+                </a>
+
+                <a routerLink="/leaderboard" (click)="closeProfileMenu()" routerLinkActive="active" class="dropdown-item highlight-leaderboard-link">
+                  <svg class="icon-svg icon-svg-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16.5 18.75h-9m9 0a3 3 0 013 3h-15a3 3 0 013-3m9 0v-3.375c0-.621-.504-1.125-1.125-1.125h-.871M7.5 18.75v-3.375c0-.621.504-1.125 1.125-1.125h.872m5.004 0V5.625c0-.621-.504-1.125-1.125-1.125H9.625c-.621 0-1.125.504-1.125 1.125v8.625m5.004 0H9.625" />
+                  </svg>
+                  <span>Classement</span>
                 </a>
 
                 <a routerLink="/messages" (click)="closeProfileMenu()" routerLinkActive="active" class="dropdown-item">
@@ -180,6 +191,7 @@ import { TranslationService, Language } from './core/services/translation.servic
           <a routerLink="/opportunities" (click)="closeAllMenus()" routerLinkActive="active" class="mobile-nav-link">Opportunités</a>
           <a routerLink="/network" (click)="closeAllMenus()" routerLinkActive="active" class="mobile-nav-link">Réseau</a>
           <a routerLink="/events" (click)="closeAllMenus()" routerLinkActive="active" class="mobile-nav-link">Événements</a>
+          <a routerLink="/leaderboard" (click)="closeAllMenus()" routerLinkActive="active" class="mobile-nav-link">Classement</a>
           <a *ngIf="isLoggedIn()" routerLink="/messages" (click)="closeAllMenus()" routerLinkActive="active" class="mobile-nav-link">Messagerie</a>
           <a *ngIf="isLoggedIn()" routerLink="/dashboard/profile" (click)="closeAllMenus()" routerLinkActive="active" class="mobile-nav-link">Mon Profil</a>
           <a *ngIf="isLoggedIn()" routerLink="/dashboard" (click)="closeAllMenus()" routerLinkActive="active" class="mobile-nav-link">Tableau de bord</a>
@@ -200,7 +212,7 @@ import { TranslationService, Language } from './core/services/translation.servic
                       class="mobile-lang-chip"
                       [class.active]="lang.code === currentLang().code"
                       (click)="selectLanguage(lang)">
-                <span>{{ lang.flag }} {{ lang.label }}</span>
+                <span><strong class="mobile-lang-code">{{ lang.code.toUpperCase() }}</strong> {{ lang.label }}</span>
                 <span class="voice-icon-mini" (click)="speakVoice(lang, $event)" [title]="'Écouter en ' + lang.label">🔊</span>
               </button>
             </div>
@@ -594,6 +606,20 @@ import { TranslationService, Language } from './core/services/translation.servic
       display: flex;
       align-items: center;
       gap: 0.65rem;
+    }
+    .lang-code-pill {
+      font-size: 0.725rem;
+      font-weight: 700;
+      color: var(--emerald-500);
+      background: rgba(16, 185, 129, 0.12);
+      padding: 0.15rem 0.45rem;
+      border-radius: 4px;
+      letter-spacing: 0.04em;
+    }
+    .mobile-lang-code {
+      color: var(--emerald-500);
+      font-weight: 800;
+      margin-right: 0.35rem;
     }
     .lang-flag-sm {
       font-size: 1.15rem;
@@ -1152,6 +1178,58 @@ import { TranslationService, Language } from './core/services/translation.servic
     .dot-sep {
       color: var(--border-light);
     }
+
+    .nav-xp-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      padding: 0.3rem 0.65rem;
+      background: rgba(16, 185, 129, 0.12);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      border-radius: 999px;
+      font-size: 0.775rem;
+      font-weight: 700;
+      color: var(--emerald-400, #34d399);
+      text-decoration: none;
+      transition: all 0.2s ease;
+      margin-right: 0.35rem;
+    }
+
+    .nav-xp-badge:hover {
+      background: rgba(16, 185, 129, 0.22);
+      transform: scale(1.04);
+    }
+
+    .dropdown-gamification-row {
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+      margin-top: 0.25rem;
+      flex-wrap: wrap;
+    }
+
+    .dropdown-level-tag {
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: #34d399;
+      background: rgba(16, 185, 129, 0.15);
+      padding: 0.1rem 0.4rem;
+      border-radius: 4px;
+    }
+
+    .dropdown-xp-pill {
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      background: rgba(255, 255, 255, 0.05);
+      padding: 0.1rem 0.4rem;
+      border-radius: 4px;
+    }
+
+    .highlight-leaderboard-link {
+      color: var(--emerald-400) !important;
+      font-weight: 600 !important;
+    }
   `]
 })
 export class AppComponent {
@@ -1266,6 +1344,30 @@ export class AppComponent {
     const u = this.authService.currentUser();
     if (!u) return '';
     return u.profile?.title || (u.role === 'RECRUITER' ? 'Recruteur' : 'Développeur');
+  }
+
+  getUserXp(): number | null {
+    const u = this.authService.currentUser();
+    if (!u || u.role === 'RECRUITER') return null;
+    return u.profile?.xpPoints ?? 0;
+  }
+
+  getUserLevelTitle(): string {
+    const u = this.authService.currentUser();
+    return u?.profile?.levelTitle || 'Junior';
+  }
+
+  getUserLevelBadge(): string {
+    const u = this.authService.currentUser();
+    const num = u?.profile?.levelNumber || 1;
+    switch (num) {
+      case 5: return '👑';
+      case 4: return '🟠';
+      case 3: return '🟣';
+      case 2: return '🔵';
+      case 1:
+      default: return '🟢';
+    }
   }
 
   logout(): void {

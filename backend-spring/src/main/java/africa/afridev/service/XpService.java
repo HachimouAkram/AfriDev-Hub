@@ -25,6 +25,7 @@ public class XpService {
     private final RecognitionRepository recognitionRepository;
     private final EvaluationRepository evaluationRepository;
     private final ApplicationRepository applicationRepository;
+    private final RedisCacheService redisCacheService;
 
     public static final long XP_PROJECT_PUBLISHED = 50L;
     public static final long XP_RECOGNITION_RECEIVED = 15L;
@@ -78,6 +79,7 @@ public class XpService {
             profile.setLevelTitle(level.getTitle());
 
             profileRepository.save(profile);
+            redisCacheService.evictLeaderboardCache();
             log.info("Attribué {} XP à l'utilisateur {} (Total: {}, Niveau: {})", points, user.getEmail(), newXp, level.getTitle());
         });
     }
@@ -135,6 +137,7 @@ public class XpService {
             profile.setLevelTitle(level.getTitle());
 
             profileRepository.save(profile);
+            redisCacheService.evictLeaderboardCache();
             log.info("Recalcul XP terminé pour {} : {} XP (Niveau {})", user.getEmail(), totalXp, level.getTitle());
         });
     }

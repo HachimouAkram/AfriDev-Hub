@@ -155,4 +155,8 @@ public class RedisCacheService {
     public void evictEventsCache() {
         evictByPrefix("cache:events:");
     }
+
+    public void evictLeaderboardCache() {
+        evictByPrefix("cache:leaderboard:");
+    }
 }

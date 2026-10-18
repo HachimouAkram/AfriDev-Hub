@@ -29,6 +29,14 @@
   pointer-events: none;
 }
 
+.welcome-banner-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
 .welcome-title-row {
   display: flex;
   align-items: center;
@@ -43,10 +51,45 @@
   color: var(--text-heading);
 }
 
+.overview-level-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.45rem 0.95rem;
+  background: rgba(16, 185, 129, 0.12);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  border-radius: 999px;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.overview-level-pill:hover {
+  background: rgba(16, 185, 129, 0.22);
+  transform: translateY(-1px) scale(1.03);
+  box-shadow: 0 4px 14px rgba(16, 185, 129, 0.2);
+}
+
+.o-level-badge {
+  font-size: 0.85rem;
+  font-weight: 800;
+  color: var(--emerald-400);
+}
+
+.o-xp-points {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--text-heading);
+  background: rgba(0, 0, 0, 0.25);
+  padding: 0.15rem 0.55rem;
+  border-radius: 999px;
+}
+
 .welcome-sub {
   color: var(--text-muted);
   font-size: 0.9rem;
-  margin-top: 0.25rem;
+  margin-top: 0.35rem;
 }
 
 /* ========================================================= */
@@ -54,7 +97,7 @@
 /* ========================================================= */
 .kpi-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
   gap: 1.25rem;
 }
 
@@ -168,6 +211,49 @@
 
 .kpi-link:hover {
   color: var(--emerald-500);
+}
+
+/* KPI Gamification & XP Card */
+.kpi-card-xp {
+  background: linear-gradient(135deg, var(--bg-surface-card) 0%, rgba(16, 185, 129, 0.06) 100%);
+  border-color: rgba(16, 185, 129, 0.22);
+}
+
+.kpi-card-xp:hover {
+  border-color: var(--emerald-500);
+  box-shadow: 0 12px 30px rgba(16, 185, 129, 0.18);
+}
+
+.xp-wrap {
+  background: rgba(16, 185, 129, 0.15) !important;
+}
+
+.kpi-xp-emoji {
+  font-size: 1.25rem;
+  line-height: 1;
+}
+
+.kpi-unit {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--text-muted);
+}
+
+.kpi-xp-progress-track {
+  width: 100%;
+  height: 6px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 999px;
+  overflow: hidden;
+  margin-top: -0.2rem;
+}
+
+.kpi-xp-progress-bar {
+  height: 100%;
+  background: linear-gradient(90deg, #10b981 0%, #3b82f6 50%, #8b5cf6 100%);
+  border-radius: 999px;
+  transition: width 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 0 10px rgba(16, 185, 129, 0.4);
 }
 
 /* ========================================================= */

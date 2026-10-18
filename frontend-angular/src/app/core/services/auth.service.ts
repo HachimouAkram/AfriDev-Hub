@@ -22,6 +22,9 @@ export interface Profile {
   linkedinUrl?: string;
   zindiUrl?: string;
   portfolioUrl?: string;
+  xpPoints?: number;
+  levelTitle?: string;
+  levelNumber?: number;
 }
 
 export interface LoginSession {

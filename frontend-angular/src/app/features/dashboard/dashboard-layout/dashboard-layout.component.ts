@@ -157,12 +157,24 @@ export class DashboardLayoutComponent implements OnInit {
     if (url.includes('/dashboard/messages')) return 'Messagerie';
     if (url.includes('/dashboard/projects')) return 'Mes projets vitrine';
     if (url.includes('/dashboard/evaluations')) return 'Réputation & Évaluations par les Pairs';
+    if (url.includes('/dashboard/leaderboard')) return 'Classement des Développeurs d\'Afrique';
     if (url.includes('/dashboard/profile')) return 'Mon Profil Développeur';
     return 'Tableau de bord';
   }
 
   isMessagesPage(): boolean {
     return this.router.url.includes('/messages');
+  }
+
+  getLevelBadge(levelNumber?: number): string {
+    switch (levelNumber) {
+      case 5: return '👑';
+      case 4: return '🟠';
+      case 3: return '🟣';
+      case 2: return '🔵';
+      case 1:
+      default: return '🟢';
+    }
   }
 
   logout(): void {

@@ -1,0 +1,436 @@
+<div class="leaderboard-page">
+  <!-- 1. Header Section (Style unifié Réseau - app-card) -->
+  <header class="header-section app-card">
+    <div class="header-text">
+      <h1>Classement des Développeurs d'Afrique</h1>
+      <p>
+        Gagnez des points XP en publiant vos projets, en collaborant en équipe et en recevant des évaluations par les
+        pairs.
+      </p>
+    </div>
+
+    <!-- Stats Pills (Comme sur la page Réseau) -->
+    <div class="stats-pills" *ngIf="data() as d">
+      <div class="stat-pill">
+        <span class="stat-val">{{ d.totalDevelopers }}</span>
+        <span class="stat-lbl">Développeurs classés</span>
+      </div>
+      <div class="stat-pill">
+        <span class="stat-val">5 Niveaux</span>
+        <span class="stat-lbl">Junior à Leader</span>
+      </div>
+      <div class="stat-pill highlight">
+        <span class="stat-val">100%</span>
+        <span class="stat-lbl">Mérite & Contributions</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- 2. Search Bar -->
+  <section class="search-section">
+    <form (submit)="onSearch(); $event.preventDefault()" class="search-bar-form">
+      <div class="search-input-wrapper">
+        <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
+        </svg>
+        <input type="text" [(ngModel)]="searchQuery" name="query"
+          placeholder="Rechercher un développeur par nom, titre ou compétence..." class="search-input" />
+        <button *ngIf="searchQuery()" type="button" (click)="clearSearch()" class="clear-btn" aria-label="Effacer">
+          ✕
+        </button>
+      </div>
+      <button type="submit" class="search-submit-btn" aria-label="Lancer la recherche">
+        <svg class="search-btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+            d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
+        </svg>
+        <span>Rechercher</span>
+      </button>
+    </form>
+  </section>
+
+  <!-- Loading State -->
+  <div class="loading-state" *ngIf="isLoading()">
+    <div class="spinner"></div>
+    <p>Calcul dynamique du classement panafricain...</p>
+  </div>
+
+  <!-- Error State -->
+  <div class="alert alert-error" *ngIf="errorMessage() && !isLoading()">
+    {{ errorMessage() }}
+    <button (click)="loadLeaderboard()" class="btn btn-sm btn-outline">Réessayer</button>
+  </div>
+
+  <main class="leaderboard-main" *ngIf="!isLoading() && data() as d">
+
+    <!-- Redis Cache & Background DB Sync Indicator -->
+    <div class="cache-sync-indicator" *ngIf="isUpdatingFromDb() || isCached()">
+      <div class="cache-badge" [class.updating]="isUpdatingFromDb()">
+        <span class="pulse-indicator"></span>
+        <span class="cache-label" *ngIf="isUpdatingFromDb()">
+          ⚡ <strong>Classement en temps réel</strong> • Actualisation en direct...
+        </span>
+        <span class="cache-label" *ngIf="!isUpdatingFromDb() && isCached()">
+          ⚡ <strong>Classement en temps réel</strong> • Données à jour
+        </span>
+      </div>
+    </div>
+
+    <!-- 3. Current User Position Banner (If Logged In & Has Rank) -->
+    <section class="current-user-card" *ngIf="d.isAuthenticated && d.targetDeveloper as me">
+      <div class="cur-card-left">
+        <div class="cur-avatar-wrap">
+          <img *ngIf="me.avatarUrl" [src]="me.avatarUrl" [alt]="me.fullName" class="cur-avatar" />
+          <div *ngIf="!me.avatarUrl" class="cur-avatar-fallback">
+            {{ getInitials(me.fullName) }}
+          </div>
+          <span class="cur-level-badge" [title]="me.levelTitle">{{ me.levelBadge }}</span>
+        </div>
+        <div class="cur-details">
+          <div class="cur-meta-row">
+            <span class="cur-tag">VOTRE POSITION OFFICIELLE</span>
+            <span class="cur-country" *ngIf="me.country">
+              <img *ngIf="getFlagUrl(me.country)" [src]="getFlagUrl(me.country)" class="inline-flag-img"
+                [alt]="me.country" />
+              <span>{{ me.country }}</span>
+            </span>
+          </div>
+          <h2 class="cur-name">{{ me.fullName }}</h2>
+          <p class="cur-title">{{ me.title }}</p>
+        </div>
+      </div>
+
+      <div class="cur-card-right">
+        <div class="cur-rank-box">
+          <span class="rank-label">Rang</span>
+          <span class="rank-number">{{ d.userRank }}</span>
+        </div>
+        <div class="cur-xp-box">
+          <span class="xp-label">Total XP</span>
+          <span class="xp-number">{{ me.xpPoints | number }} XP</span>
+          <span class="level-pill" [style.color]="getLevelColor(me.levelNumber)">
+            {{ me.levelBadge }} {{ me.levelTitle }}
+          </span>
+        </div>
+      </div>
+
+      <!-- Motivation Alert if not rank 1 -->
+      <div class="cur-motivation-bar" *ngIf="me.pointsToNextRank && me.pointsToNextRank > 0">
+        <svg class="mot-icon-svg" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />
+        </svg>
+        <span class="mot-text">
+          Plus que <strong>{{ me.pointsToNextRank }} XP</strong> pour grimper au rang supérieur !
+        </span>
+      </div>
+    </section>
+
+    <!-- 4. Top 5 Podium Section -->
+    <section class="podium-section" *ngIf="d.top5 && d.top5.length > 0">
+      <div class="section-header">
+        <h2 class="section-title">
+          <svg class="section-title-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round"
+              d="M16.5 18.75h-9m9 0a3 3 0 013 3h-15a3 3 0 013-3m9 0v-3.375c0-.621-.504-1.125-1.125-1.125h-.871M7.5 18.75v-3.375c0-.621.504-1.125 1.125-1.125h.872m5.003 0H9.497m5.003 0A6.75 6.75 0 0018 7.5c0-1.875-.75-3.625-2.025-4.875A1.125 1.125 0 0015 2.25H9c-.435 0-.83.25-1.025.625A6.75 6.75 0 006 7.5c0 3.728 3.022 6.75 6.75 6.75h.75z" />
+          </svg>
+          Le Podium Panafricain (Top 5)
+        </h2>
+        <p class="section-desc">Les développeurs les plus actifs, reconnus et influents du continent.</p>
+      </div>
+
+      <div class="podium-grid">
+        <div *ngFor="let dev of d.top5; let i = index" class="podium-card" [class.podium-gold]="dev.rank === 1"
+          [class.podium-silver]="dev.rank === 2" [class.podium-bronze]="dev.rank === 3"
+          [class.is-current-user]="dev.isCurrentUser">
+          <div class="podium-rank-tag">
+            <span *ngIf="dev.rank === 1">1er</span>
+            <span *ngIf="dev.rank === 2">2e</span>
+            <span *ngIf="dev.rank === 3">3e</span>
+            <span *ngIf="dev.rank > 3">{{ dev.rank }}</span>
+          </div>
+
+          <!-- VOUS badge at the top-right -->
+          <span *ngIf="dev.isCurrentUser" class="you-badge">VOUS</span>
+
+          <div class="podium-avatar-wrapper">
+            <img *ngIf="dev.avatarUrl" [src]="dev.avatarUrl" [alt]="dev.fullName" class="podium-avatar" />
+            <div *ngIf="!dev.avatarUrl" class="podium-avatar-fallback">
+              {{ getInitials(dev.fullName) }}
+            </div>
+            <!-- Dynamic Country Flag Badge (Only displayed if flag URL exists, NO raw 2-letter codes) -->
+            <div class="podium-flag-pill" *ngIf="getFlagUrl(dev.country)" [title]="dev.country">
+              <img [src]="getFlagUrl(dev.country)" [alt]="dev.country" class="podium-flag-img" />
+            </div>
+          </div>
+
+          <h3 class="podium-name">
+            <a [routerLink]="['/profile', dev.userId || dev.profileId]" class="name-link">
+              {{ dev.fullName }}
+            </a>
+          </h3>
+          <p class="podium-title">{{ dev.title }}</p>
+          <div class="podium-country-tag" *ngIf="dev.country">
+            <img *ngIf="getFlagUrl(dev.country)" [src]="getFlagUrl(dev.country)" class="mini-flag"
+              [alt]="dev.country" />
+            <span>{{ dev.country }}</span>
+          </div>
+
+          <div class="podium-stats">
+            <div class="podium-xp">
+              <span class="xp-val">{{ dev.xpPoints | number }}</span>
+              <span class="xp-unit">XP</span>
+            </div>
+            <span class="podium-level-pill" [style.borderColor]="getLevelColor(dev.levelNumber)">
+              {{ dev.levelBadge }} {{ dev.levelTitle }}
+            </span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 5. Surrounding Contextual Neighborhood (11 Profiles) -->
+    <section class="neighborhood-section" *ngIf="d.surroundingNeighborhood && d.surroundingNeighborhood.length > 0">
+      <div class="neighborhood-divider">
+        <span class="dots">••••••</span>
+        <span class="divider-title">
+          <span *ngIf="!searchQuery()">Votre Voisinage Direct au Classement</span>
+          <span *ngIf="searchQuery()">Résultats & Voisins Directs pour "{{ searchQuery() }}"</span>
+        </span>
+        <span class="dots">••••••</span>
+      </div>
+
+      <div class="neighborhood-table-wrap">
+        <table class="leaderboard-table">
+          <thead>
+            <tr>
+              <th class="col-rank">Rang</th>
+              <th class="col-dev">Développeur</th>
+              <th class="col-country">Pays</th>
+              <th class="col-level">Niveau</th>
+              <th class="col-xp">Points XP</th>
+              <th class="col-action">Profil</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let row of d.surroundingNeighborhood" class="table-row"
+              [class.highlight-row]="row.isCurrentUser || (d.targetDeveloper && row.userId === d.targetDeveloper.userId)">
+              <td class="col-rank">
+                <span class="rank-circle" [ngClass]="getRankBadgeClass(row.rank)">
+                  {{ row.rank }}
+                </span>
+              </td>
+              <td class="col-dev">
+                <div class="dev-cell">
+                  <div class="dev-avatar-sm">
+                    <img *ngIf="row.avatarUrl" [src]="row.avatarUrl" [alt]="row.fullName" />
+                    <div *ngIf="!row.avatarUrl" class="avatar-fallback-sm">
+                      {{ getInitials(row.fullName) }}
+                    </div>
+                  </div>
+                  <div class="dev-info-col">
+                    <div class="dev-name-wrap">
+                      <span class="dev-name">{{ row.fullName }}</span>
+                      <span *ngIf="row.isCurrentUser" class="badge-you">VOUS</span>
+                    </div>
+                    <span class="dev-title-sm">{{ row.title }}</span>
+                  </div>
+                </div>
+              </td>
+              <td class="col-country">
+                <span class="country-pill" *ngIf="row.country">
+                  <img *ngIf="getFlagUrl(row.country)" [src]="getFlagUrl(row.country)" class="inline-flag-img"
+                    [alt]="row.country" />
+                  <span class="country-name">{{ row.country }}</span>
+                </span>
+              </td>
+              <td class="col-level">
+                <span class="level-badge-tag" [style.color]="getLevelColor(row.levelNumber)">
+                  {{ row.levelBadge }} {{ row.levelTitle }}
+                </span>
+              </td>
+              <td class="col-xp">
+                <span class="xp-amount">{{ row.xpPoints | number }}</span>
+                <span class="xp-text">XP</span>
+              </td>
+              <td class="col-action">
+                <a [routerLink]="['/profile', row.userId || row.profileId]" class="btn-profile-link">
+                  Voir →
+                </a>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- 6. Public Top 10 Table (If Non-Logged in or Default Public) -->
+    <section class="public-table-section" *ngIf="!d.isAuthenticated && d.publicTop10 && d.publicTop10.length > 0">
+      <div class="section-header">
+        <h2 class="section-title">🌟 Top 10 Général du Continent</h2>
+        <p class="section-desc">Connectez-vous pour voir votre position exacte et vos concurrents directs.</p>
+      </div>
+
+      <div class="neighborhood-table-wrap">
+        <table class="leaderboard-table">
+          <thead>
+            <tr>
+              <th class="col-rank">Rang</th>
+              <th class="col-dev">Développeur</th>
+              <th class="col-country">Pays</th>
+              <th class="col-level">Niveau</th>
+              <th class="col-xp">Points XP</th>
+              <th class="col-action">Profil</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let row of d.publicTop10" class="table-row">
+              <td class="col-rank">
+                <span class="rank-circle" [ngClass]="getRankBadgeClass(row.rank)">
+                  {{ row.rank }}
+                </span>
+              </td>
+              <td class="col-dev">
+                <div class="dev-cell">
+                  <div class="dev-avatar-sm">
+                    <img *ngIf="row.avatarUrl" [src]="row.avatarUrl" [alt]="row.fullName" />
+                    <div *ngIf="!row.avatarUrl" class="avatar-fallback-sm">{{ getInitials(row.fullName) }}</div>
+                  </div>
+                  <div class="dev-info-col">
+                    <span class="dev-name">{{ row.fullName }}</span>
+                    <span class="dev-title-sm">{{ row.title }}</span>
+                  </div>
+                </div>
+              </td>
+              <td class="col-country">
+                <span class="country-pill" *ngIf="row.country">
+                  <img *ngIf="getFlagUrl(row.country)" [src]="getFlagUrl(row.country)" class="inline-flag-img"
+                    [alt]="row.country" />
+                  <span class="country-name">{{ row.country }}</span>
+                </span>
+              </td>
+              <td class="col-level">
+                <span class="level-badge-tag" [style.color]="getLevelColor(row.levelNumber)">
+                  {{ row.levelBadge }} {{ row.levelTitle }}
+                </span>
+              </td>
+              <td class="col-xp">
+                <span class="xp-amount">{{ row.xpPoints | number }}</span>
+                <span class="xp-text">XP</span>
+              </td>
+              <td class="col-action">
+                <a [routerLink]="['/profile', row.userId || row.profileId]" class="btn-profile-link">
+                  Voir →
+                </a>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Guest CTA Banner -->
+      <div class="guest-cta-banner">
+        <div class="cta-text">
+          <h3>Vous êtes développeur en Afrique ?</h3>
+          <p>Créez votre profil, publiez vos projets et recevez des points XP pour rejoindre le classement panafricain.
+          </p>
+        </div>
+        <div class="cta-buttons">
+          <a routerLink="/register" class="btn btn-primary">Créer mon Profil</a>
+          <a routerLink="/login" class="btn btn-outline">Se Connecter</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- 7. XP Rules & Level Guide -->
+    <section class="rules-guide-section">
+      <div class="guide-header">
+        <h3 class="guide-title">Comment fonctionne le calcul des points XP ?</h3>
+        <p class="guide-subtitle">Le barème est 100% transparent et valorise les contributions réelles.</p>
+      </div>
+
+      <div class="rules-grid">
+        <div class="rule-card">
+          <div class="rule-icon icon-project">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round"
+                d="M15.59 14.37a6 6 0 01-5.84 7.38v-4.8m5.84-2.58a14.98 14.98 0 006.16-12.12A14.98 14.98 0 009.631 8.41m5.96 5.96a14.926 14.926 0 01-5.841 2.58m-.119-8.54a6 6 0 00-7.381 5.84h4.8m2.581-5.84a14.927 14.927 0 00-2.58 5.84m2.699 2.7c-.103.021-.207.041-.311.06a15.09 15.09 0 01-2.448-2.448 14.9 14.9 0 01.06-.312m-2.24 2.39a4.493 4.493 0 00-1.757 4.306 4.493 4.493 0 004.306-1.758M16.5 9a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0z" />
+            </svg>
+          </div>
+          <div class="rule-info">
+            <h4>Projet Publié</h4>
+            <p>Partagez un projet vitrine ou SaaS testé par la communauté.</p>
+            <span class="rule-xp">+50 XP</span>
+          </div>
+        </div>
+
+        <div class="rule-card">
+          <div class="rule-icon icon-support">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round"
+                d="M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 00-.182.557l1.285 5.385a.562.562 0 01-.84.61l-4.725-2.885a.563.563 0 00-.586 0L6.982 20.54a.562.562 0 01-.84-.61l1.285-5.386a.562.562 0 00-.182-.557l-4.204-3.602a.563.563 0 01.321-.988l5.518-.442a.563.563 0 00.475-.345L11.48 3.5z" />
+            </svg>
+          </div>
+          <div class="rule-info">
+            <h4>Soutien Reçu (J'aime)</h4>
+            <p>Chaque reconnaissance reçue d'un pair sur l'un de vos projets.</p>
+            <span class="rule-xp">+15 XP</span>
+          </div>
+        </div>
+
+        <div class="rule-card">
+          <div class="rule-icon icon-eval">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round"
+                d="M9 12.75L11.25 15 15 9.75M21 12c0 1.268-.63 2.39-1.593 3.068a3.745 3.745 0 01-1.043 3.296 3.745 3.745 0 01-3.296 1.043A3.745 3.745 0 0112 21c-1.268 0-2.39-.63-3.068-1.593a3.746 3.746 0 01-3.296-1.043 3.745 3.745 0 01-1.043-3.296A3.745 3.745 0 013 12c0-1.268.63-2.39 1.593-3.068a3.745 3.745 0 011.043-3.296 3.746 3.746 0 013.296-1.043A3.746 3.746 0 0112 3c1.268 0 2.39.63 3.068 1.593a3.746 3.746 0 013.296 1.043 3.746 3.746 0 011.043 3.296A3.745 3.745 0 0121 12z" />
+            </svg>
+          </div>
+          <div class="rule-info">
+            <h4>Évaluation par les Pairs</h4>
+            <p>Recevez une évaluation 5 étoiles sur une collaboration réussie.</p>
+            <span class="rule-xp">+50 XP</span>
+          </div>
+        </div>
+
+        <div class="rule-card">
+          <div class="rule-icon icon-job">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round"
+                d="M20.25 14.15v4.25c0 1.094-.787 2.036-1.872 2.18-2.087.277-4.216.42-6.378.42s-4.291-.143-6.378-.42c-1.085-.144-1.872-1.086-1.872-2.18v-4.25m16.5 0a2.18 2.18 0 00.75-1.661V8.706c0-1.081-.768-2.015-1.837-2.175a48.114 48.114 0 00-3.413-.387m4.5 8.006c-.194.165-.42.295-.673.38A23.978 23.978 0 0112 15.75c-2.648 0-5.195-.429-7.577-1.22a2.016 2.016 0 01-.673-.38m0 0A2.18 2.18 0 013 12.489V8.706c0-1.081.768-2.015 1.837-2.175a48.111 48.111 0 013.413-.387m7.5 0V5.25A2.25 2.25 0 0013.5 3h-3a2.25 2.25 0 00-2.25 2.25v.894m7.5 0a48.667 48.667 0 00-7.5 0M12 12.75h.008v.008H12v-.008z" />
+            </svg>
+          </div>
+          <div class="rule-info">
+            <h4>Candidature Validée</h4>
+            <p>Rejoignez une équipe de développement ou un projet d'envergure.</p>
+            <span class="rule-xp">+40 XP</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Levels Recap -->
+      <div class="levels-recap-bar">
+        <div class="level-chip">
+          <span class="lvl-label"><span class="lvl-dot lvl-junior"></span>Junior</span>
+          <small>0 - 250 XP</small>
+        </div>
+        <div class="level-chip">
+          <span class="lvl-label"><span class="lvl-dot lvl-senior"></span>Senior</span>
+          <small>251 - 750 XP</small>
+        </div>
+        <div class="level-chip">
+          <span class="lvl-label"><span class="lvl-dot lvl-expert"></span>Expert</span>
+          <small>751 - 1 800 XP</small>
+        </div>
+        <div class="level-chip">
+          <span class="lvl-label"><span class="lvl-dot lvl-tech"></span>Tech</span>
+          <small>1 801 - 3 500 XP</small>
+        </div>
+        <div class="level-chip">
+          <span class="lvl-label"><span class="lvl-dot lvl-leader"></span>Leader</span>
+          <small>3 501+ XP</small>
+        </div>
+      </div>
+    </section>
+
+  </main>
+</div>

@@ -58,6 +58,10 @@ export const routes: Routes = [
       {
         path: 'profile/:id',
         loadComponent: () => import('./features/profile/profile-detail/profile-detail.component').then(m => m.ProfileDetailComponent)
+      },
+      {
+        path: 'leaderboard',
+        loadComponent: () => import('./features/leaderboard/leaderboard.component').then(m => m.LeaderboardComponent)
       }
     ]
   },
@@ -100,6 +104,15 @@ export const routes: Routes = [
   {
     path: 'events',
     loadComponent: () => import('./features/events/events.component').then(m => m.EventsComponent)
+  },
+  {
+    path: 'leaderboard',
+    loadComponent: () => import('./features/leaderboard/leaderboard.component').then(m => m.LeaderboardComponent)
+  },
+  {
+    path: 'classement',
+    redirectTo: 'leaderboard',
+    pathMatch: 'full'
   },
   {
     path: 'admin',

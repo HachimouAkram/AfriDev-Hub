@@ -44,6 +44,12 @@
             </svg>
             {{ profile.country }} ({{ profile.city }})
           </span>
+          <!-- Level Badge and Current XP -->
+          <a routerLink="/leaderboard" class="badge badge-level" [ngClass]="getLevelClass(profile.levelNumber || 1)" [title]="'Voir le classement panafricain'">
+            <span class="level-badge-icon">{{ getLevelBadge(profile.levelNumber || 1) }}</span>
+            <span class="level-badge-title">{{ profile.levelTitle || 'Junior' }}</span>
+            <span class="level-badge-xp">{{ profile.xpPoints || 0 }} XP</span>
+          </a>
           <span *ngIf="profile.mobileMoneyVerified" class="badge badge-emerald">
             <svg class="icon-svg icon-svg-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -184,8 +190,61 @@
     </div>
   </div>
 
+  <!-- Gamification Level & Progression Banner -->
+  <div class="app-card gamification-progress-card">
+    <div class="gamification-header">
+      <div class="gamification-title-col">
+        <div class="gamification-badge-chip" [ngClass]="getLevelClass(profile.levelNumber || 1)">
+          <span class="g-badge-icon">{{ getLevelBadge(profile.levelNumber || 1) }}</span>
+          <span class="g-badge-title">Niveau {{ profile.levelNumber || 1 }} : {{ profile.levelTitle || 'Junior' }}</span>
+        </div>
+        <div class="gamification-meta">
+          <span class="g-xp-current"><strong>{{ profile.xpPoints || 0 }}</strong> points XP accumulés</span>
+          <span class="g-xp-next" *ngIf="(profile.levelNumber || 1) < 5">
+            • Encore <strong>{{ getXpProgress(profile.xpPoints || 0).remainingXp }} XP</strong> pour atteindre <strong>{{ getXpProgress(profile.xpPoints || 0).nextLevelTitle }}</strong>
+          </span>
+          <span class="g-xp-next g-xp-max" *ngIf="(profile.levelNumber || 1) >= 5">
+            • Rang suprême atteint 👑 Leader Panafricain !
+          </span>
+        </div>
+      </div>
+      <a routerLink="/leaderboard" class="btn btn-outline btn-sm btn-leaderboard-link" title="Consulter le classement complet">
+        <svg class="icon-svg icon-svg-xs" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16.5 18.75h-9m9 0a3 3 0 013 3h-15a3 3 0 013-3m9 0v-3.375c0-.621-.504-1.125-1.125-1.125h-.871M7.5 18.75v-3.375c0-.621.504-1.125 1.125-1.125h.872m5.004 0V5.625c0-.621-.504-1.125-1.125-1.125H9.625c-.621 0-1.125.504-1.125 1.125v8.625m5.004 0H9.625" />
+        </svg>
+        <span>Voir le Classement</span>
+      </a>
+    </div>
+
+    <!-- Animated Progression Bar Across Levels -->
+    <div class="xp-progress-bar-wrapper">
+      <div class="xp-progress-bar-track">
+        <div class="xp-progress-bar-fill" [style.width.%]="getXpProgress(profile.xpPoints || 0).percent"></div>
+      </div>
+      <div class="xp-progress-labels">
+        <span class="xp-milestone achieved">0 XP (Junior 🟢)</span>
+        <span class="xp-milestone" [class.achieved]="(profile.xpPoints || 0) >= 251">251 XP (Senior 🔵)</span>
+        <span class="xp-milestone" [class.achieved]="(profile.xpPoints || 0) >= 751">751 XP (Expert 🟣)</span>
+        <span class="xp-milestone" [class.achieved]="(profile.xpPoints || 0) >= 1801">1 801 XP (Tech 🟠)</span>
+        <span class="xp-milestone" [class.achieved]="(profile.xpPoints || 0) >= 3501">3 501+ XP (Leader 👑)</span>
+      </div>
+    </div>
+  </div>
+
   <!-- Activity & Info Summary Bar -->
   <div class="stats-overview-bar">
+    <!-- Stat 1: XP & Leaderboard -->
+    <a routerLink="/leaderboard" class="app-card stat-card stat-card-xp" title="Cliquer pour voir mon classement sur le Leaderboard">
+      <div class="stat-icon icon-xp">
+        <span class="stat-level-emoji">{{ getLevelBadge(profile.levelNumber || 1) }}</span>
+      </div>
+      <div class="stat-info">
+        <span class="stat-value">{{ profile.xpPoints || 0 }} XP</span>
+        <span class="stat-label">Niveau {{ profile.levelTitle || 'Junior' }}</span>
+      </div>
+    </a>
+
+    <!-- Stat 2: Score de Réputation -->
     <div class="app-card stat-card">
       <div class="stat-icon icon-emerald">
         <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
@@ -198,6 +257,7 @@
       </div>
     </div>
 
+    <!-- Stat 3: Projets Publiés -->
     <div class="app-card stat-card">
       <div class="stat-icon icon-blue">
         <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
@@ -210,6 +270,7 @@
       </div>
     </div>
 
+    <!-- Stat 4: Évaluations Reçues -->
     <div class="app-card stat-card">
       <div class="stat-icon icon-purple">
         <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
@@ -222,6 +283,7 @@
       </div>
     </div>
 
+    <!-- Stat 5: Contributions GitHub -->
     <div class="app-card stat-card">
       <div class="stat-icon icon-amber">
         <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
@@ -779,9 +841,9 @@
                  [class.active-lang]="lang.code === currentLang().code"
                  (click)="selectLanguage(lang)">
               <div class="lang-card-top">
-                <span class="lang-flag-hero">{{ lang.flag }}</span>
+                <span class="lang-code-hero">{{ lang.code.toUpperCase() }}</span>
                 <span class="badge" [ngClass]="lang.code === currentLang().code ? 'badge-emerald' : 'badge-gray'">
-                  {{ lang.code === currentLang().code ? '✓ Active' : lang.code.toUpperCase() }}
+                  {{ lang.code === currentLang().code ? '✓ Active' : 'Disponible' }}
                 </span>
               </div>
               <div class="lang-card-body">

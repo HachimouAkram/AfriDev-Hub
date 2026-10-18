@@ -76,6 +76,7 @@ public class ProfileService {
 
         ProfileEntity savedProfile = profileRepository.save(profile);
         redisCacheService.evictNetworkCache();
+        redisCacheService.evictLeaderboardCache();
         return authService.mapToProfileDto(savedProfile);
     }
 
@@ -121,6 +122,7 @@ public class ProfileService {
 
         ProfileEntity saved = profileRepository.save(profile);
         redisCacheService.evictNetworkCache();
+        redisCacheService.evictLeaderboardCache();
         return authService.mapToProfileDto(saved);
     }
 

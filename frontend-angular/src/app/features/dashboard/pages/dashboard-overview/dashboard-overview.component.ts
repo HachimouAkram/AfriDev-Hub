@@ -310,4 +310,37 @@ export class DashboardOverviewComponent implements OnInit {
     this.toastMessage.set(msg);
     setTimeout(() => this.toastMessage.set(''), 4000);
   }
+
+  getLevelBadge(levelNumber?: number): string {
+    switch (levelNumber) {
+      case 5: return '👑';
+      case 4: return '🟠';
+      case 3: return '🟣';
+      case 2: return '🔵';
+      case 1:
+      default: return '🟢';
+    }
+  }
+
+  getXpProgress(xp: number = 0): { percent: number; nextLevelXp: number; remainingXp: number; nextLevelTitle: string } {
+    if (xp >= 3501) {
+      return { percent: 100, nextLevelXp: 3501, remainingXp: 0, nextLevelTitle: 'Leader' };
+    } else if (xp >= 1801) {
+      const min = 1801, max = 3500;
+      const percent = Math.min(100, Math.max(0, Math.round(((xp - min) / (max - min)) * 100)));
+      return { percent, nextLevelXp: 3501, remainingXp: 3501 - xp, nextLevelTitle: 'Leader' };
+    } else if (xp >= 751) {
+      const min = 751, max = 1800;
+      const percent = Math.min(100, Math.max(0, Math.round(((xp - min) / (max - min)) * 100)));
+      return { percent, nextLevelXp: 1801, remainingXp: 1801 - xp, nextLevelTitle: 'Tech' };
+    } else if (xp >= 251) {
+      const min = 251, max = 750;
+      const percent = Math.min(100, Math.max(0, Math.round(((xp - min) / (max - min)) * 100)));
+      return { percent, nextLevelXp: 751, remainingXp: 751 - xp, nextLevelTitle: 'Expert' };
+    } else {
+      const max = 250;
+      const percent = Math.min(100, Math.max(0, Math.round((xp / max) * 100)));
+      return { percent, nextLevelXp: 251, remainingXp: 251 - xp, nextLevelTitle: 'Senior' };
+    }
+  }
 }

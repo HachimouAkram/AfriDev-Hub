@@ -72,6 +72,14 @@
         </svg>
         <span class="nav-label">Évaluations</span>
       </a>
+
+      <a routerLink="/dashboard/leaderboard" (click)="closeMobileSidebar()" routerLinkActive="active" class="nav-item" [title]="isSidebarCollapsed() ? 'Classement' : ''">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16.5 18.75h-9m9 0a3 3 0 013 3h-15a3 3 0 013-3m9 0v-3.375c0-.621-.504-1.125-1.125-1.125h-.871M7.5 18.75v-3.375c0-.621.504-1.125 1.125-1.125h.872m5.003 0V4.875c0-.621-.504-1.125-1.125-1.125h-2.25c-.621 0-1.125.504-1.125 1.125v9.375m5.003 0H9.497" />
+        </svg>
+        <span class="nav-label">Classement</span>
+        <span class="nav-badge badge-event">XP</span>
+      </a>
     </nav>
 
     <!-- Sidebar Bottom Fixed Footer -->
@@ -130,8 +138,7 @@
         <!-- Multilingual Language Selector with Voice (Desktop header only; on mobile accessible in Profile & Dropdown) -->
         <div class="lang-dropdown-wrapper desktop-header-only">
           <button (click)="toggleLangMenu($event)" class="topbar-icon-btn lang-pill-btn" title="Changer de langue / Làkk">
-            <span class="lang-flag">{{ currentLang().flag }}</span>
-            <span class="lang-code desktop-only">{{ currentLang().code.toUpperCase() }}</span>
+            <span class="lang-code">{{ currentLang().code.toUpperCase() }}</span>
             <svg class="chevron-icon-sm" [class.rotated]="isLangMenuOpen" viewBox="0 0 24 24" fill="none" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
             </svg>
@@ -148,7 +155,7 @@
                    [class.active]="lang.code === currentLang().code"
                    (click)="selectLanguage(lang)">
                 <div class="lang-info">
-                  <span class="lang-emoji">{{ lang.flag }}</span>
+                  <span class="lang-code-pill">{{ lang.code.toUpperCase() }}</span>
                   <span class="lang-title">{{ lang.label }}</span>
                 </div>
                 <button type="button" class="voice-speak-btn" (click)="speakVoice(lang, $event)" [title]="'Écouter en ' + lang.label">
@@ -251,6 +258,12 @@
               <div class="dropdown-user-details">
                 <span class="d-name">{{ u.profile.fullName }}</span>
                 <span class="d-email">{{ u.email }}</span>
+                <div class="d-gamification-row" *ngIf="u.role !== 'RECRUITER'">
+                  <span class="d-level-badge level-tag-{{ u.profile.levelNumber || 1 }}">
+                    {{ getLevelBadge(u.profile.levelNumber) }} {{ u.profile.levelTitle || 'Junior' }}
+                  </span>
+                  <span class="d-xp-pill">{{ u.profile.xpPoints || 0 }} XP</span>
+                </div>
                 <span class="d-badge" *ngIf="u.profile.mobileMoneyVerified">★ Membre Vérifié</span>
               </div>
             </div>
@@ -284,6 +297,13 @@
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
                 </svg>
                 <span>Mon profil</span>
+              </a>
+
+              <a routerLink="/leaderboard" (click)="closeProfileMenu()" class="dropdown-link-item highlight-leaderboard-link">
+                <svg class="icon-svg icon-svg-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16.5 18.75h-9m9 0a3 3 0 013 3h-15a3 3 0 013-3m9 0v-3.375c0-.621-.504-1.125-1.125-1.125h-.871M7.5 18.75v-3.375c0-.621.504-1.125 1.125-1.125h.872m5.004 0V5.625c0-.621-.504-1.125-1.125-1.125H9.625c-.621 0-1.125.504-1.125 1.125v8.625m5.004 0H9.625" />
+                </svg>
+                <span>Classement</span>
               </a>
 
               <a routerLink="/" (click)="closeProfileMenu()" class="dropdown-link-item">
