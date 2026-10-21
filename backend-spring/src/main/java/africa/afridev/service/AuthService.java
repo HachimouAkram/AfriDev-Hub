@@ -163,6 +163,10 @@ public class AuthService {
         UserEntity user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new IllegalArgumentException("Utilisateur introuvable."));
 
+        if (user.getStatus() == UserStatus.SUSPENDED || user.getStatus() == UserStatus.BANNED) {
+            throw new IllegalStateException("Ce compte est suspendu ou banni.");
+        }
+
         DeviceParserUtil.DeviceInfo deviceInfo = DeviceParserUtil.parse(httpRequest);
         String deviceId = (request.getDeviceId() != null && !request.getDeviceId().isBlank())
                 ? request.getDeviceId()

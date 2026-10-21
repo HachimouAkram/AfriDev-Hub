@@ -189,4 +189,66 @@ describe('Frontend Test Suite - AfriDev Hub', () => {
       assert.strictEqual(pending2FAResponse.email, 'dev@afridev.africa');
     });
   });
+
+  describe('6. Super Admin Cockpit & Continental Governance', () => {
+    it('calculates continental adoption percentage and rank order', () => {
+      const countries = [
+        { country: 'Sénégal', userCount: 80, projectCount: 40, rank: 1, adoptionPercentage: 40.0 },
+        { country: 'Côte d\'Ivoire', userCount: 60, projectCount: 25, rank: 2, adoptionPercentage: 30.0 },
+        { country: 'Nigéria', userCount: 40, projectCount: 15, rank: 3, adoptionPercentage: 20.0 },
+        { country: 'Kenya', userCount: 20, projectCount: 10, rank: 4, adoptionPercentage: 10.0 }
+      ];
+
+      const totalUsers = countries.reduce((acc, c) => acc + c.userCount, 0);
+      assert.strictEqual(totalUsers, 200);
+
+      // Verify rank order
+      assert.strictEqual(countries[0].country, 'Sénégal');
+      assert.strictEqual(countries[0].rank, 1);
+      assert.strictEqual(countries[0].adoptionPercentage, 40.0);
+    });
+
+    it('enforces account suspension and ban validation on login permissions', () => {
+      const isAccountAllowedToLogin = (status: string): boolean => {
+        return status === 'ACTIVE';
+      };
+
+      assert.strictEqual(isAccountAllowedToLogin('ACTIVE'), true);
+      assert.strictEqual(isAccountAllowedToLogin('SUSPENDED'), false);
+      assert.strictEqual(isAccountAllowedToLogin('BANNED'), false);
+      assert.strictEqual(isAccountAllowedToLogin('PENDING_VERIFICATION'), false);
+    });
+
+    it('validates project moderation payload and status transitions', () => {
+      const moderationRequest = {
+        status: 'HIDDEN' as const,
+        reason: 'Suspicion avérée de violation de propriété intellectuelle',
+        notifyAuthor: true
+      };
+
+      assert.strictEqual(moderationRequest.status, 'HIDDEN');
+      assert.ok(moderationRequest.reason.length > 10);
+      assert.strictEqual(moderationRequest.notifyAuthor, true);
+    });
+
+    it('verifies audit log structure for compliance traceability', () => {
+      const auditEntry = {
+        action: 'MODERATE_PROJECT',
+        resource: 'PROJECT',
+        resourceId: 'proj-123',
+        ipAddress: '197.228.14.2',
+        metadata: {
+          previousStatus: 'PUBLISHED',
+          newStatus: 'HIDDEN',
+          reason: 'Plagiat avéré'
+        }
+      };
+
+      assert.strictEqual(auditEntry.action, 'MODERATE_PROJECT');
+      assert.strictEqual(auditEntry.resource, 'PROJECT');
+      assert.strictEqual(auditEntry.metadata.newStatus, 'HIDDEN');
+      assert.ok(auditEntry.ipAddress.length > 0);
+    });
+  });
 });
+

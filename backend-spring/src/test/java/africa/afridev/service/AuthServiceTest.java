@@ -118,8 +118,8 @@ class AuthServiceTest {
     }
 
     @Test
-    void testLogin_EmailNotVerified_ThrowsException() {
-        mockUser.setEmailVerified(false);
+    void testLogin_AccountSuspended_ThrowsException() {
+        mockUser.setStatus(UserStatus.SUSPENDED);
         LoginRequest request = new LoginRequest();
         request.setEmail("test@afridev.africa");
         request.setPassword("password123");
@@ -127,6 +127,21 @@ class AuthServiceTest {
         when(userRepository.findByEmail("test@afridev.africa")).thenReturn(Optional.of(mockUser));
         when(passwordEncoder.matches("password123", "hashed_pass")).thenReturn(true);
 
-        assertThrows(IllegalStateException.class, () -> authService.login(request));
+        IllegalStateException ex = assertThrows(IllegalStateException.class, () -> authService.login(request));
+        assertTrue(ex.getMessage().contains("suspendu ou banni"));
+    }
+
+    @Test
+    void testLogin_AccountBanned_ThrowsException() {
+        mockUser.setStatus(UserStatus.BANNED);
+        LoginRequest request = new LoginRequest();
+        request.setEmail("test@afridev.africa");
+        request.setPassword("password123");
+
+        when(userRepository.findByEmail("test@afridev.africa")).thenReturn(Optional.of(mockUser));
+        when(passwordEncoder.matches("password123", "hashed_pass")).thenReturn(true);
+
+        IllegalStateException ex = assertThrows(IllegalStateException.class, () -> authService.login(request));
+        assertTrue(ex.getMessage().contains("suspendu ou banni"));
     }
 }

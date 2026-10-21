@@ -23,9 +23,17 @@ public class CustomUserDetailsService implements UserDetailsService {
         UserEntity userEntity = userRepository.findByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException("Utilisateur non trouvé avec l'email: " + email));
 
+        boolean isActive = userEntity.getStatus() == africa.afridev.model.enums.UserStatus.ACTIVE;
+        boolean isNotLocked = userEntity.getStatus() != africa.afridev.model.enums.UserStatus.BANNED 
+                           && userEntity.getStatus() != africa.afridev.model.enums.UserStatus.SUSPENDED;
+
         return new User(
                 userEntity.getEmail(),
                 userEntity.getPasswordHash() != null ? userEntity.getPasswordHash() : "",
+                isActive,
+                true,
+                true,
+                isNotLocked,
                 List.of(new SimpleGrantedAuthority("ROLE_" + userEntity.getRole().name()))
         );
     }
