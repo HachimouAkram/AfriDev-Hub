@@ -3,7 +3,10 @@ package africa.afridev.controller;
 import africa.afridev.dto.ApiResponse;
 import africa.afridev.dto.admin.*;
 import africa.afridev.dto.auth.UserDto;
+import africa.afridev.dto.project.ProjectDto;
 import africa.afridev.model.enums.ReportStatus;
+import africa.afridev.model.enums.Role;
+import africa.afridev.model.enums.UserStatus;
 import africa.afridev.service.AdminService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -19,6 +22,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/admin")
 @RequiredArgsConstructor
+@PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
 public class AdminController {
 
     private final AdminService adminService;
@@ -29,6 +33,25 @@ public class AdminController {
         return ResponseEntity.ok(ApiResponse.ok(stats));
     }
 
+    @GetMapping("/analytics/countries")
+    public ResponseEntity<ApiResponse<PlatformAdoptionSummaryDto>> getCountryAdoptionStats() {
+        PlatformAdoptionSummaryDto summary = adminService.getCountryAdoptionStats();
+        return ResponseEntity.ok(ApiResponse.ok(summary));
+    }
+
+    @GetMapping("/users")
+    public ResponseEntity<ApiResponse<Page<UserAdminDto>>> getAdminUsers(
+            @RequestParam(required = false) String search,
+            @RequestParam(required = false) String country,
+            @RequestParam(required = false) Role role,
+            @RequestParam(required = false) UserStatus status,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size
+    ) {
+        Page<UserAdminDto> users = adminService.getAdminUsers(search, country, role, status, PageRequest.of(page, size));
+        return ResponseEntity.ok(ApiResponse.ok(users, Map.of("page", page, "perPage", size, "total", users.getTotalElements())));
+    }
+
     @PatchMapping("/users/{id}/status")
     public ResponseEntity<ApiResponse<UserDto>> updateUserStatus(
             @PathVariable String id,
@@ -37,6 +60,16 @@ public class AdminController {
     ) {
         UserDto updatedUser = adminService.updateUserStatus(authentication.getName(), id, request);
         return ResponseEntity.ok(ApiResponse.ok(updatedUser));
+    }
+
+    @PatchMapping("/projects/{id}/moderate")
+    public ResponseEntity<ApiResponse<ProjectDto>> moderateProject(
+            @PathVariable String id,
+            Authentication authentication,
+            @Valid @RequestBody ProjectModerateRequest request
+    ) {
+        ProjectDto moderatedProject = adminService.moderateProject(authentication.getName(), id, request);
+        return ResponseEntity.ok(ApiResponse.ok(moderatedProject));
     }
 
     @GetMapping("/reports")
@@ -68,3 +101,4 @@ public class AdminController {
         return ResponseEntity.ok(ApiResponse.ok(auditLogs, Map.of("page", page, "perPage", size, "total", auditLogs.getTotalElements())));
     }
 }
+

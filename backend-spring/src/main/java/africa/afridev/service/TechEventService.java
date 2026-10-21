@@ -200,7 +200,8 @@ public class TechEventService {
                 .orElseThrow(() -> new IllegalArgumentException("Utilisateur introuvable"));
 
         if (event.getOrganizer() != null && !event.getOrganizer().getId().equals(user.getId())
-                && user.getRole() != africa.afridev.model.enums.Role.ADMIN) {
+                && user.getRole() != africa.afridev.model.enums.Role.ADMIN
+                && user.getRole() != africa.afridev.model.enums.Role.SUPER_ADMIN) {
             throw new IllegalArgumentException("Seul l'organisateur ou un administrateur peut modifier cet événement.");
         }
 
@@ -321,7 +322,8 @@ public class TechEventService {
                 .orElseThrow(() -> new IllegalArgumentException("Utilisateur introuvable"));
 
         if (event.getOrganizer() != null && !event.getOrganizer().getId().equals(user.getId())
-                && user.getRole() != africa.afridev.model.enums.Role.ADMIN) {
+                && user.getRole() != africa.afridev.model.enums.Role.ADMIN
+                && user.getRole() != africa.afridev.model.enums.Role.SUPER_ADMIN) {
             throw new IllegalArgumentException("Seul l'organisateur ou un administrateur peut supprimer cet événement.");
         }
 

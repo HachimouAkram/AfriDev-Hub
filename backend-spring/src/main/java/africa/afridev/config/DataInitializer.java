@@ -177,6 +177,58 @@ public class DataInitializer implements CommandLineRunner {
             return userRepository.save(amadouUser);
         });
 
+        // 6. Super Admin Cockpit (SUPER_ADMIN - Rwanda / Panafricain)
+        userRepository.findByEmail("superadmin@afridev.africa").orElseGet(() -> {
+            UserEntity superAdminUser = UserEntity.builder()
+                    .email("superadmin@afridev.africa")
+                    .passwordHash(encodedPassword)
+                    .role(Role.SUPER_ADMIN)
+                    .status(UserStatus.ACTIVE)
+                    .emailVerified(true)
+                    .build();
+
+            ProfileEntity superAdminProfile = ProfileEntity.builder()
+                    .user(superAdminUser)
+                    .fullName("Super Administrateur AfriDev")
+                    .country("Rwanda")
+                    .city("Kigali")
+                    .title("Directeur des Opérations & Super Admin Panafricain")
+                    .bio("Gestion et supervision globale de la plateforme panafricaine AfriDev Hub.")
+                    .skills(List.of("Gouvernance Plateforme", "Sécurité", "Audit", "Panafrican Tech"))
+                    .availability(Availability.NOT_AVAILABLE)
+                    .completionScore(100)
+                    .mobileMoneyVerified(true)
+                    .build();
+            superAdminUser.setProfile(superAdminProfile);
+            return userRepository.save(superAdminUser);
+        });
+
+        // 7. Modérateur / Admin (ADMIN - Sénégal)
+        userRepository.findByEmail("admin@afridev.africa").orElseGet(() -> {
+            UserEntity adminUser = UserEntity.builder()
+                    .email("admin@afridev.africa")
+                    .passwordHash(encodedPassword)
+                    .role(Role.ADMIN)
+                    .status(UserStatus.ACTIVE)
+                    .emailVerified(true)
+                    .build();
+
+            ProfileEntity adminProfile = ProfileEntity.builder()
+                    .user(adminUser)
+                    .fullName("Modérateur AfriDev Hub")
+                    .country("Sénégal")
+                    .city("Dakar")
+                    .title("Responsable Qualité & Modération")
+                    .bio("Modération des contenus, traitement des signalements et accompagnement des talents.")
+                    .skills(List.of("Modération", "Relations Communautaires", "Support Développeurs"))
+                    .availability(Availability.NOT_AVAILABLE)
+                    .completionScore(95)
+                    .mobileMoneyVerified(true)
+                    .build();
+            adminUser.setProfile(adminProfile);
+            return userRepository.save(adminUser);
+        });
+
         // Projets et commentaires
         if (projectRepository.count() == 0) {
             ProjectEntity p1 = projectRepository.save(ProjectEntity.builder()

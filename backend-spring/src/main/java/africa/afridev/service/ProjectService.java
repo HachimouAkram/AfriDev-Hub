@@ -417,7 +417,7 @@ public class ProjectService {
         redisCacheService.evictProjectsCache();
     }
 
-    private ProjectDto mapToProjectDto(ProjectEntity project, String currentUserEmail) {
+    public ProjectDto mapToProjectDto(ProjectEntity project, String currentUserEmail) {
         UserEntity currentUser = currentUserEmail != null ? userRepository.findByEmail(currentUserEmail).orElse(null) : null;
         ProfileEntity currentProfile = currentUser != null ? currentUser.getProfile() : null;
         return mapToScoredProjectDto(project, currentUser, currentProfile);

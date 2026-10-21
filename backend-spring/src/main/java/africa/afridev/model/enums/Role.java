@@ -4,5 +4,6 @@ public enum Role {
     DEVELOPER,
     RECRUITER,
     MODERATOR,
-    ADMIN
+    ADMIN,
+    SUPER_ADMIN
 }

@@ -175,6 +175,89 @@ public class EmailService {
         sendHtmlEmail(toEmail, subject, body);
     }
 
+    // ── Notification de Sanction de Compte (Suspension / Bannissement / Réactivation) ──
+    @Async
+    public void sendAccountSanctionEmail(String toEmail, String userName, String sanctionType, String reason) {
+        String alertColor = sanctionType.contains("BANNED") ? "#EF4444" : (sanctionType.contains("SUSPENDED") ? "#F59E0B" : "#10B981");
+        String alertBadge = sanctionType.contains("BANNED") ? "Bannissement Définitif" : (sanctionType.contains("SUSPENDED") ? "Suspension Temporaire" : "Compte Réactivé");
+        String subject = "⚠️ Notification importante concernant votre compte AfriDev Hub (" + alertBadge + ")";
+
+        String body = """
+            <div style="font-family: Inter, Arial, sans-serif; max-width: 540px; margin: auto; background: #0F1828; color: #E2E8F0; border-radius: 16px; overflow: hidden; border: 1px solid rgba(255,255,255,0.08);">
+              <div style="background: linear-gradient(135deg, %s, #0F1828); padding: 30px; text-align: center;">
+                <h1 style="margin: 0; color: #fff; font-size: 24px; font-weight: 800;">AfriDev Hub</h1>
+                <p style="margin: 8px 0 0; color: rgba(255,255,255,0.85); font-size: 14px;">Centre de Sécurité & Modération Panafricaine</p>
+              </div>
+              <div style="padding: 32px;">
+                <h2 style="font-size: 19px; color: #F8FAFC; margin-bottom: 12px;">Mise à jour du statut de votre compte</h2>
+                <p style="color: #94A3B8; font-size: 15px;">Bonjour <strong style="color: #E2E8F0;">%s</strong>,</p>
+                <div style="background: rgba(255,255,255,0.03); border-radius: 12px; padding: 20px; margin: 20px 0; border-left: 4px solid %s;">
+                  <div style="font-size: 13px; text-transform: uppercase; letter-spacing: 0.05em; color: %s; font-weight: 700; margin-bottom: 6px;">Statut appliqué : %s</div>
+                  <div style="font-size: 14px; color: #CBD5E1; margin-top: 8px;">
+                    <strong>Motif consigné au registre d'audit :</strong>
+                    <div style="margin-top: 6px; padding: 12px; background: rgba(0,0,0,0.25); border-radius: 8px; color: #F1F5F9; font-style: italic;">
+                      « %s »
+                    </div>
+                  </div>
+                </div>
+                <p style="color: #94A3B8; font-size: 14px; line-height: 1.6;">
+                  AfriDev Hub veille rigoureusement à l'intégrité des compétences et au respect des règles communautaires. Si vous estimez qu'il s'agit d'une erreur ou si vous souhaitez fournir des éléments complémentaires, vous pouvez contacter notre équipe de modération.
+                </p>
+                <div style="margin-top: 24px; text-align: center;">
+                  <a href="mailto:support@afridev.africa?subject=Recours%%20Compte%%20AfriDev" 
+                     style="display: inline-block; padding: 12px 24px; background: #1E293B; color: #E2E8F0; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 14px; border: 1px solid #334155;">
+                    Contacter le support / Recours
+                  </a>
+                </div>
+              </div>
+              <div style="background: #0B1120; padding: 16px; text-align: center;">
+                <p style="margin: 0; color: #475569; font-size: 12px;">© 2026 AfriDev Hub · Plateforme Panafricaine des Développeurs</p>
+              </div>
+            </div>
+            """.formatted(alertColor, userName != null ? userName : toEmail, alertColor, alertColor, alertBadge, reason != null ? reason : "Non spécifié");
+
+        sendHtmlEmail(toEmail, subject, body);
+    }
+
+    // ── Notification de Modération de Projet (Gel / Dépublication pour Droits d'Auteur / Plagiat) ──
+    @Async
+    public void sendProjectModerationEmail(String toEmail, String userName, String projectTitle, String action, String reason) {
+        String subject = "⚖️ Notification de modération – Votre projet « " + projectTitle + " »";
+        String body = """
+            <div style="font-family: Inter, Arial, sans-serif; max-width: 540px; margin: auto; background: #0F1828; color: #E2E8F0; border-radius: 16px; overflow: hidden; border: 1px solid rgba(255,255,255,0.08);">
+              <div style="background: linear-gradient(135deg, #F59E0B, #B45309); padding: 30px; text-align: center;">
+                <h1 style="margin: 0; color: #fff; font-size: 24px; font-weight: 800;">AfriDev Hub</h1>
+                <p style="margin: 8px 0 0; color: rgba(255,255,255,0.9); font-size: 14px;">Cellule Droits d'Auteur & Propriété Intellectuelle</p>
+              </div>
+              <div style="padding: 32px;">
+                <h2 style="font-size: 19px; color: #F8FAFC; margin-bottom: 12px;">Action administrative sur votre projet</h2>
+                <p style="color: #94A3B8; font-size: 15px;">Bonjour <strong style="color: #E2E8F0;">%s</strong>,</p>
+                <p style="color: #94A3B8; font-size: 14px; line-height: 1.6;">
+                  Votre projet <strong style="color: #34D399;">« %s »</strong> a fait l'objet d'une intervention par l'équipe d'administration (%s).
+                </p>
+                <div style="background: rgba(245, 158, 11, 0.1); border-radius: 12px; padding: 20px; margin: 20px 0; border-left: 4px solid #F59E0B;">
+                  <div style="font-size: 13px; color: #FBBF24; font-weight: 700; margin-bottom: 6px;">Motif de l'intervention :</div>
+                  <div style="font-size: 14px; color: #E2E8F0; font-style: italic;">« %s »</div>
+                </div>
+                <p style="color: #64748B; font-size: 13px; line-height: 1.6;">
+                  Si ce projet a été masqué ou gelé suite à un signalement (droits d'auteur, contenu non vérifié ou duplicata), il ne sera plus visible publiquement tant que la situation n'aura pas été clarifiée.
+                </p>
+                <div style="margin-top: 24px; text-align: center;">
+                  <a href="mailto:moderation@afridev.africa?subject=Justificatif%%20Projet%%20" 
+                     style="display: inline-block; padding: 12px 24px; background: #10B981; color: #fff; border-radius: 8px; text-decoration: none; font-weight: 700; font-size: 14px;">
+                    Fournir les preuves de propriété intellectuelle
+                  </a>
+                </div>
+              </div>
+              <div style="background: #0B1120; padding: 16px; text-align: center;">
+                <p style="margin: 0; color: #475569; font-size: 12px;">© 2026 AfriDev Hub · Plateforme Panafricaine des Développeurs</p>
+              </div>
+            </div>
+            """.formatted(userName != null ? userName : toEmail, projectTitle, action, reason != null ? reason : "Vérification de conformité");
+
+        sendHtmlEmail(toEmail, subject, body);
+    }
+
     // ── Generic fire-and-forget (errors logged, not propagated) ───────────────
     private void sendHtmlEmail(String to, String subject, String htmlBody) {
         try {

@@ -127,6 +127,15 @@ public class RedisCacheService {
         return this.objectMapper;
     }
 
+    public void delete(String key) {
+        if (key == null) return;
+        try {
+            redisTemplate.delete(key);
+        } catch (Exception e) {
+            log.warn("Erreur de suppression Redis [clé: {}]: {}", key, e.getMessage());
+        }
+    }
+
     public void evictByPrefix(String prefix) {
         if (prefix == null) return;
         try {

@@ -15,6 +15,7 @@ public interface ProjectRepository extends JpaRepository<ProjectEntity, String> 
     java.util.List<ProjectEntity> findByStatusAndProjectType(ContentStatus status, africa.afridev.model.enums.ProjectType projectType);
     Page<ProjectEntity> findByAuthorIdAndStatus(String authorId, ContentStatus status, Pageable pageable);
     Page<ProjectEntity> findByAuthorIdOrderByCreatedAtDesc(String authorId, Pageable pageable);
+    long countByAuthorId(String authorId);
 
     @org.springframework.data.jpa.repository.Query("SELECT DISTINCT p FROM ProjectEntity p " +
            "LEFT JOIN ProjectMemberEntity m ON m.project = p AND m.status = africa.afridev.model.enums.MemberStatus.ACCEPTED AND m.user.id = :userId " +
