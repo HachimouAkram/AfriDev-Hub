@@ -33,6 +33,10 @@ export class AdminUsersComponent implements OnInit {
   isSubmittingUserAction = false;
   userActionFeedback = '';
 
+  // Modal State for user full details
+  showUserDetailModal = false;
+  selectedUserDetail: UserAdmin | null = null;
+
   private countryFlags: { [key: string]: string } = {
     'Sénégal': '🇸🇳',
     'Senegal': '🇸🇳',
@@ -109,6 +113,16 @@ export class AdminUsersComponent implements OnInit {
       this.userPage = page;
       this.loadUsers();
     }
+  }
+
+  openUserDetailModal(user: UserAdmin): void {
+    this.selectedUserDetail = user;
+    this.showUserDetailModal = true;
+  }
+
+  closeUserDetailModal(): void {
+    this.showUserDetailModal = false;
+    this.selectedUserDetail = null;
   }
 
   openUserStatusModal(user: UserAdmin, action: 'ACTIVE' | 'SUSPENDED' | 'BANNED'): void {

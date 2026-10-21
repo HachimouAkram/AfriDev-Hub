@@ -55,21 +55,19 @@
 
 /* Filters Card */
 .filters-card {
-  padding: 1rem 1.5rem;
+  padding: 0.85rem 1.25rem;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 1.25rem;
-  flex-wrap: wrap;
+  gap: 1rem;
   background: var(--bg-surface-card, #0F172A);
-  border-radius: var(--radius-lg, 16px);
+  border-radius: var(--radius-lg, 14px);
   border: 1px solid var(--border-light, rgba(255, 255, 255, 0.08));
 }
 
 .search-box {
   position: relative;
-  flex: 1;
-  min-width: 280px;
+  flex: 1 1 240px;
 }
 
 .search-box svg {
@@ -82,34 +80,35 @@
 
 .search-box input {
   width: 100%;
-  padding: 0.6rem 0.85rem 0.6rem 2.4rem;
-  border-radius: var(--radius-md, 10px);
+  padding: 0.55rem 0.85rem 0.55rem 2.25rem;
+  border-radius: var(--radius-md, 8px);
   background: var(--bg-surface-primary, #0B1120);
   border: 1px solid var(--border-light, rgba(255, 255, 255, 0.1));
   color: var(--text-heading, #F8FAFC);
-  font-size: 0.88rem;
+  font-size: 0.84rem;
   outline: none;
 }
 
 .search-box input:focus {
-  border-color: #A855F7;
+  border-color: #10B981;
 }
 
 .filter-controls {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  flex-wrap: wrap;
+  gap: 0.65rem;
+  flex-shrink: 0;
 }
 
 .form-select {
-  padding: 0.6rem 1rem;
-  border-radius: var(--radius-md, 10px);
+  padding: 0.55rem 0.85rem;
+  border-radius: var(--radius-md, 8px);
   background: var(--bg-surface-primary, #0B1120);
   border: 1px solid var(--border-light, rgba(255, 255, 255, 0.1));
   color: var(--text-heading, #F8FAFC);
-  font-size: 0.85rem;
+  font-size: 0.82rem;
   outline: none;
+  cursor: pointer;
 }
 
 /* Table Card */
@@ -305,6 +304,16 @@
 }
 .btn-action-success:hover { background: rgba(16, 185, 129, 0.18); }
 
+.btn-action-detail {
+  color: #38BDF8;
+  border-color: rgba(56, 189, 248, 0.25);
+  background: rgba(56, 189, 248, 0.08);
+}
+.btn-action-detail:hover {
+  background: rgba(56, 189, 248, 0.18);
+  border-color: rgba(56, 189, 248, 0.4);
+}
+
 /* Pagination */
 .pagination-footer {
   display: flex;
@@ -475,4 +484,122 @@
 
 @keyframes spin {
   to { transform: rotate(360deg); }
+}
+
+/* User Details Modal Styles */
+.modal-detail-card {
+  width: 580px;
+  max-width: 100%;
+}
+
+.detail-avatar {
+  width: 46px;
+  height: 46px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #10B981, #06B6D4);
+  color: #FFFFFF;
+  font-weight: 800;
+  font-size: 1.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.detail-modal-body {
+  display: flex;
+  flex-direction: column;
+  gap: 1.15rem;
+}
+
+.detail-badges-row {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  flex-wrap: wrap;
+}
+
+.verified-tag {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #10B981;
+  background: rgba(16, 185, 129, 0.12);
+  padding: 0.25rem 0.6rem;
+  border-radius: 999px;
+  border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.detail-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.75rem;
+}
+
+@media (max-width: 500px) {
+  .detail-kpi-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.detail-kpi-item {
+  background: var(--bg-surface-primary, #0B1120);
+  border: 1px solid var(--border-light, rgba(255, 255, 255, 0.06));
+  border-radius: 10px;
+  padding: 0.75rem 0.9rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.detail-kpi-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--text-muted, #94A3B8);
+}
+
+.detail-kpi-val {
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: var(--text-heading, #F8FAFC);
+}
+
+.detail-meta-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 0.75rem 0.9rem;
+  background: var(--bg-surface-primary, #0B1120);
+  border-radius: 10px;
+  border: 1px solid var(--border-light, rgba(255, 255, 255, 0.06));
+}
+
+.detail-meta-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.82rem;
+}
+
+.meta-title {
+  color: var(--text-muted, #94A3B8);
+}
+
+.meta-val {
+  color: var(--text-heading, #F8FAFC);
+  font-weight: 600;
+}
+
+.detail-modal-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.footer-mod-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
 }
