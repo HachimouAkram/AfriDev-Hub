@@ -63,6 +63,11 @@ export class AdminLayoutComponent {
     return this.user()?.role === 'SUPER_ADMIN';
   }
 
+  isAdoptionActive(): boolean {
+    const url = this.router.url.split('?')[0];
+    return url === '/admin' || url === '/admin/' || url.startsWith('/admin/adoption');
+  }
+
   getPageTitle(): string {
     const url = this.router.url;
     if (url.includes('/admin/users')) {

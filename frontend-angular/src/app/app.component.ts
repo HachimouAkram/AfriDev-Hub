@@ -1303,12 +1303,13 @@ export class AppComponent {
   }
 
   isDashboardPage(): boolean {
-    return this.router.url.startsWith('/dashboard');
+    return this.router.url.startsWith('/dashboard') || this.router.url.startsWith('/admin');
   }
 
   hideNavAndFooter(): boolean {
     const url = this.router.url.split('?')[0];
     return url.startsWith('/dashboard') || 
+           url.startsWith('/admin') ||
            url === '/login' || 
            url === '/register' || 
            url === '/verify-otp';

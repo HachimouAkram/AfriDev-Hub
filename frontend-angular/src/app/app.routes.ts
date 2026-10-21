@@ -121,8 +121,7 @@ export const routes: Routes = [
     children: [
       {
         path: '',
-        redirectTo: 'adoption',
-        pathMatch: 'full'
+        loadComponent: () => import('./features/admin/pages/admin-adoption/admin-adoption.component').then(m => m.AdminAdoptionComponent)
       },
       {
         path: 'adoption',
