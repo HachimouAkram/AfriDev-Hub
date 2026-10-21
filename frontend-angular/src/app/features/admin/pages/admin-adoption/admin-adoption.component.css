@@ -400,3 +400,42 @@ body.light-theme .progress-track {
     width: 100%;
   }
 }
+
+/* Light Theme Overrides for Admin Adoption Page */
+:host-context(body.light-theme) .search-input {
+  background: #FFFFFF !important;
+  border-color: rgba(0, 0, 0, 0.15) !important;
+  color: #0F172A !important;
+}
+
+:host-context(body.light-theme) .search-input::placeholder {
+  color: #94A3B8 !important;
+}
+
+:host-context(body.light-theme) .search-icon {
+  color: #64748B;
+}
+
+:host-context(body.light-theme) .country-name {
+  color: #0F172A !important;
+}
+
+:host-context(body.light-theme) .data-table th {
+  color: #64748B;
+  border-bottom-color: rgba(0, 0, 0, 0.06);
+}
+
+:host-context(body.light-theme) .data-table td {
+  color: #1E293B;
+  border-bottom-color: rgba(0, 0, 0, 0.05);
+}
+
+:host-context(body.light-theme) .adoption-pct {
+  color: #059669 !important;
+}
+
+:host-context(body.light-theme) .rank-pill:not(.rank-gold):not(.rank-silver):not(.rank-bronze) {
+  background: rgba(0, 0, 0, 0.05);
+  color: #64748B;
+}
+

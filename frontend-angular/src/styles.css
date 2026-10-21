@@ -41,7 +41,9 @@
   /* Component Aliases & Dynamic Theme Variables */
   --bg-card: var(--bg-surface-card);
   --bg-main: var(--bg-dark);
+  --bg-surface-primary: #0B1120;
   --text-main: var(--text-heading);
+  --text-primary: #E2E8F0;
   --border-color: var(--border-subtle);
   --emerald: var(--emerald-500);
 
@@ -67,6 +69,7 @@ body.light-theme {
   --bg-dark: #F8FAFC;
   --bg-surface: #F1F5F9;
   --bg-surface-card: #FFFFFF;
+  --bg-surface-primary: #F8FAFC;
   --bg-surface-hover: #E2E8F0;
 
   --border-subtle: rgba(0, 0, 0, 0.08);
@@ -81,6 +84,7 @@ body.light-theme {
 
   --text-heading: #0F172A;
   --text-body: #334155;
+  --text-primary: #0F172A;
   --text-muted: #64748B;
   --text-dim: #94A3B8;
 
@@ -108,9 +112,101 @@ body.light-theme {
   --box-subtle-bg: rgba(0, 0, 0, 0.03);
 }
 
-body.light-theme .app-card {
+body.light-theme .app-card,
+body.light-theme .filters-card,
+body.light-theme .table-card,
+body.light-theme .page-header {
+  background-color: #FFFFFF !important;
+  border-color: rgba(0, 0, 0, 0.08) !important;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
 }
+
+body.light-theme .form-input,
+body.light-theme .form-select,
+body.light-theme .form-textarea,
+body.light-theme .search-box input,
+body.light-theme .search-input {
+  background-color: #FFFFFF !important;
+  border-color: rgba(0, 0, 0, 0.15) !important;
+  color: #0F172A !important;
+}
+
+body.light-theme .form-input::placeholder,
+body.light-theme .search-box input::placeholder,
+body.light-theme .search-input::placeholder,
+body.light-theme .form-textarea::placeholder {
+  color: #94A3B8 !important;
+}
+
+body.light-theme .form-select option {
+  background-color: #FFFFFF !important;
+  color: #0F172A !important;
+}
+
+/* Data Table in Light Mode */
+body.light-theme .data-table th {
+  color: #64748B !important;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08) !important;
+}
+
+body.light-theme .data-table td {
+  color: #1E293B !important;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05) !important;
+}
+
+body.light-theme .data-table tr:hover td {
+  background-color: rgba(0, 0, 0, 0.02) !important;
+}
+
+/* Modal and Detail Fiches in Light Mode */
+body.light-theme .modal-card {
+  background-color: #FFFFFF !important;
+  border-color: rgba(0, 0, 0, 0.1) !important;
+  color: #0F172A !important;
+  box-shadow: 0 20px 45px rgba(0, 0, 0, 0.15) !important;
+}
+
+body.light-theme .modal-card h2,
+body.light-theme .modal-card h3,
+body.light-theme .modal-card h4 {
+  color: #0F172A !important;
+}
+
+body.light-theme .modal-close-btn {
+  color: #64748B !important;
+}
+
+body.light-theme .modal-close-btn:hover {
+  color: #0F172A !important;
+}
+
+body.light-theme .detail-kpi-item,
+body.light-theme .detail-meta-list {
+  background-color: #F8FAFC !important;
+  border: 1px solid rgba(0, 0, 0, 0.08) !important;
+}
+
+body.light-theme .detail-kpi-label,
+body.light-theme .meta-title {
+  color: #64748B !important;
+}
+
+body.light-theme .detail-kpi-val,
+body.light-theme .meta-val {
+  color: #0F172A !important;
+}
+
+/* Color utilities for High Contrast in both modes */
+.text-emerald { color: #10B981; }
+.text-blue { color: #38BDF8; }
+.text-purple { color: #A855F7; }
+.text-amber { color: #F59E0B; }
+
+body.light-theme .text-emerald { color: #059669 !important; }
+body.light-theme .text-blue { color: #0284C7 !important; }
+body.light-theme .text-purple { color: #7C3AED !important; }
+body.light-theme .text-amber { color: #D97706 !important; }
+
 
 /* Progress Bars & Tracks - Visibilité optimale en mode clair */
 body.light-theme .dim-bar-bg,

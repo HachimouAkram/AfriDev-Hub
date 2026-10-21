@@ -358,3 +358,37 @@
 @keyframes spin {
   to { transform: rotate(360deg); }
 }
+
+/* Light Theme Overrides for Admin Moderation Page */
+:host-context(body.light-theme) .report-card,
+:host-context(body.light-theme) .moderation-card,
+:host-context(body.light-theme) .filters-card {
+  background: #FFFFFF;
+  border-color: rgba(0, 0, 0, 0.08);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+}
+
+:host-context(body.light-theme) .form-select,
+:host-context(body.light-theme) .form-textarea,
+:host-context(body.light-theme) .search-box input {
+  background: #FFFFFF !important;
+  border-color: rgba(0, 0, 0, 0.15) !important;
+  color: #0F172A !important;
+}
+
+:host-context(body.light-theme) .form-textarea::placeholder,
+:host-context(body.light-theme) .search-box input::placeholder {
+  color: #94A3B8 !important;
+}
+
+:host-context(body.light-theme) .modal-card {
+  background: #FFFFFF;
+  border-color: rgba(0, 0, 0, 0.1);
+  color: #0F172A;
+  box-shadow: 0 20px 45px rgba(0, 0, 0, 0.15);
+}
+
+:host-context(body.light-theme) .modal-card h3 {
+  color: #0F172A !important;
+}
+
