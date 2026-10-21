@@ -1,172 +1,643 @@
 <div class="admin-container">
   <!-- Header Banner -->
-  <div class="admin-header app-card">
-    <div class="header-text">
-      <h1>Back-Office Modération & Administration</h1>
-      <p>Panneau d'administration sécurisé. Gestion des droits, suspension de comptes, modération des contenus et traçabilité des logs d'audit.</p>
+  <header class="admin-header app-card">
+    <div class="header-main">
+      <div class="header-icon-badge">
+        <svg class="icon-svg icon-svg-lg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
+        </svg>
+      </div>
+      <div class="header-text">
+        <div class="title-row">
+          <h1>Cockpit Super Admin & Gouvernance Panafricaine</h1>
+          <span class="badge" [class.badge-emerald]="isSuperAdmin()" [class.badge-purple]="!isSuperAdmin()">
+            {{ isSuperAdmin() ? 'SUPER_ADMIN' : 'ADMIN / MODÉRATEUR' }}
+          </span>
+        </div>
+        <p>
+          Pilotage stratégique de l'adoption dans les 54 pays africains, annuaire des talents, modération de conformité (droits d'auteur, plagiat) et traçabilité immuable des actions de sécurité.
+        </p>
+      </div>
     </div>
-    <span class="badge badge-emerald"><i class="ri-lock-line"></i> Espace Sécurisé RBAC</span>
-  </div>
+
+    <div class="header-actions">
+      <div class="security-chip">
+        <span class="pulse-indicator"></span>
+        <span>Registre d'Audit Actif</span>
+      </div>
+    </div>
+  </header>
 
   <!-- Navigation Tabs -->
-  <div class="admin-tabs">
-    <button class="tab-btn" [class.active]="activeTab === 'stats'" (click)="switchTab('stats')">
-      KPIs & Statistiques
+  <nav class="admin-tabs" aria-label="Navigation du panneau d'administration">
+    <button 
+      class="tab-btn" 
+      [class.active]="activeTab === 'adoption'" 
+      (click)="switchTab('adoption')">
+      <svg class="icon-svg icon-svg-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 21a9.004 9.004 0 008.716-6.747M12 21a9.004 9.004 0 01-8.716-6.747M12 21c2.485 0 4.5-4.03 4.5-9S14.485 3 12 3m0 18c-2.485 0-4.5-4.03-4.5-9S9.515 3 12 3m0 0a8.997 8.997 0 017.843 4.582M12 3a8.997 8.997 0 00-7.843 4.582m15.686 0A11.953 11.953 0 0112 10.5c-2.998 0-5.74-1.1-7.843-2.918m15.686 0A8.959 8.959 0 0121 12c0 .778-.099 1.533-.284 2.253m0 0A17.919 17.919 0 0112 16.5c-3.162 0-6.133-.815-8.716-2.247m0 0A9.015 9.015 0 013 12c0-.778.099-1.533.284-2.253" />
+      </svg>
+      <span>1. Adoption Panafricaine (54 Pays)</span>
     </button>
-    <button class="tab-btn" [class.active]="activeTab === 'reports'" (click)="switchTab('reports')">
-      Modération des Signalements
-    </button>
-    <button class="tab-btn" [class.active]="activeTab === 'audit'" (click)="switchTab('audit')">
-      Registre d'Audit de Sécurité
-    </button>
-  </div>
 
-  <!-- TAB 1: PLATFORM STATS -->
-  <div *ngIf="activeTab === 'stats' && stats" class="tab-content">
-    <div class="kpi-grid">
-      <div class="app-card kpi-card">
-        <span class="kpi-val">{{ stats.totalUsers }}</span>
-        <span class="kpi-lbl">Développeurs Inscrits</span>
-      </div>
-      <div class="app-card kpi-card">
-        <span class="kpi-val">{{ stats.totalProfiles }}</span>
-        <span class="kpi-lbl">Profils Complétés</span>
-      </div>
-      <div class="app-card kpi-card">
-        <span class="kpi-val">{{ stats.totalProjects }}</span>
-        <span class="kpi-lbl">Projets Publiés</span>
-      </div>
-      <div class="app-card kpi-card">
-        <span class="kpi-val">{{ stats.totalOpportunities }}</span>
-        <span class="kpi-lbl">Opportunités Actives</span>
-      </div>
-      <div class="app-card kpi-card">
-        <span class="kpi-val">{{ stats.totalEvaluations }}</span>
-        <span class="kpi-lbl">Évaluations par les Pairs</span>
-      </div>
-    </div>
+    <button 
+      class="tab-btn" 
+      [class.active]="activeTab === 'users'" 
+      (click)="switchTab('users')">
+      <svg class="icon-svg icon-svg-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z" />
+      </svg>
+      <span>2. Annuaire & Gestion Comptes</span>
+    </button>
 
-    <!-- Country Distribution Bar -->
-    <div class="app-card chart-card">
-      <h3>Répartition Géographique des Développeurs (54 Pays Africains)</h3>
-      <div class="country-grid">
-        <div *ngFor="let item of stats.usersByCountry | keyvalue" class="country-item app-card">
-          <span class="country-name">
-            <svg class="icon-svg icon-svg-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" />
-              <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" />
-            </svg>
-            {{ item.key }}
-          </span>
-          <span class="country-count">{{ item.value }} membre(s)</span>
+    <button 
+      class="tab-btn" 
+      [class.active]="activeTab === 'reports'" 
+      (click)="switchTab('reports')">
+      <svg class="icon-svg icon-svg-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
+      </svg>
+      <span>3. Modération & Droits d'Auteur</span>
+    </button>
+
+    <button 
+      class="tab-btn" 
+      [class.active]="activeTab === 'audit'" 
+      (click)="switchTab('audit')">
+      <svg class="icon-svg icon-svg-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
+      </svg>
+      <span>4. Registre d'Audit Immuable</span>
+    </button>
+  </nav>
+
+  <!-- ========================================== -->
+  <!-- TAB 1: ADOPTION PANAFRICAINE (54 PAYS)     -->
+  <!-- ========================================== -->
+  <section *ngIf="activeTab === 'adoption'" class="tab-pane animate-fade-in">
+    <!-- Continental KPIs Grid -->
+    <div class="kpi-grid" *ngIf="adoptionSummary">
+      <div class="app-card kpi-card">
+        <div class="kpi-icon-wrap bg-emerald-soft">
+          <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 18.72a9.094 9.094 0 003.741-.479 3 3 0 00-4.682-2.72m.94 3.198l.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0112 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 016 18.719m12 0a5.971 5.971 0 00-.941-3.197m0 0A5.995 5.995 0 0012 12.75a5.995 5.995 0 00-5.058 2.772m0 0a3 3 0 00-4.681 2.72 8.986 8.986 0 003.74.477m.94-3.197a5.971 5.971 0 00-.94 3.197M15 6.75a3 3 0 11-6 0 3 3 0 016 0zm6 3a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0zm-13.5 0a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z" />
+          </svg>
+        </div>
+        <div class="kpi-content">
+          <span class="kpi-value">{{ adoptionSummary.totalContinentalUsers }}</span>
+          <span class="kpi-label">Talents & Recruteurs Panafricains</span>
+        </div>
+      </div>
+
+      <div class="app-card kpi-card">
+        <div class="kpi-icon-wrap bg-blue-soft">
+          <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z" />
+          </svg>
+        </div>
+        <div class="kpi-content">
+          <span class="kpi-value">{{ adoptionSummary.totalContinentalProjects }}</span>
+          <span class="kpi-label">Projets & Dépôts Open Source</span>
+        </div>
+      </div>
+
+      <div class="app-card kpi-card">
+        <div class="kpi-icon-wrap bg-purple-soft">
+          <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.25 14.15v4.25c0 1.094-.787 2.036-1.872 2.18-2.087.277-4.216.42-6.378.42s-4.291-.143-6.378-.42c-1.085-.144-1.872-1.086-1.872-2.18v-4.25m16.5 0a2.18 2.18 0 00.75-1.661V8.706c0-1.081-.768-2.015-1.837-2.175a48.114 48.114 0 00-3.413-.387m4.5 8.006c-.194.165-.42.295-.673.38A23.978 23.978 0 0112 15.75c-2.648 0-5.195-.429-7.577-1.22a2.016 2.016 0 01-.673-.38m0 0A2.18 2.18 0 013 12.489V8.706c0-1.081.768-2.015 1.837-2.175a48.111 48.111 0 013.413-.387m7.5 0V5.25A2.25 2.25 0 0013.5 3h-3a2.25 2.25 0 00-2.25 2.25v.894m7.5 0a48.667 48.667 0 00-7.5 0M12 12.75h.008v.008H12v-.008z" />
+          </svg>
+        </div>
+        <div class="kpi-content">
+          <span class="kpi-value">{{ adoptionSummary.totalContinentalOpportunities }}</span>
+          <span class="kpi-label">Opportunités & Missions Pro</span>
+        </div>
+      </div>
+
+      <div class="app-card kpi-card">
+        <div class="kpi-icon-wrap bg-amber-soft">
+          <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 21a9.004 9.004 0 008.716-6.747M12 21a9.004 9.004 0 01-8.716-6.747M12 21c2.485 0 4.5-4.03 4.5-9S14.485 3 12 3m0 18c-2.485 0-4.5-4.03-4.5-9S9.515 3 12 3" />
+          </svg>
+        </div>
+        <div class="kpi-content">
+          <span class="kpi-value">{{ adoptionSummary.activeCountriesCount }} <small>/ 54</small></span>
+          <span class="kpi-label">Pays Africains Actifs</span>
         </div>
       </div>
     </div>
-  </div>
 
-  <!-- TAB 2: REPORTS MODERATION -->
-  <div *ngIf="activeTab === 'reports'" class="tab-content">
-    <div class="app-card table-card">
-      <h3>File d'Attente de Modération (Contenus Signalés)</h3>
-
-      <table class="data-table" *ngIf="reports.length > 0; else noReports">
-        <thead>
-          <tr>
-            <th>Signalé par</th>
-            <th>Type Ressource</th>
-            <th>Raison du Signalement</th>
-            <th>Statut</th>
-            <th>Date</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let r of reports">
-            <td><strong>{{ r.reporter.profile.fullName }}</strong></td>
-            <td><span class="badge badge-emerald">{{ r.resource }}</span></td>
-            <td>{{ r.reason }}</td>
-            <td><span class="badge badge-gray">{{ r.status }}</span></td>
-            <td>{{ r.createdAt | date:'short' }}</td>
-            <td class="action-cells">
-              <button (click)="onHandleReport(r.id, 'RESOLVED')" class="btn btn-emerald btn-sm">Résoudre</button>
-              <button (click)="onHandleReport(r.id, 'DISMISSED')" class="btn btn-outline btn-sm">Ignorer</button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-
-      <ng-template #noReports>
-        <div class="empty-table">Aucun signalement en attente de modération.</div>
-      </ng-template>
-    </div>
-  </div>
-
-  <!-- TAB 3: AUDIT LOGS -->
-  <div *ngIf="activeTab === 'audit'" class="tab-content">
-    <div class="app-card table-card">
-      <h3>Journal d'Audit de Sécurité & Actions Administratives</h3>
-
-      <table class="data-table" *ngIf="auditLogs.length > 0; else noLogs">
-        <thead>
-          <tr>
-            <th>Opérateur</th>
-            <th>Action de Sécurité</th>
-            <th>Cible / Ressource</th>
-            <th>Données Métadonnées</th>
-            <th>Adresse IP</th>
-            <th>Horodatage UTC</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let log of auditLogs">
-            <td><strong>{{ log.user?.profile?.fullName || 'Système' }}</strong></td>
-            <td><span class="code-action">{{ log.action }}</span></td>
-            <td>{{ log.resource }} ({{ log.resourceId }})</td>
-            <td class="meta-json"><code>{{ log.metadataJson }}</code></td>
-            <td>{{ log.ipAddress || '127.0.0.1' }}</td>
-            <td>{{ log.createdAt | date:'medium' }}</td>
-          </tr>
-        </tbody>
-      </table>
-
-      <ng-template #noLogs>
-        <div class="empty-table">Aucune entrée d'audit enregistrée.</div>
-      </ng-template>
-    </div>
-  </div>
-
-  <!-- USER STATUS MODAL -->
-  <div class="modal-overlay" *ngIf="showSuspendModal" (click)="closeSuspendModal()">
-    <div class="app-card modal-card" (click)="$event.stopPropagation()">
-      <div class="modal-header">
-        <h3>Gestion du Statut Utilisateur</h3>
-        <button (click)="closeSuspendModal()" class="btn-icon">
-          <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+    <!-- Country Leaderboard Section -->
+    <div class="app-card country-board-card">
+      <div class="section-toolbar">
+        <div>
+          <h3>Classement Panafricain de l'Adoption</h3>
+          <p class="section-desc">Répartition de la communauté, des projets publiés et de la vérification Mobile Money par pays.</p>
+        </div>
+        <div class="search-input-wrap">
+          <svg class="icon-svg icon-svg-xs search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
           </svg>
-        </button>
+          <input 
+            type="text" 
+            [(ngModel)]="selectedCountryFilter" 
+            (ngModelChange)="applyCountryFilter()" 
+            placeholder="Filtrer par pays (ex: Sénégal, Kenya...)" 
+            class="form-input search-input" />
+        </div>
       </div>
 
-      <form (ngSubmit)="onSubmitUserStatus()" class="modal-form">
+      <div class="countries-table-wrap">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th style="width: 80px;">Rang</th>
+              <th>Nation</th>
+              <th style="min-width: 260px;">Taux d'Adoption Continentale</th>
+              <th>Membres</th>
+              <th>Développeurs</th>
+              <th>Recruteurs</th>
+              <th>Projets</th>
+              <th>Mobile Money Vérifié</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let item of filteredCountries" class="country-row">
+              <td class="rank-cell">
+                <span class="rank-badge" [class.rank-gold]="item.rank === 1" [class.rank-silver]="item.rank === 2" [class.rank-bronze]="item.rank === 3">
+                  #{{ item.rank }}
+                </span>
+              </td>
+              <td class="nation-cell">
+                <span class="flag-icon">{{ getFlag(item.country) }}</span>
+                <strong>{{ item.country }}</strong>
+              </td>
+              <td class="bar-cell">
+                <div class="adoption-track-wrap">
+                  <div class="adoption-track">
+                    <div class="adoption-fill" [style.width.%]="item.adoptionPercentage"></div>
+                  </div>
+                  <span class="adoption-pct">{{ item.adoptionPercentage }}%</span>
+                </div>
+              </td>
+              <td><strong>{{ item.userCount }}</strong></td>
+              <td><span class="badge badge-emerald">{{ item.developerCount }} devs</span></td>
+              <td><span class="badge badge-blue">{{ item.recruiterCount }} recruteurs</span></td>
+              <td><span class="metric-highlight">{{ item.projectCount }}</span></td>
+              <td>
+                <span class="verified-pill">
+                  <svg class="icon-svg icon-svg-xs" viewBox="0 0 24 24" fill="currentColor">
+                    <path fill-rule="evenodd" d="M8.603 3.799A4.49 4.49 0 0112 2.25c1.357 0 2.573.6 3.397 1.549a4.49 4.49 0 013.498 1.307 4.491 4.491 0 011.307 3.497A4.49 4.49 0 0121.75 12a4.49 4.49 0 01-1.549 3.397 4.491 4.491 0 01-1.307 3.497 4.491 4.491 0 01-3.497 1.307A4.49 4.49 0 0112 21.75a4.49 4.49 0 01-3.397-1.549 4.49 4.49 0 01-3.498-1.306 4.491 4.491 0 01-1.307-3.498A4.49 4.49 0 012.25 12c0-1.357.6-2.573 1.549-3.397a4.49 4.49 0 011.307-3.497 4.49 4.49 0 013.497-1.307zm7.007 6.387a.75.75 0 10-1.22-.872l-3.236 4.53L9.53 12.22a.75.75 0 00-1.06 1.06l2.25 2.25a.75.75 0 001.14-.094l3.75-5.25z" clip-rule="evenodd" />
+                  </svg>
+                  {{ item.verifiedUsersCount }}
+                </span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================================== -->
+  <!-- TAB 2: GESTION UTILISATEURS & SANCTIONS    -->
+  <!-- ========================================== -->
+  <section *ngIf="activeTab === 'users'" class="tab-pane animate-fade-in">
+    <div class="app-card table-card">
+      <div class="table-header-block">
+        <div>
+          <h3>Annuaire Centralisé & Modération des Comptes</h3>
+          <p class="section-desc">Contrôle d'accès, détection de faux profils et application des sanctions (suspension, bannissement, réactivation).</p>
+        </div>
+      </div>
+
+      <!-- Filters Bar -->
+      <div class="filters-row">
+        <div class="search-input-wrap flex-1">
+          <svg class="icon-svg icon-svg-xs search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
+          </svg>
+          <input 
+            type="text" 
+            [(ngModel)]="userSearchTerm" 
+            (keyup.enter)="onSearchUsers()" 
+            placeholder="Rechercher par nom, email ou titre professionnel..." 
+            class="form-input search-input" />
+        </div>
+
+        <select [(ngModel)]="userCountryFilter" (change)="onSearchUsers()" class="form-select filter-select">
+          <option value="">Tous les pays</option>
+          <option value="Sénégal">🇸🇳 Sénégal</option>
+          <option value="Côte d'Ivoire">🇨🇮 Côte d'Ivoire</option>
+          <option value="Nigéria">🇳🇬 Nigéria</option>
+          <option value="Kenya">🇰🇪 Kenya</option>
+          <option value="Rwanda">🇷🇼 Rwanda</option>
+          <option value="Ghana">🇬🇭 Ghana</option>
+          <option value="Cameroun">🇨🇲 Cameroun</option>
+        </select>
+
+        <select [(ngModel)]="userRoleFilter" (change)="onSearchUsers()" class="form-select filter-select">
+          <option value="">Tous les rôles</option>
+          <option value="DEVELOPER">Développeur</option>
+          <option value="RECRUITER">Recruteur</option>
+          <option value="ADMIN">Administrateur</option>
+          <option value="SUPER_ADMIN">Super Admin</option>
+        </select>
+
+        <select [(ngModel)]="userStatusFilter" (change)="onSearchUsers()" class="form-select filter-select">
+          <option value="">Tous les statuts</option>
+          <option value="ACTIVE">Actif</option>
+          <option value="SUSPENDED">Suspendu</option>
+          <option value="BANNED">Banni</option>
+          <option value="PENDING_VERIFICATION">En attente OTP</option>
+        </select>
+
+        <button (click)="onSearchUsers()" class="btn btn-emerald">Filtrer</button>
+        <button (click)="resetUserFilters()" class="btn btn-outline">Réinitialiser</button>
+      </div>
+
+      <!-- Users Table -->
+      <div class="table-container">
+        <table class="data-table" *ngIf="users.length > 0; else noUsers">
+          <thead>
+            <tr>
+              <th>Talent / Utilisateur</th>
+              <th>Pays & Localisation</th>
+              <th>Rôle</th>
+              <th>Statut Compte</th>
+              <th>Activité</th>
+              <th style="text-align: right;">Gouvernance & Sanction</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let u of users" class="user-row">
+              <td>
+                <div class="user-cell">
+                  <div class="avatar-circle">
+                    {{ u.fullName ? u.fullName.charAt(0).toUpperCase() : u.email.charAt(0).toUpperCase() }}
+                  </div>
+                  <div class="user-info">
+                    <span class="user-fullname">{{ u.fullName || 'Profil Incomplet' }}</span>
+                    <span class="user-email">{{ u.email }}</span>
+                    <span *ngIf="u.title" class="user-title">{{ u.title }}</span>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <span class="flag-icon">{{ getFlag(u.country || '') }}</span>
+                <span>{{ u.country || 'Non spécifié' }} {{ u.city ? '· ' + u.city : '' }}</span>
+              </td>
+              <td>
+                <span class="badge" 
+                      [class.badge-emerald]="u.role === 'DEVELOPER'" 
+                      [class.badge-blue]="u.role === 'RECRUITER'" 
+                      [class.badge-purple]="u.role === 'ADMIN' || u.role === 'SUPER_ADMIN'">
+                  {{ u.role }}
+                </span>
+              </td>
+              <td>
+                <span class="status-badge" 
+                      [class.status-active]="u.status === 'ACTIVE'" 
+                      [class.status-suspended]="u.status === 'SUSPENDED'" 
+                      [class.status-banned]="u.status === 'BANNED'">
+                  <span class="dot"></span>
+                  {{ u.status }}
+                </span>
+              </td>
+              <td class="metrics-cell">
+                <span title="Projets créés" class="mini-stat">🚀 {{ u.projectsCount }}</span>
+                <span title="Offres publiées" class="mini-stat">💼 {{ u.opportunitiesCount }}</span>
+                <span *ngIf="u.reportsCount > 0" title="Signalements reçus" class="mini-stat text-danger">⚠️ {{ u.reportsCount }}</span>
+              </td>
+              <td class="action-cells" style="justify-content: flex-end;">
+                <!-- Fast action buttons -->
+                <button 
+                  *ngIf="u.status === 'ACTIVE'" 
+                  (click)="openUserStatusModal(u, 'SUSPENDED')" 
+                  class="btn btn-amber btn-xs" 
+                  title="Suspendre temporairement avec motif consigné">
+                  Suspendre
+                </button>
+                <button 
+                  *ngIf="u.status === 'ACTIVE'" 
+                  (click)="openUserStatusModal(u, 'BANNED')" 
+                  class="btn btn-danger btn-xs" 
+                  title="Bannir définitivement">
+                  Bannir
+                </button>
+                <button 
+                  *ngIf="u.status !== 'ACTIVE'" 
+                  (click)="openUserStatusModal(u, 'ACTIVE')" 
+                  class="btn btn-emerald btn-xs" 
+                  title="Lever la sanction et réactiver le compte">
+                  Réactiver
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+
+        <ng-template #noUsers>
+          <div class="empty-table">Aucun utilisateur ne correspond aux critères de recherche.</div>
+        </ng-template>
+      </div>
+
+      <!-- Pagination -->
+      <div class="pagination-bar" *ngIf="userTotalPages > 1">
+        <button [disabled]="userPage === 0" (click)="loadUsers(userPage - 1)" class="btn btn-outline btn-sm">Précédent</button>
+        <span class="pagination-info">Page {{ userPage + 1 }} sur {{ userTotalPages }} ({{ userTotalElements }} utilisateurs)</span>
+        <button [disabled]="userPage >= userTotalPages - 1" (click)="loadUsers(userPage + 1)" class="btn btn-outline btn-sm">Suivant</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================================== -->
+  <!-- TAB 3: MODÉRATION & DROITS D'AUTEUR        -->
+  <!-- ========================================== -->
+  <section *ngIf="activeTab === 'reports'" class="tab-pane animate-fade-in">
+    <div class="app-card table-card">
+      <div class="table-header-block">
+        <div>
+          <h3>Modération des Signalements & Détection de Plagiat</h3>
+          <p class="section-desc">Geler en 1 clic les dépôts contestés, suspendre la visibilité publique et notifier l'auteur.</p>
+        </div>
+        <div class="filter-pills">
+          <button class="pill-btn" [class.active]="reportStatusFilter === 'PENDING'" (click)="onFilterReports('PENDING')">En Attente</button>
+          <button class="pill-btn" [class.active]="reportStatusFilter === 'RESOLVED'" (click)="onFilterReports('RESOLVED')">Résolus</button>
+          <button class="pill-btn" [class.active]="reportStatusFilter === 'DISMISSED'" (click)="onFilterReports('DISMISSED')">Classés sans suite</button>
+          <button class="pill-btn" [class.active]="reportStatusFilter === ''" (click)="onFilterReports('')">Tous</button>
+        </div>
+      </div>
+
+      <div class="table-container">
+        <table class="data-table" *ngIf="reports.length > 0; else noReports">
+          <thead>
+            <tr>
+              <th>Signalé par</th>
+              <th>Type de Ressource</th>
+              <th>Motif Déclaré</th>
+              <th>Statut Signalement</th>
+              <th>Date de Dépôt</th>
+              <th style="text-align: right;">Action Administrative</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let r of reports">
+              <td>
+                <strong>{{ r.reporter?.profile?.fullName || r.reporter?.email }}</strong>
+                <span class="sub-text">{{ r.reporter?.email }}</span>
+              </td>
+              <td>
+                <span class="badge" [class.badge-purple]="r.resource === 'PROJECT'" [class.badge-blue]="r.resource !== 'PROJECT'">
+                  {{ r.resource }}
+                </span>
+                <small class="id-hint">ID: {{ r.resourceId }}</small>
+              </td>
+              <td class="reason-cell">
+                <div class="reason-bubble">« {{ r.reason }} »</div>
+              </td>
+              <td>
+                <span class="status-badge" [class.status-suspended]="r.status === 'PENDING'" [class.status-active]="r.status === 'RESOLVED'">
+                  {{ r.status }}
+                </span>
+              </td>
+              <td>{{ r.createdAt | date:'short' }}</td>
+              <td class="action-cells" style="justify-content: flex-end;">
+                <!-- Fast moderation on project -->
+                <button 
+                  *ngIf="r.resource === 'PROJECT'" 
+                  (click)="openProjectModerateModal(r.resourceId, 'Projet ' + r.resourceId)" 
+                  class="btn btn-danger btn-xs" 
+                  title="Geler ce projet pour violation de droits ou faux code">
+                  ⚖️ Geler le Projet
+                </button>
+                <button 
+                  *ngIf="r.status === 'PENDING'" 
+                  (click)="onHandleReport(r.id, 'RESOLVED')" 
+                  class="btn btn-emerald btn-xs">
+                  Résoudre
+                </button>
+                <button 
+                  *ngIf="r.status === 'PENDING'" 
+                  (click)="onHandleReport(r.id, 'DISMISSED')" 
+                  class="btn btn-outline btn-xs">
+                  Classer
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+
+        <ng-template #noReports>
+          <div class="empty-table">
+            <svg class="icon-svg icon-svg-lg text-emerald" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <p>Aucun signalement en attente de modération dans cette catégorie.</p>
+          </div>
+        </ng-template>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================================== -->
+  <!-- TAB 4: REGISTRE D'AUDIT IMMUABLE          -->
+  <!-- ========================================== -->
+  <section *ngIf="activeTab === 'audit'" class="tab-pane animate-fade-in">
+    <div class="app-card table-card">
+      <div class="table-header-block">
+        <div>
+          <h3>Registre d'Audit Immuable de Sécurité</h3>
+          <p class="section-desc">Journalisation inviolable de toutes les actions administratives, modifications de privilèges, sanctions et modérations avec adresse IP et motif.</p>
+        </div>
+        <div class="search-input-wrap">
+          <svg class="icon-svg icon-svg-xs search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
+          </svg>
+          <input 
+            type="text" 
+            [(ngModel)]="auditSearchTerm" 
+            placeholder="Rechercher par action, opérateur, IP..." 
+            class="form-input search-input" />
+        </div>
+      </div>
+
+      <div class="table-container">
+        <table class="data-table" *ngIf="getFilteredAuditLogs().length > 0; else noLogs">
+          <thead>
+            <tr>
+              <th>Opérateur d'Audit</th>
+              <th>Action de Sécurité</th>
+              <th>Cible / Ressource</th>
+              <th>Détails & Motifs Consignés</th>
+              <th>Adresse IP Source</th>
+              <th>Horodatage UTC</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let log of getFilteredAuditLogs()">
+              <td>
+                <strong>{{ log.user?.profile?.fullName || log.user?.email || 'Système Sécurisé' }}</strong>
+                <span class="sub-text">{{ log.user?.role || 'SYSTEM' }}</span>
+              </td>
+              <td>
+                <span class="action-code-badge">{{ log.action }}</span>
+              </td>
+              <td>
+                <span class="resource-pill">{{ log.resource }}</span>
+                <small class="id-hint">{{ log.resourceId }}</small>
+              </td>
+              <td class="meta-cell">
+                <div *ngIf="formatMetadata(log.metadataJson).length > 0; else rawMeta" class="meta-tags-list">
+                  <span *ngFor="let m of formatMetadata(log.metadataJson)" class="meta-tag">
+                    <strong>{{ m.key }}:</strong> {{ m.value }}
+                  </span>
+                </div>
+                <ng-template #rawMeta>
+                  <code>{{ log.metadataJson || 'Aucun paramètre' }}</code>
+                </ng-template>
+              </td>
+              <td><span class="ip-badge">{{ log.ipAddress || '127.0.0.1' }}</span></td>
+              <td class="date-cell">{{ log.createdAt | date:'medium' }}</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <ng-template #noLogs>
+          <div class="empty-table">Aucune entrée d'audit ne correspond à vos filtres.</div>
+        </ng-template>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================================== -->
+  <!-- MODALE 1 : SANCTION DU COMPTE UTILISATEUR  -->
+  <!-- ========================================== -->
+  <div class="modal-backdrop" *ngIf="showUserStatusModal" (click)="closeUserStatusModal()">
+    <div class="app-card modal-dialog" (click)="$event.stopPropagation()">
+      <div class="modal-head">
+        <div class="modal-title-row">
+          <div class="modal-icon-badge" [class.badge-danger]="selectedUserAction === 'BANNED'" [class.badge-amber]="selectedUserAction === 'SUSPENDED'" [class.badge-emerald]="selectedUserAction === 'ACTIVE'">
+            <svg class="icon-svg icon-svg-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3.75m0-10.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.75c0 5.592 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.57-.598-3.75h-.152c-3.196 0-6.1-1.249-8.25-3.286zm0 13.036h.008v.008H12v-.008z" />
+            </svg>
+          </div>
+          <div>
+            <h3>Sanction Administrative sur le Compte</h3>
+            <p class="modal-desc">Application d'une mesure de sécurité sur le profil de <strong>{{ targetUser?.email }}</strong>.</p>
+          </div>
+        </div>
+        <button (click)="closeUserStatusModal()" class="close-btn" aria-label="Fermer">✕</button>
+      </div>
+
+      <form (ngSubmit)="submitUserStatus()" class="modal-body-form">
         <div class="form-group">
-          <label for="uStat" class="form-label">Statut du compte</label>
-          <select id="uStat" [(ngModel)]="selectedStatus" name="selectedStatus" class="form-select">
-            <option value="ACTIVE">Actif (Compte Normal)</option>
-            <option value="SUSPENDED">Suspendu Temporairement</option>
-            <option value="BANNED">Banni Définitivement</option>
+          <label class="form-label" for="actionSelect">Statut à appliquer</label>
+          <select id="actionSelect" [(ngModel)]="selectedUserAction" name="selectedUserAction" class="form-select">
+            <option value="ACTIVE">✅ Actif (Rétablir le plein accès au compte)</option>
+            <option value="SUSPENDED">⚠️ Suspendu (Blocage temporaire des connexions & publications)</option>
+            <option value="BANNED">🚫 Banni Définitivement (Exclusion définitive de la plateforme)</option>
           </select>
         </div>
 
         <div class="form-group">
-          <label for="uReason" class="form-label">Motif de la décision (Sera consigné au registre d'audit)</label>
-          <textarea id="uReason" [(ngModel)]="suspendReason" name="suspendReason" rows="3" placeholder="Violation des conditions d'utilisation..." required class="form-textarea"></textarea>
+          <label class="form-label" for="actionReason">
+            Motif officiel de la décision <span class="text-danger">*</span>
+            <small class="label-hint">(Sera consigné au registre d'audit et transmis par email au titulaire)</small>
+          </label>
+          <textarea 
+            id="actionReason" 
+            [(ngModel)]="userActionReason" 
+            name="userActionReason" 
+            rows="3" 
+            placeholder="Ex: Violation avérée des conditions de publication, usurpation d'identité ou signalements multiples..." 
+            required 
+            class="form-textarea"></textarea>
         </div>
 
-        <div *ngIf="userMessage" class="success-box">{{ userMessage }}</div>
+        <div *ngIf="userActionFeedback" class="alert-box" [class.alert-success]="!userActionFeedback.includes('Erreur')" [class.alert-danger]="userActionFeedback.includes('Erreur')">
+          {{ userActionFeedback }}
+        </div>
 
-        <div class="modal-footer">
-          <button type="button" (click)="closeSuspendModal()" class="btn btn-outline">Annuler</button>
-          <button type="submit" [disabled]="isUpdatingUser" class="btn btn-emerald">Appliquer la Sanction</button>
+        <div class="modal-foot">
+          <button type="button" (click)="closeUserStatusModal()" class="btn btn-outline">Annuler</button>
+          <button 
+            type="submit" 
+            [disabled]="isSubmittingUserAction || !userActionReason.trim()" 
+            class="btn" 
+            [class.btn-danger]="selectedUserAction === 'BANNED'" 
+            [class.btn-amber]="selectedUserAction === 'SUSPENDED'" 
+            [class.btn-emerald]="selectedUserAction === 'ACTIVE'">
+            {{ isSubmittingUserAction ? 'Application en cours...' : 'Appliquer la Décision & Notifier' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- MODALE 2 : MODÉRATION / GEL DU PROJET     -->
+  <!-- ========================================== -->
+  <div class="modal-backdrop" *ngIf="showProjectModerateModal" (click)="closeProjectModerateModal()">
+    <div class="app-card modal-dialog" (click)="$event.stopPropagation()">
+      <div class="modal-head">
+        <div class="modal-title-row">
+          <div class="modal-icon-badge badge-danger">
+            <svg class="icon-svg icon-svg-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
+            </svg>
+          </div>
+          <div>
+            <h3>Modération & Protection Droits d'Auteur</h3>
+            <p class="modal-desc">Gel conservatoire du projet <strong>« {{ targetProjectTitle }} »</strong>.</p>
+          </div>
+        </div>
+        <button (click)="closeProjectModerateModal()" class="close-btn" aria-label="Fermer">✕</button>
+      </div>
+
+      <form (ngSubmit)="submitProjectModeration()" class="modal-body-form">
+        <div class="form-group">
+          <label class="form-label" for="projActionSelect">Action administrative</label>
+          <select id="projActionSelect" [(ngModel)]="projectModerateAction" name="projectModerateAction" class="form-select">
+            <option value="HIDDEN">🔒 Geler et Masquer (Masqué publiquement, conservé pour enquête)</option>
+            <option value="PUBLISHED">✅ Réhabiliter et Publier (Le projet est conforme)</option>
+            <option value="DELETED">🗑️ Supprimer Définitivement</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="projReason">
+            Motif de modération légale <span class="text-danger">*</span>
+            <small class="label-hint">(Justification de propriété intellectuelle ou de plagiat)</small>
+          </label>
+          <textarea 
+            id="projReason" 
+            [(ngModel)]="projectModerateReason" 
+            name="projectModerateReason" 
+            rows="3" 
+            placeholder="Ex: Signalement pour duplication de code propriétaire d'un tiers sans accord de licence..." 
+            required 
+            class="form-textarea"></textarea>
+        </div>
+
+        <div class="form-check-group">
+          <label class="checkbox-label">
+            <input type="checkbox" [(ngModel)]="projectNotifyAuthor" name="projectNotifyAuthor" />
+            <span>Envoyer un email officiel de mise en demeure / recours à l'auteur du projet</span>
+          </label>
+        </div>
+
+        <div *ngIf="projectActionFeedback" class="alert-box" [class.alert-success]="!projectActionFeedback.includes('Erreur')" [class.alert-danger]="projectActionFeedback.includes('Erreur')">
+          {{ projectActionFeedback }}
+        </div>
+
+        <div class="modal-foot">
+          <button type="button" (click)="closeProjectModerateModal()" class="btn btn-outline">Annuler</button>
+          <button 
+            type="submit" 
+            [disabled]="isSubmittingProjectModeration || !projectModerateReason.trim()" 
+            class="btn btn-danger">
+            {{ isSubmittingProjectModeration ? 'Action en cours...' : 'Exécuter la Modération' }}
+          </button>
         </div>
       </form>
     </div>

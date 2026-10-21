@@ -1324,7 +1324,7 @@ export class AppComponent {
 
   isAdmin(): boolean {
     const u = this.authService.currentUser();
-    return u ? (u.role === 'ADMIN' || u.role === 'MODERATOR') : false;
+    return u ? (u.role === 'ADMIN' || u.role === 'MODERATOR' || u.role === 'SUPER_ADMIN') : false;
   }
 
   getUserInitial(): string {

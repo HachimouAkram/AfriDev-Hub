@@ -12,6 +12,49 @@ export interface AdminStats {
   usersByCountry: { [key: string]: number };
 }
 
+export interface CountryAdoptionStats {
+  country: string;
+  userCount: number;
+  developerCount: number;
+  recruiterCount: number;
+  verifiedUsersCount: number;
+  projectCount: number;
+  opportunityCount: number;
+  adoptionPercentage: number;
+  rank: number;
+}
+
+export interface PlatformAdoptionSummary {
+  totalContinentalUsers: number;
+  totalContinentalProjects: number;
+  totalContinentalOpportunities: number;
+  activeCountriesCount: number;
+  countries: CountryAdoptionStats[];
+}
+
+export interface UserAdmin {
+  id: string;
+  email: string;
+  role: string;
+  status: string;
+  emailVerified: boolean;
+  fullName?: string;
+  title?: string;
+  country?: string;
+  city?: string;
+  avatarUrl?: string;
+  projectsCount: number;
+  opportunitiesCount: number;
+  reportsCount: number;
+  createdAt?: string;
+}
+
+export interface ProjectModerateRequest {
+  status: 'DRAFT' | 'PUBLISHED' | 'HIDDEN' | 'DELETED';
+  reason: string;
+  notifyAuthor?: boolean;
+}
+
 export interface Report {
   id: string;
   reporter: User;
@@ -35,6 +78,16 @@ export interface AuditLog {
   createdAt: string;
 }
 
+export interface PaginatedResponse<T> {
+  content: T[];
+  totalElements: number;
+  totalPages: number;
+  size: number;
+  number: number;
+  first: boolean;
+  last: boolean;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -46,14 +99,37 @@ export class AdminService {
     return this.http.get<ApiResponse<AdminStats>>(`${this.apiUrl}/stats`);
   }
 
+  getCountryAdoptionStats(): Observable<ApiResponse<PlatformAdoptionSummary>> {
+    return this.http.get<ApiResponse<PlatformAdoptionSummary>>(`${this.apiUrl}/analytics/countries`);
+  }
+
+  getAdminUsers(filter?: { search?: string; country?: string; role?: string; status?: string; page?: number; size?: number }): Observable<ApiResponse<PaginatedResponse<UserAdmin>>> {
+    let params = new HttpParams();
+    if (filter) {
+      if (filter.search) params = params.set('search', filter.search);
+      if (filter.country) params = params.set('country', filter.country);
+      if (filter.role) params = params.set('role', filter.role);
+      if (filter.status) params = params.set('status', filter.status);
+      params = params.set('page', (filter.page ?? 0).toString());
+      params = params.set('size', (filter.size ?? 20).toString());
+    } else {
+      params = params.set('page', '0').set('size', '20');
+    }
+    return this.http.get<ApiResponse<PaginatedResponse<UserAdmin>>>(`${this.apiUrl}/users`, { params });
+  }
+
   updateUserStatus(userId: string, status: string, reason?: string): Observable<ApiResponse<User>> {
     return this.http.patch<ApiResponse<User>>(`${this.apiUrl}/users/${userId}/status`, { status, reason });
   }
 
-  getReports(status?: string, page = 0, size = 15): Observable<ApiResponse<any>> {
+  moderateProject(projectId: string, request: ProjectModerateRequest): Observable<ApiResponse<any>> {
+    return this.http.patch<ApiResponse<any>>(`${this.apiUrl}/projects/${projectId}/moderate`, request);
+  }
+
+  getReports(status?: string, page = 0, size = 15): Observable<ApiResponse<PaginatedResponse<Report>>> {
     let params = new HttpParams().set('page', page.toString()).set('size', size.toString());
     if (status) params = params.set('status', status);
-    return this.http.get<ApiResponse<any>>(`${this.apiUrl}/reports`, { params });
+    return this.http.get<ApiResponse<PaginatedResponse<Report>>>(`${this.apiUrl}/reports`, { params });
   }
 
   handleReport(reportId: string, status: string): Observable<ApiResponse<Report>> {
@@ -66,8 +142,9 @@ export class AdminService {
     return this.http.post<ApiResponse<Report>>('/api/v1/reports', { resource, resourceId, reason });
   }
 
-  getAuditLogs(page = 0, size = 20): Observable<ApiResponse<any>> {
+  getAuditLogs(page = 0, size = 20): Observable<ApiResponse<PaginatedResponse<AuditLog>>> {
     const params = new HttpParams().set('page', page.toString()).set('size', size.toString());
-    return this.http.get<ApiResponse<any>>(`${this.apiUrl}/audit-logs`, { params });
+    return this.http.get<ApiResponse<PaginatedResponse<AuditLog>>>(`${this.apiUrl}/audit-logs`, { params });
   }
 }
+

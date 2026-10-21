@@ -105,7 +105,7 @@ export class DashboardOverviewComponent implements OnInit {
 
     if (u.role === 'DEVELOPER') {
       this.loadDeveloperData(u.id);
-    } else if (u.role === 'ADMIN' || u.role === 'MODERATOR') {
+    } else if (u.role === 'ADMIN' || u.role === 'MODERATOR' || u.role === 'SUPER_ADMIN') {
       this.loadAdminData();
     }
   }

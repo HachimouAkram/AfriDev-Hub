@@ -80,7 +80,7 @@ export class DashboardComponent implements OnInit {
       this.loadDeveloperData(u.id);
     } else if (u.role === 'RECRUITER') {
       this.loadRecruiterData();
-    } else if (u.role === 'ADMIN' || u.role === 'MODERATOR') {
+    } else if (u.role === 'ADMIN' || u.role === 'MODERATOR' || u.role === 'SUPER_ADMIN') {
       this.loadAdminData();
     } else {
       this.loading.set(false);
