@@ -33,11 +33,20 @@ public class DataInitializer implements CommandLineRunner {
     private final ProjectTaskRepository taskRepository;
     private final ProjectMemberRepository memberRepository;
     private final africa.afridev.service.XpService xpService;
+    private final org.springframework.jdbc.core.JdbcTemplate jdbcTemplate;
 
     @Override
     @Transactional
     public void run(String... args) {
         log.info("Vérification et initialisation des profils de test...");
+
+        try {
+            jdbcTemplate.execute("ALTER TABLE users DROP CONSTRAINT IF EXISTS users_role_check");
+            jdbcTemplate.execute("ALTER TABLE users ADD CONSTRAINT users_role_check CHECK (role IN ('DEVELOPER', 'RECRUITER', 'ADMIN', 'SUPER_ADMIN'))");
+            log.info("Contrainte users_role_check mise à jour avec succès pour inclure SUPER_ADMIN.");
+        } catch (Exception e) {
+            log.warn("Mise à jour de la contrainte users_role_check : {}", e.getMessage());
+        }
 
         String encodedPassword = passwordEncoder.encode("Password123!");
 
@@ -194,7 +203,7 @@ public class DataInitializer implements CommandLineRunner {
                     .city("Kigali")
                     .title("Directeur des Opérations & Super Admin Panafricain")
                     .bio("Gestion et supervision globale de la plateforme panafricaine AfriDev Hub.")
-                    .skills(List.of("Gouvernance Plateforme", "Sécurité", "Audit", "Panafrican Tech"))
+                    .skills(new java.util.ArrayList<>(List.of("Gouvernance Plateforme", "Sécurité", "Audit", "Panafrican Tech")))
                     .availability(Availability.NOT_AVAILABLE)
                     .completionScore(100)
                     .mobileMoneyVerified(true)
@@ -220,7 +229,7 @@ public class DataInitializer implements CommandLineRunner {
                     .city("Dakar")
                     .title("Responsable Qualité & Modération")
                     .bio("Modération des contenus, traitement des signalements et accompagnement des talents.")
-                    .skills(List.of("Modération", "Relations Communautaires", "Support Développeurs"))
+                    .skills(new java.util.ArrayList<>(List.of("Modération", "Relations Communautaires", "Support Développeurs")))
                     .availability(Availability.NOT_AVAILABLE)
                     .completionScore(95)
                     .mobileMoneyVerified(true)

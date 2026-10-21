@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -135,6 +136,13 @@ public class XpService {
             DeveloperLevel level = DeveloperLevel.fromXp(totalXp);
             profile.setLevelNumber(level.getLevel());
             profile.setLevelTitle(level.getTitle());
+
+            if (profile.getSkills() != null) {
+                profile.setSkills(new ArrayList<>(profile.getSkills()));
+            }
+            if (profile.getLanguages() != null) {
+                profile.setLanguages(new ArrayList<>(profile.getLanguages()));
+            }
 
             profileRepository.save(profile);
             redisCacheService.evictLeaderboardCache();

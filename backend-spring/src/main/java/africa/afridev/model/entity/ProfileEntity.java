@@ -102,4 +102,26 @@ public class ProfileEntity {
 
     @UpdateTimestamp
     private LocalDateTime updatedAt;
+
+    public void setSkills(List<String> skills) {
+        this.skills = skills != null ? new ArrayList<>(skills) : new ArrayList<>();
+    }
+
+    public void setLanguages(List<String> languages) {
+        this.languages = languages != null ? new ArrayList<>(languages) : new ArrayList<>();
+    }
+
+    public static class ProfileEntityBuilder {
+        public ProfileEntityBuilder skills(List<String> skills) {
+            this.skills$value = skills != null ? new ArrayList<>(skills) : new ArrayList<>();
+            this.skills$set = true;
+            return this;
+        }
+
+        public ProfileEntityBuilder languages(List<String> languages) {
+            this.languages$value = languages != null ? new ArrayList<>(languages) : new ArrayList<>();
+            this.languages$set = true;
+            return this;
+        }
+    }
 }
