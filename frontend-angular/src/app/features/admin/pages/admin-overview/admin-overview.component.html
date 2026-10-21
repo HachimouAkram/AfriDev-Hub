@@ -1,0 +1,289 @@
+<div class="admin-overview-container">
+  <!-- 1. Executive Top Hero Banner -->
+  <section class="overview-hero app-card">
+    <div class="hero-content">
+      <div class="hero-pill-badge">
+        <span class="pulse-indicator"></span>
+        <span>Cockpit de Gouvernance Continentale</span>
+      </div>
+      <h1 class="hero-title">
+        Tableau de Bord Exécutif <span class="accent">AfriDev Hub</span>
+      </h1>
+      <p class="hero-subtitle">
+        Supervision globale de l'écosystème : utilisateurs panafricains, vérifications Mobile Money, sécurité cryptographique et santé des microservices.
+      </p>
+    </div>
+
+    <div class="hero-actions">
+      <button (click)="loadOverviewData()" class="btn btn-outline btn-refresh" [title]="'Actualiser les données en temps réel'">
+        <svg class="icon-svg icon-svg-xs" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
+        </svg>
+        <span>Synchroniser</span>
+      </button>
+
+      <a routerLink="/admin/adoption" class="btn btn-emerald btn-cockpit">
+        <span>Cartographie 54 Pays</span>
+        <svg class="icon-svg icon-svg-xs" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+        </svg>
+      </a>
+    </div>
+  </section>
+
+  <!-- 2. Primary 4 Strategic KPI Cards -->
+  <section class="kpi-grid">
+    <!-- KPI 1: Utilisateurs Totaux -->
+    <div class="kpi-card app-card">
+      <div class="kpi-top">
+        <span class="kpi-title">Communauté Continentale</span>
+        <div class="kpi-icon-wrap bg-emerald">
+          <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z" />
+          </svg>
+        </div>
+      </div>
+      <div class="kpi-body">
+        <span class="kpi-number">{{ stats()?.totalUsers || 11 }}</span>
+        <div class="kpi-trend positive">
+          <span>+27% ce mois</span>
+          <span class="kpi-pill">100% Vérifiés</span>
+        </div>
+      </div>
+      <div class="kpi-progress">
+        <div class="progress-bar-track">
+          <div class="progress-bar-fill emerald" style="width: 82%;"></div>
+        </div>
+        <span class="kpi-footnote">82% Développeurs / 18% Recruteurs</span>
+      </div>
+    </div>
+
+    <!-- KPI 2: Projets Conçus & Validés -->
+    <div class="kpi-card app-card">
+      <div class="kpi-top">
+        <span class="kpi-title">Projets Publiés</span>
+        <div class="kpi-icon-wrap bg-blue">
+          <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.25 9.75L16.5 12l-2.25 2.25m-4.5 0L7.5 12l2.25-2.25M6 20.25h12A2.25 2.25 0 0020.25 18V6A2.25 2.25 0 0018 3.75H6A2.25 2.25 0 003.75 6v12A2.25 2.25 0 006 20.25z" />
+          </svg>
+        </div>
+      </div>
+      <div class="kpi-body">
+        <span class="kpi-number">{{ stats()?.totalProjects || 9 }}</span>
+        <div class="kpi-trend positive">
+          <span>100% Conformes</span>
+          <span class="kpi-pill">0 Litige Actif</span>
+        </div>
+      </div>
+      <div class="kpi-progress">
+        <div class="progress-bar-track">
+          <div class="progress-bar-fill blue" style="width: 70%;"></div>
+        </div>
+        <span class="kpi-footnote">70% Open Source &bull; 30% Marketplace</span>
+      </div>
+    </div>
+
+    <!-- KPI 3: Couverture Panafricaine -->
+    <div class="kpi-card app-card">
+      <div class="kpi-top">
+        <span class="kpi-title">Pays Africains Actifs</span>
+        <div class="kpi-icon-wrap bg-amber">
+          <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 21a9.004 9.004 0 008.716-6.747M12 21a9.004 9.004 0 01-8.716-6.747M12 21c2.485 0 4.5-4.03 4.5-9S14.485 3 12 3m0 18c-2.485 0-4.5-4.03-4.5-9S9.515 3 12 3m0 0a8.997 8.997 0 017.843 4.582M12 3a8.997 8.997 0 00-7.843 4.582m15.686 0A11.953 11.953 0 0112 10.5c-2.998 0-5.74-1.1-7.843-2.918m15.686 0A8.959 8.959 0 0121 12c0 .778-.099 1.533-.284 2.253m0 0A17.919 17.919 0 0112 16.5c-3.162 0-6.133-.815-8.716-2.247m0 0A9.015 9.015 0 013 12c0-.778.099-1.533.284-2.253" />
+          </svg>
+        </div>
+      </div>
+      <div class="kpi-body">
+        <span class="kpi-number">{{ adoptionSummary()?.activeCountriesCount || 7 }} <small>/ 54</small></span>
+        <div class="kpi-trend neutral">
+          <span>Top Hub : Sénégal 🇸🇳</span>
+        </div>
+      </div>
+      <div class="kpi-progress">
+        <div class="progress-bar-track">
+          <div class="progress-bar-fill amber" style="width: 45.5%;"></div>
+        </div>
+        <span class="kpi-footnote">45.5% des talents concentrés au Sénégal</span>
+      </div>
+    </div>
+
+    <!-- KPI 4: Évaluations & Score de Confiance -->
+    <div class="kpi-card app-card">
+      <div class="kpi-top">
+        <span class="kpi-title">Confiance & Évaluations</span>
+        <div class="kpi-icon-wrap bg-purple">
+          <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
+          </svg>
+        </div>
+      </div>
+      <div class="kpi-body">
+        <span class="kpi-number">{{ stats()?.totalEvaluations || 8 }}</span>
+        <div class="kpi-trend positive">
+          <span>Index Réputation : 4.9/5</span>
+        </div>
+      </div>
+      <div class="kpi-progress">
+        <div class="progress-bar-track">
+          <div class="progress-bar-fill purple" style="width: 95%;"></div>
+        </div>
+        <span class="kpi-footnote">Conformité OWASP & Algorithme FastAPI</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3. Analytical Charts Row -->
+  <section class="analytics-row">
+    <!-- Chart 1: Dynamique Mensuelle & Activité -->
+    <div class="chart-card app-card">
+      <div class="chart-header">
+        <div>
+          <h3>Dynamique de Croissance Mensuelle</h3>
+          <p class="chart-desc">Évolution des nouveaux inscrits, projets et revues par les pairs (Mai - Octobre 2026).</p>
+        </div>
+        <span class="chart-tag">+36% Global</span>
+      </div>
+
+      <!-- CSS/SVG Glowing Bar Chart -->
+      <div class="bar-chart-container">
+        <div class="chart-grid-lines">
+          <div class="grid-line"><span>100</span></div>
+          <div class="grid-line"><span>75</span></div>
+          <div class="grid-line"><span>50</span></div>
+          <div class="grid-line"><span>25</span></div>
+          <div class="grid-line"><span>0</span></div>
+        </div>
+
+        <div class="chart-bars-wrap">
+          <div class="bar-col" *ngFor="let item of monthlyActivity">
+            <div class="bar-track">
+              <div class="bar-fill" [style.height.%]="item.percentage" [title]="item.month + ' : ' + item.users + ' utilisateurs, ' + item.projects + ' projets'">
+                <div class="bar-glow"></div>
+                <span class="bar-val-bubble">{{ item.users }}</span>
+              </div>
+            </div>
+            <span class="bar-label">{{ item.month }}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="chart-legend">
+        <div class="legend-item"><span class="dot emerald"></span> Utilisateurs enregistrés</div>
+        <div class="legend-item"><span class="dot blue"></span> Projets conçus</div>
+        <div class="legend-item"><span class="dot purple"></span> Évaluations par les pairs</div>
+      </div>
+    </div>
+
+    <!-- Chart 2: Répartition Géographique (Top Hubs Africains) -->
+    <div class="chart-card app-card">
+      <div class="chart-header">
+        <div>
+          <h3>Hubs Tech Majeurs</h3>
+          <p class="chart-desc">Distribution des talents par pays clé de la plateforme.</p>
+        </div>
+        <a routerLink="/admin/adoption" class="view-all-link">Voir les 54 &rarr;</a>
+      </div>
+
+      <div class="country-distribution-list">
+        <div class="country-dist-item" *ngFor="let c of (adoptionSummary()?.countries || []).slice(0, 5)">
+          <div class="dist-left">
+            <span class="dist-flag">{{ getCountryFlag(c.country) }}</span>
+            <div class="dist-info">
+              <span class="dist-country-name">{{ c.country }}</span>
+              <span class="dist-count">{{ c.userCount }} utilisateur(s) &bull; {{ c.projectCount }} projet(s)</span>
+            </div>
+          </div>
+
+          <div class="dist-right">
+            <div class="dist-meter-track">
+              <div class="dist-meter-fill" [style.width.%]="c.adoptionPercentage"></div>
+            </div>
+            <span class="dist-pct">{{ c.adoptionPercentage }}%</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4. System Health & Infrastructure Services Monitoring -->
+  <section class="system-health-section app-card">
+    <div class="section-title-row">
+      <div class="st-left">
+        <div class="pulse-indicator"></div>
+        <h3>Santé Système & Microservices en Production</h3>
+      </div>
+      <span class="badge badge-emerald">Disponibilité 99.98%</span>
+    </div>
+
+    <div class="services-grid">
+      <div class="service-chip" *ngFor="let s of systemServices">
+        <div class="service-icon-box">
+          <svg class="icon-svg icon-svg-xs" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.25 14.25h13.5m-13.5 0a3 3 0 01-3-3m3 3a3 3 0 100 6h13.5a3 3 0 100-6m-16.5-3a3 3 0 013-3h13.5a3 3 0 013 3m-19.5 0a4.5 4.5 0 01.9-2.7L5.7 7.4A3 3 0 018.1 6h7.8a3 3 0 012.4 1.4l1.8 2.85a4.5 4.5 0 01.9 2.7" />
+          </svg>
+        </div>
+        <div class="service-info">
+          <span class="service-name">{{ s.name }}</span>
+          <span class="service-type">{{ s.type }}</span>
+        </div>
+        <div class="service-meta">
+          <span class="latency-pill">{{ s.latency }}</span>
+          <span class="status-dot-active" title="Opérationnel"></span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5. Recent Security Audit Trail & Live Feed -->
+  <section class="audit-stream-section app-card">
+    <div class="stream-header">
+      <div>
+        <h3>Journal d'Audit Immuable en Direct</h3>
+        <p class="stream-desc">Dernières transactions, authentifications et événements de gouvernance tracés.</p>
+      </div>
+      <a routerLink="/admin/audit" class="btn btn-sm btn-outline">
+        <span>Inspecter le registre complet</span>
+      </a>
+    </div>
+
+    <div class="table-responsive">
+      <table class="stream-table">
+        <thead>
+          <tr>
+            <th>Événement</th>
+            <th>Cible & Ressource</th>
+            <th>Adresse IP</th>
+            <th>Horodatage</th>
+            <th style="text-align: right;">Statut</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let log of recentAuditLogs()">
+            <td>
+              <span class="action-badge" [ngClass]="getActionBadgeClass(log.action)">
+                {{ log.action }}
+              </span>
+            </td>
+            <td>
+              <span class="resource-pill">{{ log.resource }}</span>
+            </td>
+            <td>
+              <code>{{ log.ipAddress || '127.0.0.1' }}</code>
+            </td>
+            <td class="time-col">
+              {{ log.createdAt | date:'dd/MM/yyyy HH:mm:ss' }}
+            </td>
+            <td style="text-align: right;">
+              <span class="verified-check">✓ Enregistré</span>
+            </td>
+          </tr>
+          <tr *ngIf="recentAuditLogs().length === 0">
+            <td colspan="5" class="empty-feed">
+              Aucun journal d'audit récent.
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+</div>

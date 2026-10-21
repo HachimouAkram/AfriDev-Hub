@@ -150,9 +150,14 @@ export class DashboardLayoutComponent implements OnInit {
     return this.themeService.isDark();
   }
 
+  isAdminOverviewActive(): boolean {
+    const url = this.router.url.split('?')[0];
+    return url === '/admin' || url === '/admin/' || url.startsWith('/admin/overview');
+  }
+
   isAdoptionActive(): boolean {
     const url = this.router.url.split('?')[0];
-    return url === '/admin' || url === '/admin/' || url.startsWith('/admin/adoption');
+    return url.startsWith('/admin/adoption');
   }
 
   isSuperAdmin(): boolean {
@@ -166,7 +171,8 @@ export class DashboardLayoutComponent implements OnInit {
 
   getPageTitle(): string {
     const url = this.router.url;
-    if (url.includes('/admin/adoption') || url === '/admin' || url === '/admin/') return 'Adoption Panafricaine & Statistiques (54 Pays)';
+    if (url === '/admin' || url === '/admin/' || url.includes('/admin/overview')) return 'Cockpit & Tableau de bord Exécutif';
+    if (url.includes('/admin/adoption')) return 'Adoption Panafricaine & Statistiques (54 Pays)';
     if (url.includes('/admin/users')) return 'Annuaire des Talents & Gestion des Comptes';
     if (url.includes('/admin/moderation')) return 'Modération des Projets & Droits d\'Auteur';
     if (url.includes('/admin/audit')) return 'Registre d\'Audit & Sécurité Immuable';

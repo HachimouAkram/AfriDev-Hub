@@ -122,7 +122,11 @@ export const routes: Routes = [
     children: [
       {
         path: '',
-        loadComponent: () => import('./features/admin/pages/admin-adoption/admin-adoption.component').then(m => m.AdminAdoptionComponent)
+        loadComponent: () => import('./features/admin/pages/admin-overview/admin-overview.component').then(m => m.AdminOverviewComponent)
+      },
+      {
+        path: 'overview',
+        loadComponent: () => import('./features/admin/pages/admin-overview/admin-overview.component').then(m => m.AdminOverviewComponent)
       },
       {
         path: 'adoption',
