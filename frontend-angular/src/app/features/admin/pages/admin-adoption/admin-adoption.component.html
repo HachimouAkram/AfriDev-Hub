@@ -111,7 +111,7 @@
             <tr *ngFor="let country of filteredCountries">
               <td>
                 <span class="rank-pill" [class.rank-gold]="country.rank === 1" [class.rank-silver]="country.rank === 2" [class.rank-bronze]="country.rank === 3">
-                  {{ country.rank <= 3 ? (country.rank === 1 ? '🥇 #1' : (country.rank === 2 ? '🥈 #2' : '🥉 #3')) : '#' + country.rank }}
+                  {{ country.rank <= 3 ? (country.rank === 1 ? '🥇 1' : (country.rank === 2 ? '🥈 2' : '🥉 3')) : country.rank }}
                 </span>
               </td>
               <td>
