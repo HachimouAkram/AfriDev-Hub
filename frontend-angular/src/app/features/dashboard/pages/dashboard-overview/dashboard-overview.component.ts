@@ -1,6 +1,6 @@
 import { Component, inject, OnInit, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterLink } from '@angular/router';
+import { RouterLink, Router } from '@angular/router';
 import { AuthService } from '../../../../core/services/auth.service';
 import { EvaluationService, ReputationScore } from '../../../../core/services/evaluation.service';
 import { ProfileService } from '../../../../core/services/profile.service';
@@ -47,6 +47,7 @@ export class DashboardOverviewComponent implements OnInit {
   private networkService = inject(NetworkService);
   private followService = inject(FollowService);
   private collaborationService = inject(ProjectCollaborationService);
+  private router = inject(Router);
 
   user = this.authService.currentUser;
   reputationScore = signal<ReputationScore | null>(null);
@@ -100,13 +101,17 @@ export class DashboardOverviewComponent implements OnInit {
     const u = this.user();
     if (!u) return;
 
+    // Le Super Admin et l'Admin gèrent exclusivement la gouvernance de la plateforme
+    if (u.role === 'SUPER_ADMIN' || u.role === 'ADMIN') {
+      this.router.navigate(['/admin/adoption']);
+      return;
+    }
+
     this.loadGlobalKPIs();
     this.loadCollaborations();
 
     if (u.role === 'DEVELOPER') {
       this.loadDeveloperData(u.id);
-    } else if (u.role === 'ADMIN' || u.role === 'MODERATOR' || u.role === 'SUPER_ADMIN') {
-      this.loadAdminData();
     }
   }
 
