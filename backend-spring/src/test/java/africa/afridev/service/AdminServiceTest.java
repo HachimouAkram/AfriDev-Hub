@@ -202,6 +202,7 @@ class AdminServiceTest {
         verify(auditLogRepository, times(1)).save(any(AuditLogEntity.class));
         verify(redisCacheService, times(1)).evictNetworkCache();
         verify(redisCacheService, times(1)).evictByPrefix("admin:analytics:countries");
+        verify(redisCacheService, times(1)).evictAdminUsersCache();
     }
 
     @Test
@@ -251,5 +252,37 @@ class AdminServiceTest {
         );
         verify(auditLogRepository, times(1)).save(any(AuditLogEntity.class));
         verify(redisCacheService, times(1)).evictProjectsCache();
+    }
+
+    @Test
+    @DisplayName("getAdminUsers: retourne le résultat depuis le cache Redis lorsqu'il existe")
+    void getAdminUsers_ReturnsCachedData() {
+        Pageable pageable = PageRequest.of(0, 10);
+        com.fasterxml.jackson.databind.ObjectMapper mapper = new com.fasterxml.jackson.databind.ObjectMapper();
+        when(redisCacheService.getObjectMapper()).thenReturn(mapper);
+
+        UserAdminDto dto = UserAdminDto.builder()
+                .id("cached-id")
+                .email("cached@dev.africa")
+                .role(Role.DEVELOPER)
+                .status(UserStatus.ACTIVE)
+                .build();
+        africa.afridev.dto.PagedResult<UserAdminDto> pagedResult = africa.afridev.dto.PagedResult.<UserAdminDto>builder()
+                .content(List.of(dto))
+                .pageNumber(0)
+                .pageSize(10)
+                .totalElements(1)
+                .totalPages(1)
+                .build();
+
+        when(redisCacheService.get(anyString(), any(com.fasterxml.jackson.databind.JavaType.class)))
+                .thenReturn(pagedResult);
+
+        Page<UserAdminDto> result = adminService.getAdminUsers(null, null, null, null, pageable);
+
+        assertNotNull(result);
+        assertEquals(1, result.getTotalElements());
+        assertEquals("cached@dev.africa", result.getContent().get(0).getEmail());
+        verify(userRepository, never()).findAll(any(Specification.class), any(Pageable.class));
     }
 }

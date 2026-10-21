@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, tap } from 'rxjs';
 import { ApiResponse, User } from './auth.service';
 
 export interface AdminStats {
@@ -99,6 +99,10 @@ export class AdminService {
   private http = inject(HttpClient);
   private apiUrl = '/api/v1/admin';
 
+  // Cache mémoire Stale-While-Revalidate pour chargement instantané
+  private usersCache = new Map<string, { data: ApiResponse<PaginatedResponse<UserAdmin>>; timestamp: number }>();
+  private readonly CACHE_TTL_MS = 120_000; // 2 minutes
+
   getStats(): Observable<ApiResponse<AdminStats>> {
     return this.http.get<ApiResponse<AdminStats>>(`${this.apiUrl}/stats`);
   }
@@ -119,12 +123,46 @@ export class AdminService {
     } else {
       params = params.set('page', '0').set('size', '20');
     }
-    return this.http.get<ApiResponse<PaginatedResponse<UserAdmin>>>(`${this.apiUrl}/users`, { params });
+
+    const cacheKey = params.toString();
+    const cached = this.usersCache.get(cacheKey);
+
+    return new Observable<ApiResponse<PaginatedResponse<UserAdmin>>>(observer => {
+      // 1. Émission instantanée depuis le cache local (0 ms de latence)
+      if (cached && (Date.now() - cached.timestamp < this.CACHE_TTL_MS)) {
+        observer.next(cached.data);
+      }
+
+      // 2. Requête réseau en arrière-plan vers Redis / Backend
+      const sub = this.http.get<ApiResponse<PaginatedResponse<UserAdmin>>>(`${this.apiUrl}/users`, { params }).subscribe({
+        next: (res) => {
+          this.usersCache.set(cacheKey, { data: res, timestamp: Date.now() });
+          observer.next(res);
+          observer.complete();
+        },
+        error: (err) => {
+          if (!cached) {
+            observer.error(err);
+          } else {
+            observer.complete();
+          }
+        }
+      });
+
+      return () => sub.unsubscribe();
+    });
+  }
+
+  clearUsersCache(): void {
+    this.usersCache.clear();
   }
 
   updateUserStatus(userId: string, status: string, reason?: string): Observable<ApiResponse<User>> {
-    return this.http.patch<ApiResponse<User>>(`${this.apiUrl}/users/${userId}/status`, { status, reason });
+    return this.http.patch<ApiResponse<User>>(`${this.apiUrl}/users/${userId}/status`, { status, reason }).pipe(
+      tap(() => this.clearUsersCache())
+    );
   }
+
 
   moderateProject(projectId: string, request: ProjectModerateRequest): Observable<ApiResponse<any>> {
     return this.http.patch<ApiResponse<any>>(`${this.apiUrl}/projects/${projectId}/moderate`, request);

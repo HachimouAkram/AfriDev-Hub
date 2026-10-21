@@ -1,6 +1,8 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { Subject, Subscription } from 'rxjs';
+import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { AdminService, UserAdmin } from '../../../../core/services/admin.service';
 import { AuthService } from '../../../../core/services/auth.service';
 
@@ -11,7 +13,7 @@ import { AuthService } from '../../../../core/services/auth.service';
   templateUrl: './admin-users.component.html',
   styleUrl: './admin-users.component.css'
 })
-export class AdminUsersComponent implements OnInit {
+export class AdminUsersComponent implements OnInit, OnDestroy {
   private adminService = inject(AdminService);
   authService = inject(AuthService);
 
@@ -24,6 +26,10 @@ export class AdminUsersComponent implements OnInit {
   userTotalPages = 1;
   userTotalElements = 0;
   isLoadingUsers = false;
+  isBackgroundSyncing = false;
+
+  private searchSubject = new Subject<string>();
+  private searchSub?: Subscription;
 
   // Modal State for sanctions
   showUserStatusModal = false;
@@ -75,11 +81,33 @@ export class AdminUsersComponent implements OnInit {
   };
 
   ngOnInit(): void {
+    this.searchSub = this.searchSubject.pipe(
+      debounceTime(300),
+      distinctUntilChanged()
+    ).subscribe(() => {
+      this.userPage = 0;
+      this.loadUsers();
+    });
+
     this.loadUsers();
   }
 
+  ngOnDestroy(): void {
+    this.searchSub?.unsubscribe();
+  }
+
+  onSearchInput(): void {
+    this.searchSubject.next(this.userSearchTerm);
+  }
+
   loadUsers(): void {
-    this.isLoadingUsers = true;
+    // Si nous avons déjà des utilisateurs en mémoire, nous rafraîchissons en arrière-plan sans bloquer l'UI
+    if (this.users.length === 0) {
+      this.isLoadingUsers = true;
+    } else {
+      this.isBackgroundSyncing = true;
+    }
+
     this.adminService.getAdminUsers({
       search: this.userSearchTerm || undefined,
       country: this.userCountryFilter || undefined,
@@ -90,6 +118,7 @@ export class AdminUsersComponent implements OnInit {
     }).subscribe({
       next: (res) => {
         this.isLoadingUsers = false;
+        this.isBackgroundSyncing = false;
         if (res.success && res.data) {
           this.users = res.data.content;
           this.userTotalPages = res.data.totalPages;
@@ -98,6 +127,7 @@ export class AdminUsersComponent implements OnInit {
       },
       error: (err) => {
         this.isLoadingUsers = false;
+        this.isBackgroundSyncing = false;
         console.error('Failed to load admin users', err);
       }
     });
@@ -107,6 +137,7 @@ export class AdminUsersComponent implements OnInit {
     this.userPage = 0;
     this.loadUsers();
   }
+
 
   goToUserPage(page: number): void {
     if (page >= 0 && page < this.userTotalPages) {

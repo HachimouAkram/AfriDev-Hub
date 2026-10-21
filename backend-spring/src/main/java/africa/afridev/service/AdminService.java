@@ -25,6 +25,9 @@ import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import africa.afridev.dto.PagedResult;
+import com.fasterxml.jackson.databind.JavaType;
+
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -43,6 +46,8 @@ public class AdminService {
     private final EmailService emailService;
 
     private static final String ADOPTION_CACHE_KEY = "admin:analytics:countries";
+    private static final String ADMIN_USERS_CACHE_PREFIX = "cache:admin:users:";
+
 
     @Transactional(readOnly = true)
     public AdminStatsDto getPlatformStats() {
@@ -147,6 +152,25 @@ public class AdminService {
 
     @Transactional(readOnly = true)
     public Page<UserAdminDto> getAdminUsers(String search, String country, Role role, UserStatus status, Pageable pageable) {
+        String cacheKey = ADMIN_USERS_CACHE_PREFIX
+                + "q:" + (search != null && !search.isBlank() ? search.trim().toLowerCase() : "all")
+                + ":c:" + (country != null && !country.isBlank() ? country.trim().toLowerCase() : "all")
+                + ":r:" + (role != null ? role.name() : "all")
+                + ":s:" + (status != null ? status.name() : "all")
+                + ":p:" + pageable.getPageNumber()
+                + ":sz:" + pageable.getPageSize();
+
+        try {
+            JavaType type = redisCacheService.getObjectMapper().getTypeFactory()
+                    .constructParametricType(PagedResult.class, UserAdminDto.class);
+            PagedResult<UserAdminDto> cached = redisCacheService.get(cacheKey, type);
+            if (cached != null) {
+                return cached.toPage();
+            }
+        } catch (Exception e) {
+            log.warn("[REDIS] Erreur de lecture du cache admin users : {}", e.getMessage());
+        }
+
         Specification<UserEntity> spec = (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
             Join<UserEntity, ProfileEntity> profileJoin = root.join("profile", JoinType.LEFT);
@@ -176,7 +200,15 @@ public class AdminService {
         };
 
         Page<UserEntity> users = userRepository.findAll(spec, pageable);
-        return users.map(this::mapToUserAdminDto);
+        Page<UserAdminDto> dtoPage = users.map(this::mapToUserAdminDto);
+
+        try {
+            redisCacheService.set(cacheKey, PagedResult.from(dtoPage), Duration.ofMinutes(10));
+        } catch (Exception e) {
+            log.warn("[REDIS] Erreur d'enregistrement du cache admin users : {}", e.getMessage());
+        }
+
+        return dtoPage;
     }
 
     @Transactional
@@ -214,6 +246,7 @@ public class AdminService {
         }
 
         // Invalidation des caches liés aux utilisateurs
+        redisCacheService.evictAdminUsersCache();
         redisCacheService.evictNetworkCache();
         redisCacheService.evictByPrefix(ADOPTION_CACHE_KEY);
 

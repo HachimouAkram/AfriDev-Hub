@@ -168,4 +168,8 @@ public class RedisCacheService {
     public void evictLeaderboardCache() {
         evictByPrefix("cache:leaderboard:");
     }
+
+    public void evictAdminUsersCache() {
+        evictByPrefix("cache:admin:users:");
+    }
 }

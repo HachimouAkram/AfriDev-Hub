@@ -10,6 +10,9 @@
       <div class="title-row">
         <h2>Utilisateurs</h2>
         <span class="badge badge-purple">{{ userTotalElements }} Comptes</span>
+        <span *ngIf="isBackgroundSyncing" class="badge-sync-pulse" title="Actualisation en arrière-plan">
+          <span class="sync-dot"></span> Sync...
+        </span>
       </div>
       <p>
         Supervision des talents et gestion des comptes de la plateforme panafricaine.
@@ -26,7 +29,7 @@
       <input 
         type="text" 
         [(ngModel)]="userSearchTerm" 
-        (ngModelChange)="onUserFilterChange()" 
+        (ngModelChange)="onSearchInput()" 
         placeholder="Rechercher par nom, email..." 
         class="form-input" />
     </div>
@@ -65,12 +68,13 @@
 
   <!-- Users Table Card -->
   <div class="app-card table-card">
-    <div *ngIf="isLoadingUsers" class="loading-state">
+    <div *ngIf="isLoadingUsers && users.length === 0" class="loading-state">
       <div class="spinner"></div>
       <p>Chargement des utilisateurs...</p>
     </div>
 
-    <div *ngIf="!isLoadingUsers" class="table-responsive">
+    <div *ngIf="!isLoadingUsers || users.length > 0" class="table-responsive">
+
       <table class="data-table">
         <thead>
           <tr>
