@@ -187,9 +187,17 @@ public class DataInitializer implements CommandLineRunner {
         });
 
         // 6. Super Admin Cockpit (SUPER_ADMIN - Rwanda / Panafricain)
-        userRepository.findByEmail("superadmin@afridev.africa").orElseGet(() -> {
+        String superAdminEmail = "hachimouisidk@groupeisi.com";
+        userRepository.findByEmail(superAdminEmail).orElseGet(() -> {
+            var existingOld = userRepository.findByEmail("superadmin@afridev.africa");
+            if (existingOld.isPresent()) {
+                UserEntity oldUser = existingOld.get();
+                oldUser.setEmail(superAdminEmail);
+                log.info("Migration email Super Admin réussie: superadmin@afridev.africa -> {}", superAdminEmail);
+                return userRepository.save(oldUser);
+            }
             UserEntity superAdminUser = UserEntity.builder()
-                    .email("superadmin@afridev.africa")
+                    .email(superAdminEmail)
                     .passwordHash(encodedPassword)
                     .role(Role.SUPER_ADMIN)
                     .status(UserStatus.ACTIVE)

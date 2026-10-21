@@ -433,7 +433,7 @@ export class AdminDashboardComponent implements OnInit {
             id: 'log-1',
             user: {
               id: 'u0',
-              email: 'superadmin@afridev.africa',
+              email: 'hachimouisidk@groupeisi.com',
               emailVerified: true,
               role: 'SUPER_ADMIN',
               status: 'ACTIVE',

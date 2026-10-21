@@ -81,7 +81,7 @@ class AdminServiceTest {
     void setUp() {
         adminUser = UserEntity.builder()
                 .id("admin-id")
-                .email("superadmin@afridev.africa")
+                .email("hachimouisidk@groupeisi.com")
                 .role(Role.SUPER_ADMIN)
                 .status(UserStatus.ACTIVE)
                 .build();
@@ -189,12 +189,12 @@ class AdminServiceTest {
                 .status(UserStatus.SUSPENDED)
                 .build();
 
-        when(userRepository.findByEmail("superadmin@afridev.africa")).thenReturn(Optional.of(adminUser));
+        when(userRepository.findByEmail("hachimouisidk@groupeisi.com")).thenReturn(Optional.of(adminUser));
         when(userRepository.findById("user-id")).thenReturn(Optional.of(regularUser));
         when(userRepository.save(any(UserEntity.class))).thenAnswer(invocation -> invocation.getArgument(0));
         when(authService.mapToUserDto(any(UserEntity.class))).thenReturn(expectedUserDto);
 
-        UserDto result = adminService.updateUserStatus("superadmin@afridev.africa", "user-id", request);
+        UserDto result = adminService.updateUserStatus("hachimouisidk@groupeisi.com", "user-id", request);
 
         assertNotNull(result);
         assertEquals(UserStatus.SUSPENDED, result.getStatus());
@@ -210,10 +210,10 @@ class AdminServiceTest {
         UserStatusUpdateRequest request = new UserStatusUpdateRequest();
         request.setStatus(UserStatus.SUSPENDED);
 
-        when(userRepository.findByEmail("superadmin@afridev.africa")).thenReturn(Optional.of(adminUser));
+        when(userRepository.findByEmail("hachimouisidk@groupeisi.com")).thenReturn(Optional.of(adminUser));
 
         assertThrows(IllegalArgumentException.class, () ->
-                adminService.updateUserStatus("superadmin@afridev.africa", "admin-id", request)
+                adminService.updateUserStatus("hachimouisidk@groupeisi.com", "admin-id", request)
         );
 
         verify(userRepository, never()).save(any());
@@ -233,12 +233,12 @@ class AdminServiceTest {
                 .status(ContentStatus.HIDDEN)
                 .build();
 
-        when(userRepository.findByEmail("superadmin@afridev.africa")).thenReturn(Optional.of(adminUser));
+        when(userRepository.findByEmail("hachimouisidk@groupeisi.com")).thenReturn(Optional.of(adminUser));
         when(projectRepository.findById("project-id")).thenReturn(Optional.of(mockProject));
         when(projectRepository.save(any(ProjectEntity.class))).thenAnswer(invocation -> invocation.getArgument(0));
         when(projectService.mapToProjectDto(any(ProjectEntity.class), any())).thenReturn(projectDto);
 
-        ProjectDto result = adminService.moderateProject("superadmin@afridev.africa", "project-id", request);
+        ProjectDto result = adminService.moderateProject("hachimouisidk@groupeisi.com", "project-id", request);
 
         assertNotNull(result);
         assertEquals(ContentStatus.HIDDEN, mockProject.getStatus());
