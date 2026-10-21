@@ -262,12 +262,37 @@
 
 .rank-pill {
   display: inline-flex;
-  padding: 0.25rem 0.6rem;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  height: 28px;
+  min-width: 28px;
+  padding: 0 0.65rem;
   border-radius: 999px;
-  font-size: 0.78rem;
+  font-size: 0.8rem;
   font-weight: 800;
+  line-height: 1;
+  white-space: nowrap;
   background: rgba(255, 255, 255, 0.06);
   color: var(--text-muted);
+}
+
+.rank-pill:not(.rank-gold):not(.rank-silver):not(.rank-bronze) {
+  width: 28px;
+  padding: 0;
+  border-radius: 50%;
+}
+
+.medal-icon {
+  font-size: 0.95rem;
+  line-height: 1;
+  display: inline-flex;
+}
+
+.rank-num {
+  font-size: 0.8rem;
+  font-weight: 800;
+  line-height: 1;
 }
 
 .rank-gold {
