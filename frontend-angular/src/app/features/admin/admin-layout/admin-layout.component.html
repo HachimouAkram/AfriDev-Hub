@@ -1,0 +1,203 @@
+<div class="admin-app-container" *ngIf="user() as u">
+  <!-- Left Sidebar for Super Admin Cockpit -->
+  <aside class="admin-sidebar" [class.mobile-open]="isMobileSidebarOpen()" [class.collapsed]="isSidebarCollapsed()" (click)="$event.stopPropagation()">
+    <!-- Top Header Logo & Badges -->
+    <div class="sidebar-header">
+      <a routerLink="/admin" (click)="closeMobileSidebar()" class="sidebar-logo">
+        <img src="/logo-africa.png" alt="AfriDev Hub Logo" class="logo-img" />
+        <div class="logo-text-wrapper" *ngIf="!isSidebarCollapsed()">
+          <span class="logo-text">AfriDev <span class="accent">Hub</span></span>
+          <span class="logo-subtitle">Cockpit Panafricain</span>
+        </div>
+      </a>
+      <button class="mobile-sidebar-close-btn" (click)="closeMobileSidebar()" aria-label="Fermer le menu">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+    </div>
+
+    <!-- Cockpit Role Badge Banner -->
+    <div class="cockpit-role-pill" *ngIf="!isSidebarCollapsed()">
+      <span class="pulse-indicator"></span>
+      <span class="role-name">{{ isSuperAdmin() ? 'SUPER ADMINISTRATEUR' : 'ADMINISTRATEUR' }}</span>
+    </div>
+
+    <!-- Navigation Menu Items -->
+    <nav class="sidebar-nav">
+      <div class="sidebar-section-header" *ngIf="!isSidebarCollapsed()">PILOTAGE & GOUVERNANCE</div>
+
+      <!-- 1. Adoption 54 pays -->
+      <a routerLink="/admin/adoption" (click)="closeMobileSidebar()" routerLinkActive="active" class="nav-item" [title]="isSidebarCollapsed() ? 'Adoption (54 Pays)' : ''">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 21a9.004 9.004 0 008.716-6.747M12 21a9.004 9.004 0 01-8.716-6.747M12 21c2.485 0 4.5-4.03 4.5-9S14.485 3 12 3m0 18c-2.485 0-4.5-4.03-4.5-9S9.515 3 12 3m0 0a8.997 8.997 0 017.843 4.582M12 3a8.997 8.997 0 00-7.843 4.582m15.686 0A11.953 11.953 0 0112 10.5c-2.998 0-5.74-1.1-7.843-2.918m15.686 0A8.959 8.959 0 0121 12c0 .778-.099 1.533-.284 2.253m0 0A17.919 17.919 0 0112 16.5c-3.162 0-6.133-.815-8.716-2.247m0 0A9.015 9.015 0 013 12c0-.778.099-1.533.284-2.253" />
+        </svg>
+        <span class="nav-label">Adoption Panafricaine</span>
+        <span class="nav-badge badge-emerald">54</span>
+      </a>
+
+      <!-- 2. Gestion Comptes & Utilisateurs -->
+      <a routerLink="/admin/users" (click)="closeMobileSidebar()" routerLinkActive="active" class="nav-item" [title]="isSidebarCollapsed() ? 'Annuaire & Comptes' : ''">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z" />
+        </svg>
+        <span class="nav-label">Gestion des Utilisateurs</span>
+      </a>
+
+      <!-- 3. Modération & Droits d'Auteur -->
+      <a routerLink="/admin/moderation" (click)="closeMobileSidebar()" routerLinkActive="active" class="nav-item" [title]="isSidebarCollapsed() ? 'Modération Projets' : ''">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
+        </svg>
+        <span class="nav-label">Modération & Litiges</span>
+      </a>
+
+      <!-- 4. Registre d'Audit -->
+      <a routerLink="/admin/audit" (click)="closeMobileSidebar()" routerLinkActive="active" class="nav-item" [title]="isSidebarCollapsed() ? 'Registre d\'Audit' : ''">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
+        </svg>
+        <span class="nav-label">Registre d'Audit</span>
+      </a>
+    </nav>
+
+    <!-- Sidebar Bottom Footer Links -->
+    <div class="sidebar-footer">
+      <div class="sidebar-section-header" *ngIf="!isSidebarCollapsed()">ESPACE UTILISATEUR</div>
+
+      <!-- Basculer vers Espace Utilisateur -->
+      <a routerLink="/dashboard" (click)="closeMobileSidebar()" class="nav-item user-space-link" [title]="isSidebarCollapsed() ? 'Tableau de bord Général' : ''">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" />
+        </svg>
+        <span class="nav-label">Vue Développeur</span>
+      </a>
+
+      <!-- Voir le site public -->
+      <a routerLink="/" (click)="closeMobileSidebar()" class="nav-item link-site-btn" [title]="isSidebarCollapsed() ? 'Voir le site' : ''">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 21a9 9 0 100-18 9 9 0 000 18zM3.6 9h16.8M3.6 15h16.8M12 3a14.25 14.25 0 000 18 14.25 14.25 0 000-18z" />
+        </svg>
+        <span class="nav-label">Voir le site</span>
+      </a>
+    </div>
+  </aside>
+
+  <!-- Mobile Overlay Backdrop -->
+  <div class="sidebar-backdrop" *ngIf="isMobileSidebarOpen()" (click)="closeMobileSidebar()"></div>
+
+  <!-- Right Admin Main Area -->
+  <div class="admin-main-area" [class.sidebar-is-collapsed]="isSidebarCollapsed()">
+    <!-- Topbar Header -->
+    <header class="admin-topbar">
+      <div class="topbar-left">
+        <!-- Collapse Toggle -->
+        <button (click)="toggleSidebarCollapse()" class="topbar-collapse-btn desktop-only" [title]="isSidebarCollapsed() ? 'Déployer la barre' : 'Réduire la barre'">
+          <svg class="icon-svg icon-svg-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+          </svg>
+        </button>
+
+        <!-- Mobile Hamburger Button -->
+        <button (click)="toggleMobileSidebar($event)" class="mobile-hamburger-btn" aria-label="Menu Mobile">
+          <svg class="hamburger-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+          </svg>
+        </button>
+
+        <!-- Page Dynamic Title -->
+        <div class="page-title-box">
+          <h2 class="page-title">{{ getPageTitle() }}</h2>
+          <span class="page-subtitle">Cockpit Panafricain AfriDev Hub</span>
+        </div>
+      </div>
+
+      <div class="topbar-right">
+        <!-- Security Audit Live Indicator -->
+        <div class="security-chip desktop-only">
+          <span class="pulse-indicator"></span>
+          <span>Audit Actif</span>
+        </div>
+
+        <!-- Theme Toggle Button -->
+        <button (click)="toggleTheme()" class="topbar-icon-btn theme-btn" [title]="isDark() ? 'Passer au Mode Clair' : 'Passer au Mode Sombre'">
+          <svg *ngIf="isDark()" class="icon-svg icon-svg-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v2.25m0 13.5V21m8.966-8.966h-2.25M4.284 12h-2.25m15.364 6.364l-1.591-1.591M6.759 6.759L5.168 5.168m12.728 0l-1.591 1.591M6.759 17.241l-1.591 1.591M12 8.25a3.75 3.75 0 100 7.5 3.75 3.75 0 000-7.5z" />
+          </svg>
+          <svg *ngIf="!isDark()" class="icon-svg icon-svg-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21.752 15.002A9.718 9.718 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 009.002-5.998z" />
+          </svg>
+        </button>
+
+        <!-- User Admin Profile Pill -->
+        <div class="profile-dropdown-wrapper">
+          <button (click)="toggleProfileMenu($event)" class="profile-user-pill">
+            <div class="user-avatar-circle">
+              {{ u.profile?.fullName ? u.profile.fullName.charAt(0).toUpperCase() : 'A' }}
+            </div>
+            <div class="user-pill-text desktop-only">
+              <span class="user-pill-name">{{ u.profile?.fullName || u.email }}</span>
+              <span class="user-pill-subtitle">{{ isSuperAdmin() ? 'Super Admin' : 'Admin' }}</span>
+            </div>
+            <svg class="chevron-icon" [class.rotated]="isProfileMenuOpen" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+            </svg>
+          </button>
+
+          <!-- Floating Profile Dropdown -->
+          <div class="profile-dropdown-menu app-card" *ngIf="isProfileMenuOpen" (click)="$event.stopPropagation()">
+            <div class="dropdown-header-box">
+              <div class="dropdown-avatar-circle">
+                {{ u.profile?.fullName ? u.profile.fullName.charAt(0).toUpperCase() : 'A' }}
+              </div>
+              <div class="dropdown-user-details">
+                <span class="d-name">{{ u.profile?.fullName || 'Super Administrateur' }}</span>
+                <span class="d-email">{{ u.email }}</span>
+                <span class="d-badge">👑 {{ isSuperAdmin() ? 'SUPER_ADMIN' : 'ADMIN' }}</span>
+              </div>
+            </div>
+
+            <div class="dropdown-divider"></div>
+
+            <div class="dropdown-links">
+              <a routerLink="/admin/adoption" (click)="closeProfileMenu()" class="dropdown-link-item">
+                <svg class="icon-svg icon-svg-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 21a9.004 9.004 0 008.716-6.747M12 21a9.004 9.004 0 01-8.716-6.747M12 21c2.485 0 4.5-4.03 4.5-9S14.485 3 12 3" />
+                </svg>
+                <span>Adoption 54 Pays</span>
+              </a>
+
+              <a routerLink="/admin/users" (click)="closeProfileMenu()" class="dropdown-link-item">
+                <svg class="icon-svg icon-svg-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493" />
+                </svg>
+                <span>Gestion Utilisateurs</span>
+              </a>
+
+              <a routerLink="/dashboard" (click)="closeProfileMenu()" class="dropdown-link-item">
+                <svg class="icon-svg icon-svg-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75" />
+                </svg>
+                <span>Vue Développeur</span>
+              </a>
+            </div>
+
+            <div class="dropdown-divider"></div>
+
+            <button (click)="logout()" class="dropdown-link-item logout-red">
+              <svg class="icon-svg icon-svg-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l3 3m0 0l-3 3m3-3H2.25" />
+              </svg>
+              <span>Se déconnecter</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Sub-page routed content -->
+    <main class="admin-body">
+      <router-outlet></router-outlet>
+    </main>
+  </div>
+</div>

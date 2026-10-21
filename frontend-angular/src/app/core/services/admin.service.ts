@@ -43,6 +43,10 @@ export interface UserAdmin {
   country?: string;
   city?: string;
   avatarUrl?: string;
+  mobileMoneyVerified?: boolean;
+  xpPoints?: number;
+  levelTitle?: string;
+  completionScore?: number;
   projectsCount: number;
   opportunitiesCount: number;
   reportsCount: number;
@@ -142,8 +146,9 @@ export class AdminService {
     return this.http.post<ApiResponse<Report>>('/api/v1/reports', { resource, resourceId, reason });
   }
 
-  getAuditLogs(page = 0, size = 20): Observable<ApiResponse<PaginatedResponse<AuditLog>>> {
-    const params = new HttpParams().set('page', page.toString()).set('size', size.toString());
+  getAuditLogs(page = 0, size = 20, search?: string): Observable<ApiResponse<PaginatedResponse<AuditLog>>> {
+    let params = new HttpParams().set('page', page.toString()).set('size', size.toString());
+    if (search) params = params.set('search', search);
     return this.http.get<ApiResponse<PaginatedResponse<AuditLog>>>(`${this.apiUrl}/audit-logs`, { params });
   }
 }

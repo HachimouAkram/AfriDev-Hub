@@ -116,8 +116,31 @@ export const routes: Routes = [
   },
   {
     path: 'admin',
-    loadComponent: () => import('./features/admin/admin-dashboard/admin-dashboard.component').then(m => m.AdminDashboardComponent),
-    canActivate: [authGuard]
+    loadComponent: () => import('./features/admin/admin-layout/admin-layout.component').then(m => m.AdminLayoutComponent),
+    canActivate: [authGuard],
+    children: [
+      {
+        path: '',
+        redirectTo: 'adoption',
+        pathMatch: 'full'
+      },
+      {
+        path: 'adoption',
+        loadComponent: () => import('./features/admin/pages/admin-adoption/admin-adoption.component').then(m => m.AdminAdoptionComponent)
+      },
+      {
+        path: 'users',
+        loadComponent: () => import('./features/admin/pages/admin-users/admin-users.component').then(m => m.AdminUsersComponent)
+      },
+      {
+        path: 'moderation',
+        loadComponent: () => import('./features/admin/pages/admin-moderation/admin-moderation.component').then(m => m.AdminModerationComponent)
+      },
+      {
+        path: 'audit',
+        loadComponent: () => import('./features/admin/pages/admin-audit/admin-audit.component').then(m => m.AdminAuditComponent)
+      }
+    ]
   },
   {
     path: '**',

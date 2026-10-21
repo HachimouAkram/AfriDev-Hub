@@ -1,0 +1,113 @@
+<div class="audit-page">
+  <!-- Page Header -->
+  <div class="page-header app-card">
+    <div class="header-icon-badge">
+      <svg class="icon-svg icon-svg-lg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
+      </svg>
+    </div>
+    <div class="header-content">
+      <div class="title-row">
+        <h2>Registre d'Audit & Sécurité Immuable</h2>
+        <span class="badge badge-emerald">Traçabilité Active</span>
+      </div>
+      <p>
+        Enregistrement inaltérable de l'ensemble des interventions d'administration, suspensions de comptes, gels de projets et connexions d'accès privilégié.
+      </p>
+    </div>
+  </div>
+
+  <!-- Search & Filter Bar -->
+  <div class="app-card search-card">
+    <div class="search-box">
+      <svg class="icon-svg icon-svg-xs" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
+      </svg>
+      <input 
+        type="text" 
+        [(ngModel)]="auditSearchTerm" 
+        (ngModelChange)="onAuditSearch()" 
+        placeholder="Filtrer les logs par mot-clé, action, email ou adresse IP..." 
+        class="form-input" />
+    </div>
+  </div>
+
+  <!-- Audit Table Card -->
+  <div class="app-card table-card">
+    <div *ngIf="isLoadingAudit" class="loading-state">
+      <div class="spinner"></div>
+      <p>Consultation du registre d'audit...</p>
+    </div>
+
+    <div *ngIf="!isLoadingAudit" class="table-responsive">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th style="width: 180px;">Date & Heure</th>
+            <th>Acteur</th>
+            <th>Action de Sécurité</th>
+            <th>Données & Justificatif</th>
+            <th>Adresse IP</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let log of auditLogs">
+            <td>
+              <div class="date-cell">
+                <span class="date-main">{{ log.createdAt | date:'shortDate' }}</span>
+                <span class="time-sub">{{ log.createdAt | date:'mediumTime' }}</span>
+              </div>
+            </td>
+            <td>
+              <div class="actor-cell">
+                <span class="actor-email">{{ log.user?.email || 'Système Automatisé' }}</span>
+                <span class="actor-role">{{ log.user?.role || 'SYSTEM' }}</span>
+              </div>
+            </td>
+            <td>
+              <span class="action-tag" [class.action-danger]="log.action.includes('BAN') || log.action.includes('DELETE')" [class.action-warn]="log.action.includes('SUSPEND') || log.action.includes('FREEZE') || log.action.includes('MODERATE')">
+                {{ log.action }}
+              </span>
+            </td>
+            <td>
+              <div class="metadata-tags">
+                <div *ngFor="let m of formatMetadata(log.metadataJson)" class="meta-tag">
+                  <strong>{{ m.key }}:</strong> {{ m.value }}
+                </div>
+              </div>
+            </td>
+            <td>
+              <span class="ip-badge">{{ log.ipAddress || '127.0.0.1' }}</span>
+            </td>
+          </tr>
+          <tr *ngIf="auditLogs.length === 0">
+            <td colspan="5" class="empty-cell">
+              Aucune trace trouvée dans le registre pour cette recherche.
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Pagination Toolbar -->
+    <div class="pagination-footer" *ngIf="auditTotalPages > 1">
+      <span class="pagination-info">
+        Page {{ auditPage + 1 }} sur {{ auditTotalPages }} (Total : {{ auditTotalElements }} entrées)
+      </span>
+      <div class="pagination-buttons">
+        <button 
+          (click)="goToAuditPage(auditPage - 1)" 
+          [disabled]="auditPage === 0" 
+          class="btn btn-outline btn-sm">
+          ← Précédent
+        </button>
+        <button 
+          (click)="goToAuditPage(auditPage + 1)" 
+          [disabled]="auditPage >= auditTotalPages - 1" 
+          class="btn btn-outline btn-sm">
+          Suivant →
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

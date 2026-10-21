@@ -1,0 +1,257 @@
+<div class="users-page">
+  <!-- Page Header -->
+  <div class="page-header app-card">
+    <div class="header-icon-badge">
+      <svg class="icon-svg icon-svg-lg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z" />
+      </svg>
+    </div>
+    <div class="header-content">
+      <div class="title-row">
+        <h2>Annuaire des Talents & Gestion des Comptes</h2>
+        <span class="badge badge-purple">{{ userTotalElements }} Comptes Enregistrés</span>
+      </div>
+      <p>
+        Supervisez les développeurs et recruteurs de la plateforme panafricaine. Appliquez des mesures de modération ciblées (Avertissement, Suspension temporaire, Bannissement définitif).
+      </p>
+    </div>
+  </div>
+
+  <!-- Filters Toolbar -->
+  <div class="app-card filters-card">
+    <div class="search-box">
+      <svg class="icon-svg icon-svg-xs" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
+      </svg>
+      <input 
+        type="text" 
+        [(ngModel)]="userSearchTerm" 
+        (ngModelChange)="onUserFilterChange()" 
+        placeholder="Rechercher par nom, email ou titre pro..." 
+        class="form-input" />
+    </div>
+
+    <div class="filter-controls">
+      <select [(ngModel)]="userCountryFilter" (ngModelChange)="onUserFilterChange()" class="form-select">
+        <option value="">Tous les pays</option>
+        <option value="Sénégal">🇸🇳 Sénégal</option>
+        <option value="Côte d'Ivoire">🇨🇮 Côte d'Ivoire</option>
+        <option value="Nigeria">🇳🇬 Nigeria</option>
+        <option value="Ghana">🇬🇭 Ghana</option>
+        <option value="Kenya">🇰🇪 Kenya</option>
+        <option value="Rwanda">🇷🇼 Rwanda</option>
+        <option value="Cameroun">🇨🇲 Cameroun</option>
+        <option value="Algérie">🇩🇿 Algérie</option>
+        <option value="Maroc">🇲🇦 Maroc</option>
+        <option value="Comores">🇰🇲 Comores</option>
+      </select>
+
+      <select [(ngModel)]="userRoleFilter" (ngModelChange)="onUserFilterChange()" class="form-select">
+        <option value="">Tous les rôles</option>
+        <option value="DEVELOPER">Développeur</option>
+        <option value="RECRUITER">Recruteur</option>
+        <option value="ADMIN">Administrateur</option>
+        <option value="SUPER_ADMIN">Super Administrateur</option>
+      </select>
+
+      <select [(ngModel)]="userStatusFilter" (ngModelChange)="onUserFilterChange()" class="form-select">
+        <option value="">Tous les statuts</option>
+        <option value="ACTIVE">Actif (Conforme)</option>
+        <option value="SUSPENDED">Suspendu</option>
+        <option value="BANNED">Banni</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Users Table Card -->
+  <div class="app-card table-card">
+    <div *ngIf="isLoadingUsers" class="loading-state">
+      <div class="spinner"></div>
+      <p>Chargement des utilisateurs...</p>
+    </div>
+
+    <div *ngIf="!isLoadingUsers" class="table-responsive">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Utilisateur</th>
+            <th>Rôle</th>
+            <th>Pays & Ville</th>
+            <th>Niveau / XP</th>
+            <th>Projets & Offres</th>
+            <th>Statut</th>
+            <th style="text-align: right;">Actions Modération</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let user of users">
+            <td>
+              <div class="user-cell">
+                <div class="user-avatar-initials">
+                  {{ user.fullName ? user.fullName.charAt(0).toUpperCase() : user.email.charAt(0).toUpperCase() }}
+                </div>
+                <div class="user-details">
+                  <div class="user-name-row">
+                    <span class="user-name">{{ user.fullName || 'Utilisateur sans nom' }}</span>
+                    <span *ngIf="user.mobileMoneyVerified" class="badge-verified" title="Compte vérifié Mobile Money">✓</span>
+                  </div>
+                  <span class="user-email">{{ user.email }}</span>
+                </div>
+              </div>
+            </td>
+            <td>
+              <span class="role-pill role-{{ user.role.toLowerCase() }}">
+                {{ user.role === 'SUPER_ADMIN' ? 'SUPER ADMIN' : user.role }}
+              </span>
+            </td>
+            <td>
+              <span class="flag-text">{{ getCountryFlag(user.country) }} {{ user.country || 'Non renseigné' }}</span>
+              <small *ngIf="user.city" class="city-text">({{ user.city }})</small>
+            </td>
+            <td>
+              <span class="xp-tag" *ngIf="user.role === 'DEVELOPER'">{{ user.xpPoints }} XP ({{ user.levelTitle }})</span>
+              <span class="text-muted" *ngIf="user.role !== 'DEVELOPER'">N/A</span>
+            </td>
+            <td>
+              <span class="counter-badge" title="Projets publiés">{{ user.projectsCount }} proj.</span>
+              <span *ngIf="user.role === 'RECRUITER'" class="counter-badge badge-offers" title="Offres d'emploi">{{ user.opportunitiesCount }} offres</span>
+            </td>
+            <td>
+              <span class="status-pill status-{{ user.status.toLowerCase() }}">
+                <span class="status-dot"></span>
+                {{ user.status === 'ACTIVE' ? 'Actif' : (user.status === 'SUSPENDED' ? 'Suspendu' : 'Banni') }}
+              </span>
+            </td>
+            <td style="text-align: right;">
+              <div class="actions-group">
+                <button 
+                  *ngIf="user.status !== 'SUSPENDED'" 
+                  (click)="openUserStatusModal(user, 'SUSPENDED')" 
+                  class="btn-action-icon btn-action-warn" 
+                  title="Suspendre le compte">
+                  <svg class="icon-svg icon-svg-xs" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
+                  </svg>
+                  <span>Suspendre</span>
+                </button>
+
+                <button 
+                  *ngIf="user.status !== 'BANNED'" 
+                  (click)="openUserStatusModal(user, 'BANNED')" 
+                  class="btn-action-icon btn-action-danger" 
+                  title="Bannir définitivement">
+                  <svg class="icon-svg icon-svg-xs" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
+                  </svg>
+                  <span>Bannir</span>
+                </button>
+
+                <button 
+                  *ngIf="user.status !== 'ACTIVE'" 
+                  (click)="openUserStatusModal(user, 'ACTIVE')" 
+                  class="btn-action-icon btn-action-success" 
+                  title="Réactiver le compte">
+                  <svg class="icon-svg icon-svg-xs" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  <span>Réactiver</span>
+                </button>
+              </div>
+            </td>
+          </tr>
+          <tr *ngIf="users.length === 0">
+            <td colspan="7" class="empty-cell">
+              Aucun utilisateur trouvé pour ces critères de recherche.
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Pagination Toolbar -->
+    <div class="pagination-footer" *ngIf="userTotalPages > 1">
+      <span class="pagination-info">
+        Page {{ userPage + 1 }} sur {{ userTotalPages }} (Total : {{ userTotalElements }} utilisateurs)
+      </span>
+      <div class="pagination-buttons">
+        <button 
+          (click)="goToUserPage(userPage - 1)" 
+          [disabled]="userPage === 0" 
+          class="btn btn-outline btn-sm">
+          ← Précédent
+        </button>
+        <button 
+          (click)="goToUserPage(userPage + 1)" 
+          [disabled]="userPage >= userTotalPages - 1" 
+          class="btn btn-outline btn-sm">
+          Suivant →
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal : Modification de statut / Sanction -->
+  <div class="modal-backdrop" *ngIf="showUserStatusModal" (click)="closeUserStatusModal()">
+    <div class="modal-card app-card animate-scale-up" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <div class="modal-title-row">
+          <div class="modal-badge-icon" [class.badge-danger]="selectedUserAction === 'BANNED'" [class.badge-warn]="selectedUserAction === 'SUSPENDED'" [class.badge-success]="selectedUserAction === 'ACTIVE'">
+            <svg class="icon-svg icon-svg-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
+            </svg>
+          </div>
+          <div>
+            <h3>
+              {{ selectedUserAction === 'SUSPENDED' ? 'Suspendre l\'utilisateur' : (selectedUserAction === 'BANNED' ? 'Bannir définitivement l\'utilisateur' : 'Réactiver le compte') }}
+            </h3>
+            <p class="modal-sub">Cible : {{ targetUser?.fullName }} ({{ targetUser?.email }})</p>
+          </div>
+        </div>
+        <button (click)="closeUserStatusModal()" class="modal-close-btn">&times;</button>
+      </div>
+
+      <div class="modal-body">
+        <div class="alert-box" *ngIf="selectedUserAction === 'SUSPENDED'">
+          L'utilisateur sera immédiatement déconnecté et ne pourra plus s'authentifier jusqu'à réactivation. Un email officiel lui sera transmis avec le motif de suspension.
+        </div>
+        <div class="alert-box alert-danger" *ngIf="selectedUserAction === 'BANNED'">
+          Le compte sera définitivement banni de la plateforme panafricaine. Toutes ses publications seront masquées pour protéger la communauté.
+        </div>
+        <div class="alert-box alert-success" *ngIf="selectedUserAction === 'ACTIVE'">
+          Le compte retrouvera l'accès complet à AfriDev Hub (projets, candidatures, messagerie et évaluations).
+        </div>
+
+        <div class="form-group" *ngIf="selectedUserAction !== 'ACTIVE'">
+          <label for="actionReason">Motif de la décision (Inscrit au registre d'audit) *</label>
+          <textarea 
+            id="actionReason" 
+            [(ngModel)]="userActionReason" 
+            rows="3" 
+            class="form-textarea" 
+            placeholder="Ex: Signalement de faux profil, violation des droits d'auteur, comportement frauduleux...">
+          </textarea>
+        </div>
+
+        <div *ngIf="userActionFeedback" class="error-msg">
+          {{ userActionFeedback }}
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button (click)="closeUserStatusModal()" class="btn btn-outline" [disabled]="isSubmittingUserAction">
+          Annuler
+        </button>
+        <button 
+          (click)="submitUserStatusUpdate()" 
+          class="btn" 
+          [class.btn-danger]="selectedUserAction === 'BANNED'" 
+          [class.btn-warning]="selectedUserAction === 'SUSPENDED'" 
+          [class.btn-primary]="selectedUserAction === 'ACTIVE'" 
+          [disabled]="isSubmittingUserAction">
+          <span *ngIf="!isSubmittingUserAction">Confirmer la sanction</span>
+          <span *ngIf="isSubmittingUserAction">Traitement en cours...</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

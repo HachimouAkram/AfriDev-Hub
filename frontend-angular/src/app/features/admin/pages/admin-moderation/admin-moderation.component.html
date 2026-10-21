@@ -1,0 +1,171 @@
+<div class="moderation-page">
+  <!-- Page Header -->
+  <div class="page-header app-card">
+    <div class="header-icon-badge">
+      <svg class="icon-svg icon-svg-lg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
+      </svg>
+    </div>
+    <div class="header-content">
+      <div class="title-row">
+        <h2>Modération des Projets & Droits d'Auteur</h2>
+        <span class="badge badge-amber">{{ reports.length }} Signalements Traités</span>
+      </div>
+      <p>
+        Protection de la propriété intellectuelle panafricaine. Traitez les contestations de plagiat, le vol de code source et appliquez un gel immédiat des dépôts incriminés.
+      </p>
+    </div>
+  </div>
+
+  <!-- Status Tabs Toolbar -->
+  <div class="app-card status-toolbar">
+    <div class="status-tab-group">
+      <button 
+        (click)="onReportFilterChange('')" 
+        [class.active]="reportStatusFilter === ''" 
+        class="status-tab-btn">
+        Tous les signalements
+      </button>
+      <button 
+        (click)="onReportFilterChange('PENDING')" 
+        [class.active]="reportStatusFilter === 'PENDING'" 
+        class="status-tab-btn btn-pending">
+        En Attente (Action Requise)
+      </button>
+      <button 
+        (click)="onReportFilterChange('RESOLVED')" 
+        [class.active]="reportStatusFilter === 'RESOLVED'" 
+        class="status-tab-btn">
+        Résolus
+      </button>
+      <button 
+        (click)="onReportFilterChange('DISMISSED')" 
+        [class.active]="reportStatusFilter === 'DISMISSED'" 
+        class="status-tab-btn">
+        Classés sans suite
+      </button>
+    </div>
+  </div>
+
+  <!-- Reports Cards Grid -->
+  <div *ngIf="isLoadingReports" class="loading-state">
+    <div class="spinner"></div>
+    <p>Chargement des signalements...</p>
+  </div>
+
+  <div *ngIf="!isLoadingReports" class="reports-container">
+    <div *ngFor="let report of reports" class="app-card report-card">
+      <div class="report-header">
+        <div class="report-type-badge" [class.badge-copyright]="report.reason === 'COPYRIGHT_INFRINGE' || report.reason === 'PLAGIARISM'">
+          <svg class="icon-svg icon-svg-xs" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
+          </svg>
+          <span>{{ report.reason }}</span>
+        </div>
+        <span class="report-date">{{ report.createdAt | date:'medium' }}</span>
+      </div>
+
+      <div class="report-body">
+        <p class="report-desc">{{ report.reason }}</p>
+        <div class="report-meta">
+          <div class="meta-item">
+            <span class="meta-label">Signalé par :</span>
+            <span class="meta-val">{{ report.reporter?.email || 'Utilisateur de la plateforme' }}</span>
+          </div>
+          <div class="meta-item">
+            <span class="meta-label">Cible :</span>
+            <span class="meta-val badge-target">{{ report.resource }} #{{ report.resourceId.substring(0, 8) }}</span>
+          </div>
+          <div class="meta-item">
+            <span class="meta-label">Statut :</span>
+            <span class="status-badge" [class.status-pending]="report.status === 'PENDING'" [class.status-resolved]="report.status === 'RESOLVED'">
+              {{ report.status === 'PENDING' ? 'En cours d\'examen' : 'Traité' }}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <div class="report-footer" *ngIf="report.status === 'PENDING'">
+        <button 
+          (click)="openProjectModerateModal(report)" 
+          class="btn btn-warning btn-sm action-btn">
+          <svg class="icon-svg icon-svg-xs" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
+          </svg>
+          <span>Geler / Dépublier le Projet</span>
+        </button>
+      </div>
+    </div>
+
+    <div *ngIf="reports.length === 0" class="app-card empty-card">
+      <svg class="icon-svg icon-svg-lg text-emerald" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+      </svg>
+      <h3>Aucun litige en attente</h3>
+      <p>L'écosystème AfriDev Hub est conforme. Aucun contenu ne fait l'objet de contestation de propriété intellectuelle.</p>
+    </div>
+  </div>
+
+  <!-- Modal de modération de projet -->
+  <div class="modal-backdrop" *ngIf="showProjectModerateModal" (click)="closeProjectModerateModal()">
+    <div class="modal-card app-card animate-scale-up" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <div class="modal-title-row">
+          <div class="modal-badge-icon badge-warn">
+            <svg class="icon-svg icon-svg-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
+            </svg>
+          </div>
+          <div>
+            <h3>Modérer & Geler la ressource</h3>
+            <p class="modal-sub">{{ targetProjectTitle }}</p>
+          </div>
+        </div>
+        <button (click)="closeProjectModerateModal()" class="modal-close-btn">&times;</button>
+      </div>
+
+      <div class="modal-body">
+        <div class="form-group">
+          <label>Sanction appliquée à la publication *</label>
+          <select [(ngModel)]="projectModerateAction" class="form-select">
+            <option value="HIDDEN">Geler & Masquer (Dépublier immédiatement de la vitrine)</option>
+            <option value="DELETED">Supprimer définitivement la publication</option>
+            <option value="PUBLISHED">Réhabiliter (Rejeter le signalement et republier)</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Motif légal de modération *</label>
+          <textarea 
+            [(ngModel)]="projectModerateReason" 
+            rows="3" 
+            class="form-textarea" 
+            placeholder="Explication claire du plagiat, atteinte aux droits d'auteur, code non autorisé...">
+          </textarea>
+        </div>
+
+        <div class="checkbox-row">
+          <input type="checkbox" id="notifyAuthor" [(ngModel)]="projectNotifyAuthor" />
+          <label for="notifyAuthor">Notifier formellement l'auteur par email avec le motif de gel</label>
+        </div>
+
+        <div *ngIf="projectActionFeedback" class="error-msg">
+          {{ projectActionFeedback }}
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button (click)="closeProjectModerateModal()" class="btn btn-outline" [disabled]="isSubmittingProjectModeration">
+          Annuler
+        </button>
+        <button 
+          (click)="submitProjectModeration()" 
+          class="btn btn-warning" 
+          [disabled]="isSubmittingProjectModeration">
+          <span *ngIf="!isSubmittingProjectModeration">Appliquer la décision</span>
+          <span *ngIf="isSubmittingProjectModeration">Application en cours...</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
