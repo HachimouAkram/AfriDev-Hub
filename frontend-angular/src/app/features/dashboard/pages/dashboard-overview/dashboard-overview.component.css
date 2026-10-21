@@ -751,14 +751,19 @@
 
 .bar-bg {
   width: 100%;
-  height: 8px;
-  background: rgba(255, 255, 255, 0.12);
+  height: 9px;
+  background: rgba(255, 255, 255, 0.14);
   border-radius: 999px;
   overflow: hidden;
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.2);
 }
 
+:host-context(body.light-theme) .bar-bg,
+:host-context(.light-theme) .bar-bg,
 body.light-theme .bar-bg {
-  background: rgba(0, 0, 0, 0.08);
+  background: #CBD5E1;
+  border: 1px solid rgba(15, 23, 42, 0.1);
+  box-shadow: inset 0 1px 2px rgba(15, 23, 42, 0.08);
 }
 
 .bar-fill {
