@@ -248,6 +248,13 @@
   margin-top: -0.2rem;
 }
 
+:host-context(body.light-theme) .kpi-xp-progress-track,
+:host-context(.light-theme) .kpi-xp-progress-track,
+body.light-theme .kpi-xp-progress-track {
+  background: #CBD5E1;
+  border: 1px solid rgba(15, 23, 42, 0.1);
+}
+
 .kpi-xp-progress-bar {
   height: 100%;
   background: linear-gradient(90deg, #10b981 0%, #3b82f6 50%, #8b5cf6 100%);
@@ -484,11 +491,20 @@
 
 .progress-track {
   width: 100%;
-  height: 8px;
-  background: rgba(255, 255, 255, 0.06);
+  height: 9px;
+  background: rgba(255, 255, 255, 0.12);
   border-radius: 999px;
   overflow: hidden;
   position: relative;
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+:host-context(body.light-theme) .progress-track,
+:host-context(.light-theme) .progress-track,
+body.light-theme .progress-track {
+  background: #CBD5E1;
+  border: 1px solid rgba(15, 23, 42, 0.1);
+  box-shadow: inset 0 1px 2px rgba(15, 23, 42, 0.08);
 }
 
 .progress-fill {
@@ -1188,6 +1204,13 @@ body.light-theme .collab-deck-add-card {
   background: var(--border-subtle);
   border-radius: 999px;
   overflow: hidden;
+}
+
+:host-context(body.light-theme) .deck-progress-track,
+:host-context(.light-theme) .deck-progress-track,
+body.light-theme .deck-progress-track {
+  background: #CBD5E1;
+  border: 1px solid rgba(15, 23, 42, 0.1);
 }
 
 .deck-progress-fill {
