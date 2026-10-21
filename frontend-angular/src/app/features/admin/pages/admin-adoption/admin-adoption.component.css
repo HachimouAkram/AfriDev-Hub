@@ -58,6 +58,13 @@
   margin: 0;
 }
 
+/* Adoption Content Container */
+.adoption-content {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
 /* KPI Cards - Compact Single Row */
 .kpi-grid {
   display: grid;
