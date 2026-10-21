@@ -150,8 +150,26 @@ export class DashboardLayoutComponent implements OnInit {
     return this.themeService.isDark();
   }
 
+  isAdoptionActive(): boolean {
+    const url = this.router.url.split('?')[0];
+    return url === '/admin' || url === '/admin/' || url.startsWith('/admin/adoption');
+  }
+
+  isSuperAdmin(): boolean {
+    return this.user()?.role === 'SUPER_ADMIN';
+  }
+
+  isAdmin(): boolean {
+    const r = this.user()?.role;
+    return r === 'SUPER_ADMIN' || r === 'ADMIN';
+  }
+
   getPageTitle(): string {
     const url = this.router.url;
+    if (url.includes('/admin/adoption') || url === '/admin' || url === '/admin/') return 'Adoption Panafricaine & Statistiques (54 Pays)';
+    if (url.includes('/admin/users')) return 'Annuaire des Talents & Gestion des Comptes';
+    if (url.includes('/admin/moderation')) return 'Modération des Projets & Droits d\'Auteur';
+    if (url.includes('/admin/audit')) return 'Registre d\'Audit & Sécurité Immuable';
     if (url.includes('/dashboard/applications')) return 'Mes candidatures';
     if (url.includes('/dashboard/offers')) return 'Offres & Demandes reçues';
     if (url.includes('/dashboard/messages')) return 'Messagerie';

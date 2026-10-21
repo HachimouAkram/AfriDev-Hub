@@ -260,6 +260,20 @@
   border: 1px solid rgba(14, 165, 233, 0.35);
 }
 
+.nav-item .nav-badge.badge-emerald {
+  background: rgba(16, 185, 129, 0.2);
+  color: #10B981;
+  border: 1px solid rgba(16, 185, 129, 0.4);
+}
+
+.nav-item .nav-badge.badge-admin {
+  background: rgba(16, 185, 129, 0.2);
+  color: #10B981;
+  border: 1px solid rgba(16, 185, 129, 0.35);
+  font-weight: 800;
+  letter-spacing: 0.5px;
+}
+
 body.light-theme .nav-item .nav-badge.badge-event {
   background: #E0F2FE;
   color: #0284C7;
