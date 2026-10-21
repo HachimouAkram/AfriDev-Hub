@@ -53,7 +53,7 @@ export class LoginComponent implements AfterViewInit {
             this.otpCode = '';
             return;
           }
-          this.router.navigate(['/dashboard']);
+          this.navigateByRole(res.data?.user);
         }
       },
       error: (err) => {
@@ -87,7 +87,7 @@ export class LoginComponent implements AfterViewInit {
       next: (res) => {
         this.isLoading = false;
         if (res.success && res.data?.token) {
-          this.router.navigate(['/dashboard']);
+          this.navigateByRole(res.data?.user);
         }
       },
       error: (err) => {
@@ -95,6 +95,15 @@ export class LoginComponent implements AfterViewInit {
         this.errorMessage = err.error?.error?.message || 'Code de sécurité invalide ou expiré.';
       }
     });
+  }
+
+  private navigateByRole(user?: any): void {
+    const role = user?.role || this.authService.currentUser()?.role;
+    if (role === 'SUPER_ADMIN' || role === 'ADMIN') {
+      this.router.navigate(['/admin']);
+    } else {
+      this.router.navigate(['/dashboard']);
+    }
   }
 
   cancel2fa(): void {
@@ -139,7 +148,7 @@ export class LoginComponent implements AfterViewInit {
       next: (res) => {
         this.isLoading = false;
         if (res.success) {
-          this.router.navigate(['/dashboard']);
+          this.navigateByRole(res.data?.user);
         }
       },
       error: (err) => {

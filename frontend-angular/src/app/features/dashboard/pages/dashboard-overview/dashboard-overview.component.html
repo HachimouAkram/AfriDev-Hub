@@ -20,13 +20,50 @@
         </span>
       </div>
 
-      <!-- Quick Level Badge & XP Pill -->
-      <a routerLink="/leaderboard" class="overview-level-pill" *ngIf="u.role !== 'RECRUITER'" title="Consulter mon classement panafricain">
+      <!-- Quick Level Badge & XP Pill (Only for Developers) -->
+      <a routerLink="/leaderboard" class="overview-level-pill" *ngIf="u.role === 'DEVELOPER'" title="Consulter mon classement panafricain">
         <span class="o-level-badge">{{ getLevelBadge(u.profile?.levelNumber || 1) }} {{ u.profile?.levelTitle || 'Junior' }}</span>
         <span class="o-xp-points">{{ u.profile?.xpPoints || 0 }} XP</span>
       </a>
+
+      <!-- Quick Super Admin Badge & Link to Cockpit -->
+      <a routerLink="/admin" class="overview-admin-pill" *ngIf="u.role === 'SUPER_ADMIN' || u.role === 'ADMIN'" title="Ouvrir le Cockpit Super Admin">
+        <span class="o-admin-badge">👑 {{ u.role === 'SUPER_ADMIN' ? 'Super Administrateur' : 'Administrateur' }}</span>
+        <span class="o-admin-action">Cockpit 54 Pays →</span>
+      </a>
     </div>
-    <p class="welcome-sub">Voici où en est votre activité globale et votre progression sur AfriDev Hub.</p>
+    <p class="welcome-sub" *ngIf="u.role === 'SUPER_ADMIN' || u.role === 'ADMIN'">
+      Vue d'ensemble de la plateforme panafricaine AfriDev Hub. Accédez au Cockpit pour piloter l'adoption, les utilisateurs et la modération.
+    </p>
+    <p class="welcome-sub" *ngIf="u.role !== 'SUPER_ADMIN' && u.role !== 'ADMIN'">Voici où en est votre activité globale et votre progression sur AfriDev Hub.</p>
+  </section>
+
+  <!-- Super Admin Quick Access Banner -->
+  <section class="super-admin-banner app-card" *ngIf="u.role === 'SUPER_ADMIN' || u.role === 'ADMIN'">
+    <div class="sa-banner-left">
+      <div class="sa-icon-box">
+        <svg class="icon-svg icon-svg-md" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
+        </svg>
+      </div>
+      <div class="sa-text-box">
+        <div class="sa-title-row">
+          <h3>Cockpit Gouvernance & Adoption Panafricaine</h3>
+          <span class="badge badge-emerald">{{ u.role }}</span>
+        </div>
+        <p>
+          Suivez l'adoption dans les 54 pays africains, gérez et sanctionnez les comptes frauduleux, modérez les litiges de droits d'auteur et inspectez les logs d'audit.
+        </p>
+      </div>
+    </div>
+    <div class="sa-banner-right">
+      <a routerLink="/admin" class="btn btn-primary sa-launch-btn">
+        <span>Ouvrir le Cockpit Super Admin</span>
+        <svg class="icon-svg icon-svg-xs" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+        </svg>
+      </a>
+    </div>
   </section>
 
   <!-- Modern Top KPI Cards Row -->
@@ -107,8 +144,8 @@
       </div>
     </div>
 
-    <!-- KPI 5: Gamification XP & Niveau -->
-    <div class="kpi-card app-card kpi-card-xp" routerLink="/leaderboard" *ngIf="u.role !== 'RECRUITER'" style="cursor: pointer;" title="Accéder au classement des développeurs">
+    <!-- KPI 5: Gamification XP & Niveau (For Developers) -->
+    <div class="kpi-card app-card kpi-card-xp" routerLink="/leaderboard" *ngIf="u.role === 'DEVELOPER'" style="cursor: pointer;" title="Accéder au classement des développeurs">
       <div class="kpi-card-top">
         <span class="kpi-label">Niveau & Points XP</span>
         <div class="kpi-icon-wrap xp-wrap">
@@ -125,6 +162,28 @@
       </div>
       <div class="kpi-footer">
         <span class="kpi-link">Voir le classement panafricain →</span>
+      </div>
+    </div>
+
+    <!-- KPI 5 (Alternative): Cockpit Gouvernance (For Super Admin / Admin) -->
+    <div class="kpi-card app-card kpi-card-sa" routerLink="/admin" *ngIf="u.role === 'SUPER_ADMIN' || u.role === 'ADMIN'" style="cursor: pointer;" title="Accéder au Cockpit Super Admin">
+      <div class="kpi-card-top">
+        <span class="kpi-label">Gouvernance Continentale</span>
+        <div class="kpi-icon-wrap emerald">
+          <svg class="icon-svg icon-svg-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
+          </svg>
+        </div>
+      </div>
+      <div class="kpi-value-row">
+        <span class="kpi-number">54 <span class="kpi-unit">Pays</span></span>
+        <span class="kpi-trend positive">Cockpit Actif</span>
+      </div>
+      <div class="kpi-xp-progress-track">
+        <div class="kpi-xp-progress-bar" style="width: 100%; background: linear-gradient(90deg, #10b981, #059669);"></div>
+      </div>
+      <div class="kpi-footer">
+        <span class="kpi-link">Gérer la plateforme →</span>
       </div>
     </div>
   </section>

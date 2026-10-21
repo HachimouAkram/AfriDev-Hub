@@ -1416,5 +1416,126 @@ body.light-theme .deck-progress-track {
   }
 }
 
+/* ======================================================== */
+/* SUPER ADMIN BANNER & GOVERNANCE STYLES                    */
+/* ======================================================== */
+.super-admin-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+  padding: 1.25rem 1.75rem;
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.12) 0%, rgba(6, 182, 212, 0.08) 100%);
+  border: 1px solid rgba(16, 185, 129, 0.35);
+  border-radius: var(--radius-lg, 16px);
+  margin-bottom: 2rem;
+  box-shadow: 0 4px 20px rgba(16, 185, 129, 0.08);
+}
+
+.sa-banner-left {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  flex: 1;
+}
+
+.sa-icon-box {
+  width: 52px;
+  height: 52px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.35);
+}
+
+.sa-text-box h3 {
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: var(--text-heading);
+  margin: 0;
+  letter-spacing: -0.01em;
+}
+
+.sa-title-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.35rem;
+}
+
+.sa-text-box p {
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  line-height: 1.45;
+  margin: 0;
+}
+
+.sa-launch-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.4rem;
+  font-size: 0.92rem;
+  font-weight: 700;
+  white-space: nowrap;
+  box-shadow: 0 4px 14px rgba(16, 185, 129, 0.35);
+}
+
+.overview-admin-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  background: rgba(16, 185, 129, 0.12);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  padding: 0.45rem 0.9rem;
+  border-radius: 9999px;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.overview-admin-pill:hover {
+  background: rgba(16, 185, 129, 0.2);
+  transform: translateY(-1px);
+}
+
+.o-admin-badge {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #10b981;
+}
+
+.o-admin-action {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.kpi-card-sa {
+  border-left: 3px solid #10b981;
+}
+
+@media (max-width: 768px) {
+  .super-admin-banner {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 1.25rem;
+  }
+  .sa-banner-left {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .sa-banner-right {
+    width: 100%;
+  }
+  .sa-launch-btn {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
 
 
