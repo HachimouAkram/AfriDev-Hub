@@ -171,11 +171,11 @@ export class DashboardLayoutComponent implements OnInit {
 
   getPageTitle(): string {
     const url = this.router.url;
-    if (url === '/admin' || url === '/admin/' || url.includes('/admin/overview')) return 'Cockpit & Tableau de bord Exécutif';
-    if (url.includes('/admin/adoption')) return 'Adoption Panafricaine & Statistiques (54 Pays)';
-    if (url.includes('/admin/users')) return 'Annuaire des Talents & Gestion des Comptes';
-    if (url.includes('/admin/moderation')) return 'Modération des Projets & Droits d\'Auteur';
-    if (url.includes('/admin/audit')) return 'Registre d\'Audit & Sécurité Immuable';
+    if (url === '/admin' || url === '/admin/' || url.includes('/admin/overview')) return 'Tableau de bord';
+    if (url.includes('/admin/adoption')) return 'Adoption';
+    if (url.includes('/admin/users')) return 'Utilisateurs';
+    if (url.includes('/admin/moderation')) return 'Modération';
+    if (url.includes('/admin/audit')) return 'Audit';
     if (url.includes('/dashboard/applications')) return 'Mes candidatures';
     if (url.includes('/dashboard/offers')) return 'Offres & Demandes reçues';
     if (url.includes('/dashboard/messages')) return 'Messagerie';
