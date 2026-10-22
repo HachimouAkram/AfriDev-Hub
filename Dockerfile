@@ -6,9 +6,14 @@ COPY backend-spring/src ./src
 RUN mvn clean package -DskipTests -B
 
 FROM eclipse-temurin:21-jre-alpine
+RUN apk add --no-cache bash curl
 WORKDIR /app
-COPY --from=build /app/target/*.jar app.jar
+COPY --from=build /app/target/*.jar /app/app.jar
+COPY docker/start-spring.sh /app/entrypoint.sh
+COPY docker/start-spring.sh /app/start-spring.sh
+RUN chmod +x /app/entrypoint.sh /app/start-spring.sh
+
 ENV PORT=8080
 EXPOSE 8080
-ENTRYPOINT ["java", "-XX:+UseContainerSupport", "-XX:MaxRAMPercentage=75.0", "-Xss512k", "-Djava.security.egd=file:/dev/./urandom", "-jar", "app.jar"]
 
+ENTRYPOINT ["/app/entrypoint.sh"]
