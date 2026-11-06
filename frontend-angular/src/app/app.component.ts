@@ -83,8 +83,8 @@ import { TranslationService, Language } from './core/services/translation.servic
           </button>
 
           <!-- Logged out Buttons -->
-          <a *ngIf="!isLoggedIn()" routerLink="/login" routerLinkActive="active" class="nav-link">Connexion</a>
-          <a *ngIf="!isLoggedIn()" routerLink="/register" class="btn btn-emerald btn-sm">S'inscrire</a>
+          <a *ngIf="!isLoggedIn()" routerLink="/login" routerLinkActive="active" class="nav-link nav-login-link">Connexion</a>
+          <a *ngIf="!isLoggedIn()" routerLink="/register" class="btn btn-emerald btn-sm nav-register-btn">S'inscrire</a>
 
           <!-- Logged in Profile Menu Dropdown -->
           <div *ngIf="isLoggedIn()" class="profile-dropdown-container">
@@ -366,13 +366,13 @@ import { TranslationService, Language } from './core/services/translation.servic
       padding-top: 74px;
     }
     .nav-content {
-      max-width: 1400px;
+      max-width: 1440px;
       margin: 0 auto;
-      padding: 0 1.5rem;
+      padding: 0 1rem;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      gap: 1.5rem;
+      gap: 0.75rem;
       position: relative;
     }
     .logo {
@@ -399,8 +399,8 @@ import { TranslationService, Language } from './core/services/translation.servic
     .nav-center-pill {
       display: flex;
       align-items: center;
-      gap: 0.25rem;
-      padding: 0.35rem 0.65rem;
+      gap: 0.15rem;
+      padding: 0.25rem 0.45rem;
       background: rgba(255, 255, 255, 0.04);
       border: 1px solid var(--border-subtle);
       border-radius: 999px;
@@ -408,6 +408,7 @@ import { TranslationService, Language } from './core/services/translation.servic
       -webkit-backdrop-filter: blur(16px);
       box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
       margin: 0 auto;
+      flex-shrink: 0;
       transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
     }
     .app-nav.nav-light .nav-center-pill,
@@ -425,11 +426,12 @@ import { TranslationService, Language } from './core/services/translation.servic
       color: var(--text-muted);
       text-decoration: none;
       font-weight: 600;
-      font-size: 0.885rem;
-      padding: 0.5rem 1rem;
+      font-size: 0.835rem;
+      padding: 0.42rem 0.75rem;
       border-radius: 999px;
       transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
       position: relative;
+      white-space: nowrap;
     }
     .app-nav.nav-light .nav-link,
     :host-context(body.light-theme) .nav-link {
@@ -526,7 +528,17 @@ import { TranslationService, Language } from './core/services/translation.servic
     .nav-right-actions {
       display: flex;
       align-items: center;
-      gap: 0.85rem;
+      gap: 0.55rem;
+      flex-shrink: 0;
+      white-space: nowrap;
+    }
+    .nav-login-link {
+      white-space: nowrap !important;
+      flex-shrink: 0;
+      padding: 0.42rem 0.85rem !important;
+    }
+    .nav-register-btn {
+      white-space: nowrap !important;
       flex-shrink: 0;
     }
 
@@ -695,8 +707,9 @@ import { TranslationService, Language } from './core/services/translation.servic
     }
 
     .btn-sm {
-      padding: 0.45rem 1rem;
-      font-size: 0.85rem;
+      padding: 0.42rem 0.85rem;
+      font-size: 0.835rem;
+      white-space: nowrap;
     }
 
     .theme-toggle-btn {
@@ -928,8 +941,30 @@ import { TranslationService, Language } from './core/services/translation.servic
       margin-top: 0.5rem;
     }
 
-    /* MOBILE BREAKPOINT (< 990px) */
-    @media (max-width: 990px) {
+    /* COMPACT DESKTOP (1140px - 1340px): Prevent horizontal overflow of the 7-item nav pill */
+    @media (max-width: 1340px) {
+      .logo-subtitle {
+        display: none !important;
+      }
+      .nav-link {
+        padding: 0.38rem 0.58rem;
+        font-size: 0.8rem;
+      }
+      .nav-center-pill {
+        padding: 0.2rem 0.35rem;
+        gap: 0.1rem;
+      }
+      .nav-right-actions {
+        gap: 0.45rem;
+      }
+      .btn-sm {
+        padding: 0.38rem 0.75rem;
+        font-size: 0.8rem;
+      }
+    }
+
+    /* MOBILE & TABLET BREAKPOINT (< 1140px): Switch cleanly to mobile drawer */
+    @media (max-width: 1140px) {
       .desktop-only {
         display: none !important;
       }
