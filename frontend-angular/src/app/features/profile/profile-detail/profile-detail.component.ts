@@ -9,6 +9,7 @@ import { FollowService, FollowStats } from '../../../core/services/follow.servic
 import { MessageService, DirectMessage } from '../../../core/services/message.service';
 import { ProjectService, Project } from '../../../core/services/project.service';
 import { EvaluationService, Evaluation, ReputationScore } from '../../../core/services/evaluation.service';
+import { MentorService } from '../../../core/services/mentor.service';
 import { ThemeService, ThemeMode } from '../../../core/services/theme.service';
 import { TranslationService, Language } from '../../../core/services/translation.service';
 
@@ -45,7 +46,14 @@ export class ProfileDetailComponent implements OnInit {
   userEvaluations: Evaluation[] = [];
   reputationScore: ReputationScore | null = null;
   isLoadingActivities = false;
-  activeTab: 'projects' | 'evaluations' | 'github' | 'security' | 'preferences' = 'projects';
+  activeTab: 'projects' | 'evaluations' | 'github' | 'security' | 'preferences' | 'mentor' = 'projects';
+
+  // Mentor State (Tâche 2.6)
+  private mentorService = inject(MentorService);
+  isUpdatingMentor = false;
+  mentorSuccessMsg = '';
+  mentorErrorMsg = '';
+  mentorTopicsStr = '';
 
   // Security & Active Sessions
   sessions: LoginSession[] = [];
@@ -96,12 +104,25 @@ export class ProfileDetailComponent implements OnInit {
     });
   }
 
+  isSuperAdmin(): boolean {
+    return this.currentUser()?.role === 'SUPER_ADMIN';
+  }
+
+  isAdmin(): boolean {
+    const role = this.currentUser()?.role;
+    return role === 'SUPER_ADMIN' || role === 'ADMIN';
+  }
+
   goBack(): void {
-    // If there is history, navigate back; else fallback to network
+    // If there is history, navigate back; else fallback to admin or network
     if (window.history.length > 1) {
       this.location.back();
     } else {
-      this.router.navigate(['/network']);
+      if (this.isAdmin()) {
+        this.router.navigate(['/admin']);
+      } else {
+        this.router.navigate(['/network']);
+      }
     }
   }
 
@@ -700,6 +721,67 @@ export class ProfileDetailComponent implements OnInit {
       const percent = Math.min(100, Math.max(0, Math.round((xp / max) * 100)));
       return { percent, nextLevelXp: 251, remainingXp: 251 - xp, nextLevelTitle: 'Senior' };
     }
+  toggleMentorStatus(): void {
+    if (!this.profile) return;
+    this.isUpdatingMentor = true;
+    this.mentorSuccessMsg = '';
+    this.mentorErrorMsg = '';
+
+    const newStatus = !this.profile.isMentor;
+    const topics = this.mentorTopicsStr
+      ? this.mentorTopicsStr.split(',').map(t => t.trim()).filter(t => t.length > 0)
+      : (this.profile.mentorTopics || this.profile.skills || []);
+
+    this.mentorService.updateMentorStatus({
+      isMentor: newStatus,
+      mentorBio: this.profile.mentorBio || this.profile.bio || '',
+      mentorHoursPerWeek: this.profile.mentorHoursPerWeek || 2,
+      mentorTopics: topics
+    }).subscribe({
+      next: (res) => {
+        this.isUpdatingMentor = false;
+        if (res.success && res.data) {
+          this.profile!.isMentor = res.data.isMentor ?? newStatus;
+          this.profile!.mentorBio = res.data.mentorBio;
+          this.profile!.mentorHoursPerWeek = res.data.mentorHoursPerWeek;
+          this.profile!.mentorTopics = res.data.mentorTopics;
+          this.mentorSuccessMsg = newStatus ? '🎉 Félicitations, votre profil mentor est maintenant activé !' : 'Profil mentor désactivé.';
+        }
+      },
+      error: (err) => {
+        this.isUpdatingMentor = false;
+        this.mentorErrorMsg = err.error?.error?.message || 'Erreur lors de la mise à jour du statut mentor.';
+      }
+    });
+  }
+
+  saveMentorSettings(): void {
+    if (!this.profile) return;
+    this.isUpdatingMentor = true;
+    this.mentorSuccessMsg = '';
+    this.mentorErrorMsg = '';
+
+    const topics = this.mentorTopicsStr
+      ? this.mentorTopicsStr.split(',').map(t => t.trim()).filter(t => t.length > 0)
+      : (this.profile.mentorTopics || []);
+
+    this.mentorService.updateMentorStatus({
+      isMentor: true,
+      mentorBio: this.profile.mentorBio,
+      mentorHoursPerWeek: this.profile.mentorHoursPerWeek || 2,
+      mentorTopics: topics
+    }).subscribe({
+      next: (res) => {
+        this.isUpdatingMentor = false;
+        if (res.success) {
+          this.mentorSuccessMsg = 'Paramètres mentor enregistrés avec succès.';
+        }
+      },
+      error: () => {
+        this.isUpdatingMentor = false;
+        this.mentorErrorMsg = 'Erreur lors de l’enregistrement.';
+      }
+    });
   }
 }
 

@@ -37,6 +37,12 @@
       <div class="header-details">
         <div class="name-badge-row">
           <h1>{{ profile.fullName }}</h1>
+          <span class="badge badge-super-admin" *ngIf="isSuperAdmin() && isOwnProfile">
+            👑 Super Administrateur
+          </span>
+          <span class="badge badge-admin" *ngIf="!isSuperAdmin() && isAdmin() && isOwnProfile">
+            🛡️ Administrateur
+          </span>
           <span class="badge badge-emerald">
             <svg class="icon-svg icon-svg-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -50,6 +56,10 @@
             <span class="level-badge-title">{{ profile.levelTitle || 'Junior' }}</span>
             <span class="level-badge-xp">{{ profile.xpPoints || 0 }} XP</span>
           </a>
+          <!-- Badge Mentor (Tâche 2.7) -->
+          <span *ngIf="profile.isMentor" class="badge badge-mentor-glow" title="Mentor certifié AfriDev">
+            🏆 Mentor Tech
+          </span>
           <span *ngIf="profile.mobileMoneyVerified" class="badge badge-emerald">
             <svg class="icon-svg icon-svg-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -102,6 +112,14 @@
 
     <!-- Action Bar for Own vs Other Profile -->
     <div class="header-actions" *ngIf="isOwnProfile; else peerActions">
+      <!-- Cockpit Direct Link for Admin / Super Admin -->
+      <a routerLink="/admin" class="btn btn-cockpit-link" *ngIf="isAdmin()" title="Accéder au Cockpit de Gouvernance">
+        <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
+        </svg>
+        <span>Cockpit Gouvernance</span>
+      </a>
+
       <button (click)="openEditModal()" class="btn btn-emerald">
         <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" />
@@ -179,10 +197,12 @@
     <div class="completion-header">
       <div class="completion-info">
         <h4>Complétion de votre Profil : {{ profile.completionScore || 0 }}%</h4>
-        <p class="text-muted">Un profil complété vous permet d'apparaître en priorité dans l'annuaire des Développeurs d'Élite !</p>
+        <p class="text-muted" *ngIf="!isAdmin()">Un profil complété vous permet d'apparaître en priorité dans l'annuaire des Développeurs d'Élite !</p>
+        <p class="text-muted" *ngIf="isSuperAdmin()">Supervision et Gouvernance Panafricaine AfriDev Hub (Accès complet 54 pays).</p>
+        <p class="text-muted" *ngIf="!isSuperAdmin() && isAdmin()">Profil Administrateur de la plateforme AfriDev Hub.</p>
       </div>
       <button (click)="openEditModal()" class="btn btn-emerald btn-sm">
-        Compléter mon Profil
+        {{ (profile.completionScore || 0) === 100 ? 'Modifier mon Profil' : 'Compléter mon Profil' }}
       </button>
     </div>
     <div class="progress-bar">
@@ -416,6 +436,15 @@
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.5 21l5.25-11.25L21 21m-9-3h7.5M3 5.621a48.474 48.474 0 016-.371m0 0c1.12 0 2.233.038 3.334.114M9 5.25V3m3.334 2.364C11.176 10.658 7.69 15.08 3 17.502m9.334-12.138c.896 3.025 2.158 5.764 3.73 8.163" />
           </svg>
           Affichage & Langue
+        </button>
+        <!-- Tab Mentor (Tâche 2.6) -->
+        <button 
+          *ngIf="isOwnProfile"
+          class="tab-btn" 
+          [class.active]="activeTab === 'mentor'" 
+          (click)="activeTab = 'mentor'">
+          <span style="font-size: 1rem;">🏆</span>
+          Espace Mentor
         </button>
       </div>
 
@@ -859,6 +888,105 @@
                 </button>
                 <span class="apply-hint" *ngIf="lang.code !== currentLang().code">Cliquer pour activer</span>
               </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab Content: Mentor (Tâche 2.6) -->
+      <div *ngIf="activeTab === 'mentor'" class="tab-content">
+        <div class="app-card section-card">
+          <div class="card-title-row">
+            <div>
+              <h3>🏆 Espace & Statut Mentor Panafricain</h3>
+              <p class="text-muted" style="margin: 0.25rem 0 0; font-size: 0.9rem;">
+                Rejoignez le réseau des développeurs expérimentés qui accompagnent les étudiants et juniors de la tech africaine.
+              </p>
+            </div>
+            <span class="badge" [ngClass]="profile.isMentor ? 'badge-emerald' : 'badge-amber'">
+              {{ profile.isMentor ? '✓ Mentor Actif' : 'Profil Inactif' }}
+            </span>
+          </div>
+
+          <!-- Alertes -->
+          <div class="alert alert-success" *ngIf="mentorSuccessMsg" style="margin: 1rem 0; padding: 0.75rem 1rem; border-radius: 8px; background: #d1fae5; color: #065f46;">
+            {{ mentorSuccessMsg }}
+          </div>
+          <div class="alert alert-error" *ngIf="mentorErrorMsg" style="margin: 1rem 0; padding: 0.75rem 1rem; border-radius: 8px; background: #fee2e2; color: #991b1b;">
+            {{ mentorErrorMsg }}
+          </div>
+
+          <!-- Bouton bascule principal -->
+          <div class="mentor-toggle-box" style="display: flex; justify-content: space-between; align-items: center; padding: 1.25rem; border-radius: 12px; background: var(--bg-secondary, #f9fafb); margin: 1.5rem 0;">
+            <div>
+              <strong style="font-size: 1rem; display: block;">Accompagner des développeurs</strong>
+              <span class="text-muted" style="font-size: 0.85rem;">
+                En activant ce statut, votre profil apparaîtra dans l'annuaire public des mentors avec le badge officiel.
+              </span>
+            </div>
+            <button
+              (click)="toggleMentorStatus()"
+              [disabled]="isUpdatingMentor"
+              class="btn"
+              [ngClass]="profile.isMentor ? 'btn-outline btn-danger-hover' : 'btn-emerald'">
+              {{ profile.isMentor ? 'Désactiver le mode mentor' : '✨ Devenir Mentor (+40 XP)' }}
+            </button>
+          </div>
+
+          <!-- Formulaire de configuration du mentorat -->
+          <div class="mentor-form-grid" *ngIf="profile.isMentor" style="display: flex; flex-direction: column; gap: 1.25rem; margin-top: 1rem;">
+            <div class="form-group" style="display: flex; flex-direction: column; gap: 0.4rem;">
+              <label style="font-weight: 600; font-size: 0.9rem;">Bio / Message pour les apprenants :</label>
+              <textarea
+                [(ngModel)]="profile.mentorBio"
+                rows="3"
+                placeholder="Ex: Je peux vous aider sur l'architecture backend Spring Boot, Angular et les premiers pas dans le cloud..."
+                style="width: 100%; padding: 0.75rem; border-radius: 8px; border: 1px solid var(--border-color, #e5e7eb); font-family: inherit; font-size: 0.9rem; box-sizing: border-box;">
+              </textarea>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 1rem;">
+              <div class="form-group" style="display: flex; flex-direction: column; gap: 0.4rem;">
+                <label style="font-weight: 600; font-size: 0.9rem;">Disponibilité (heures / semaine) :</label>
+                <input
+                  type="number"
+                  [(ngModel)]="profile.mentorHoursPerWeek"
+                  min="1"
+                  max="40"
+                  style="padding: 0.65rem; border-radius: 8px; border: 1px solid var(--border-color, #e5e7eb); font-size: 0.9rem;"
+                />
+              </div>
+
+              <div class="form-group" style="display: flex; flex-direction: column; gap: 0.4rem;">
+                <label style="font-weight: 600; font-size: 0.9rem;">Domaines de mentorat (séparés par virgules) :</label>
+                <input
+                  type="text"
+                  [(ngModel)]="mentorTopicsStr"
+                  [placeholder]="profile.mentorTopics?.join(', ') || 'Spring Boot, Angular, Architecture, Orientation'"
+                  style="padding: 0.65rem; border-radius: 8px; border: 1px solid var(--border-color, #e5e7eb); font-size: 0.9rem;"
+                />
+              </div>
+            </div>
+
+            <!-- Stats d'impact du mentor -->
+            <div style="display: flex; gap: 1.5rem; padding: 1rem; border-radius: 10px; background: rgba(16, 185, 129, 0.08); margin-top: 0.5rem;">
+              <div>
+                <strong style="display: block; font-size: 1.2rem; color: var(--primary, #10b981);">{{ profile.menteesHelpedCount || 0 }}</strong>
+                <span style="font-size: 0.8rem; color: var(--text-secondary, #4b5563);">Développeurs aidés</span>
+              </div>
+              <div>
+                <strong style="display: block; font-size: 1.2rem; color: var(--primary, #10b981);">{{ profile.xpPoints || 0 }} XP</strong>
+                <span style="font-size: 0.8rem; color: var(--text-secondary, #4b5563);">Score de réputation</span>
+              </div>
+            </div>
+
+            <div style="display: flex; justify-content: flex-end; margin-top: 0.5rem;">
+              <button
+                (click)="saveMentorSettings()"
+                [disabled]="isUpdatingMentor"
+                class="btn btn-emerald">
+                Enregistrer mes paramètres
+              </button>
             </div>
           </div>
         </div>

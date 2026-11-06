@@ -75,6 +75,10 @@ export const routes: Routes = [
       {
         path: 'aide/:id',
         loadComponent: () => import('./features/help/help-post-detail/help-post-detail.component').then(m => m.HelpPostDetailComponent)
+      },
+      {
+        path: 'mentors',
+        loadComponent: () => import('./features/mentors/mentor-list/mentor-list.component').then(m => m.MentorListComponent)
       }
     ]
   },

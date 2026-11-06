@@ -25,6 +25,11 @@ export interface Profile {
   xpPoints?: number;
   levelTitle?: string;
   levelNumber?: number;
+  isMentor?: boolean;
+  mentorBio?: string;
+  mentorHoursPerWeek?: number;
+  mentorTopics?: string[];
+  menteesHelpedCount?: number;
 }
 
 export interface LoginSession {

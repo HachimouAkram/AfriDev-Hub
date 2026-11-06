@@ -103,6 +103,14 @@
           <span class="nav-badge" style="background: rgba(16, 185, 129, 0.2); color: #10b981;">Aide</span>
         </a>
 
+        <a routerLink="/dashboard/mentors" (click)="closeMobileSidebar()" routerLinkActive="active" class="nav-item" [title]="isSidebarCollapsed() ? 'Mentors' : ''">
+          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16.5 18.75h-9m9 0a3 3 0 013 3h-15a3 3 0 013-3m9 0v-3.375c0-.621-.504-1.125-1.125-1.125h-.871M7.5 18.75v-3.375c0-.621.504-1.125 1.125-1.125h.872m5.003 0V4.875c0-.621-.504-1.125-1.125-1.125h-2.25c-.621 0-1.125.504-1.125 1.125v9.375m5.003 0H9.497" />
+          </svg>
+          <span class="nav-label">Mentors</span>
+          <span class="nav-badge badge-event">Guide</span>
+        </a>
+
         <a routerLink="/dashboard/projects" (click)="closeMobileSidebar()" routerLinkActive="active" class="nav-item" [title]="isSidebarCollapsed() ? 'Projets' : ''">
           <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.25 9.75L16.5 12l-2.25 2.25m-4.5 0L7.5 12l2.25-2.25M6 20.25h12A2.25 2.25 0 0020.25 18V6A2.25 2.25 0 0018 3.75H6A2.25 2.25 0 003.75 6v12A2.25 2.25 0 006 20.25z" />
