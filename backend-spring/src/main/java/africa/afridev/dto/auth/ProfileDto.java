@@ -38,4 +38,11 @@ public class ProfileDto {
     private Long xpPoints;
     private String levelTitle;
     private Integer levelNumber;
+
+    // Champs Mentor (Phase 2)
+    private Boolean isMentor;
+    private String mentorBio;
+    private Integer mentorHoursPerWeek;
+    private List<String> mentorTopics;
+    private Integer menteesHelpedCount;
 }

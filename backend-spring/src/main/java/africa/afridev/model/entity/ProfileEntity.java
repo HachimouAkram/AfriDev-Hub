@@ -14,7 +14,8 @@ import java.util.List;
 @Entity
 @Table(name = "profiles", indexes = {
     @Index(name = "idx_profile_country", columnList = "country"),
-    @Index(name = "idx_profile_xp", columnList = "xp_points")
+    @Index(name = "idx_profile_xp", columnList = "xp_points"),
+    @Index(name = "idx_profile_mentor", columnList = "is_mentor")
 })
 @Getter
 @Setter
@@ -95,6 +96,28 @@ public class ProfileEntity {
     @Column(name = "level_number", nullable = false, columnDefinition = "INTEGER DEFAULT 1")
     @Builder.Default
     private Integer levelNumber = 1;
+
+    // --- Champs Mentor / Volontariat Tech (Phase 2) ---
+    @Column(name = "is_mentor", nullable = false, columnDefinition = "BOOLEAN DEFAULT FALSE")
+    @Builder.Default
+    private Boolean isMentor = false;
+
+    @Column(name = "mentor_bio", columnDefinition = "TEXT")
+    private String mentorBio;
+
+    @Column(name = "mentor_hours_per_week")
+    @Builder.Default
+    private Integer mentorHoursPerWeek = 2;
+
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(name = "profile_mentor_topics", joinColumns = @JoinColumn(name = "profile_id"))
+    @Column(name = "topic")
+    @Builder.Default
+    private List<String> mentorTopics = new ArrayList<>();
+
+    @Column(name = "mentees_helped_count")
+    @Builder.Default
+    private Integer menteesHelpedCount = 0;
 
     @CreationTimestamp
     @Column(updatable = false)

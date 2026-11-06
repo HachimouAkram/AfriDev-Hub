@@ -441,6 +441,11 @@ public class AuthService {
                 .xpPoints(profile.getXpPoints())
                 .levelTitle(profile.getLevelTitle())
                 .levelNumber(profile.getLevelNumber())
+                .isMentor(Boolean.TRUE.equals(profile.getIsMentor()))
+                .mentorBio(profile.getMentorBio())
+                .mentorHoursPerWeek(profile.getMentorHoursPerWeek())
+                .mentorTopics(profile.getMentorTopics())
+                .menteesHelpedCount(profile.getMenteesHelpedCount())
                 .build();
     }
 }
