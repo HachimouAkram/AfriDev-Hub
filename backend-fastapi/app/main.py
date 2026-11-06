@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from datetime import datetime, timezone
 from dotenv import load_dotenv
-from app.routers import github, reputation, suggestions
+from app.routers import github, reputation, suggestions, mentors
 
 load_dotenv()
 
@@ -23,6 +23,7 @@ app.add_middleware(
 app.include_router(github.router)
 app.include_router(reputation.router)
 app.include_router(suggestions.router)
+app.include_router(mentors.router)
 
 @app.get("/")
 def read_root():
