@@ -94,6 +94,15 @@
 
         <div class="sidebar-section-header" *ngIf="!isSidebarCollapsed()">ACTIVITÉ</div>
 
+        <a routerLink="/dashboard/aide" (click)="closeMobileSidebar()" routerLinkActive="active" class="nav-item" [title]="isSidebarCollapsed() ? 'Entraide & Orientation' : ''">
+          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M12 18h.008v.008H12V18z" />
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <span class="nav-label">Entraide Tech</span>
+          <span class="nav-badge" style="background: rgba(16, 185, 129, 0.2); color: #10b981;">Aide</span>
+        </a>
+
         <a routerLink="/dashboard/projects" (click)="closeMobileSidebar()" routerLinkActive="active" class="nav-item" [title]="isSidebarCollapsed() ? 'Projets' : ''">
           <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.25 9.75L16.5 12l-2.25 2.25m-4.5 0L7.5 12l2.25-2.25M6 20.25h12A2.25 2.25 0 0020.25 18V6A2.25 2.25 0 0018 3.75H6A2.25 2.25 0 003.75 6v12A2.25 2.25 0 006 20.25z" />
@@ -130,12 +139,12 @@
     <div class="sidebar-footer">
       <div class="sidebar-section-header" *ngIf="!isSidebarCollapsed()">ESPACE</div>
 
-      <!-- Profil Dev masqué pour Super Admin -->
-      <a *ngIf="!isAdmin()" routerLink="/dashboard/profile" (click)="closeMobileSidebar()" routerLinkActive="active" class="nav-item" [title]="isSidebarCollapsed() ? 'Profil' : ''">
+      <!-- Profil Utilisateur & Super Admin -->
+      <a [routerLink]="isAdmin() ? '/admin/profile' : '/dashboard/profile'" (click)="closeMobileSidebar()" [class.active]="isAdminProfileActive()" routerLinkActive="active" class="nav-item" [title]="isSidebarCollapsed() ? 'Mon Profil' : ''">
         <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
         </svg>
-        <span class="nav-label">Profil</span>
+        <span class="nav-label">{{ isSuperAdmin() ? 'Mon Profil (Super Admin)' : (isAdmin() ? 'Mon Profil (Admin)' : 'Mon Profil') }}</span>
       </a>
 
       <a routerLink="/" (click)="closeMobileSidebar()" class="nav-item link-site-btn" [title]="isSidebarCollapsed() ? 'Voir le site' : ''">
@@ -296,7 +305,7 @@
 
           <!-- Floating Profile Dropdown Card -->
           <div class="profile-dropdown-menu app-card" *ngIf="isProfileMenuOpen" (click)="$event.stopPropagation()">
-            <div class="dropdown-header-box">
+            <div class="dropdown-header-box" [routerLink]="isAdmin() ? '/admin/profile' : '/dashboard/profile'" (click)="closeProfileMenu()" style="cursor: pointer;" title="Accéder à mon profil">
               <div class="dropdown-avatar-circle">
                 {{ u.profile?.fullName ? u.profile.fullName.charAt(0).toUpperCase() : 'A' }}
               </div>
@@ -319,6 +328,13 @@
             <div class="dropdown-links">
               <!-- 1. LIENS COCKPIT SUPER ADMIN (SI ADMIN/SUPER_ADMIN) -->
               <ng-container *ngIf="isAdmin()">
+                <a [routerLink]="isAdmin() ? '/admin/profile' : '/dashboard/profile'" (click)="closeProfileMenu()" class="dropdown-link-item highlight-admin-link">
+                  <svg class="icon-svg icon-svg-sm text-emerald" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
+                  </svg>
+                  <span><strong>{{ isSuperAdmin() ? '👑 Mon Profil Super Admin' : '🛡️ Mon Profil Admin' }}</strong></span>
+                </a>
+
                 <a routerLink="/admin/adoption" (click)="closeProfileMenu()" class="dropdown-link-item highlight-admin-link">
                   <svg class="icon-svg icon-svg-sm text-emerald" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 21a9.004 9.004 0 008.716-6.747M12 21a9.004 9.004 0 01-8.716-6.747M12 21c2.485 0 4.5-4.03 4.5-9S14.485 3 12 3" />

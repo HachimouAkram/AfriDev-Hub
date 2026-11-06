@@ -63,6 +63,18 @@ export const routes: Routes = [
       {
         path: 'leaderboard',
         loadComponent: () => import('./features/leaderboard/leaderboard.component').then(m => m.LeaderboardComponent)
+      },
+      {
+        path: 'aide',
+        loadComponent: () => import('./features/help/help-feed/help-feed.component').then(m => m.HelpFeedComponent)
+      },
+      {
+        path: 'aide/creer',
+        loadComponent: () => import('./features/help/create-help-post/create-help-post.component').then(m => m.CreateHelpPostComponent)
+      },
+      {
+        path: 'aide/:id',
+        loadComponent: () => import('./features/help/help-post-detail/help-post-detail.component').then(m => m.HelpPostDetailComponent)
       }
     ]
   },
@@ -143,6 +155,10 @@ export const routes: Routes = [
       {
         path: 'audit',
         loadComponent: () => import('./features/admin/pages/admin-audit/admin-audit.component').then(m => m.AdminAuditComponent)
+      },
+      {
+        path: 'profile',
+        loadComponent: () => import('./features/profile/profile-detail/profile-detail.component').then(m => m.ProfileDetailComponent)
       }
     ]
   },

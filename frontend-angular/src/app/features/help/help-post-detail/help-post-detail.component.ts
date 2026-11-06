@@ -242,7 +242,7 @@ export class HelpPostDetailComponent implements OnInit {
   currentUserEmail: string | null = null;
 
   ngOnInit(): void {
-    const user = this.authService.getCurrentUser();
+    const user = this.authService.currentUser();
     this.currentUserEmail = user?.email || null;
 
     this.route.paramMap.subscribe(params => {
@@ -403,3 +403,4 @@ export class HelpPostDetailComponent implements OnInit {
     }
   }
 }
+
