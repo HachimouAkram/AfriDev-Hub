@@ -68,9 +68,9 @@ import { AuthService } from '../../../core/services/auth.service';
               <div class="status-modifier" *ngIf="post.isAuthor">
                 <label>Statut :</label>
                 <select [ngModel]="post.status" (ngModelChange)="onStatusChange($event)">
-                  <option value="OUVERTE">🟢 Ouverte</option>
-                  <option value="EN_COURS">🟡 En cours</option>
-                  <option value="RESOLUE">✅ Résolue</option>
+                  <option value="OUVERTE">Ouverte</option>
+                  <option value="EN_COURS">En cours</option>
+                  <option value="RESOLUE">Résolue</option>
                 </select>
               </div>
 
@@ -100,7 +100,9 @@ import { AuthService } from '../../../core/services/auth.service';
 
         <!-- Bannière résolue -->
         <div class="resolved-alert" *ngIf="post.status === 'RESOLUE'">
-          <div class="alert-icon">🎉</div>
+          <svg class="icon-svg icon-svg-sm text-emerald" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
           <div>
             <strong>Demande résolue !</strong>
             <p *ngIf="post.resolvedBy">
@@ -114,7 +116,7 @@ import { AuthService } from '../../../core/services/auth.service';
       <!-- Section Commentaires & Réponses (Tâche 1.3 & 1.8) -->
       <section class="comments-section">
         <div class="comments-header">
-          <h2>💬 Réponses & Conseils ({{ comments.length }})</h2>
+          <h2>Réponses & Conseils ({{ comments.length }})</h2>
         </div>
 
         <!-- Formulaire d'ajout de réponse -->
@@ -126,7 +128,7 @@ import { AuthService } from '../../../core/services/auth.service';
             class="comment-textarea">
           </textarea>
           <div class="comment-actions">
-            <span class="comment-hint">💡 Votre réponse pourra être marquée comme solution par le demandeur.</span>
+            <span class="comment-hint">Votre réponse pourra être marquée comme solution par le demandeur.</span>
             <button
               (click)="submitComment()"
               [disabled]="!newCommentText.trim() || isSubmittingComment"
@@ -153,7 +155,12 @@ import { AuthService } from '../../../core/services/auth.service';
                 <div class="comment-meta">
                   <span class="comment-author-name">{{ comment.author?.profile?.fullName || comment.author?.email }}</span>
                   <span class="comment-date">{{ comment.createdAt | date:'short' }}</span>
-                  <span class="badge-accepted" *ngIf="comment.isAccepted">✅ Solution acceptée</span>
+                  <span class="badge-accepted" *ngIf="comment.isAccepted">
+                    <svg class="icon-svg icon-svg-xs" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.5 12.75l6 6 9-13.5" />
+                    </svg>
+                    <span>Solution acceptée</span>
+                  </span>
                 </div>
 
                 <div class="comment-controls">
@@ -196,7 +203,7 @@ import { AuthService } from '../../../core/services/auth.service';
               <!-- Bouton Répondre au commentaire -->
               <div class="reply-toggle" *ngIf="replyingToCommentId !== comment.id">
                 <button (click)="openReplyBox(comment.id)" class="btn-inline-reply">
-                  ↩ Répondre
+                  Répondre
                 </button>
               </div>
 

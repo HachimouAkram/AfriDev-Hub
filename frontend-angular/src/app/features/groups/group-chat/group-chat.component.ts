@@ -394,3 +394,4 @@ export class GroupChatComponent implements OnInit, OnChanges, OnDestroy {
     }, 100);
   }
 }
+

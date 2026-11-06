@@ -20,21 +20,26 @@ import {
   standalone: true,
   imports: [CommonModule, FormsModule, RouterModule],
   template: `
-    <div class="create-help-container">
-      <div class="create-help-header">
-        <a routerLink="/dashboard/aide" class="btn-back">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
-          </svg>
-          Retour au feed
-        </a>
-        <h1>📢 Demander de l'Aide ou une Orientation</h1>
-        <p class="subtitle">
-          Expliquez clairement votre besoin. La communauté et nos volontaires vous répondront rapidement.
-        </p>
+    <div class="projects-dashboard-page animate-fade-in">
+      <div class="projects-header-card app-card">
+        <div class="header-text-group">
+          <h2>Demander de l'Aide ou une Orientation</h2>
+          <p class="subtext">
+            Expliquez clairement votre besoin. La communauté et nos volontaires vous répondront rapidement.
+          </p>
+        </div>
+
+        <div class="header-buttons-wrap">
+          <a routerLink="/dashboard/aide" class="btn btn-outline-clean btn-icon-text">
+            <svg class="icon-svg icon-svg-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
+            </svg>
+            <span>Retour aux demandes</span>
+          </a>
+        </div>
       </div>
 
-      <form (ngSubmit)="submit()" class="create-help-form" #form="ngForm">
+      <form (ngSubmit)="submit()" class="create-help-form app-card" #form="ngForm">
 
         <!-- Type de demande (Tâche 1.4) -->
         <div class="form-group">
@@ -98,10 +103,10 @@ import {
           <label for="niveau">Votre niveau d'expérience</label>
           <select id="niveau" [(ngModel)]="formData.niveauDemandeur" name="niveauDemandeur" class="form-control">
             <option [ngValue]="undefined">Non spécifié</option>
-            <option value="JUNIOR">🌱 Débutant / Étudiant</option>
-            <option value="MID">🧑‍💻 Développeur Junior (1-2 ans)</option>
-            <option value="SENIOR">⭐ Intermédiaire (3-5 ans)</option>
-            <option value="EXPERT">🏆 Confirmé / Senior</option>
+            <option value="JUNIOR">Débutant / Étudiant</option>
+            <option value="MID">Développeur Junior (1-2 ans)</option>
+            <option value="SENIOR">Intermédiaire (3-5 ans)</option>
+            <option value="EXPERT">Confirmé / Senior</option>
           </select>
         </div>
 
@@ -143,12 +148,12 @@ import {
 
         <!-- Boutons d'action -->
         <div class="form-actions">
-          <button type="button" routerLink="/dashboard/aide" class="btn-cancel">Annuler</button>
+          <button type="button" routerLink="/dashboard/aide" class="btn btn-outline-clean">Annuler</button>
           <button
             type="submit"
             [disabled]="form.invalid || isSubmitting"
-            class="btn-submit">
-            <span *ngIf="!isSubmitting">📢 Publier ma demande</span>
+            class="btn btn-emerald">
+            <span *ngIf="!isSubmitting">Publier ma demande</span>
             <span *ngIf="isSubmitting">Publication en cours...</span>
           </button>
         </div>

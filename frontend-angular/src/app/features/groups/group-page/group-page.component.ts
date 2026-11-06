@@ -43,7 +43,7 @@ import { GroupChatComponent } from '../group-chat/group-chat.component';
                 Créé par {{ group.owner?.profile?.fullName || group.owner?.email }} •
                 {{ group.memberCount }} membre{{ group.memberCount > 1 ? 's' : '' }} •
                 {{ group.postCount }} publication{{ group.postCount > 1 ? 's' : '' }}
-                <span *ngIf="group.country"> • 📍 {{ group.country }}</span>
+                <span *ngIf="group.country"> • {{ group.country }}</span>
               </p>
             </div>
           </div>
@@ -59,7 +59,7 @@ import { GroupChatComponent } from '../group-chat/group-chat.component';
             </button>
 
             <span *ngIf="group.isPending" class="badge-pending-large">
-              ⏳ Adhésion en attente d'approbation
+              Adhésion en attente d'approbation
             </span>
 
             <button
@@ -77,33 +77,33 @@ import { GroupChatComponent } from '../group-chat/group-chat.component';
             class="tab-link"
             [class.active]="activeTab === 'feed'"
             (click)="activeTab = 'feed'">
-            📢 Publications & Échanges
+            Publications & Échanges
           </button>
           <button
             *ngIf="group.isMember"
             class="tab-link"
             [class.active]="activeTab === 'chat'"
             (click)="activeTab = 'chat'">
-            💬 Salons & Chat Direct
+            Salons & Chat Direct
           </button>
           <button
             class="tab-link"
             [class.active]="activeTab === 'about'"
             (click)="activeTab = 'about'">
-            ℹ️ À propos & Règles
+            À propos & Règles
           </button>
           <button
             class="tab-link"
             [class.active]="activeTab === 'members'"
             (click)="activeTab = 'members'; loadMembers()">
-            👥 Membres ({{ group.memberCount }})
+            Membres ({{ group.memberCount }})
           </button>
           <button
             *ngIf="canManageGroup()"
             class="tab-link"
             [class.active]="activeTab === 'admin'"
             (click)="activeTab = 'admin'; loadPendingMembers()">
-            🛡️ Administration & Modération
+            Administration & Modération
           </button>
         </nav>
       </header>
@@ -116,7 +116,7 @@ import { GroupChatComponent } from '../group-chat/group-chat.component';
       <main *ngIf="activeTab === 'feed'" class="feed-tab-content">
         <!-- Formulaire de publication (Membres seulement) -->
         <div class="create-post-card" *ngIf="group.isMember">
-          <h3>✍️ Publier dans la communauté</h3>
+          <h3>Publier dans la communauté</h3>
           <input
             type="text"
             [(ngModel)]="newPost.title"
@@ -133,20 +133,20 @@ import { GroupChatComponent } from '../group-chat/group-chat.component';
           <div class="post-options-bar">
             <div class="select-options">
               <select [(ngModel)]="newPost.type">
-                <option value="DISCUSSION">💬 Discussion</option>
-                <option value="RESSOURCE">📚 Ressource & Code</option>
-                <option value="ANNONCE">📢 Annonce</option>
-                <option value="EVENEMENT">📅 Événement</option>
+                <option value="DISCUSSION">Discussion</option>
+                <option value="RESSOURCE">Ressource & Code</option>
+                <option value="ANNONCE">Annonce</option>
+                <option value="EVENEMENT">Événement</option>
               </select>
 
               <select [(ngModel)]="newPost.visibility">
-                <option value="PUBLIC">🌐 Visible par tous</option>
-                <option value="MEMBRES_SEULEMENT">🔒 Membres seulement</option>
+                <option value="PUBLIC">Visible par tous</option>
+                <option value="MEMBRES_SEULEMENT">Membres seulement</option>
               </select>
 
               <label *ngIf="canManageGroup()" class="checkbox-pin">
                 <input type="checkbox" [(ngModel)]="newPost.isPinned" />
-                <span>📌 Épingler</span>
+                <span>Épingler</span>
               </label>
             </div>
 
@@ -161,7 +161,7 @@ import { GroupChatComponent } from '../group-chat/group-chat.component';
 
         <!-- Non-membre CTA -->
         <div class="guest-banner" *ngIf="!group.isMember">
-          <p>🔒 Rejoignez cette communauté pour publier, commenter et échanger avec les membres.</p>
+          <p>Rejoignez cette communauté pour publier, commenter et échanger avec les membres.</p>
           <button (click)="joinGroup()" class="btn-primary-action btn-sm">Rejoindre</button>
         </div>
 
@@ -177,7 +177,7 @@ import { GroupChatComponent } from '../group-chat/group-chat.component';
           </div>
 
           <article *ngFor="let post of posts" class="group-post-item" [class.pinned-post]="post.isPinned">
-            <div class="post-pinned-badge" *ngIf="post.isPinned">📌 Publication Épinglée</div>
+            <div class="post-pinned-badge" *ngIf="post.isPinned">Publication Épinglée</div>
 
             <div class="post-header">
               <div class="author-meta">
@@ -190,7 +190,7 @@ import { GroupChatComponent } from '../group-chat/group-chat.component';
 
               <div class="post-badges">
                 <span class="badge-post-type">{{ post.type }}</span>
-                <span class="badge-post-vis" *ngIf="post.visibility === 'MEMBRES_SEULEMENT'">🔒 Membres</span>
+                <span class="badge-post-vis" *ngIf="post.visibility === 'MEMBRES_SEULEMENT'">Membres</span>
                 <button *ngIf="post.canEditOrDelete" (click)="deletePost(post)" class="btn-del-post" title="Supprimer">✕</button>
               </div>
             </div>
@@ -358,9 +358,9 @@ export class GroupPageComponent implements OnInit {
 
   getAccessLabel(type: string): string {
     switch (type) {
-      case 'PUBLIC': return '🌐 Public';
-      case 'OUVERT': return '🛡️ Sur demande';
-      case 'PRIVE': return '🔒 Privé';
+      case 'PUBLIC': return 'Public';
+      case 'OUVERT': return 'Sur demande';
+      case 'PRIVE': return 'Privé';
       default: return type;
     }
   }

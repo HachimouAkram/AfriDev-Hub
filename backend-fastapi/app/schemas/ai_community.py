@@ -63,3 +63,4 @@ class TagSuggestionRequest(BaseModel):
 class TagSuggestionResponse(BaseModel):
     suggested_tags: List[str]
     confidence_scores: dict
+

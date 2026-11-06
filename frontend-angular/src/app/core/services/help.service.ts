@@ -68,17 +68,17 @@ export interface HelpPostFilters {
 
 // Labels affichage UI
 export const HELP_TYPE_LABELS: Record<HelpPostType, string> = {
-  ORIENTATION: '🧭 Orientation',
-  CODE:        '💻 Aide Code',
-  FORMATION:   '📚 Formation',
-  CARRIERE:    '🎯 Carrière',
-  PROJET:      '🚀 Projet',
+  ORIENTATION: 'Orientation',
+  CODE:        'Aide Code',
+  FORMATION:   'Formation',
+  CARRIERE:    'Carrière',
+  PROJET:      'Projet',
 };
 
 export const HELP_STATUS_LABELS: Record<HelpPostStatus, string> = {
-  OUVERTE:   '🟢 Ouverte',
-  EN_COURS:  '🟡 En cours',
-  RESOLUE:   '✅ Résolue',
+  OUVERTE:   'Ouverte',
+  EN_COURS:  'En cours',
+  RESOLUE:   'Résolue',
 };
 
 export const HELP_STATUS_COLORS: Record<HelpPostStatus, string> = {

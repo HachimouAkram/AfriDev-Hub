@@ -10,21 +10,26 @@ import { POPULAR_TAGS } from '../../../core/services/help.service';
   standalone: true,
   imports: [CommonModule, FormsModule, RouterModule],
   template: `
-    <div class="create-group-container">
-      <div class="create-group-header">
-        <a routerLink="/dashboard/groupes" class="btn-back">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
-          </svg>
-          Retour aux groupes
-        </a>
-        <h1>Créer une Communauté Tech</h1>
-        <p class="subtitle">
-          Rassemblez des développeurs, partagez vos tutoriels, organisez des sessions et animez votre collectif.
-        </p>
+    <div class="projects-dashboard-page animate-fade-in">
+      <div class="projects-header-card app-card">
+        <div class="header-text-group">
+          <h2>Créer une Communauté Tech</h2>
+          <p class="subtext">
+            Rassemblez des développeurs, partagez vos tutoriels, organisez des sessions et animez votre collectif.
+          </p>
+        </div>
+
+        <div class="header-buttons-wrap">
+          <a routerLink="/dashboard/groupes" class="btn btn-outline-clean btn-icon-text">
+            <svg class="icon-svg icon-svg-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
+            </svg>
+            <span>Retour aux communautés</span>
+          </a>
+        </div>
       </div>
 
-      <form (ngSubmit)="submit()" class="create-group-form" #form="ngForm">
+      <form (ngSubmit)="submit()" class="create-group-form app-card" #form="ngForm">
         <!-- Nom du groupe -->
         <div class="form-group">
           <label for="name">Nom de la communauté <span class="required">*</span></label>
@@ -80,7 +85,7 @@ import { POPULAR_TAGS } from '../../../core/services/help.service';
             <label class="access-card" [class.selected]="formData.accessType === 'PUBLIC'">
               <input type="radio" [(ngModel)]="formData.accessType" name="accessType" value="PUBLIC" />
               <div>
-                <strong>🌐 Groupe Public</strong>
+                <strong>Groupe Public</strong>
                 <span>Accessible à tous les membres d'AfriDev sans modération.</span>
               </div>
             </label>
@@ -88,7 +93,7 @@ import { POPULAR_TAGS } from '../../../core/services/help.service';
             <label class="access-card" [class.selected]="formData.accessType === 'OUVERT'">
               <input type="radio" [(ngModel)]="formData.accessType" name="accessType" value="OUVERT" />
               <div>
-                <strong>🛡️ Sur Demande (Ouvert)</strong>
+                <strong>Sur Demande (Ouvert)</strong>
                 <span>Visible publiquement, mais les adhésions sont validées par vous.</span>
               </div>
             </label>
@@ -96,7 +101,7 @@ import { POPULAR_TAGS } from '../../../core/services/help.service';
             <label class="access-card" [class.selected]="formData.accessType === 'PRIVE'">
               <input type="radio" [(ngModel)]="formData.accessType" name="accessType" value="PRIVE" />
               <div>
-                <strong>🔒 Groupe Privé</strong>
+                <strong>Groupe Privé</strong>
                 <span>Invisible dans la recherche, accessible uniquement par invitation.</span>
               </div>
             </label>
@@ -167,9 +172,9 @@ import { POPULAR_TAGS } from '../../../core/services/help.service';
 
         <!-- Actions -->
         <div class="form-actions">
-          <button type="button" routerLink="/dashboard/groupes" class="btn-cancel">Annuler</button>
-          <button type="submit" [disabled]="form.invalid || isSubmitting" class="btn-submit">
-            <span *ngIf="!isSubmitting">✨ Créer mon Groupe (+50 XP)</span>
+          <button type="button" routerLink="/dashboard/groupes" class="btn btn-outline-clean">Annuler</button>
+          <button type="submit" [disabled]="form.invalid || isSubmitting" class="btn btn-emerald">
+            <span *ngIf="!isSubmitting">Créer mon Groupe (+50 XP)</span>
             <span *ngIf="isSubmitting">Création en cours...</span>
           </button>
         </div>

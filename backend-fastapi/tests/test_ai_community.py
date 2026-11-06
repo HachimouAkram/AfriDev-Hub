@@ -138,3 +138,4 @@ def test_mentor_recommendation_endpoint():
     assert data["mentee_id"] == "mentee-1"
     assert len(data["recommendations"]) == 1
     assert data["recommendations"][0]["match_score"] > 50
+

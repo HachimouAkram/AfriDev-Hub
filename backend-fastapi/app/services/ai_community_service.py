@@ -193,3 +193,4 @@ class AICommunityService:
             suggested_tags=[t[0] for t in top_tags],
             confidence_scores={t[0]: t[1] for t in top_tags}
         )
+

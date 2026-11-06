@@ -80,7 +80,10 @@ import {
 
       <!-- Badge résolu -->
       <div class="resolved-banner" *ngIf="post.status === 'RESOLUE'">
-        ✅ Résolu par {{ post.resolvedBy?.profile?.fullName || post.resolvedBy?.email || 'la communauté' }}
+        <svg class="icon-svg icon-svg-xs" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.5 12.75l6 6 9-13.5" />
+        </svg>
+        <span>Résolu par {{ post.resolvedBy?.profile?.fullName || post.resolvedBy?.email || 'la communauté' }}</span>
       </div>
     </div>
   `,
