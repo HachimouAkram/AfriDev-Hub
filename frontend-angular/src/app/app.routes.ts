@@ -79,6 +79,18 @@ export const routes: Routes = [
       {
         path: 'mentors',
         loadComponent: () => import('./features/mentors/mentor-list/mentor-list.component').then(m => m.MentorListComponent)
+      },
+      {
+        path: 'groupes',
+        loadComponent: () => import('./features/groups/group-list/group-list.component').then(m => m.GroupListComponent)
+      },
+      {
+        path: 'groupes/creer',
+        loadComponent: () => import('./features/groups/create-group/create-group.component').then(m => m.CreateGroupComponent)
+      },
+      {
+        path: 'groupes/:slug',
+        loadComponent: () => import('./features/groups/group-page/group-page.component').then(m => m.GroupPageComponent)
       }
     ]
   },
