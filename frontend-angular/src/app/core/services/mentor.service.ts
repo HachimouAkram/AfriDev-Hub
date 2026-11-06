@@ -11,6 +11,7 @@ export interface MentorCard {
   country: string;
   city: string;
   avatarUrl?: string;
+  isMentor?: boolean;
   mentorBio?: string;
   mentorHoursPerWeek: number;
   mentorTopics: string[];
@@ -61,3 +62,4 @@ export class MentorService {
     return this.http.put<ApiResponse<MentorCard>>(`${this.apiUrl}/status`, data);
   }
 }
+

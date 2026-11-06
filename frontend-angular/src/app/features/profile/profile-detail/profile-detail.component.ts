@@ -721,6 +721,8 @@ export class ProfileDetailComponent implements OnInit {
       const percent = Math.min(100, Math.max(0, Math.round((xp / max) * 100)));
       return { percent, nextLevelXp: 251, remainingXp: 251 - xp, nextLevelTitle: 'Senior' };
     }
+  }
+
   toggleMentorStatus(): void {
     if (!this.profile) return;
     this.isUpdatingMentor = true;
