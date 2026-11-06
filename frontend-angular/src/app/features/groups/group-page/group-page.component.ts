@@ -12,11 +12,12 @@ import {
   GroupMemberStatus
 } from '../../../core/services/community-group.service';
 import { AuthService } from '../../../core/services/auth.service';
+import { GroupChatComponent } from '../group-chat/group-chat.component';
 
 @Component({
   selector: 'app-group-page',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule, DatePipe],
+  imports: [CommonModule, FormsModule, RouterModule, DatePipe, GroupChatComponent],
   template: `
     <div class="group-page-container" *ngIf="group">
       <!-- En-tête / Bannière du Groupe -->
@@ -77,6 +78,13 @@ import { AuthService } from '../../../core/services/auth.service';
             [class.active]="activeTab === 'feed'"
             (click)="activeTab = 'feed'">
             📢 Publications & Échanges
+          </button>
+          <button
+            *ngIf="group.isMember"
+            class="tab-link"
+            [class.active]="activeTab === 'chat'"
+            (click)="activeTab = 'chat'">
+            💬 Salons & Chat Direct
           </button>
           <button
             class="tab-link"
@@ -193,7 +201,12 @@ import { AuthService } from '../../../core/services/auth.service';
         </div>
       </main>
 
-      <!-- ONGLET 2 : À PROPOS & RÈGLES -->
+      <!-- ONGLET 2 : SALONS & CHAT DIRECT -->
+      <section *ngIf="activeTab === 'chat' && group.isMember" class="chat-tab-content">
+        <app-group-chat [groupId]="group.id" [canManageChannels]="canManageGroup()"></app-group-chat>
+      </section>
+
+      <!-- ONGLET 3 : À PROPOS & RÈGLES -->
       <section *ngIf="activeTab === 'about'" class="about-tab-content">
         <div class="info-card">
           <h3>Description du groupe</h3>
@@ -259,7 +272,7 @@ export class GroupPageComponent implements OnInit {
 
   groupSlug = '';
   group?: Group;
-  activeTab: 'feed' | 'about' | 'members' | 'admin' = 'feed';
+  activeTab: 'feed' | 'chat' | 'about' | 'members' | 'admin' = 'feed';
 
   posts: GroupPost[] = [];
   members: GroupMember[] = [];
@@ -447,3 +460,4 @@ export class GroupPageComponent implements OnInit {
     });
   }
 }
+
