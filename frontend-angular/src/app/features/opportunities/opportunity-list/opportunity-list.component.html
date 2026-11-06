@@ -88,12 +88,12 @@
 
             <!-- Match Percentage Badge -->
             <span *ngIf="opt.matchPercentage" class="badge badge-match" title="Indice de compatibilité avec votre profil">
-              ✨ {{ opt.matchPercentage | number:'1.0-0' }}% Match
+              <i class="ri-magic-line"></i> {{ opt.matchPercentage | number:'1.0-0' }}% Match
             </span>
 
             <!-- Recruiter Followed Badge -->
             <span *ngIf="opt.isPublisherFollowed" class="badge badge-followed" title="Vous suivez l'émetteur de cette offre">
-              👥 Suivi
+              <i class="ri-user-follow-line"></i> Suivi
             </span>
 
             <!-- Already Applied Badge -->
@@ -147,7 +147,7 @@
                   class="badge badge-sm"
                   [ngClass]="isMatchedTech(tech, opt) ? 'badge-tech-matched' : 'badge-gray'"
                   [title]="isMatchedTech(tech, opt) ? 'Compétence présente dans votre profil !' : ''">
-              <span *ngIf="isMatchedTech(tech, opt)">✨ </span>{{ tech }}
+              <i *ngIf="isMatchedTech(tech, opt)" class="ri-check-line tag-icon-match"></i> {{ tech }}
             </span>
             <span *ngIf="opt.stack.length > 5" class="badge badge-gray badge-sm">+{{ opt.stack.length - 5 }}</span>
           </div>

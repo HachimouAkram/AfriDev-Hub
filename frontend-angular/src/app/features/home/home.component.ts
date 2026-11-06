@@ -4,6 +4,7 @@ import { RouterLink } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
 import { ProjectService, Project } from '../../core/services/project.service';
 import { NetworkService, UserNetwork } from '../../core/services/network.service';
+import { CommunityGroupService, Group } from '../../core/services/community-group.service';
 
 @Component({
   selector: 'app-home',
@@ -16,12 +17,15 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
   public authService = inject(AuthService);
   private projectService = inject(ProjectService);
   private networkService = inject(NetworkService);
+  private groupService = inject(CommunityGroupService);
   private el = inject(ElementRef);
 
   featuredProjects: Project[] = [];
   featuredMembers: UserNetwork[] = [];
+  featuredCommunities: Group[] = [];
   isLoadingProjects = false;
   isLoadingMembers = false;
+  isLoadingCommunities = false;
 
   // Animated Statistics above Showcase
   statDevs = 0;
@@ -34,6 +38,7 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
   ngOnInit(): void {
     this.loadFeaturedProjects();
     this.loadFeaturedMembers();
+    this.loadFeaturedCommunities();
     this.animateCounters();
   }
 
@@ -133,6 +138,24 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
       },
       error: () => this.isLoadingMembers = false
     });
+  }
+
+  loadFeaturedCommunities(): void {
+    this.isLoadingCommunities = true;
+    this.groupService.searchGroups(undefined, undefined, undefined, 0, 3).subscribe({
+      next: (res) => {
+        this.isLoadingCommunities = false;
+        if (res.success && res.data) {
+          const list = res.data.content || [];
+          this.featuredCommunities = list.slice(0, 3);
+        }
+      },
+      error: () => this.isLoadingCommunities = false
+    });
+  }
+
+  getGroupInitial(name?: string): string {
+    return name && name.trim().length > 0 ? name.trim().charAt(0).toUpperCase() : 'C';
   }
 
   cleanText(text: string | undefined): string {

@@ -1,0 +1,190 @@
+<div class="public-group-page animate-fade-in" *ngIf="group">
+  <!-- Toast -->
+  <div *ngIf="successToast" class="floating-toast">
+    <i class="ri-checkbox-circle-fill"></i>
+    <span>{{ successToast }}</span>
+  </div>
+
+  <!-- Breadcrumb -->
+  <nav class="breadcrumb-bar">
+    <a routerLink="/communautes" class="breadcrumb-link">
+      <i class="ri-arrow-left-line"></i> Retour aux communautés
+    </a>
+    <span class="breadcrumb-separator">/</span>
+    <span class="breadcrumb-current">{{ group.name }}</span>
+  </nav>
+
+  <!-- Hero Header Card -->
+  <header class="group-hero-card app-card">
+    <div class="banner-area" [style.background-image]="group.bannerUrl ? 'url(' + group.bannerUrl + ')' : null">
+      <div class="banner-gradient"></div>
+    </div>
+
+    <div class="header-main-content">
+      <div class="group-identity-row">
+        <div class="group-big-avatar">
+          <img *ngIf="group.avatarUrl" [src]="group.avatarUrl" [alt]="group.name" />
+          <span *ngIf="!group.avatarUrl">{{ getInitial(group.name) }}</span>
+        </div>
+
+        <div class="group-titles-block">
+          <div class="title-with-badges">
+            <h1>{{ group.name }}</h1>
+            <span class="badge-access">
+              <i class="ri-shield-check-line"></i> {{ getAccessLabel(group.accessType) }}
+            </span>
+          </div>
+
+          <p class="group-subline">
+            <span><i class="ri-user-star-line"></i> Fondé par {{ group.owner?.profile?.fullName || group.owner?.email }}</span>
+            <span class="dot-sep">&bull;</span>
+            <span><i class="ri-group-line"></i> {{ group.memberCount }} membre{{ group.memberCount > 1 ? 's' : '' }}</span>
+            <span class="dot-sep">&bull;</span>
+            <span><i class="ri-chat-1-line"></i> {{ group.postCount }} publication{{ group.postCount > 1 ? 's' : '' }}</span>
+            <span class="dot-sep" *ngIf="group.country">&bull;</span>
+            <span *ngIf="group.country"><i class="ri-map-pin-2-line"></i> {{ group.city ? group.city + ', ' : '' }}{{ group.country }}</span>
+          </p>
+        </div>
+      </div>
+
+      <div class="header-action-button">
+        <button (click)="handleJoin()" [disabled]="isJoining" class="btn-hero-join">
+          <i *ngIf="group.isMember" class="ri-checkbox-circle-line"></i>
+          <i *ngIf="!group.isMember" class="ri-user-add-line"></i>
+          <span>{{ group.isMember ? 'Accéder à mon espace' : 'Rejoindre la communauté' }}</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Layout en 2 Colonnes -->
+  <div class="group-page-grid">
+    
+    <!-- Colonne Principale : Description, Règles & Publications Publiques -->
+    <main class="main-column">
+      
+      <!-- Présentation & Mission -->
+      <section class="section-card app-card">
+        <div class="section-card-header">
+          <i class="ri-information-line text-emerald"></i>
+          <h2>À propos de cette communauté</h2>
+        </div>
+        <p class="group-description-full">{{ group.description }}</p>
+
+        <!-- Tags / Spécialités -->
+        <div class="tags-row" *ngIf="group.tags && group.tags.length > 0">
+          <span *ngFor="let t of group.tags" class="tag-pill">#{{ t }}</span>
+        </div>
+      </section>
+
+      <!-- Charte / Règles du groupe (si renseignées) -->
+      <section class="section-card app-card" *ngIf="group.rulesMarkdown">
+        <div class="section-card-header">
+          <i class="ri-file-list-3-line text-emerald"></i>
+          <h2>Charte & Règles de conduite</h2>
+        </div>
+        <div class="rules-box">
+          <pre class="rules-text">{{ group.rulesMarkdown }}</pre>
+        </div>
+      </section>
+
+      <!-- Publications Publiques Récentes -->
+      <section class="section-card app-card">
+        <div class="section-card-header">
+          <i class="ri-broadcast-line text-emerald"></i>
+          <h2>Publications & Échanges Publics</h2>
+        </div>
+
+        <div *ngIf="isLoadingPosts" class="feed-loading">
+          <div class="spinner"></div>
+          <p class="subtext">Chargement des publications...</p>
+        </div>
+
+        <div *ngIf="!isLoadingPosts && publicPosts.length === 0" class="empty-feed">
+          <i class="ri-chat-new-line empty-feed-icon"></i>
+          <p class="empty-title">Aucune publication publique pour l'instant</p>
+          <p class="subtext">Les discussions privées et salons de chat sont réservés aux membres du groupe.</p>
+        </div>
+
+        <div *ngIf="!isLoadingPosts && publicPosts.length > 0" class="posts-list">
+          <article *ngFor="let post of publicPosts" class="post-preview-card">
+            <div class="post-author-row">
+              <div class="author-circle">
+                {{ (post.author?.profile?.fullName || post.author?.email || 'M').charAt(0).toUpperCase() }}
+              </div>
+              <div class="author-meta">
+                <span class="author-name">{{ post.author?.profile?.fullName || post.author?.email }}</span>
+                <span class="post-date">{{ post.createdAt | date:'dd MMM yyyy à HH:mm' }}</span>
+              </div>
+              <span class="post-type-tag">{{ post.type }}</span>
+            </div>
+
+            <h3 class="post-title">{{ post.title }}</h3>
+            <p class="post-snippet">{{ post.content }}</p>
+
+            <div class="post-stats-row">
+              <span><i class="ri-heart-line"></i> {{ post.likesCount || 0 }}</span>
+              <span><i class="ri-chat-3-line"></i> {{ post.commentsCount || 0 }} commentaires</span>
+            </div>
+          </article>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- Colonne Latérale : CTA Rejoindre & Sécurité -->
+    <aside class="sidebar-column">
+      
+      <!-- Box Call to Action -->
+      <div class="sidebar-cta-card app-card">
+        <div class="cta-icon-circle">
+          <i class="ri-user-shared-line"></i>
+        </div>
+        <h3>Rejoignez ce collectif tech</h3>
+        <p class="subtext">
+          Participez aux discussions, posez vos questions aux développeurs expérimentés et accédez aux salons Discord-like en direct.
+        </p>
+
+        <button (click)="handleJoin()" [disabled]="isJoining" class="btn-primary-block">
+          <i class="ri-arrow-right-line"></i>
+          <span>{{ group.isMember ? 'Accéder au groupe' : 'Rejoindre gratuitement' }}</span>
+        </button>
+
+        <span class="join-guarantee">
+          <i class="ri-lock-line"></i> Adhésion 100% gratuite & sans engagement
+        </span>
+      </div>
+
+      <!-- Informations Complémentaires -->
+      <div class="sidebar-info-card app-card">
+        <h4>Informations</h4>
+        <ul class="info-list">
+          <li>
+            <span class="info-label">Visibilité</span>
+            <span class="info-value">{{ group.accessType }}</span>
+          </li>
+          <li>
+            <span class="info-label">Membres</span>
+            <span class="info-value">{{ group.memberCount }}</span>
+          </li>
+          <li>
+            <span class="info-label">Fondateur</span>
+            <span class="info-value">{{ group.owner?.profile?.fullName || group.owner?.email }}</span>
+          </li>
+          <li>
+            <span class="info-label">Création</span>
+            <span class="info-value">{{ group.createdAt | date:'MMMM yyyy' }}</span>
+          </li>
+        </ul>
+      </div>
+
+    </aside>
+
+  </div>
+</div>
+
+<div *ngIf="isLoading" class="loading-full-page">
+  <div class="spinner"></div>
+  <p>Chargement de la communauté...</p>
+</div>
+

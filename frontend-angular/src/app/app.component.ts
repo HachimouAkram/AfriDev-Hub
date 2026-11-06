@@ -29,6 +29,7 @@ import { TranslationService, Language } from './core/services/translation.servic
             <a routerLink="/opportunities" routerLinkActive="active" class="nav-link">Opportunités</a>
             <a routerLink="/network" routerLinkActive="active" class="nav-link">Réseau</a>
             <a routerLink="/events" routerLinkActive="active" class="nav-link">Événements</a>
+            <a routerLink="/communautes" routerLinkActive="active" class="nav-link">Communautés</a>
             <a routerLink="/leaderboard" routerLinkActive="active" class="nav-link">Classement</a>
           </ng-container>
         </div>
@@ -191,6 +192,7 @@ import { TranslationService, Language } from './core/services/translation.servic
           <a routerLink="/opportunities" (click)="closeAllMenus()" routerLinkActive="active" class="mobile-nav-link">Opportunités</a>
           <a routerLink="/network" (click)="closeAllMenus()" routerLinkActive="active" class="mobile-nav-link">Réseau</a>
           <a routerLink="/events" (click)="closeAllMenus()" routerLinkActive="active" class="mobile-nav-link">Événements</a>
+          <a routerLink="/communautes" (click)="closeAllMenus()" routerLinkActive="active" class="mobile-nav-link">Communautés</a>
           <a routerLink="/leaderboard" (click)="closeAllMenus()" routerLinkActive="active" class="mobile-nav-link">Classement</a>
           <a *ngIf="isLoggedIn()" routerLink="/messages" (click)="closeAllMenus()" routerLinkActive="active" class="mobile-nav-link">Messagerie</a>
           <a *ngIf="isLoggedIn()" routerLink="/dashboard/profile" (click)="closeAllMenus()" routerLinkActive="active" class="mobile-nav-link">Mon Profil</a>

@@ -328,6 +328,11 @@ public class CommunityGroupService {
             }
         }
 
+        // Un groupe privé ne divulgue aucun contenu aux non-membres (visiteurs vitrine inclus)
+        if (group.getAccessType() == GroupAccessType.PRIVE && !isMember) {
+            return Page.empty(pageable);
+        }
+
         return postRepository.findGroupFeed(group.getId(), isMember, type, pageable)
                 .map(p -> mapPostToDto(p, userEmail));
     }

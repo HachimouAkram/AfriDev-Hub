@@ -135,6 +135,19 @@ export const routes: Routes = [
     loadComponent: () => import('./features/events/events.component').then(m => m.EventsComponent)
   },
   {
+    path: 'communautes',
+    loadComponent: () => import('./features/groups/public-groups/public-groups.component').then(m => m.PublicGroupsComponent)
+  },
+  {
+    path: 'communautes/:slug',
+    loadComponent: () => import('./features/groups/public-group-detail/public-group-detail.component').then(m => m.PublicGroupDetailComponent)
+  },
+  {
+    path: 'groupes',
+    redirectTo: 'communautes',
+    pathMatch: 'full'
+  },
+  {
     path: 'leaderboard',
     loadComponent: () => import('./features/leaderboard/leaderboard.component').then(m => m.LeaderboardComponent)
   },

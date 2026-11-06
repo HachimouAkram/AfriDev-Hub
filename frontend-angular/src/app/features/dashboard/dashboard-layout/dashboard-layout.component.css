@@ -1284,6 +1284,7 @@ body.light-theme .dashboard-body::-webkit-scrollbar-thumb:hover {
     width: 240px !important;
     max-width: calc(100vw - 1.5rem) !important;
     right: 0 !important;
+  }
 }
 
 /* Super Admin Navigation Link */

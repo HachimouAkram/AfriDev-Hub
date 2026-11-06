@@ -934,7 +934,8 @@
               [disabled]="isUpdatingMentor"
               class="btn"
               [ngClass]="profile.isMentor ? 'btn-outline btn-danger-hover' : 'btn-emerald'">
-              {{ profile.isMentor ? 'Désactiver le mode mentor' : '✨ Devenir Mentor (+40 XP)' }}
+              <i class="ri-user-star-line" *ngIf="!profile.isMentor"></i>
+              <span>{{ profile.isMentor ? 'Désactiver le mode mentor' : 'Devenir Mentor (+40 XP)' }}</span>
             </button>
           </div>
 

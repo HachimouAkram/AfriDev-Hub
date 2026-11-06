@@ -275,7 +275,7 @@
 
         <div class="card-badges-group">
           <span class="project-affinity-pill" *ngIf="p.matchPercentage">
-            ✨ {{ p.matchPercentage | number:'1.0-0' }}% Match
+            <i class="ri-magic-line"></i> {{ p.matchPercentage | number:'1.0-0' }}% Match
           </span>
           <span class="badge" [ngClass]="getProjectTypeBadge(p.projectType).class">
             {{ getProjectTypeBadge(p.projectType).label }}

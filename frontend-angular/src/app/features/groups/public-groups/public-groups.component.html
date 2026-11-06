@@ -1,0 +1,179 @@
+<div class="events-page">
+  <!-- Toast Flottant -->
+  <div *ngIf="successToast" class="floating-toast">
+    <i class="ri-checkbox-circle-fill"></i>
+    <span>{{ successToast }}</span>
+  </div>
+
+  <!-- Hero Header (Même structure que Événements) -->
+  <header class="events-hero">
+    <div class="hero-badge">
+      <i class="ri-team-line"></i> Écosystème & Collectifs Panafricains
+    </div>
+    <h1>Communautés & Groupes Tech</h1>
+    <p>
+      Rejoignez des collectifs de développeurs par technologie, pays ou centre d'intérêt à travers toute l'Afrique.
+      Partagez vos savoirs, découvrez des ressources exclusives et collaborez avec vos pairs.
+    </p>
+
+    <div class="hero-actions">
+      <div class="search-box">
+        <i class="ri-search-line search-icon"></i>
+        <input
+          type="text"
+          [(ngModel)]="searchQuery"
+          (ngModelChange)="onSearchChange()"
+          placeholder="Rechercher une communauté, un pays ou une techno (ex: Angular Dakar, Python, Cloud)..." />
+        <button *ngIf="searchQuery" (click)="clearSearch()" class="clear-btn">
+          <i class="ri-close-line"></i>
+        </button>
+      </div>
+
+      <a *ngIf="authService.isLoggedIn()" routerLink="/dashboard/groupes" class="btn-dashboard-events">
+        <i class="ri-dashboard-line"></i> Mes communautés
+      </a>
+
+      <a
+        [routerLink]="authService.isLoggedIn() ? '/dashboard/groupes/creer' : '/register'"
+        [queryParams]="authService.isLoggedIn() ? null : { returnUrl: '/dashboard/groupes/creer' }"
+        class="btn-primary create-btn">
+        <i class="ri-add-circle-line"></i> Créer une communauté
+      </a>
+    </div>
+  </header>
+
+  <!-- Filtres par Domaine / Technologie (Pills identiques à Événements) -->
+  <div class="filters-nav">
+    <button
+      *ngFor="let cat of categories"
+      class="filter-pill"
+      [class.active]="activeCategory === cat.key"
+      (click)="setCategory(cat.key)">
+      <i [class]="cat.icon"></i>
+      <span>{{ cat.label }}</span>
+    </button>
+  </div>
+
+  <!-- Barre de Filtre par Pays (Pills identiques au tri Événements) -->
+  <div class="sort-pills-bar">
+    <span class="sort-pills-label">
+      <i class="ri-global-line"></i> Filtrer par pays :
+    </span>
+    <div class="sort-pills">
+      <button
+        *ngFor="let c of countries"
+        class="sort-pill"
+        [class.active]="selectedCountry === c"
+        (click)="setCountry(c)">
+        <span>{{ c === 'ALL' ? 'Tous les pays' : c }}</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Grille des Communautés -->
+  <div class="events-content">
+    <div *ngIf="isLoading" class="loading-state">
+      <div class="spinner"></div>
+      <p>Chargement des communautés panafricaines...</p>
+    </div>
+
+    <div *ngIf="!isLoading && filteredGroups.length === 0" class="empty-state">
+      <div class="empty-icon"><i class="ri-community-line"></i></div>
+      <h3>Aucune communauté trouvée</h3>
+      <p>Aucune communauté ne correspond à vos critères actuels. Soyez le premier à lancer un collectif !</p>
+      <a
+        [routerLink]="authService.isLoggedIn() ? '/dashboard/groupes/creer' : '/register'"
+        [queryParams]="authService.isLoggedIn() ? null : { returnUrl: '/dashboard/groupes/creer' }"
+        class="btn-primary">
+        <i class="ri-add-line"></i> Créer une communauté
+      </a>
+    </div>
+
+    <div *ngIf="!isLoading && filteredGroups.length > 0" class="events-grid">
+      <div *ngFor="let group of filteredGroups" class="event-card group-card-hover">
+        
+        <!-- Media / Bannière du Groupe -->
+        <div class="card-media" [style.background-image]="group.bannerUrl ? 'url(' + group.bannerUrl + ')' : null">
+          <div class="media-overlay"></div>
+          
+          <!-- Badge Pays -->
+          <span class="type-badge">
+            <i class="ri-map-pin-2-line"></i> {{ group.country || 'Panafricain' }}
+          </span>
+
+          <!-- Badge Accès -->
+          <span class="online-badge">
+            <i class="ri-shield-check-line"></i> {{ getAccessLabel(group.accessType) }}
+          </span>
+
+          <!-- Badge Membres -->
+          <span class="badge-organizer-followed">
+            <i class="ri-group-line"></i> {{ group.memberCount }} membre{{ group.memberCount > 1 ? 's' : '' }}
+          </span>
+        </div>
+
+        <div class="card-body">
+          <!-- Identité du Groupe : Avatar + Nom -->
+          <div class="group-header-row">
+            <div class="group-vitrine-avatar">
+              <img *ngIf="group.avatarUrl" [src]="group.avatarUrl" [alt]="group.name" />
+              <span *ngIf="!group.avatarUrl">{{ getInitial(group.name) }}</span>
+            </div>
+            <div class="group-vitrine-titles">
+              <h3 class="event-title">{{ group.name }}</h3>
+              <span class="group-location-text">
+                <i class="ri-map-pin-line"></i> {{ group.city ? group.city + ', ' : '' }}{{ group.country || 'Afrique' }}
+              </span>
+            </div>
+          </div>
+
+          <!-- Description -->
+          <p class="event-description">{{ group.description }}</p>
+
+          <!-- Tags / Technologies -->
+          <div *ngIf="group.tags && group.tags.length > 0" class="event-tags">
+            <span *ngFor="let tag of group.tags.slice(0, 4)" class="tag">
+              #{{ tag }}
+            </span>
+            <span *ngIf="group.tags.length > 4" class="tag tag-more">
+              +{{ group.tags.length - 4 }}
+            </span>
+          </div>
+
+          <!-- Fondateur & Publications -->
+          <div class="event-organizer">
+            <div class="organizer-avatar">
+              <span>{{ (group.owner?.profile?.fullName || group.owner?.email || 'A').charAt(0).toUpperCase() }}</span>
+            </div>
+            <div class="organizer-info">
+              <span class="organizer-label">Fondé par</span>
+              <span class="organizer-name">{{ group.owner?.profile?.fullName || group.owner?.email }}</span>
+            </div>
+            <div class="posts-count-indicator">
+              <i class="ri-chat-voice-line"></i>
+              <span>{{ group.postCount }} pub.</span>
+            </div>
+          </div>
+
+          <!-- Actions de la carte -->
+          <div class="card-actions-row">
+            <a [routerLink]="['/communautes', group.slug]" class="btn-outline-details">
+              <i class="ri-eye-line"></i> Aperçu
+            </a>
+
+            <button
+              (click)="handleJoin(group, $event)"
+              [disabled]="isJoiningId === group.id"
+              class="btn-primary-action">
+              <i *ngIf="group.isMember" class="ri-check-line"></i>
+              <i *ngIf="!group.isMember" class="ri-user-add-line"></i>
+              <span>{{ group.isMember ? 'Accéder' : 'Rejoindre' }}</span>
+            </button>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
