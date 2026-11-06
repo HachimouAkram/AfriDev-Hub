@@ -47,3 +47,4 @@ public class GroupChannelEntity {
     @Column(updatable = false)
     private LocalDateTime createdAt;
 }
+

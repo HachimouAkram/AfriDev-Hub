@@ -101,3 +101,4 @@ public class HelpPostEntity {
     @UpdateTimestamp
     private LocalDateTime updatedAt;
 }
+

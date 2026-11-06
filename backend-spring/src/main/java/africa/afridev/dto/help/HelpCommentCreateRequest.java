@@ -17,3 +17,4 @@ public class HelpCommentCreateRequest {
     /** Identifiant du commentaire parent (optionnel — pour les sous-réponses) */
     private String parentCommentId;
 }
+

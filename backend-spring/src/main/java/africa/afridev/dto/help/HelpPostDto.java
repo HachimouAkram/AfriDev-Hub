@@ -37,3 +37,4 @@ public class HelpPostDto {
     /** Indique si l'utilisateur connecté est l'auteur */
     private Boolean isAuthor;
 }
+

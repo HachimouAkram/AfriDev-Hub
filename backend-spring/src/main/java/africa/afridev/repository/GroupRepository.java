@@ -38,3 +38,4 @@ public interface GroupRepository extends JpaRepository<GroupEntity, String> {
 
     Page<GroupEntity> findByOwnerIdOrderByCreatedAtDesc(String ownerId, Pageable pageable);
 }
+

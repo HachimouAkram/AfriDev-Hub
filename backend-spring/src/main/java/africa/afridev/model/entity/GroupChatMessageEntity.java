@@ -46,3 +46,4 @@ public class GroupChatMessageEntity {
     @Column(updatable = false)
     private LocalDateTime createdAt;
 }
+

@@ -4,3 +4,4 @@ public enum HelpPostVisibility {
     PUBLIQUE,
     GROUPE_SEULEMENT
 }
+

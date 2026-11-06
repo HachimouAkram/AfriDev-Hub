@@ -17,3 +17,4 @@ public interface GroupChatMessageRepository extends JpaRepository<GroupChatMessa
 
     long countByChannelId(String channelId);
 }
+

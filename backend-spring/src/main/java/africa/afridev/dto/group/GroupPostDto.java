@@ -27,3 +27,4 @@ public class GroupPostDto {
     private LocalDateTime updatedAt;
     private Boolean canEditOrDelete;
 }
+

@@ -21,3 +21,4 @@ public interface HelpCommentRepository extends JpaRepository<HelpCommentEntity, 
     /** Vérifier si un commentaire est accepté dans un post */
     boolean existsByHelpPostIdAndIsAcceptedTrue(String helpPostId);
 }
+

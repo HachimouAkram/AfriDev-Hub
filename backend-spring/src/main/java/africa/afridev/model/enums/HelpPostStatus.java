@@ -5,3 +5,4 @@ public enum HelpPostStatus {
     EN_COURS,
     RESOLUE
 }
+

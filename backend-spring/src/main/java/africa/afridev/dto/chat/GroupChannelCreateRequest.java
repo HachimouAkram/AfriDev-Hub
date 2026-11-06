@@ -18,3 +18,4 @@ public class GroupChannelCreateRequest {
     private GroupChannelType type = GroupChannelType.TEXTE;
     private Boolean isDefault = false;
 }
+

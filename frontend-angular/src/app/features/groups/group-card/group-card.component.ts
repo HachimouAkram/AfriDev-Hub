@@ -92,3 +92,4 @@ export class GroupCardComponent {
     this.joinRequested.emit(this.group);
   }
 }
+

@@ -14,3 +14,4 @@ public class GroupChatMessageRequest {
     private String attachmentUrl;
     private String parentMessageId;
 }
+

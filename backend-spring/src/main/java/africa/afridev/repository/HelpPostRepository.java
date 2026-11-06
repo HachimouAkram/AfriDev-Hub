@@ -66,3 +66,4 @@ public interface HelpPostRepository extends JpaRepository<HelpPostEntity, String
     /** Nombre de publications ouvertes */
     long countByStatus(HelpPostStatus status);
 }
+

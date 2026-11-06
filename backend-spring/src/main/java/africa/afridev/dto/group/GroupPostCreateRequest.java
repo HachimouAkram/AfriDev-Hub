@@ -25,3 +25,4 @@ public class GroupPostCreateRequest {
     private Boolean isPinned = false;
     private List<String> attachments = new ArrayList<>();
 }
+

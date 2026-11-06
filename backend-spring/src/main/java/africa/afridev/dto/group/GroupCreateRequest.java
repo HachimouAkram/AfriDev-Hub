@@ -35,3 +35,4 @@ public class GroupCreateRequest {
     private String avatarUrl;
     private String bannerUrl;
 }
+

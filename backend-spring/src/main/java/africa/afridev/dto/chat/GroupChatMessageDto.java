@@ -20,3 +20,4 @@ public class GroupChatMessageDto {
     private LocalDateTime createdAt;
     private Boolean isOwnMessage;
 }
+

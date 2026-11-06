@@ -37,3 +37,4 @@ public interface GroupPostRepository extends JpaRepository<GroupPostEntity, Stri
 
     long countByGroupId(String groupId);
 }
+

@@ -4,3 +4,4 @@ public enum GroupPostVisibility {
     PUBLIC,
     MEMBRES_SEULEMENT
 }
+

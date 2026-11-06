@@ -160,6 +160,11 @@ export class DashboardLayoutComponent implements OnInit {
     return url.startsWith('/admin/adoption');
   }
 
+  isAdminProfileActive(): boolean {
+    const url = this.router.url.split('?')[0];
+    return url.startsWith('/admin/profile') || (this.isAdmin() && url.startsWith('/dashboard/profile'));
+  }
+
   isSuperAdmin(): boolean {
     return this.user()?.role === 'SUPER_ADMIN';
   }
@@ -176,13 +181,14 @@ export class DashboardLayoutComponent implements OnInit {
     if (url.includes('/admin/users')) return 'Utilisateurs';
     if (url.includes('/admin/moderation')) return 'Modération';
     if (url.includes('/admin/audit')) return 'Audit';
+    if (url.includes('/admin/profile')) return this.isSuperAdmin() ? 'Mon Profil Super Administrateur' : 'Mon Profil Administrateur';
     if (url.includes('/dashboard/applications')) return 'Mes candidatures';
     if (url.includes('/dashboard/offers')) return 'Offres & Demandes reçues';
     if (url.includes('/dashboard/messages')) return 'Messagerie';
     if (url.includes('/dashboard/projects')) return 'Mes projets vitrine';
     if (url.includes('/dashboard/evaluations')) return 'Réputation & Évaluations par les Pairs';
     if (url.includes('/dashboard/leaderboard')) return 'Classement des Développeurs d\'Afrique';
-    if (url.includes('/dashboard/profile')) return 'Mon Profil Développeur';
+    if (url.includes('/dashboard/profile')) return this.isSuperAdmin() ? 'Mon Profil Super Administrateur' : (this.isAdmin() ? 'Mon Profil Administrateur' : 'Mon Profil Développeur');
     return 'Tableau de bord';
   }
 

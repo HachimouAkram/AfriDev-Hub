@@ -32,3 +32,4 @@ public class HelpPostCreateRequest {
 
     private HelpPostVisibility visibility = HelpPostVisibility.PUBLIQUE;
 }
+

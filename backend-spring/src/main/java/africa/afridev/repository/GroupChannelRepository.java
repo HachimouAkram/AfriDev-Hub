@@ -16,3 +16,4 @@ public interface GroupChannelRepository extends JpaRepository<GroupChannelEntity
 
     boolean existsByGroupIdAndNameIgnoreCase(String groupId, String name);
 }
+

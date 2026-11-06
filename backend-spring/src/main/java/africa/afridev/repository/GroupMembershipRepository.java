@@ -31,3 +31,4 @@ public interface GroupMembershipRepository extends JpaRepository<GroupMembership
 
     void deleteByGroupIdAndUserId(String groupId, String userId);
 }
+

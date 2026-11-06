@@ -7,3 +7,4 @@ public enum HelpPostType {
     CARRIERE,
     PROJET
 }
+

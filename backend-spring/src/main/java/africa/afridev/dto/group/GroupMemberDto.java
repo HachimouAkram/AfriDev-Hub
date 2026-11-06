@@ -18,3 +18,4 @@ public class GroupMemberDto {
     private GroupMemberStatus status;
     private LocalDateTime joinedAt;
 }
+

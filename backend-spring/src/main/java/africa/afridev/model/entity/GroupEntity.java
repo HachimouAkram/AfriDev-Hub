@@ -75,3 +75,4 @@ public class GroupEntity {
     @UpdateTimestamp
     private LocalDateTime updatedAt;
 }
+

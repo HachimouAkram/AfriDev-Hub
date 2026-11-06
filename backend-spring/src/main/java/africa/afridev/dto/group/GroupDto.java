@@ -34,3 +34,4 @@ public class GroupDto {
     private GroupMemberRole userRole;
     private Boolean isPending;
 }
+

@@ -6,3 +6,4 @@ public enum GroupChannelType {
     RESSOURCES,
     AIDE_CODE
 }
+

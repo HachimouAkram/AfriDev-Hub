@@ -6,3 +6,4 @@ public enum GroupPostType {
     DISCUSSION,
     EVENEMENT
 }
+

@@ -26,3 +26,4 @@ public class HelpCommentDto {
     /** Sous-réponses (niveau 1 seulement) */
     private List<HelpCommentDto> replies;
 }
+

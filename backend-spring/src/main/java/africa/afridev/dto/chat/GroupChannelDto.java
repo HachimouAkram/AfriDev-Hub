@@ -18,3 +18,4 @@ public class GroupChannelDto {
     private Integer position;
     private LocalDateTime createdAt;
 }
+
