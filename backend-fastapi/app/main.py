@@ -36,6 +36,9 @@ def read_root():
     }
 
 @app.get("/health")
+@app.get("/healthz")
+@app.get("/actuator/health")
+@app.get("/api/v1/health")
 def health_check():
     return {
         "status": "UP",
@@ -50,6 +53,7 @@ if __name__ == "__main__":
         port = int(raw_port)
     except ValueError:
         port = 8000
-    uvicorn.run("app.main:app", host="0.0.0.0", port=port)
+    uvicorn.run(app, host="0.0.0.0", port=port)
+
 
 
