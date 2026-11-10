@@ -7,7 +7,7 @@ import { AuthService } from '../../../core/services/auth.service';
 import { ProjectService, Project, ProjectComment, ProjectType } from '../../../core/services/project.service';
 import { FollowService, FollowStats } from '../../../core/services/follow.service';
 import { ProjectCollaborationService, ProjectMember, ProjectTask, ProjectProgress, TaskStatus, TaskPriority } from '../../../core/services/project-collaboration.service';
-import { PaymentService, PaymentProvider, PaymentMethod } from '../../../core/services/payment.service';
+import { PaymentService, PaymentProvider, PaymentMethod, PAYMENT_LOGOS } from '../../../core/services/payment.service';
 import { AIService, AIAuditResult } from '../../../core/services/ai.service';
 import { TranslationService } from '../../../core/services/translation.service';
 
@@ -66,6 +66,7 @@ export class ProjectListComponent implements OnInit {
   }
 
   // Purchase Modal State
+  readonly paymentLogos = PAYMENT_LOGOS;
   isPurchaseModalOpen = false;
   purchasingProject: Project | null = null;
   purchaseProvider: PaymentProvider = 'UNITECH_PAY';

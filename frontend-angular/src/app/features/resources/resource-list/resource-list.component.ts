@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { ResourceService, ResourceItem, ResourceType, SkillLevel } from '../../../core/services/resource.service';
 import { TranslationService } from '../../../core/services/translation.service';
-import { PaymentService, PaymentInitiateResponse } from '../../../core/services/payment.service';
+import { PaymentService, PaymentInitiateResponse, PAYMENT_LOGOS } from '../../../core/services/payment.service';
 import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
@@ -34,6 +34,7 @@ export class ResourceListComponent implements OnInit {
   onlyFree = signal<boolean>(false);
 
   // Modal de paiement
+  readonly paymentLogos = PAYMENT_LOGOS;
   isPaymentModalOpen = signal<boolean>(false);
   paymentTarget = signal<ResourceItem | null>(null);
   selectedProvider = signal<'UNITECH_PAY' | 'STRIPE'>('UNITECH_PAY');

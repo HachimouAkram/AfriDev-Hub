@@ -900,4 +900,35 @@ font {
   display: none !important;
 }
 
+/* ==========================================================================
+   Payment Methods Official Logos (Wave, Orange Money, Card & PayPal)
+   ========================================================================== */
+.payment-method-logo {
+  height: 22px;
+  width: auto;
+  max-width: 50px;
+  object-fit: contain;
+  display: inline-block;
+  vertical-align: middle;
+  border-radius: 4px;
+}
+
+.payment-method-logo.logo-wave {
+  height: 22px;
+  width: auto;
+  border-radius: 4px;
+}
+
+.payment-method-logo.logo-om {
+  height: 22px;
+  width: auto;
+  border-radius: 4px;
+}
+
+.payment-method-logo.logo-card {
+  height: 20px;
+  max-width: 60px;
+  object-fit: contain;
+}
+
 

@@ -8,6 +8,12 @@ export type PaymentProvider = 'UNITECH_PAY' | 'STRIPE';
 export type PaymentMethod = 'WAVE' | 'ORANGE_MONEY' | 'MTN_MOMO' | 'MOOV' | 'TOGOCELL' | 'CARD' | 'BANK';
 export type PaymentTargetType = 'PROJECT' | 'COURSE' | 'FREELANCE_ESCROW';
 
+export const PAYMENT_LOGOS = {
+  orangeMoney: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRRwOmgzFohvTF4sU8jA1xA3oQAd8d07vttqdPBDq7nxg&s=10',
+  wave: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT7XyN72DiXnFERh-dYd8AhmZoIKGRcMv1ndgXzDTBPIw&s=10',
+  cardPaypal: 'https://i0.wp.com/pifon.it/wp-content/uploads/2025/03/Pifpon-Tech-Pagamenti-Sicuri-paypal-logo.webp?fit=594%2C213&ssl=1'
+};
+
 export interface PaymentInitiateRequest {
   targetType: PaymentTargetType;
   targetId: string;

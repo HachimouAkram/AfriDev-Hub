@@ -16,6 +16,13 @@ spring:
     username: ${DB_USER:afridev_db_u}
     password: ${DB_PASSWORD:yUcVbDGuDoXuzAAWeKYkXy4P}
     driver-class-name: org.postgresql.Driver
+    hikari:
+      max-lifetime: 540000 # 9 minutes (inférieur aux 10 min du serveur PostgreSQL cloud)
+      idle-timeout: 300000 # 5 minutes
+      keepalive-time: 60000 # 1 minute (ping régulier pour éviter la fermeture brutale)
+      connection-timeout: 30000
+      minimum-idle: 2
+      maximum-pool-size: 10
   jpa:
     hibernate:
       ddl-auto: update
@@ -68,12 +75,12 @@ app:
     internal-key: ${FASTAPI_INTERNAL_KEY:afridev_internal_secret_key_2026_x7k9}
   payment:
     unitech:
-      api-key: ${UNITECH_API_KEY:}
+      api-key: ${UNITECH_API_KEY:eb347b5f5b68382b58d3f0babd3687e0186026209ef62357d341fef9bccd4fd3}
       base-url: ${UNITECH_BASE_URL:https://api.unitech.sn/api.php}
     stripe:
-      secret-key: ${STRIPE_SECRET_KEY:}
-      webhook-secret: ${STRIPE_WEBHOOK_SECRET:}
-      publishable-key: ${STRIPE_PUBLISHABLE_KEY:}
+      secret-key: ${STRIPE_SECRET_KEY:sk_test_51UI1PAPu1LaSP7lQVEfrRHuzbUrGxuRgdzZz6dgo1IPP99zyMEtK0vjgzDK7sbdDxJJl0cFTEa34rCMdoaWztROp007aYIQM2e}
+      webhook-secret: ${STRIPE_WEBHOOK_SECRET:whsec_LH4sXxqY6KsGKm9hHxEmj8AN0SGDEEPu}
+      publishable-key: ${STRIPE_PUBLISHABLE_KEY:pk_test_51UI1PAPu1LaSP7lQIMnYW7q9CNSdvy7Gj1CLHIc3LAyez0OexxQimfiSURgWhndbpXFqWYjjJ83k2iAlFK9Y8uAN00NJrEPcaZ}
     platform-fee-percent: ${PLATFORM_FEE_PERCENT:5.0}
 
 cloudinary:

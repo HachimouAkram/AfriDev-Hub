@@ -2320,7 +2320,34 @@ body.light-theme .badge-tech-matched {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 0.45rem;
+  gap: 0.5rem;
+}
+
+.payment-method-logo {
+  height: 22px;
+  width: auto;
+  max-width: 50px;
+  object-fit: contain;
+  display: inline-block;
+  vertical-align: middle;
+}
+
+.payment-method-logo.logo-wave {
+  height: 22px;
+  width: auto;
+  border-radius: 4px;
+}
+
+.payment-method-logo.logo-om {
+  height: 22px;
+  width: auto;
+  border-radius: 4px;
+}
+
+.payment-method-logo.logo-card {
+  height: 20px;
+  max-width: 60px;
+  object-fit: contain;
 }
 
 body.light-theme .tab-btn {

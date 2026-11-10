@@ -146,16 +146,19 @@
       </div>
 
       <div class="modal-body" *ngIf="!paymentSuccessData()">
-        <!-- Mode Tabs -->
+        <!-- Mode Tabs with Real Logos -->
         <div class="provider-tabs">
           <button class="tab-btn" [class.active]="selectedMethod() === 'WAVE'" (click)="selectedProvider.set('UNITECH_PAY'); selectedMethod.set('WAVE')">
-            🌊 Wave (Sénégal & CI)
+            <img [src]="paymentLogos.wave" alt="Wave" class="payment-method-logo logo-wave" />
+            <span>Wave</span>
           </button>
           <button class="tab-btn" [class.active]="selectedMethod() === 'ORANGE_MONEY'" (click)="selectedProvider.set('UNITECH_PAY'); selectedMethod.set('ORANGE_MONEY')">
-            🍊 Orange Money
+            <img [src]="paymentLogos.orangeMoney" alt="Orange Money" class="payment-method-logo logo-om" />
+            <span>Orange Money</span>
           </button>
           <button class="tab-btn" [class.active]="selectedMethod() === 'CARD'" (click)="selectedProvider.set('STRIPE'); selectedMethod.set('CARD')">
-            💳 Carte Bancaire (Stripe)
+            <img [src]="paymentLogos.cardPaypal" alt="Carte & PayPal" class="payment-method-logo logo-card" />
+            <span>Carte / PayPal</span>
           </button>
         </div>
 

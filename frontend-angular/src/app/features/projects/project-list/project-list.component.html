@@ -1288,19 +1288,19 @@
       </div>
 
       <div class="modal-body" *ngIf="!purchaseSuccessData">
-        <!-- Payment Mode Tabs with Modern Clean Icons -->
+        <!-- Payment Mode Tabs with Real Official Logos -->
         <div class="provider-tabs">
           <button class="tab-btn tab-wave" [class.active]="purchaseMethod === 'WAVE'" (click)="purchaseProvider = 'UNITECH_PAY'; purchaseMethod = 'WAVE'">
-            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M2 12c2.5-3 5-3 7.5 0s5 3 7.5 0 5-3 5-3"/><path d="M2 17c2.5-3 5-3 7.5 0s5 3 7.5 0 5-3 5-3"/></svg>
-            Wave Mobile
+            <img [src]="paymentLogos.wave" alt="Wave" class="payment-method-logo logo-wave" />
+            <span>Wave</span>
           </button>
           <button class="tab-btn tab-om" [class.active]="purchaseMethod === 'ORANGE_MONEY'" (click)="purchaseProvider = 'UNITECH_PAY'; purchaseMethod = 'ORANGE_MONEY'">
-            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2"><rect width="14" height="20" x="5" y="2" rx="2" ry="2"/><line x1="12" x2="12.01" y1="18" y2="18"/></svg>
-            Orange Money
+            <img [src]="paymentLogos.orangeMoney" alt="Orange Money" class="payment-method-logo logo-om" />
+            <span>Orange Money</span>
           </button>
           <button class="tab-btn tab-card" [class.active]="purchaseMethod === 'CARD'" (click)="purchaseProvider = 'STRIPE'; purchaseMethod = 'CARD'">
-            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2"><rect width="20" height="14" x="2" y="5" rx="2"/><line x1="2" x2="22" y1="10" y2="10"/></svg>
-            Carte (Stripe)
+            <img [src]="paymentLogos.cardPaypal" alt="Carte Bancaire & PayPal" class="payment-method-logo logo-card" />
+            <span>Carte / PayPal</span>
           </button>
         </div>
 
