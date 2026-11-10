@@ -27,7 +27,7 @@ app.include_router(suggestions.router)
 app.include_router(mentors.router)
 app.include_router(ai_community.router)
 
-@app.get("/")
+@app.api_route("/", methods=["GET", "HEAD"])
 def read_root():
     return {
         "service": "backend-fastapi",
@@ -35,10 +35,10 @@ def read_root():
         "status": "running"
     }
 
-@app.get("/health")
-@app.get("/healthz")
-@app.get("/actuator/health")
-@app.get("/api/v1/health")
+@app.api_route("/health", methods=["GET", "HEAD"])
+@app.api_route("/healthz", methods=["GET", "HEAD"])
+@app.api_route("/actuator/health", methods=["GET", "HEAD"])
+@app.api_route("/api/v1/health", methods=["GET", "HEAD"])
 def health_check():
     return {
         "status": "UP",
