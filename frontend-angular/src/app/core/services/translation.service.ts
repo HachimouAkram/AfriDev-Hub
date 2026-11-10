@@ -377,10 +377,56 @@ export class TranslationService {
   }
 
   setLanguage(lang: Language): void {
+    if (typeof window === 'undefined') return;
+    const previousCode = this.currentLang().code;
     this.currentLang.set(lang);
-    if (typeof window !== 'undefined') {
-      localStorage.setItem(this.STORAGE_KEY, lang.code);
-      document.documentElement.lang = lang.code;
+    localStorage.setItem(this.STORAGE_KEY, lang.code);
+    document.documentElement.lang = lang.code;
+
+    // Déclencher la mise à jour des cookies de traduction
+    this.triggerGoogleTranslate(lang.code);
+
+    // Si la langue a changé, recharger la page pour garantir une traduction 100% propre de tout le DOM
+    if (previousCode !== lang.code) {
+      setTimeout(() => {
+        window.location.reload();
+      }, 80);
+    }
+  }
+
+  /**
+   * Déclenche la traduction automatique de TOUTE la page (DOM complet)
+   */
+  public triggerGoogleTranslate(targetCode: string): void {
+    if (typeof window === 'undefined') return;
+
+    const hostname = window.location.hostname;
+
+    if (targetCode === 'fr') {
+      // Revenir à la langue d'origine (Français)
+      document.cookie = 'googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+      document.cookie = 'googtrans=/fr/fr; path=/;';
+      if (hostname && hostname !== 'localhost') {
+        document.cookie = 'googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; domain=.' + hostname + '; path=/;';
+        document.cookie = 'googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; domain=' + hostname + '; path=/;';
+        document.cookie = 'googtrans=/fr/fr; domain=.' + hostname + '; path=/;';
+        document.cookie = 'googtrans=/fr/fr; domain=' + hostname + '; path=/;';
+      }
+    } else {
+      // Activer la langue cible
+      const cookieValue = `/fr/${targetCode}`;
+      document.cookie = `googtrans=${cookieValue}; path=/;`;
+      if (hostname && hostname !== 'localhost') {
+        document.cookie = `googtrans=${cookieValue}; domain=.${hostname}; path=/;`;
+        document.cookie = `googtrans=${cookieValue}; domain=${hostname}; path=/;`;
+      }
+    }
+
+    // Tenter la synchronisation immédiate du sélecteur Google s'il existe déjà
+    const select = document.querySelector('.goog-te-combo') as HTMLSelectElement | null;
+    if (select) {
+      select.value = targetCode === 'fr' ? '' : targetCode;
+      select.dispatchEvent(new Event('change', { bubbles: true }));
     }
   }
 

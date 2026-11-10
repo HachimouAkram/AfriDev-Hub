@@ -878,9 +878,10 @@
             </span>
           </div>
 
-          <div class="languages-grid">
+          <div class="languages-grid notranslate" translate="no">
             <div *ngFor="let lang of availableLanguages" 
-                 class="language-card-item"
+                 class="language-card-item notranslate"
+                 translate="no"
                  [class.active-lang]="lang.code === currentLang().code"
                  (click)="selectLanguage(lang)">
               <div class="lang-card-top">

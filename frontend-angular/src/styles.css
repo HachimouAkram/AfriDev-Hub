@@ -842,4 +842,62 @@ svg {
   }
 }
 
+/* ==========================================================================
+   Clean Google Translate Integration - Seamless Global Translation
+   ========================================================================== */
+html, body {
+  top: 0px !important;
+  margin-top: 0px !important;
+  position: static !important;
+}
+
+.goog-te-banner-frame,
+.goog-te-banner-frame.skiptranslate,
+iframe.goog-te-banner-frame,
+iframe[id*=":1.container"],
+iframe[id*=":2.container"],
+#goog-gt-tt,
+.goog-te-balloon-frame {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  height: 0px !important;
+  width: 0px !important;
+  max-height: 0px !important;
+  max-width: 0px !important;
+  pointer-events: none !important;
+  position: absolute !important;
+  left: -9999px !important;
+  top: -9999px !important;
+  z-index: -99999 !important;
+}
+
+/* Protection absolue des éléments multilingues notranslate */
+.notranslate,
+[translate="no"] {
+  -webkit-transform: translateZ(0);
+}
+
+#google_translate_element {
+  display: none !important;
+  position: absolute !important;
+  left: -9999px !important;
+  top: -9999px !important;
+}
+
+.goog-text-highlight {
+  background-color: transparent !important;
+  box-shadow: none !important;
+}
+
+font {
+  background-color: transparent !important;
+  box-shadow: none !important;
+}
+
+.goog-logo-link,
+.goog-te-gadget {
+  display: none !important;
+}
+
 

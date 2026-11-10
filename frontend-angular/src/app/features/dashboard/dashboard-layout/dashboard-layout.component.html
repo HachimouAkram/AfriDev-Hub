@@ -206,29 +206,30 @@
 
       <div class="topbar-right">
         <!-- Multilingual Language Selector with Voice (Desktop header only; on mobile accessible in Profile & Dropdown) -->
-        <div class="lang-dropdown-wrapper desktop-header-only">
-          <button (click)="toggleLangMenu($event)" class="topbar-icon-btn lang-pill-btn" title="Changer de langue / Làkk">
-            <span class="lang-code">{{ currentLang().code.toUpperCase() }}</span>
+        <div class="lang-dropdown-wrapper desktop-header-only notranslate" translate="no">
+          <button (click)="toggleLangMenu($event)" class="topbar-icon-btn lang-pill-btn notranslate" translate="no" title="Changer de langue / Làkk">
+            <span class="lang-code notranslate" translate="no">{{ currentLang().code.toUpperCase() }}</span>
             <svg class="chevron-icon-sm" [class.rotated]="isLangMenuOpen" viewBox="0 0 24 24" fill="none" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
             </svg>
           </button>
 
           <!-- Language Dropdown Menu -->
-          <div class="lang-dropdown-menu app-card" *ngIf="isLangMenuOpen" (click)="$event.stopPropagation()">
-            <div class="lang-menu-head">
+          <div class="lang-dropdown-menu app-card notranslate" translate="no" *ngIf="isLangMenuOpen" (click)="$event.stopPropagation()">
+            <div class="lang-menu-head notranslate" translate="no">
               <span>Langue / Wàllu Làkk</span>
             </div>
-            <div class="lang-menu-list">
+            <div class="lang-menu-list notranslate" translate="no">
               <div *ngFor="let lang of availableLanguages" 
-                   class="lang-menu-item" 
+                   class="lang-menu-item notranslate" 
+                   translate="no"
                    [class.active]="lang.code === currentLang().code"
                    (click)="selectLanguage(lang)">
-                <div class="lang-info">
-                  <span class="lang-code-pill">{{ lang.code.toUpperCase() }}</span>
-                  <span class="lang-title">{{ lang.label }}</span>
+                <div class="lang-info notranslate" translate="no">
+                  <span class="lang-code-pill notranslate" translate="no">{{ lang.code.toUpperCase() }}</span>
+                  <span class="lang-title notranslate" translate="no">{{ lang.label }}</span>
                 </div>
-                <button type="button" class="voice-speak-btn" (click)="speakVoice(lang, $event)" [title]="'Écouter en ' + lang.label">
+                <button type="button" class="voice-speak-btn notranslate" translate="no" (click)="speakVoice(lang, $event)" [title]="'Écouter en ' + lang.label">
                   <svg class="icon-svg icon-svg-xs" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.114 5.636a9 9 0 010 12.728M16.463 8.288a5.25 5.25 0 010 7.424M6.75 8.25l4.72-4.72a.75.75 0 011.28.53v15.88a.75.75 0 01-1.28.53l-4.72-4.72H4.51c-.88 0-1.704-.507-1.938-1.354A9.01 9.01 0 012.25 12c0-.83.112-1.633.322-2.396C2.806 8.757 3.63 8.25 4.51 8.25H6.75z" />
                   </svg>

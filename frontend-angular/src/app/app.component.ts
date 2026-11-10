@@ -40,30 +40,32 @@ import { AiAssistantComponent } from './shared/components/ai-assistant/ai-assist
         <!-- Desktop Right Actions (Language Switcher, Theme Switcher, Auth & Profile) -->
         <div class="nav-right-actions desktop-only">
           <!-- Language Selector Dropdown with Voice Audio -->
-          <div class="lang-dropdown-container">
-            <button (click)="toggleLangMenu($event)" class="lang-toggle-btn" title="Changer de langue / Wàllu làkk">
-              <span class="lang-code">{{ currentLang().code.toUpperCase() }}</span>
+          <div class="lang-dropdown-container notranslate" translate="no">
+            <button (click)="toggleLangMenu($event)" class="lang-toggle-btn notranslate" translate="no" title="Changer de langue / Wàllu làkk">
+              <span class="lang-code notranslate" translate="no">{{ currentLang().code.toUpperCase() }}</span>
               <svg class="chevron-svg" [class.rotated]="isLangMenuOpen" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
               </svg>
             </button>
 
             <!-- Language Dropdown Menu -->
-            <div class="lang-dropdown-card" *ngIf="isLangMenuOpen" (click)="$event.stopPropagation()">
-              <div class="lang-menu-header">
+            <div class="lang-dropdown-card notranslate" translate="no" *ngIf="isLangMenuOpen" (click)="$event.stopPropagation()">
+              <div class="lang-menu-header notranslate" translate="no">
                 <span>Choisir une langue</span>
               </div>
-              <div class="lang-menu-list">
+              <div class="lang-menu-list notranslate" translate="no">
                 <div *ngFor="let lang of availableLanguages" 
-                     class="lang-menu-item" 
+                     class="lang-menu-item notranslate" 
+                     translate="no"
                      [class.selected]="lang.code === currentLang().code"
                      (click)="selectLanguage(lang)">
-                  <div class="lang-item-left">
-                    <span class="lang-code-pill">{{ lang.code.toUpperCase() }}</span>
-                    <span class="lang-name">{{ lang.label }}</span>
+                  <div class="lang-item-left notranslate" translate="no">
+                    <span class="lang-code-pill notranslate" translate="no">{{ lang.code.toUpperCase() }}</span>
+                    <span class="lang-name notranslate" translate="no">{{ lang.label }}</span>
                   </div>
                   <button type="button" 
-                          class="voice-btn" 
+                          class="voice-btn notranslate" 
+                          translate="no"
                           (click)="speakVoice(lang, $event)" 
                           [title]="'Écouter en ' + lang.label">
                     <svg class="icon-svg icon-svg-xs" viewBox="0 0 24 24" fill="none" stroke="currentColor">
@@ -210,15 +212,16 @@ import { AiAssistantComponent } from './shared/components/ai-assistant/ai-assist
           </button>
 
           <!-- Mobile Language Selector with Voice -->
-          <div class="mobile-lang-section">
-            <span class="mobile-lang-label">Langue & Voix / Wàllu làkk :</span>
-            <div class="mobile-lang-grid">
+          <div class="mobile-lang-section notranslate" translate="no">
+            <span class="mobile-lang-label notranslate" translate="no">Langue & Voix / Wàllu làkk :</span>
+            <div class="mobile-lang-grid notranslate" translate="no">
               <button *ngFor="let lang of availableLanguages" 
                       type="button"
-                      class="mobile-lang-chip"
+                      class="mobile-lang-chip notranslate"
+                      translate="no"
                       [class.active]="lang.code === currentLang().code"
                       (click)="selectLanguage(lang)">
-                <span><strong class="mobile-lang-code">{{ lang.code.toUpperCase() }}</strong> {{ lang.label }}</span>
+                <span class="notranslate" translate="no"><strong class="mobile-lang-code">{{ lang.code.toUpperCase() }}</strong> {{ lang.label }}</span>
                 <span class="voice-icon-mini" (click)="speakVoice(lang, $event)" [title]="'Écouter en ' + lang.label">🔊</span>
               </button>
             </div>
@@ -652,6 +655,8 @@ import { AiAssistantComponent } from './shared/components/ai-assistant/ai-assist
       border-radius: 8px;
       cursor: pointer;
       transition: all 0.15s ease;
+      user-select: none;
+      -webkit-user-select: none;
     }
     .lang-menu-item:hover {
       background: rgba(16, 185, 129, 0.1);
@@ -664,6 +669,7 @@ import { AiAssistantComponent } from './shared/components/ai-assistant/ai-assist
       display: flex;
       align-items: center;
       gap: 0.65rem;
+      pointer-events: none;
     }
     .lang-code-pill {
       font-size: 0.725rem;
