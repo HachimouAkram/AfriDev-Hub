@@ -143,6 +143,15 @@ export const routes: Routes = [
     loadComponent: () => import('./features/groups/public-group-detail/public-group-detail.component').then(m => m.PublicGroupDetailComponent)
   },
   {
+    path: 'resources',
+    loadComponent: () => import('./features/resources/resource-list/resource-list.component').then(m => m.ResourceListComponent)
+  },
+  {
+    path: 'formations',
+    redirectTo: 'resources',
+    pathMatch: 'full'
+  },
+  {
     path: 'groupes',
     redirectTo: 'communautes',
     pathMatch: 'full'

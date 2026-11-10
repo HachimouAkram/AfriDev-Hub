@@ -32,6 +32,10 @@ public class ProjectDto {
     private ProjectType projectType;
     private BigDecimal price;
     private String currency;
+    private Boolean isMonetized;
+    private String payoutPhoneNumber;
+    private String payoutOperator;
+    private List<String> acceptedPaymentMethods;
     private SaleType saleType;
     private SaasPricingType saasPricingType;
     private String licenseType;

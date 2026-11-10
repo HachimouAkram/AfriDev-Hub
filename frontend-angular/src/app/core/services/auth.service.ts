@@ -30,6 +30,10 @@ export interface Profile {
   mentorHoursPerWeek?: number;
   mentorTopics?: string[];
   menteesHelpedCount?: number;
+  whatsappEnabled?: boolean;
+  whatsappNumber?: string;
+  preferredLanguage?: string;
+  phone?: string;
 }
 
 export interface LoginSession {

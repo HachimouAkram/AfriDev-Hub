@@ -32,6 +32,7 @@ public class DataInitializer implements CommandLineRunner {
     private final TechEventRepository eventRepository;
     private final ProjectTaskRepository taskRepository;
     private final ProjectMemberRepository memberRepository;
+    private final ResourceRepository resourceRepository;
     private final africa.afridev.service.XpService xpService;
     private final org.springframework.jdbc.core.JdbcTemplate jdbcTemplate;
 
@@ -550,6 +551,91 @@ public class DataInitializer implements CommandLineRunner {
                     .tags(List.of("Kafka", "Spring Boot", "Microservices", "Event-Driven"))
                     .agreeCount(31)
                     .disagreeCount(0)
+                    .build());
+        }
+
+        if (resourceRepository.count() == 0) {
+            log.info("Initialisation de la bibliothèque de ressources et formations...");
+            resourceRepository.save(ResourceEntity.builder()
+                    .title("Maîtriser Spring Boot 3 & Microservices en Afrique")
+                    .description("Guide vidéo complet pour concevoir des APIs résilientes aux coupures réseau avec Spring Boot 3, Redis et PostgreSQL.")
+                    .type(ResourceType.VIDEO)
+                    .level(SkillLevel.INTERMEDIATE)
+                    .technology("Spring Boot")
+                    .language("fr")
+                    .youtubeUrl("https://www.youtube.com/watch?v=9SGDpanrc8U")
+                    .thumbnailUrl("https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=800")
+                    .durationMinutes(45)
+                    .xpReward(80)
+                    .isPaid(false)
+                    .viewsCount(142)
+                    .completionsCount(38)
+                    .build());
+
+            resourceRepository.save(ResourceEntity.builder()
+                    .title("Architecture Angular 18 & Applications Offline-First PWA")
+                    .description("Apprenez à rendre votre frontend ultra-rapide sans connexion avec Service Workers, IndexedDB et synchronisation en arrière-plan.")
+                    .type(ResourceType.VIDEO)
+                    .level(SkillLevel.INTERMEDIATE)
+                    .technology("Angular")
+                    .language("fr")
+                    .youtubeUrl("https://www.youtube.com/watch?v=3qBXWUpoPHo")
+                    .thumbnailUrl("https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=800")
+                    .durationMinutes(50)
+                    .xpReward(80)
+                    .isPaid(false)
+                    .viewsCount(98)
+                    .completionsCount(27)
+                    .build());
+
+            resourceRepository.save(ResourceEntity.builder()
+                    .title("Masterclass IA & LLMs : Gemini 2.5, Cohere et RAG en Production")
+                    .description("Formation certifiante avancée : créez des routeurs d'IA multi-fournisseurs, de la recherche sémantique vectorielle et des agents intelligents.")
+                    .type(ResourceType.COURSE)
+                    .level(SkillLevel.ADVANCED)
+                    .technology("Intelligence Artificielle")
+                    .language("fr")
+                    .youtubeUrl("https://www.youtube.com/watch?v=kCc8FmEb1nY")
+                    .thumbnailUrl("https://images.unsplash.com/photo-1677442136019-21780efad99a?w=800")
+                    .durationMinutes(180)
+                    .xpReward(150)
+                    .isPaid(true)
+                    .price(new java.math.BigDecimal("15000"))
+                    .currency("XOF")
+                    .viewsCount(260)
+                    .completionsCount(15)
+                    .build());
+
+            resourceRepository.save(ResourceEntity.builder()
+                    .title("Tutoriel Wolof : Naka ngay defar API bu gaaw ak Python & FastAPI")
+                    .description("Jàngal ci làkku Wolof ni ñuy defare ay API yu gaaw te dëggër ak Python ak FastAPI.")
+                    .type(ResourceType.VIDEO)
+                    .level(SkillLevel.BEGINNER)
+                    .technology("Python")
+                    .language("wo")
+                    .youtubeUrl("https://www.youtube.com/watch?v=7eh4d6sabA0")
+                    .thumbnailUrl("https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=800")
+                    .durationMinutes(35)
+                    .xpReward(60)
+                    .isPaid(false)
+                    .viewsCount(185)
+                    .completionsCount(64)
+                    .build());
+
+            resourceRepository.save(ResourceEntity.builder()
+                    .title("Mwongozo wa Kiswahili : Mifumo ya Malipo ya Simu (Mobile Money)")
+                    .description("Jifunze jinsi ya kuunganisha Wave, M-Pesa na Orange Money kwenye mfumo wako wa backend.")
+                    .type(ResourceType.TUTORIAL)
+                    .level(SkillLevel.BEGINNER)
+                    .technology("Fintech")
+                    .language("sw")
+                    .youtubeUrl("https://www.youtube.com/watch?v=UB1O30fR-EE")
+                    .thumbnailUrl("https://images.unsplash.com/photo-1563986768609-322da13575f3?w=800")
+                    .durationMinutes(40)
+                    .xpReward(60)
+                    .isPaid(false)
+                    .viewsCount(112)
+                    .completionsCount(43)
                     .build());
         }
 

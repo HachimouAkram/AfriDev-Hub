@@ -20,6 +20,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.time.Duration;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -57,6 +58,10 @@ public class ProjectService {
                 .projectType(pType)
                 .price(request.getPrice())
                 .currency(request.getCurrency() != null ? request.getCurrency() : "XOF")
+                .isMonetized(Boolean.TRUE.equals(request.getIsMonetized()) || (request.getPrice() != null && request.getPrice().compareTo(BigDecimal.ZERO) > 0))
+                .payoutPhoneNumber(request.getPayoutPhoneNumber())
+                .payoutOperator(request.getPayoutOperator())
+                .acceptedPaymentMethods(request.getAcceptedPaymentMethods() != null ? request.getAcceptedPaymentMethods() : new ArrayList<>())
                 .saleType(request.getSaleType())
                 .saasPricingType(request.getSaasPricingType())
                 .licenseType(request.getLicenseType())
@@ -567,6 +572,10 @@ public class ProjectService {
                 .projectType(project.getProjectType() != null ? project.getProjectType() : africa.afridev.model.enums.ProjectType.OPEN_SOURCE)
                 .price(project.getPrice())
                 .currency(project.getCurrency() != null ? project.getCurrency() : "XOF")
+                .isMonetized(Boolean.TRUE.equals(project.getIsMonetized()) || (project.getPrice() != null && project.getPrice().compareTo(BigDecimal.ZERO) > 0))
+                .payoutPhoneNumber(project.getPayoutPhoneNumber())
+                .payoutOperator(project.getPayoutOperator())
+                .acceptedPaymentMethods(project.getAcceptedPaymentMethods())
                 .saleType(project.getSaleType())
                 .saasPricingType(project.getSaasPricingType())
                 .licenseType(project.getLicenseType())

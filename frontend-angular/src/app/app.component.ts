@@ -4,11 +4,13 @@ import { CommonModule } from '@angular/common';
 import { AuthService } from './core/services/auth.service';
 import { ThemeService } from './core/services/theme.service';
 import { TranslationService, Language } from './core/services/translation.service';
+import { OfflineSyncService } from './core/services/offline-sync.service';
+import { AiAssistantComponent } from './shared/components/ai-assistant/ai-assistant.component';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [CommonModule, RouterOutlet, RouterLink, RouterLinkActive],
+  imports: [CommonModule, RouterOutlet, RouterLink, RouterLinkActive, AiAssistantComponent],
   template: `
     <nav class="app-nav" [class.nav-scrolled]="isScrolled" [class.nav-light]="!isDark()" *ngIf="!hideNavAndFooter()">
       <div class="nav-content">
@@ -24,13 +26,14 @@ import { TranslationService, Language } from './core/services/translation.servic
         <!-- Desktop Nav Links - Centered Pill Navigation -->
         <div class="nav-center-pill desktop-only">
           <ng-container *ngIf="!isDashboardPage()">
-            <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" class="nav-link">Accueil</a>
-            <a routerLink="/projects" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" class="nav-link">Projets</a>
-            <a routerLink="/opportunities" routerLinkActive="active" class="nav-link">Opportunités</a>
-            <a routerLink="/network" routerLinkActive="active" class="nav-link">Réseau</a>
-            <a routerLink="/events" routerLinkActive="active" class="nav-link">Événements</a>
-            <a routerLink="/communautes" routerLinkActive="active" class="nav-link">Communautés</a>
-            <a routerLink="/leaderboard" routerLinkActive="active" class="nav-link">Classement</a>
+            <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" class="nav-link">{{ t('nav.home') }}</a>
+            <a routerLink="/projects" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" class="nav-link">{{ t('nav.projects') }}</a>
+            <a routerLink="/opportunities" routerLinkActive="active" class="nav-link">{{ t('nav.opportunities') }}</a>
+            <a routerLink="/network" routerLinkActive="active" class="nav-link">{{ t('nav.network') }}</a>
+            <a routerLink="/events" routerLinkActive="active" class="nav-link">{{ t('nav.events') }}</a>
+            <a routerLink="/communautes" routerLinkActive="active" class="nav-link">{{ t('nav.communities') }}</a>
+            <a routerLink="/resources" routerLinkActive="active" class="nav-link">{{ t('nav.resources') }}</a>
+            <a routerLink="/leaderboard" routerLinkActive="active" class="nav-link">{{ t('nav.leaderboard') }}</a>
           </ng-container>
         </div>
 
@@ -187,13 +190,14 @@ import { TranslationService, Language } from './core/services/translation.servic
       <!-- Mobile Navigation Drawer -->
       <div class="mobile-drawer" [class.open]="isMobileMenuOpen">
         <div class="mobile-drawer-links">
-          <a routerLink="/" (click)="closeAllMenus()" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" class="mobile-nav-link">Accueil</a>
-          <a routerLink="/projects" (click)="closeAllMenus()" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" class="mobile-nav-link">Projets</a>
-          <a routerLink="/opportunities" (click)="closeAllMenus()" routerLinkActive="active" class="mobile-nav-link">Opportunités</a>
-          <a routerLink="/network" (click)="closeAllMenus()" routerLinkActive="active" class="mobile-nav-link">Réseau</a>
-          <a routerLink="/events" (click)="closeAllMenus()" routerLinkActive="active" class="mobile-nav-link">Événements</a>
-          <a routerLink="/communautes" (click)="closeAllMenus()" routerLinkActive="active" class="mobile-nav-link">Communautés</a>
-          <a routerLink="/leaderboard" (click)="closeAllMenus()" routerLinkActive="active" class="mobile-nav-link">Classement</a>
+          <a routerLink="/" (click)="closeAllMenus()" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" class="mobile-nav-link">{{ t('nav.home') }}</a>
+          <a routerLink="/projects" (click)="closeAllMenus()" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" class="mobile-nav-link">{{ t('nav.projects') }}</a>
+          <a routerLink="/opportunities" (click)="closeAllMenus()" routerLinkActive="active" class="mobile-nav-link">{{ t('nav.opportunities') }}</a>
+          <a routerLink="/network" (click)="closeAllMenus()" routerLinkActive="active" class="mobile-nav-link">{{ t('nav.network') }}</a>
+          <a routerLink="/events" (click)="closeAllMenus()" routerLinkActive="active" class="mobile-nav-link">{{ t('nav.events') }}</a>
+          <a routerLink="/communautes" (click)="closeAllMenus()" routerLinkActive="active" class="mobile-nav-link">{{ t('nav.communities') }}</a>
+          <a routerLink="/resources" (click)="closeAllMenus()" routerLinkActive="active" class="mobile-nav-link">{{ t('nav.resources') }}</a>
+          <a routerLink="/leaderboard" (click)="closeAllMenus()" routerLinkActive="active" class="mobile-nav-link">{{ t('nav.leaderboard') }}</a>
           <a *ngIf="isLoggedIn()" routerLink="/messages" (click)="closeAllMenus()" routerLinkActive="active" class="mobile-nav-link">Messagerie</a>
           <a *ngIf="isLoggedIn()" routerLink="/dashboard/profile" (click)="closeAllMenus()" routerLinkActive="active" class="mobile-nav-link">Mon Profil</a>
           <a *ngIf="isLoggedIn()" routerLink="/dashboard" (click)="closeAllMenus()" routerLinkActive="active" class="mobile-nav-link">Tableau de bord</a>
@@ -232,6 +236,15 @@ import { TranslationService, Language } from './core/services/translation.servic
         </div>
       </div>
     </nav>
+
+    <!-- Offline banner & sync toast -->
+    <div class="offline-banner" *ngIf="!offlineSync.isOnline()">
+      <span>📡 {{ t('offline.banner') }} ({{ offlineSync.pendingCount() }} {{ t('offline.pending') }})</span>
+    </div>
+    <div class="sync-toast-banner" *ngIf="offlineSync.lastSyncMessage()">
+      <span>✓ {{ offlineSync.lastSyncMessage() }}</span>
+    </div>
+
     <main [class.has-fixed-nav]="!hideNavAndFooter()">
       <router-outlet></router-outlet>
     </main>
@@ -320,8 +333,39 @@ import { TranslationService, Language } from './core/services/translation.servic
         </div>
       </div>
     </footer>
+
+    <!-- Public Multimodal & Voice AI Assistant (Gemini) -->
+    <app-ai-assistant></app-ai-assistant>
   `,
   styles: [`
+    .offline-banner {
+      position: fixed;
+      top: 60px;
+      left: 0;
+      right: 0;
+      background: #f59e0b;
+      color: #000;
+      text-align: center;
+      padding: 0.4rem 1rem;
+      font-size: 0.85rem;
+      font-weight: 700;
+      z-index: 1001;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    }
+    .sync-toast-banner {
+      position: fixed;
+      bottom: 1.5rem;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #10b981;
+      color: #fff;
+      padding: 0.6rem 1.25rem;
+      border-radius: 9999px;
+      font-size: 0.9rem;
+      font-weight: 700;
+      z-index: 2000;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.3);
+    }
     .app-nav {
       position: fixed;
       top: 0;
@@ -1273,6 +1317,7 @@ export class AppComponent {
   private authService = inject(AuthService);
   private themeService = inject(ThemeService);
   private translationService = inject(TranslationService);
+  public offlineSync = inject(OfflineSyncService);
   private router = inject(Router);
 
   isMobileMenuOpen = false;
@@ -1282,6 +1327,10 @@ export class AppComponent {
 
   availableLanguages = this.translationService.languages;
   currentLang = this.translationService.currentLang;
+
+  t(key: string): string {
+    return this.translationService.t(key);
+  }
 
   @HostListener('window:scroll')
   onWindowScroll(): void {

@@ -1,0 +1,228 @@
+<div class="resources-page">
+  <!-- Hero Section -->
+  <header class="resources-hero">
+    <div class="hero-content">
+      <div class="hero-badge">
+        <span class="badge-dot"></span>
+        <span>AfriDev Academy 🎓</span>
+      </div>
+      <h1 class="hero-title">{{ t('resources.title') }}</h1>
+      <p class="hero-subtitle">{{ t('resources.subtitle') }}</p>
+
+      <!-- Language selector chips -->
+      <div class="lang-chips-row">
+        <button class="chip" [class.active]="selectedLang() === 'ALL'" (click)="setFilterLang('ALL')">Toutes les langues</button>
+        <button class="chip" [class.active]="selectedLang() === 'fr'" (click)="setFilterLang('fr')">🇫🇷 Français</button>
+        <button class="chip" [class.active]="selectedLang() === 'en'" (click)="setFilterLang('en')">🇬🇧 English</button>
+        <button class="chip" [class.active]="selectedLang() === 'wo'" (click)="setFilterLang('wo')">🇸🇳 Wolof</button>
+        <button class="chip" [class.active]="selectedLang() === 'sw'" (click)="setFilterLang('sw')">🇹🇿 Kiswahili</button>
+      </div>
+    </div>
+  </header>
+
+  <div class="container main-content">
+    <!-- Filter bar -->
+    <div class="filter-bar">
+      <!-- Tech filters -->
+      <div class="tech-pills">
+        <button class="tech-pill" [class.active]="selectedTech() === 'ALL'" (click)="setFilterTech('ALL')">Toutes les technos</button>
+        <button *ngFor="let tech of techList" class="tech-pill" [class.active]="selectedTech() === tech" (click)="setFilterTech(tech)">
+          {{ tech }}
+        </button>
+      </div>
+
+      <!-- Level & Paid filters -->
+      <div class="filter-controls">
+        <select class="form-select" [ngModel]="selectedLevel()" (ngModelChange)="setFilterLevel($event)">
+          <option value="ALL">Tous les niveaux</option>
+          <option value="BEGINNER">{{ t('resources.beginner') }}</option>
+          <option value="INTERMEDIATE">{{ t('resources.intermediate') }}</option>
+          <option value="ADVANCED">{{ t('resources.advanced') }}</option>
+        </select>
+
+        <button class="free-toggle-btn" [class.active]="onlyFree()" (click)="toggleFree()">
+          {{ onlyFree() ? '✓ Uniquement Gratuit' : 'Tous (Gratuit & Payant)' }}
+        </button>
+      </div>
+    </div>
+
+    <!-- Loading Skeleton -->
+    <div *ngIf="isLoading()" class="loading-grid">
+      <div class="skeleton-card" *ngFor="let i of [1,2,3,4,5,6]"></div>
+    </div>
+
+    <!-- Empty State -->
+    <div *ngIf="!isLoading() && resources().length === 0" class="empty-state">
+      <div class="empty-icon">📚</div>
+      <h3>Aucune ressource trouvée pour ces filtres</h3>
+      <p>Essayez de réinitialiser vos filtres ou de changer de langue.</p>
+      <button class="btn btn-emerald" (click)="setFilterTech('ALL'); setFilterLang('ALL'); setFilterLevel('ALL')">Réinitialiser les filtres</button>
+    </div>
+
+    <!-- Resources Cards Grid -->
+    <div *ngIf="!isLoading() && resources().length > 0" class="resources-grid">
+      <div *ngFor="let item of resources()" class="resource-card">
+        <!-- Thumbnail & Badges -->
+        <div class="card-media">
+          <img [src]="item.thumbnailUrl || 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=800'" [alt]="item.title" class="thumbnail-img" />
+          <div class="card-badges-top">
+            <span class="badge badge-tech">{{ item.technology }}</span>
+            <span class="badge" [ngClass]="item.level === 'ADVANCED' ? 'badge-purple' : (item.level === 'INTERMEDIATE' ? 'badge-blue' : 'badge-emerald')">
+              {{ item.level }}
+            </span>
+          </div>
+          <span class="card-price-tag" [class.free]="!item.isPaid">
+            {{ item.isPaid ? (item.price + ' ' + item.currency) : t('payment.free') }}
+          </span>
+        </div>
+
+        <!-- Body -->
+        <div class="card-body">
+          <div class="card-meta">
+            <span class="meta-item">⏱️ {{ item.durationMinutes }} min</span>
+            <span class="meta-item xp-badge">+{{ item.xpReward }} XP</span>
+            <span class="meta-item">👥 {{ item.completionsCount }} certifiés</span>
+          </div>
+          <h3 class="card-title">{{ item.title }}</h3>
+          <p class="card-desc">{{ item.description }}</p>
+        </div>
+
+        <!-- Actions Footer -->
+        <div class="card-footer">
+          <ng-container *ngIf="item.isUnlockedByCurrentUser">
+            <button class="btn btn-emerald btn-sm w-full" (click)="openResource(item)">
+              ▶️ {{ t('resources.watch_video') }}
+            </button>
+          </ng-container>
+
+          <ng-container *ngIf="!item.isUnlockedByCurrentUser">
+            <button class="btn btn-primary btn-sm w-full" (click)="openPayment(item)">
+              💳 {{ t('action.enroll') }} ({{ item.price }} {{ item.currency }})
+            </button>
+          </ng-container>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Video Player Modal -->
+  <div class="modal-backdrop" *ngIf="selectedResource()" (click)="closeResource()">
+    <div class="video-modal-card" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <div>
+          <h3>{{ selectedResource()?.title }}</h3>
+          <span class="badge badge-emerald">+{{ selectedResource()?.xpReward }} XP à la fin</span>
+        </div>
+        <button class="btn-close" (click)="closeResource()">✕</button>
+      </div>
+
+      <div class="video-container" *ngIf="activeVideoUrl()">
+        <iframe [src]="activeVideoUrl()" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+      </div>
+
+      <div class="modal-footer">
+        <p class="video-desc">{{ selectedResource()?.description }}</p>
+        <div class="modal-actions">
+          <button class="btn btn-emerald" *ngIf="!selectedResource()?.isCompletedByCurrentUser" (click)="markCompleted(selectedResource()!)">
+            ✓ Marquer comme terminé et gagner mes XP
+          </button>
+          <span class="completed-tag" *ngIf="selectedResource()?.isCompletedByCurrentUser">
+            ✓ Cours terminé avec succès !
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Transparent Payment Modal (Buyer Pays Fees) -->
+  <div class="modal-backdrop" *ngIf="isPaymentModalOpen()" (click)="closePayment()">
+    <div class="payment-modal-card" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <div>
+          <h3>Règlement Sécurisé de la Formation</h3>
+          <p class="subtitle">{{ paymentTarget()?.title }}</p>
+        </div>
+        <button class="btn-close" (click)="closePayment()">✕</button>
+      </div>
+
+      <div class="modal-body" *ngIf="!paymentSuccessData()">
+        <!-- Mode Tabs -->
+        <div class="provider-tabs">
+          <button class="tab-btn" [class.active]="selectedMethod() === 'WAVE'" (click)="selectedProvider.set('UNITECH_PAY'); selectedMethod.set('WAVE')">
+            🌊 Wave (Sénégal & CI)
+          </button>
+          <button class="tab-btn" [class.active]="selectedMethod() === 'ORANGE_MONEY'" (click)="selectedProvider.set('UNITECH_PAY'); selectedMethod.set('ORANGE_MONEY')">
+            🍊 Orange Money
+          </button>
+          <button class="tab-btn" [class.active]="selectedMethod() === 'CARD'" (click)="selectedProvider.set('STRIPE'); selectedMethod.set('CARD')">
+            💳 Carte Bancaire (Stripe)
+          </button>
+        </div>
+
+        <!-- Phone input for Mobile Money -->
+        <div class="form-group" *ngIf="selectedProvider() === 'UNITECH_PAY'">
+          <label>Numéro de téléphone Mobile Money :</label>
+          <input type="tel" [(ngModel)]="customerPhone" placeholder="Ex: 771234567 ou 0700000000" class="form-input" />
+        </div>
+
+        <!-- Country selection -->
+        <div class="form-group" *ngIf="selectedProvider() === 'UNITECH_PAY'">
+          <label>Pays de facturation :</label>
+          <select [(ngModel)]="country" class="form-select">
+            <option value="SN">🇸🇳 Sénégal</option>
+            <option value="CI">🇨🇮 Côte d'Ivoire</option>
+            <option value="BF">🇧🇫 Burkina Faso</option>
+            <option value="TG">🇹🇬 Togo</option>
+            <option value="BJ">🇧🇯 Bénin</option>
+          </select>
+        </div>
+
+        <!-- Transparent fee breakdown -->
+        <div class="fee-breakdown-card">
+          <div class="fee-row">
+            <span>Prix de la formation (net formateur) :</span>
+            <strong>{{ paymentTarget()?.price }} {{ paymentTarget()?.currency }}</strong>
+          </div>
+          <div class="fee-row">
+            <span>Frais plateforme AfriDev Hub (5 %) :</span>
+            <span>+{{ (paymentTarget()?.price || 0) * 0.05 }} {{ paymentTarget()?.currency }}</span>
+          </div>
+          <div class="fee-row">
+            <span>Frais opérateur de paiement (2 %) :</span>
+            <span>+{{ (paymentTarget()?.price || 0) * 0.02 }} {{ paymentTarget()?.currency }}</span>
+          </div>
+          <div class="fee-row fee-total">
+            <span>Total à payer (Frais inclus pour l'acheteur) :</span>
+            <strong class="total-price">{{ (paymentTarget()?.price || 0) * 1.07 }} {{ paymentTarget()?.currency }}</strong>
+          </div>
+        </div>
+
+        <button class="btn btn-emerald btn-block" [disabled]="isProcessingPayment()" (click)="confirmPayment()">
+          {{ isProcessingPayment() ? 'Initialisation en cours...' : 'Procéder au Paiement Sécurisé' }}
+        </button>
+      </div>
+
+      <!-- Payment Launched State -->
+      <div class="modal-body text-center" *ngIf="paymentSuccessData()">
+        <div class="success-icon">⏳</div>
+        <h4>Session de paiement initiée !</h4>
+        <p>Commande <strong>#{{ paymentSuccessData()?.orderNumber }}</strong></p>
+
+        <div *ngIf="paymentSuccessData()?.qrCodeData" class="qr-box">
+          <p>Scannez le QR Code ci-dessous avec votre application :</p>
+          <img [src]="paymentSuccessData()?.qrCodeData" alt="QR Code Paiement" class="qr-img" />
+        </div>
+
+        <div *ngIf="paymentSuccessData()?.paymentUrl" class="link-box">
+          <a [href]="paymentSuccessData()?.paymentUrl" target="_blank" class="btn btn-emerald">
+            Ouvrir la page de paiement
+          </a>
+        </div>
+
+        <p class="refresh-hint">Une fois le paiement validé, la formation sera débloquée instantanément.</p>
+        <button class="btn btn-outline btn-sm" (click)="closePayment(); loadResources();">Fermer</button>
+      </div>
+    </div>
+  </div>
+</div>
+

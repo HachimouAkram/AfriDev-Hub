@@ -25,4 +25,9 @@ public class ProfileUpdateRequest {
     private String avatarUrl;
     private String bannerUrl;
     private String cvUrl;
+
+    // Multilingue & WhatsApp
+    private String preferredLanguage;
+    private Boolean whatsappEnabled;
+    private String whatsappNumber;
 }

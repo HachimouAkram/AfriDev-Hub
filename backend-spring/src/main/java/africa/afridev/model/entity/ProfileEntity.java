@@ -119,6 +119,18 @@ public class ProfileEntity {
     @Builder.Default
     private Integer menteesHelpedCount = 0;
 
+    // --- Multilingue & Contact WhatsApp ---
+    @Column(name = "preferred_language", length = 10)
+    @Builder.Default
+    private String preferredLanguage = "fr";
+
+    @Column(name = "whatsapp_enabled")
+    @Builder.Default
+    private Boolean whatsappEnabled = false;
+
+    @Column(name = "whatsapp_number", length = 32)
+    private String whatsappNumber;
+
     @CreationTimestamp
     @Column(updatable = false)
     private LocalDateTime createdAt;

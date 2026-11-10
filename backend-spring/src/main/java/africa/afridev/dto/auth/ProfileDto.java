@@ -45,4 +45,9 @@ public class ProfileDto {
     private Integer mentorHoursPerWeek;
     private List<String> mentorTopics;
     private Integer menteesHelpedCount;
+
+    // Multilingue & WhatsApp
+    private String preferredLanguage;
+    private Boolean whatsappEnabled;
+    private String whatsappNumber;
 }

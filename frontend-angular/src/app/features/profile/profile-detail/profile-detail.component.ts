@@ -429,7 +429,9 @@ export class ProfileDetailComponent implements OnInit {
     githubUrl: '',
     linkedinUrl: '',
     zindiUrl: '',
-    portfolioUrl: ''
+    portfolioUrl: '',
+    whatsappEnabled: false,
+    whatsappNumber: ''
   };
 
   openEditModal(): void {
@@ -449,7 +451,9 @@ export class ProfileDetailComponent implements OnInit {
       githubUrl: this.profile.githubUrl || '',
       linkedinUrl: this.profile.linkedinUrl || '',
       zindiUrl: this.profile.zindiUrl || '',
-      portfolioUrl: this.profile.portfolioUrl || ''
+      portfolioUrl: this.profile.portfolioUrl || '',
+      whatsappEnabled: (this.profile as any).whatsappEnabled || false,
+      whatsappNumber: (this.profile as any).whatsappNumber || ''
     };
     this.editSuccessMessage = '';
     this.editErrorMessage = '';
@@ -566,7 +570,9 @@ export class ProfileDetailComponent implements OnInit {
       githubUrl: this.editForm.githubUrl,
       linkedinUrl: this.editForm.linkedinUrl,
       zindiUrl: this.editForm.zindiUrl,
-      portfolioUrl: this.editForm.portfolioUrl
+      portfolioUrl: this.editForm.portfolioUrl,
+      whatsappEnabled: this.editForm.whatsappEnabled,
+      whatsappNumber: this.editForm.whatsappNumber
     };
 
     this.profileService.updateProfile(payload).subscribe({
@@ -784,6 +790,15 @@ export class ProfileDetailComponent implements OnInit {
         this.mentorErrorMsg = 'Erreur lors de l’enregistrement.';
       }
     });
+  }
+
+  getWhatsAppUrl(profile: any): string {
+    const phone = profile?.whatsappNumber || profile?.phone;
+    if (!phone) return '#';
+    const cleanPhone = phone.replace(/[^0-9]/g, '');
+    const name = profile?.fullName || 'Développeur';
+    const msg = encodeURIComponent(`Bonjour ${name}, j'ai vu votre profil sur AfriDev Hub et je souhaite entrer en contact avec vous !`);
+    return `https://wa.me/${cleanPhone}?text=${msg}`;
   }
 }
 

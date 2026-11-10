@@ -7,6 +7,9 @@ import { AuthService } from '../../../core/services/auth.service';
 import { ProjectService, Project, ProjectComment, ProjectType } from '../../../core/services/project.service';
 import { FollowService, FollowStats } from '../../../core/services/follow.service';
 import { ProjectCollaborationService, ProjectMember, ProjectTask, ProjectProgress, TaskStatus, TaskPriority } from '../../../core/services/project-collaboration.service';
+import { PaymentService, PaymentProvider, PaymentMethod } from '../../../core/services/payment.service';
+import { AIService, AIAuditResult } from '../../../core/services/ai.service';
+import { TranslationService } from '../../../core/services/translation.service';
 
 @Component({
   selector: 'app-project-list',
@@ -23,6 +26,9 @@ export class ProjectListComponent implements OnInit {
   private sanitizer = inject(DomSanitizer);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
+  private paymentService = inject(PaymentService);
+  private aiService = inject(AIService);
+  public translationService = inject(TranslationService);
 
   projects: Project[] = [];
   filteredProjects: Project[] = [];
@@ -44,6 +50,10 @@ export class ProjectListComponent implements OnInit {
     return this.authService.isLoggedIn();
   }
 
+  t(key: string, fallback?: string): string {
+    return this.translationService.t(key, fallback);
+  }
+
   setSort(sort: 'SUGGESTED' | 'FOLLOWING' | 'POPULAR' | 'SAME_COUNTRY' | 'COLLABORATION' | 'RECENT'): void {
     if (this.currentSort === sort) return;
     this.currentSort = sort;
@@ -54,6 +64,26 @@ export class ProjectListComponent implements OnInit {
     if (!project.matchedStack || project.matchedStack.length === 0) return false;
     return project.matchedStack.some(t => t.toLowerCase() === tech.toLowerCase());
   }
+
+  // Purchase Modal State
+  isPurchaseModalOpen = false;
+  purchasingProject: Project | null = null;
+  purchaseProvider: PaymentProvider = 'UNITECH_PAY';
+  purchaseMethod: PaymentMethod = 'WAVE';
+  purchasePhone: string = '';
+  purchaseCountry: string = 'SN';
+  isProcessingPurchase = false;
+  purchaseSuccessData: any = null;
+  purchaseError: string | null = null;
+
+  // AI Translation State
+  isTranslating = false;
+  translatedDescriptions: Record<string, string> = {};
+
+  // AI Audit State
+  isAuditingProject = false;
+  aiAuditResult: AIAuditResult | null = null;
+  auditError: string | null = null;
 
   // Create Modal State
   showCreateModal = false;
@@ -872,5 +902,127 @@ export class ProjectListComponent implements OnInit {
     setTimeout(() => {
       this.toastMessage = null;
     }, 3500);
+  }
+
+  // Purchase Modal Methods
+  openPurchaseModal(project: Project, event?: Event): void {
+    if (event) event.stopPropagation();
+    this.purchasingProject = project;
+    this.purchaseSuccessData = null;
+    this.purchaseError = null;
+    this.purchaseProvider = 'UNITECH_PAY';
+    this.purchaseMethod = 'WAVE';
+    this.purchaseCountry = 'SN';
+    this.purchasePhone = this.authService.currentUser()?.profile?.whatsappNumber || '';
+    this.isPurchaseModalOpen = true;
+  }
+
+  closePurchaseModal(): void {
+    this.isPurchaseModalOpen = false;
+    this.purchasingProject = null;
+    this.purchaseSuccessData = null;
+    this.purchaseError = null;
+    this.isProcessingPurchase = false;
+  }
+
+  confirmProjectPurchase(): void {
+    if (!this.purchasingProject) return;
+    this.isProcessingPurchase = true;
+    this.purchaseError = null;
+
+    this.paymentService.initiatePayment({
+      targetType: 'PROJECT',
+      targetId: this.purchasingProject.id,
+      provider: this.purchaseProvider,
+      method: this.purchaseMethod,
+      customerPhone: this.purchasePhone,
+      country: this.purchaseCountry
+    }).subscribe({
+      next: (res) => {
+        this.isProcessingPurchase = false;
+        this.purchaseSuccessData = res;
+        if (res.paymentUrl && this.purchaseProvider === 'STRIPE') {
+          window.location.href = res.paymentUrl;
+        } else {
+          this.showToast('Paiement initié avec succès !');
+        }
+      },
+      error: (err) => {
+        this.isProcessingPurchase = false;
+        const msg = err.error?.message || 'Erreur lors de l\'initialisation du paiement.';
+        this.purchaseError = msg;
+        this.showToast(msg);
+      }
+    });
+  }
+
+  // WhatsApp Direct
+  canContactWhatsApp(project: Project): boolean {
+    const prof = project?.author?.profile;
+    return !!(prof && (prof.whatsappEnabled || prof.whatsappNumber));
+  }
+
+  openWhatsApp(project: Project, event?: Event): void {
+    if (event) event.stopPropagation();
+    const prof = project?.author?.profile;
+    const phone = prof?.whatsappNumber || prof?.phone;
+    if (!phone) {
+      this.showToast('Numéro WhatsApp non renseigné par le développeur.');
+      return;
+    }
+    const cleanPhone = phone.replace(/[^0-9]/g, '');
+    const authorName = prof.fullName || 'Développeur';
+    const msg = encodeURIComponent(
+      `Bonjour ${authorName}, j'ai vu votre projet "${project.title}" sur AfriDev Hub et je souhaite échanger avec vous !`
+    );
+    window.open(`https://wa.me/${cleanPhone}?text=${msg}`, '_blank');
+  }
+
+  // AI Translation
+  translateProject(project: Project): void {
+    if (this.translatedDescriptions[project.id]) {
+      delete this.translatedDescriptions[project.id];
+      return;
+    }
+    this.isTranslating = true;
+    const currentLang = this.translationService.currentLang().code;
+    this.aiService.translate(project.description, currentLang).subscribe({
+      next: (res) => {
+        this.isTranslating = false;
+        this.translatedDescriptions[project.id] = res;
+        this.showToast('Description traduite en ' + this.translationService.currentLang().label);
+      },
+      error: () => {
+        this.isTranslating = false;
+        this.showToast('Traduction non disponible actuellement.');
+      }
+    });
+  }
+
+  // AI Audit
+  runAIAudit(project: Project): void {
+    this.isAuditingProject = true;
+    this.aiAuditResult = null;
+    this.auditError = null;
+
+    this.aiService.auditProject(
+      project.repoUrl || '',
+      project.title,
+      project.description,
+      project.stack || []
+    ).subscribe({
+      next: (res) => {
+        this.isAuditingProject = false;
+        this.aiAuditResult = res;
+      },
+      error: () => {
+        this.isAuditingProject = false;
+        this.showToast('Audit IA indisponible pour le moment.');
+      }
+    });
+  }
+
+  closeAIAudit(): void {
+    this.aiAuditResult = null;
   }
 }

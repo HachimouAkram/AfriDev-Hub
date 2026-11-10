@@ -71,6 +71,9 @@ public class ProfileService {
         if (request.getPortfolioUrl() != null) profile.setPortfolioUrl(request.getPortfolioUrl());
         if (request.getAvatarUrl() != null) profile.setAvatarUrl(request.getAvatarUrl());
         if (request.getCvUrl() != null) profile.setCvUrl(request.getCvUrl());
+        if (request.getPreferredLanguage() != null) profile.setPreferredLanguage(request.getPreferredLanguage());
+        if (request.getWhatsappEnabled() != null) profile.setWhatsappEnabled(request.getWhatsappEnabled());
+        if (request.getWhatsappNumber() != null) profile.setWhatsappNumber(request.getWhatsappNumber());
 
         profile.setCompletionScore(calculateCompletionScore(profile));
 

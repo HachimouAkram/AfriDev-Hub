@@ -446,6 +446,9 @@ public class AuthService {
                 .mentorHoursPerWeek(profile.getMentorHoursPerWeek())
                 .mentorTopics(profile.getMentorTopics())
                 .menteesHelpedCount(profile.getMenteesHelpedCount())
+                .preferredLanguage(profile.getPreferredLanguage() != null ? profile.getPreferredLanguage() : "fr")
+                .whatsappEnabled(Boolean.TRUE.equals(profile.getWhatsappEnabled()))
+                .whatsappNumber(profile.getWhatsappNumber())
                 .build();
     }
 }

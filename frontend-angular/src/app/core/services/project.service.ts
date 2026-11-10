@@ -39,6 +39,9 @@ export interface Project {
   youtubeUrl?: string;
   documentationPdfUrl?: string;
   maxMembers?: number;
+  payoutPhoneNumber?: string;
+  payoutOperator?: string;
+  isMonetized?: boolean;
 
   viewsCount?: number;
   recognitionsCount: number;

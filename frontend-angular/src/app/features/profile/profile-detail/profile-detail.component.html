@@ -187,6 +187,15 @@
           </svg>
           Envoyer un message
         </button>
+
+        <a 
+          *ngIf="profile.whatsappEnabled && profile.whatsappNumber" 
+          [href]="getWhatsAppUrl(profile)" 
+          target="_blank" 
+          class="btn btn-whatsapp" 
+          title="Discuter directement sur WhatsApp">
+          <i class="ri-whatsapp-line"></i> WhatsApp
+        </a>
       </div>
     </ng-template>
   </div>
@@ -1109,19 +1118,19 @@
           <div *ngFor="let uItem of followUserList" class="follow-user-item">
             <div class="follow-user-left">
               <div class="user-avatar-sm">
-                {{ (uItem.profile?.fullName || uItem.email || 'U').charAt(0).toUpperCase() }}
+                {{ (uItem.profile.fullName || uItem.email || 'U').charAt(0).toUpperCase() }}
               </div>
               <div class="user-meta-sm">
-                <a [routerLink]="['/profile', uItem.profile?.id || uItem.id]" (click)="closeFollowModal()" class="user-name-link">
-                  {{ uItem.profile?.fullName || uItem.email || 'Membre' }}
+                <a [routerLink]="['/profile', uItem.profile.id || uItem.id]" (click)="closeFollowModal()" class="user-name-link">
+                  {{ uItem.profile.fullName || uItem.email || 'Membre' }}
                 </a>
                 <span class="user-sub-info">
-                  {{ uItem.profile?.title || 'Membre AfriDev' }} &bull; <i class="ri-map-pin-line"></i> {{ uItem.profile?.country || 'Afrique' }}
+                  {{ uItem.profile.title || 'Membre AfriDev' }} &bull; <i class="ri-map-pin-line"></i> {{ uItem.profile.country || 'Afrique' }}
                 </span>
               </div>
             </div>
 
-            <a [routerLink]="['/profile', uItem.profile?.id || uItem.id]" (click)="closeFollowModal()" class="btn btn-outline btn-sm">
+            <a [routerLink]="['/profile', uItem.profile.id || uItem.id]" (click)="closeFollowModal()" class="btn btn-outline btn-sm">
               Voir Profil
             </a>
           </div>
@@ -1266,6 +1275,16 @@
             <div class="form-group">
               <label class="form-label">Portfolio / Site Web</label>
               <input type="text" [(ngModel)]="editForm.portfolioUrl" name="portfolioUrl" placeholder="https://votre-portfolio.com" class="form-input">
+            </div>
+
+            <!-- Contact direct WhatsApp -->
+            <div class="form-group whatsapp-config-box">
+              <label class="checkbox-label" style="display:flex; align-items:center; gap:0.5rem; cursor:pointer;">
+                <input type="checkbox" [(ngModel)]="editForm.whatsappEnabled" name="whatsappEnabled">
+                <span><strong>Activer le contact direct WhatsApp</strong></span>
+              </label>
+              <p class="text-xs text-muted" style="margin:0.25rem 0 0.5rem;">Permet aux autres membres et clients de vous contacter en 1 clic via WhatsApp.</p>
+              <input *ngIf="editForm.whatsappEnabled" type="tel" [(ngModel)]="editForm.whatsappNumber" name="whatsappNumber" placeholder="Numéro WhatsApp avec indicatif (ex: +221771234567)" class="form-input">
             </div>
           </div>
 

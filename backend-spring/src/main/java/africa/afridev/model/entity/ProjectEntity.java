@@ -69,6 +69,22 @@ public class ProjectEntity {
     @Builder.Default
     private String currency = "XOF";
 
+    @Column(name = "is_monetized")
+    @Builder.Default
+    private Boolean isMonetized = false;
+
+    @Column(name = "payout_phone_number", length = 32)
+    private String payoutPhoneNumber;
+
+    @Column(name = "payout_operator", length = 32)
+    private String payoutOperator;
+
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(name = "project_payment_methods", joinColumns = @JoinColumn(name = "project_id"))
+    @Column(name = "payment_method")
+    @Builder.Default
+    private List<String> acceptedPaymentMethods = new ArrayList<>();
+
     @Enumerated(EnumType.STRING)
     private SaleType saleType;
 
