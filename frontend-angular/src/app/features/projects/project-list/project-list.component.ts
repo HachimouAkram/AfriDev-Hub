@@ -320,17 +320,53 @@ export class ProjectListComponent implements OnInit {
       .toLowerCase()
       .normalize('NFD')
       .replace(/[\u0300-\u036f]/g, '')
-      .replace(/[-_]/g, ' ')
+      .replace(/[-_']/g, ' ')
       .trim();
+  }
+
+  private levenshteinDistance(a: string, b: string): number {
+    if (a === b) return 0;
+    if (!a.length) return b.length;
+    if (!b.length) return a.length;
+
+    const dp: number[] = Array.from({ length: b.length + 1 }, (_, j) => j);
+    for (let i = 1; i <= a.length; i++) {
+      let prev = dp[0];
+      dp[0] = i;
+      for (let j = 1; j <= b.length; j++) {
+        const temp = dp[j];
+        dp[j] = a[i - 1] === b[j - 1] ? prev : Math.min(prev, dp[j], dp[j - 1]) + 1;
+        prev = temp;
+      }
+    }
+    return dp[b.length];
   }
 
   private matchesFuzzyTerm(target: string | null | undefined, terms: string[]): boolean {
     if (!target) return false;
     const normTarget = this.normalizeSearchText(target);
+    const compactTarget = normTarget.replace(/\s+/g, '');
+    const targetWords = normTarget.split(/\s+/).filter(Boolean);
+
     return terms.some(term => {
-      if (normTarget.includes(term)) return true;
-      if (term.length >= 4 && (normTarget.includes(term.slice(0, -1)) || term.includes(normTarget))) {
-        return true;
+      const compactTerm = term.replace(/\s+/g, '');
+      if (normTarget.includes(term) || compactTarget.includes(compactTerm)) return true;
+      if (compactTerm.length >= 4) {
+        if (compactTarget.includes(compactTerm.slice(0, -1))) return true;
+        const maxDist = compactTerm.length >= 7 ? 2 : 1;
+        for (const word of targetWords) {
+          if (word.length >= 4 && Math.abs(word.length - compactTerm.length) <= maxDist &&
+              this.levenshteinDistance(word, compactTerm) <= maxDist) {
+            return true;
+          }
+        }
+        for (let i = 0; i < targetWords.length - 1; i++) {
+          const joined = targetWords[i] + targetWords[i + 1];
+          if (joined.length >= 5 && Math.abs(joined.length - compactTerm.length) <= 2 &&
+              this.levenshteinDistance(joined, compactTerm) <= 2) {
+            return true;
+          }
+        }
       }
       return false;
     });

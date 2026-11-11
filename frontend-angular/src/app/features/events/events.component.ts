@@ -1,7 +1,7 @@
 import { Component, inject, OnInit, signal, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { RouterLink } from '@angular/router';
+import { RouterLink, ActivatedRoute } from '@angular/router';
 import { TechEventService, TechEvent, TechEventType, VoteType } from '../../core/services/tech-event.service';
 import { AuthService } from '../../core/services/auth.service';
 import { ProjectService } from '../../core/services/project.service';
@@ -17,6 +17,7 @@ export class EventsComponent implements OnInit {
   private eventService = inject(TechEventService);
   public authService = inject(AuthService);
   private projectService = inject(ProjectService);
+  private route = inject(ActivatedRoute);
 
   currentUser = this.authService.currentUser;
 
@@ -73,6 +74,15 @@ export class EventsComponent implements OnInit {
   ];
 
   ngOnInit(): void {
+    this.route.queryParamMap.subscribe(params => {
+      const tech = params.get('tech');
+      const q = params.get('q');
+      if (tech) {
+        this.searchQuery = tech;
+      } else if (q !== null) {
+        this.searchQuery = q;
+      }
+    });
     this.loadEvents();
   }
 
@@ -155,14 +165,19 @@ export class EventsComponent implements OnInit {
 
   get filteredEvents(): TechEvent[] {
     const list = this.events();
-    if (!this.searchQuery) return list;
-    const q = this.searchQuery.toLowerCase();
-    return list.filter(e =>
-      e.title.toLowerCase().includes(q) ||
-      e.description.toLowerCase().includes(q) ||
-      e.location?.toLowerCase().includes(q) ||
-      e.tags?.some(t => t.toLowerCase().includes(q))
-    );
+    const raw = this.searchQuery?.trim();
+    if (!raw) return list;
+    const norm = (s: string | null | undefined) =>
+      (s || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[-_']/g, ' ');
+    const terms = norm(raw).split(/\s+/).filter(Boolean);
+    return list.filter(e => {
+      const hay = norm(`${e.title} ${e.description} ${e.location || ''} ${e.organizerName || ''} ${(e.tags || []).join(' ')}`);
+      const compactHay = hay.replace(/\s+/g, '');
+      return terms.some(term => {
+        const ct = term.replace(/\s+/g, '');
+        return hay.includes(term) || compactHay.includes(ct) || (ct.length >= 4 && compactHay.includes(ct.slice(0, -1)));
+      });
+    });
   }
 
   isMyEvent(event: TechEvent): boolean {

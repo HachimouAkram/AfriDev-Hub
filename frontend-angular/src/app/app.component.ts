@@ -52,8 +52,15 @@ import { Subscription } from 'rxjs';
             </div>
 
             <ng-container *ngIf="searchResults && !isSearching">
+              <div *ngIf="searchResults.suggestedCorrection" class="search-ai-hint">
+                <span>✨ Suggestion IA : vouliez-vous chercher</span>
+                <button (click)="applySuggestedTerm(searchResults.suggestedCorrection!)" class="search-ai-hint-btn">
+                  « {{ searchResults.suggestedCorrection }} »
+                </button>
+              </div>
+
               <div *ngIf="searchResults.totalMatches === 0" class="search-empty-row">
-                Aucun résultat exact pour « <strong>{{ searchQuery }}</strong> ». Essayez React, Hachim, Sénégal...
+                Aucun résultat exact pour « <strong>{{ searchQuery }}</strong> ». Essayez React, E-Commerce, Hachim, Sénégal...
               </div>
 
               <!-- Technologies / Tags -->
@@ -92,6 +99,19 @@ import { Subscription } from 'rxjs';
                 </button>
               </div>
 
+              <!-- Événements & Hackathons -->
+              <div *ngIf="searchResults.events.length > 0" class="search-section">
+                <div class="search-section-label">Événements & Hackathons</div>
+                <button *ngFor="let ev of searchResults.events" (click)="goToEvents(ev.title)" class="search-result-item">
+                  <div class="res-avatar ev-av">📅</div>
+                  <div class="res-info">
+                    <div class="res-title">{{ ev.title }}</div>
+                    <div class="res-sub">{{ ev.location }} • {{ ev.type }}</div>
+                  </div>
+                  <span class="res-type-badge">Événement</span>
+                </button>
+              </div>
+
               <!-- Opportunités -->
               <div *ngIf="searchResults.opportunities.length > 0" class="search-section">
                 <div class="search-section-label">Opportunités & Offres</div>
@@ -104,10 +124,17 @@ import { Subscription } from 'rxjs';
                 </button>
               </div>
 
-              <!-- Direct Explorer footer -->
-              <button (click)="goToAllResults()" class="search-explore-all">
-                Voir tous les projets correspondant à « {{ searchQuery }} » →
-              </button>
+              <!-- Raccourcis d'exploration globale -->
+              <div class="search-quick-hub">
+                <button (click)="goToAllResults()" class="search-explore-all">
+                  Projets « {{ searchResults.suggestedCorrection || searchQuery }} » →
+                </button>
+                <div class="search-hub-links">
+                  <button (click)="goToEvents(searchResults.suggestedCorrection || searchQuery)" class="search-hub-pill">📅 Événements</button>
+                  <button (click)="goToNetwork(searchResults.suggestedCorrection || searchQuery)" class="search-hub-pill">👥 Développeurs</button>
+                  <button (click)="goToOpportunities(searchResults.suggestedCorrection || searchQuery)" class="search-hub-pill">💼 Opportunités</button>
+                </div>
+              </div>
             </ng-container>
           </div>
         </div>
@@ -303,6 +330,12 @@ import { Subscription } from 'rxjs';
               <span>Recherche intelligente...</span>
             </div>
             <ng-container *ngIf="searchResults && !isSearching">
+              <div *ngIf="searchResults.suggestedCorrection" class="search-ai-hint">
+                <span>✨ Suggestion IA :</span>
+                <button (click)="applySuggestedTerm(searchResults.suggestedCorrection!)" class="search-ai-hint-btn">
+                  « {{ searchResults.suggestedCorrection }} »
+                </button>
+              </div>
               <div *ngIf="searchResults.totalMatches === 0" class="search-empty-row">
                 Aucun résultat pour « <strong>{{ searchQuery }}</strong> ».
               </div>
@@ -334,6 +367,16 @@ import { Subscription } from 'rxjs';
                   </div>
                 </button>
               </div>
+              <div *ngIf="searchResults.events.length > 0" class="search-section">
+                <div class="search-section-label">Événements</div>
+                <button *ngFor="let ev of searchResults.events" (click)="goToEvents(ev.title)" class="search-result-item">
+                  <div class="res-avatar ev-av">📅</div>
+                  <div class="res-info">
+                    <div class="res-title">{{ ev.title }}</div>
+                    <div class="res-sub">{{ ev.location }} • {{ ev.type }}</div>
+                  </div>
+                </button>
+              </div>
               <div *ngIf="searchResults.opportunities.length > 0" class="search-section">
                 <div class="search-section-label">Opportunités</div>
                 <button *ngFor="let opp of searchResults.opportunities" (click)="goToOpportunities(opp.title)" class="search-result-item">
@@ -344,9 +387,16 @@ import { Subscription } from 'rxjs';
                   </div>
                 </button>
               </div>
-              <button (click)="goToAllResults()" class="search-explore-all">
-                Voir tous les résultats pour « {{ searchQuery }} » →
-              </button>
+              <div class="search-quick-hub">
+                <button (click)="goToAllResults()" class="search-explore-all">
+                  Voir projets « {{ searchResults.suggestedCorrection || searchQuery }} » →
+                </button>
+                <div class="search-hub-links">
+                  <button (click)="goToEvents(searchResults.suggestedCorrection || searchQuery)" class="search-hub-pill">📅 Événements</button>
+                  <button (click)="goToNetwork(searchResults.suggestedCorrection || searchQuery)" class="search-hub-pill">👥 Réseau</button>
+                  <button (click)="goToOpportunities(searchResults.suggestedCorrection || searchQuery)" class="search-hub-pill">💼 Offres</button>
+                </div>
+              </div>
             </ng-container>
           </div>
         </div>
@@ -773,6 +823,67 @@ import { Subscription } from 'rxjs';
     .res-avatar.opp-av {
       background: rgba(245, 158, 11, 0.16);
       font-size: 1rem;
+    }
+    .res-avatar.ev-av {
+      background: rgba(139, 92, 246, 0.16);
+      font-size: 1rem;
+    }
+    .search-ai-hint {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 0.45rem;
+      padding: 0.5rem 0.7rem;
+      margin-bottom: 0.35rem;
+      border-radius: 10px;
+      background: rgba(16, 185, 129, 0.12);
+      border: 1px dashed rgba(16, 185, 129, 0.35);
+      font-size: 0.8rem;
+      color: var(--emerald-400);
+    }
+    .search-ai-hint-btn {
+      background: var(--emerald-500);
+      color: #FFFFFF;
+      border: none;
+      border-radius: 999px;
+      padding: 0.18rem 0.65rem;
+      font-size: 0.78rem;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .search-quick-hub {
+      margin-top: 0.35rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.45rem;
+    }
+    .search-hub-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+    }
+    .search-hub-pill {
+      flex: 1;
+      min-width: 90px;
+      padding: 0.42rem 0.6rem;
+      border-radius: 8px;
+      border: 1px solid var(--border-subtle);
+      background: rgba(255, 255, 255, 0.04);
+      color: var(--text-heading);
+      font-size: 0.76rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .app-nav.nav-light .search-hub-pill,
+    :host-context(body.light-theme) .search-hub-pill {
+      background: #F8FAFC;
+      border-color: rgba(15, 23, 42, 0.1);
+      color: #334155;
+    }
+    .search-hub-pill:hover {
+      border-color: var(--emerald-500);
+      color: var(--emerald-500);
     }
     .res-info {
       flex: 1;
@@ -1884,8 +1995,25 @@ export class AppComponent implements OnDestroy {
     this.router.navigate(['/opportunities'], { queryParams: { q } });
   }
 
+  goToEvents(q: string): void {
+    this.clearSearch();
+    this.closeAllMenus();
+    this.router.navigate(['/events'], { queryParams: { q } });
+  }
+
+  goToNetwork(q: string): void {
+    this.clearSearch();
+    this.closeAllMenus();
+    this.router.navigate(['/network'], { queryParams: { q } });
+  }
+
+  applySuggestedTerm(term: string): void {
+    this.searchQuery = term;
+    this.onSearchChange(term);
+  }
+
   goToAllResults(): void {
-    const q = this.searchQuery.trim();
+    const q = (this.searchResults?.suggestedCorrection || this.searchQuery).trim();
     if (!q) return;
     this.clearSearch();
     this.closeAllMenus();

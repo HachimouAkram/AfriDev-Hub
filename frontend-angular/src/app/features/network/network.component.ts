@@ -1,7 +1,7 @@
 import { Component, inject, OnInit, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { RouterLink } from '@angular/router';
+import { RouterLink, ActivatedRoute } from '@angular/router';
 import { NetworkService, UserNetwork, NetworkSuggestion } from '../../core/services/network.service';
 import { FollowService } from '../../core/services/follow.service';
 import { AuthService } from '../../core/services/auth.service';
@@ -19,6 +19,7 @@ export class NetworkComponent implements OnInit {
   private followService = inject(FollowService);
   private authService = inject(AuthService);
   private profileService = inject(ProfileService);
+  private route = inject(ActivatedRoute);
 
   users: UserNetwork[] = [];
   suggestions: NetworkSuggestion[] = [];
@@ -48,7 +49,17 @@ export class NetworkComponent implements OnInit {
   currentUser = this.authService.currentUser;
 
   ngOnInit(): void {
-    this.loadNetworkUsers();
+    this.route.queryParamMap.subscribe(params => {
+      const q = params.get('q');
+      const skill = params.get('skill') || params.get('tech');
+      if (q !== null) {
+        this.searchQuery = q;
+      }
+      if (skill !== null) {
+        this.selectedSkill = skill;
+      }
+      this.loadNetworkUsers();
+    });
     if (this.isLoggedIn()) {
       this.loadSuggestions();
     }
