@@ -45,8 +45,12 @@ public class DataInitializer implements CommandLineRunner {
             jdbcTemplate.execute("ALTER TABLE users DROP CONSTRAINT IF EXISTS users_role_check");
             jdbcTemplate.execute("ALTER TABLE users ADD CONSTRAINT users_role_check CHECK (role IN ('DEVELOPER', 'RECRUITER', 'ADMIN', 'SUPER_ADMIN'))");
             log.info("Contrainte users_role_check mise à jour avec succès pour inclure SUPER_ADMIN.");
+
+            jdbcTemplate.execute("ALTER TABLE payments DROP CONSTRAINT IF EXISTS payments_provider_check");
+            jdbcTemplate.execute("ALTER TABLE payments ADD CONSTRAINT payments_provider_check CHECK (provider IN ('SASPAY', 'UNITECH_PAY', 'STRIPE'))");
+            log.info("Contrainte payments_provider_check mise à jour avec succès pour inclure SASPAY.");
         } catch (Exception e) {
-            log.warn("Mise à jour de la contrainte users_role_check : {}", e.getMessage());
+            log.warn("Mise à jour des contraintes : {}", e.getMessage());
         }
 
         String encodedPassword = passwordEncoder.encode("Password123!");

@@ -32,110 +32,112 @@
 
     <!-- STEP 1 FORM -->
     <form *ngIf="step === 1" (ngSubmit)="goToStep2()" class="auth-form">
-      <div class="form-group">
-        <label for="fullName">Nom complet / Pseudo</label>
-        <input 
-          type="text" 
-          id="fullName" 
-          [(ngModel)]="fullName" 
-          name="fullName" 
-          placeholder="Ex: Aminata Diallo" 
-          required 
-          class="form-control">
-      </div>
-
-      <div class="form-group">
-        <label for="email">Adresse Email</label>
-        <input 
-          type="email" 
-          id="email" 
-          [(ngModel)]="email" 
-          name="email" 
-          placeholder="aminata@dev.africa" 
-          required 
-          class="form-control">
-      </div>
-
-      <div class="form-group">
-        <label for="password">Mot de passe</label>
-        <div class="password-input-wrapper">
-          <input
-            [type]="showPassword ? 'text' : 'password'"
-            id="password"
-            [(ngModel)]="password"
-            name="password"
-            placeholder="••••••••"
-            required
-            class="form-control"
-            (input)="onPasswordInput()">
-          <button type="button" class="pwd-eye-btn" (click)="showPassword = !showPassword" tabindex="-1">
-            <svg *ngIf="!showPassword" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.964-7.178z" />
-              <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-            </svg>
-            <svg *ngIf="showPassword" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.242 4.242L9.88 9.88" />
-            </svg>
-          </button>
+      <div class="form-grid-2">
+        <div class="form-group">
+          <label for="fullName">Nom complet / Pseudo</label>
+          <input 
+            type="text" 
+            id="fullName" 
+            [(ngModel)]="fullName" 
+            name="fullName" 
+            placeholder="Ex: Aminata Diallo" 
+            required 
+            class="form-control">
         </div>
 
-        <!-- Password strength indicators -->
-        <div class="pwd-rules" *ngIf="password.length > 0">
-          <div class="pwd-rule" [class.ok]="pwdHasMin">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" /></svg>
-            <span>8 caractères minimum</span>
-          </div>
-          <div class="pwd-rule" [class.ok]="pwdHasUpper">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" /></svg>
-            <span>Une lettre majuscule (A-Z)</span>
-          </div>
-          <div class="pwd-rule" [class.ok]="pwdHasLower">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" /></svg>
-            <span>Une lettre minuscule (a-z)</span>
-          </div>
-          <div class="pwd-rule" [class.ok]="pwdHasNumber">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" /></svg>
-            <span>Un chiffre (0-9)</span>
-          </div>
-          <div class="pwd-rule" [class.ok]="pwdHasSpecial">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" /></svg>
-            <span>Un caractère spécial (!&#64;#$%...)</span>
-          </div>
+        <div class="form-group">
+          <label for="email">Adresse Email</label>
+          <input 
+            type="email" 
+            id="email" 
+            [(ngModel)]="email" 
+            name="email" 
+            placeholder="aminata@dev.africa" 
+            required 
+            class="form-control">
         </div>
-      </div>
 
-      <!-- Confirm Password -->
-      <div class="form-group">
-        <label for="confirmPassword">Confirmer le mot de passe</label>
-        <div class="password-input-wrapper">
-          <input
-            [type]="showConfirmPassword ? 'text' : 'password'"
-            id="confirmPassword"
-            [(ngModel)]="confirmPassword"
-            name="confirmPassword"
-            placeholder="••••••••"
-            required
-            class="form-control"
-            [class.input-error]="confirmPassword.length > 0 && confirmPassword !== password"
-            [class.input-ok]="confirmPassword.length > 0 && confirmPassword === password">
-          <button type="button" class="pwd-eye-btn" (click)="showConfirmPassword = !showConfirmPassword" tabindex="-1">
-            <svg *ngIf="!showConfirmPassword" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.964-7.178z" />
-              <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-            </svg>
-            <svg *ngIf="showConfirmPassword" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.242 4.242L9.88 9.88" />
-            </svg>
-          </button>
+        <div class="form-group">
+          <label for="password">Mot de passe</label>
+          <div class="password-input-wrapper">
+            <input
+              [type]="showPassword ? 'text' : 'password'"
+              id="password"
+              [(ngModel)]="password"
+              name="password"
+              placeholder="••••••••"
+              required
+              class="form-control"
+              (input)="onPasswordInput()">
+            <button type="button" class="pwd-eye-btn" (click)="showPassword = !showPassword" tabindex="-1">
+              <svg *ngIf="!showPassword" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.964-7.178z" />
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+              </svg>
+              <svg *ngIf="showPassword" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.242 4.242L9.88 9.88" />
+              </svg>
+            </button>
+          </div>
+
+          <!-- Password strength indicators -->
+          <div class="pwd-rules" *ngIf="password.length > 0">
+            <div class="pwd-rule" [class.ok]="pwdHasMin">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" /></svg>
+              <span>8 car. min.</span>
+            </div>
+            <div class="pwd-rule" [class.ok]="pwdHasUpper">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" /></svg>
+              <span>Majuscule (A-Z)</span>
+            </div>
+            <div class="pwd-rule" [class.ok]="pwdHasLower">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" /></svg>
+              <span>Minuscule (a-z)</span>
+            </div>
+            <div class="pwd-rule" [class.ok]="pwdHasNumber">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" /></svg>
+              <span>Chiffre (0-9)</span>
+            </div>
+            <div class="pwd-rule" [class.ok]="pwdHasSpecial">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" /></svg>
+              <span>Caractère spécial</span>
+            </div>
+          </div>
         </div>
-        <div class="pwd-match-hint" *ngIf="confirmPassword.length > 0">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-            <path *ngIf="confirmPassword === password" stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-            <path *ngIf="confirmPassword !== password" stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
-          </svg>
-          <span [class.match-ok]="confirmPassword === password" [class.match-err]="confirmPassword !== password">
-            {{ confirmPassword === password ? 'Les mots de passe correspondent ✓' : 'Les mots de passe ne correspondent pas' }}
-          </span>
+
+        <!-- Confirm Password -->
+        <div class="form-group">
+          <label for="confirmPassword">Confirmer le mot de passe</label>
+          <div class="password-input-wrapper">
+            <input
+              [type]="showConfirmPassword ? 'text' : 'password'"
+              id="confirmPassword"
+              [(ngModel)]="confirmPassword"
+              name="confirmPassword"
+              placeholder="••••••••"
+              required
+              class="form-control"
+              [class.input-error]="confirmPassword.length > 0 && confirmPassword !== password"
+              [class.input-ok]="confirmPassword.length > 0 && confirmPassword === password">
+            <button type="button" class="pwd-eye-btn" (click)="showConfirmPassword = !showConfirmPassword" tabindex="-1">
+              <svg *ngIf="!showConfirmPassword" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.964-7.178z" />
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+              </svg>
+              <svg *ngIf="showConfirmPassword" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.242 4.242L9.88 9.88" />
+              </svg>
+            </button>
+          </div>
+          <div class="pwd-match-hint" *ngIf="confirmPassword.length > 0">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path *ngIf="confirmPassword === password" stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+              <path *ngIf="confirmPassword !== password" stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+            <span [class.match-ok]="confirmPassword === password" [class.match-err]="confirmPassword !== password">
+              {{ confirmPassword === password ? 'Les mots de passe correspondent ✓' : 'Les mots de passe ne correspondent pas' }}
+            </span>
+          </div>
         </div>
       </div>
 
@@ -159,10 +161,10 @@
 
     <!-- STEP 2 FORM -->
     <form *ngIf="step === 2" (ngSubmit)="onSubmitRegister()" class="auth-form">
-      <div class="form-row">
+      <div class="form-grid-2">
 
         <!-- ── Country Searchable Dropdown ────────────────────── -->
-        <div class="form-group flex-1">
+        <div class="form-group">
           <label>Pays de résidence</label>
           <div class="custom-select-wrapper" [class.open]="countryDropdownOpen">
             <button
@@ -206,7 +208,7 @@
         </div>
 
         <!-- ── City Searchable Dropdown ───────────────────────── -->
-        <div class="form-group flex-1">
+        <div class="form-group">
           <label>Ville</label>
           <div class="custom-select-wrapper" [class.open]="cityDropdownOpen" [class.disabled]="!country">
             <button
@@ -250,40 +252,39 @@
           </div>
         </div>
 
-      </div>
+        <div class="form-group">
+          <label for="title">Titre professionnel</label>
+          <input 
+            type="text" 
+            id="title" 
+            [(ngModel)]="title" 
+            name="title" 
+            placeholder="Ex: Développeur Full-Stack, Data Engineer..." 
+            required 
+            class="form-control">
+        </div>
 
-      <div class="form-group">
-        <label for="title">Titre professionnel</label>
-        <input 
-          type="text" 
-          id="title" 
-          [(ngModel)]="title" 
-          name="title" 
-          placeholder="Ex: Développeur Full-Stack, Data Engineer..." 
-          required 
-          class="form-control">
-      </div>
+        <div class="form-group">
+          <label for="skills">Compétences techniques (séparées par des virgules)</label>
+          <input 
+            type="text" 
+            id="skills" 
+            [(ngModel)]="skillsInput" 
+            name="skillsInput" 
+            placeholder="Angular, Spring Boot, FastAPI, PostgreSQL" 
+            class="form-control">
+        </div>
 
-      <div class="form-group">
-        <label for="skills">Compétences techniques (séparées par des virgules)</label>
-        <input 
-          type="text" 
-          id="skills" 
-          [(ngModel)]="skillsInput" 
-          name="skillsInput" 
-          placeholder="Angular, Spring Boot, FastAPI, PostgreSQL" 
-          class="form-control">
-      </div>
-
-      <div class="form-group">
-        <label for="bio">Bio rapide (optionnel)</label>
-        <textarea 
-          id="bio" 
-          [(ngModel)]="bio" 
-          name="bio" 
-          rows="3" 
-          placeholder="Passionné par le développement cloud et open source en Afrique..." 
-          class="form-control"></textarea>
+        <div class="form-group col-span-full">
+          <label for="bio">Bio rapide (optionnel)</label>
+          <textarea 
+            id="bio" 
+            [(ngModel)]="bio" 
+            name="bio" 
+            rows="3" 
+            placeholder="Passionné par le développement cloud et open source en Afrique..." 
+            class="form-control"></textarea>
+        </div>
       </div>
 
       <div class="btn-row">

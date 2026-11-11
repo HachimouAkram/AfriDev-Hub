@@ -97,7 +97,11 @@
 
           <ng-container *ngIf="!item.isUnlockedByCurrentUser">
             <button class="btn btn-primary btn-sm w-full" (click)="openPayment(item)">
-              💳 {{ t('action.enroll') }} ({{ item.price }} {{ item.currency }})
+              <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 6px;">
+                <rect x="2" y="5" width="20" height="14" rx="2"></rect>
+                <line x1="2" y1="10" x2="22" y2="10"></line>
+              </svg>
+              <span>{{ t('action.enroll') }} ({{ item.price }} {{ item.currency }})</span>
             </button>
           </ng-container>
         </div>
@@ -148,28 +152,28 @@
       <div class="modal-body" *ngIf="!paymentSuccessData()">
         <!-- Mode Tabs with Real Logos -->
         <div class="provider-tabs">
-          <button class="tab-btn" [class.active]="selectedMethod() === 'WAVE'" (click)="selectedProvider.set('UNITECH_PAY'); selectedMethod.set('WAVE')">
+          <button class="tab-btn" [class.active]="selectedProvider() === 'SASPAY' && selectedMethod() === 'WAVE'" (click)="selectedProvider.set('SASPAY'); selectedMethod.set('WAVE')">
             <img [src]="paymentLogos.wave" alt="Wave" class="payment-method-logo logo-wave" />
             <span>Wave</span>
           </button>
-          <button class="tab-btn" [class.active]="selectedMethod() === 'ORANGE_MONEY'" (click)="selectedProvider.set('UNITECH_PAY'); selectedMethod.set('ORANGE_MONEY')">
+          <button class="tab-btn" [class.active]="selectedProvider() === 'SASPAY' && selectedMethod() === 'ORANGE_MONEY'" (click)="selectedProvider.set('SASPAY'); selectedMethod.set('ORANGE_MONEY')">
             <img [src]="paymentLogos.orangeMoney" alt="Orange Money" class="payment-method-logo logo-om" />
             <span>Orange Money</span>
           </button>
-          <button class="tab-btn" [class.active]="selectedMethod() === 'CARD'" (click)="selectedProvider.set('STRIPE'); selectedMethod.set('CARD')">
+          <button class="tab-btn" [class.active]="selectedProvider() === 'STRIPE' || selectedMethod() === 'CARD'" (click)="selectedProvider.set('STRIPE'); selectedMethod.set('CARD')">
             <img [src]="paymentLogos.cardPaypal" alt="Carte & PayPal" class="payment-method-logo logo-card" />
-            <span>Carte / PayPal</span>
+            <span>Carte / International</span>
           </button>
         </div>
 
         <!-- Phone input for Mobile Money -->
-        <div class="form-group" *ngIf="selectedProvider() === 'UNITECH_PAY'">
+        <div class="form-group" *ngIf="selectedProvider() === 'SASPAY' || selectedProvider() === 'UNITECH_PAY'">
           <label>Numéro de téléphone Mobile Money :</label>
           <input type="tel" [(ngModel)]="customerPhone" placeholder="Ex: 771234567 ou 0700000000" class="form-input" />
         </div>
 
         <!-- Country selection -->
-        <div class="form-group" *ngIf="selectedProvider() === 'UNITECH_PAY'">
+        <div class="form-group" *ngIf="selectedProvider() === 'SASPAY' || selectedProvider() === 'UNITECH_PAY'">
           <label>Pays de facturation :</label>
           <select [(ngModel)]="country" class="form-select">
             <option value="SN">🇸🇳 Sénégal</option>
@@ -177,6 +181,8 @@
             <option value="BF">🇧🇫 Burkina Faso</option>
             <option value="TG">🇹🇬 Togo</option>
             <option value="BJ">🇧🇯 Bénin</option>
+            <option value="ML">🇲🇱 Mali</option>
+            <option value="GN">🇬🇳 Guinée</option>
           </select>
         </div>
 

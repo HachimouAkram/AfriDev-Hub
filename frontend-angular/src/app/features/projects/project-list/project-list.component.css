@@ -2385,6 +2385,102 @@ body.light-theme .tab-btn {
   color: #4F46E5 !important;
 }
 
+.saspay-card-hero {
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.08) 0%, rgba(99, 102, 241, 0.06) 100%);
+  border: 1px solid rgba(16, 185, 129, 0.25);
+  border-radius: 14px;
+  padding: 1.15rem;
+  margin-bottom: 1rem;
+  text-align: center;
+}
+
+body.light-theme .saspay-card-hero {
+  background: linear-gradient(135deg, #ECFDF5 0%, #EEF2FF 100%);
+  border-color: #A7F3D0;
+}
+
+.saspay-badge-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 20px;
+  background: rgba(16, 185, 129, 0.15);
+  color: #10B981;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 0.5rem;
+}
+
+.saspay-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #10B981;
+}
+
+.saspay-hero-title {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--text-primary, #F8FAFC);
+  margin: 0.25rem 0 0.35rem 0;
+}
+
+body.light-theme .saspay-hero-title {
+  color: #0F172A;
+}
+
+.saspay-hero-subtitle {
+  font-size: 0.8rem;
+  color: var(--text-muted, #94A3B8);
+  margin: 0 0 0.85rem 0;
+  line-height: 1.35;
+}
+
+.saspay-methods-strip {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.method-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: var(--bg-surface, #1E293B);
+  border: 1px solid var(--border-color, rgba(255, 255, 255, 0.1));
+  padding: 4px 9px;
+  border-radius: 8px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-primary, #F8FAFC);
+}
+
+body.light-theme .method-chip {
+  background: #FFFFFF;
+  border-color: #E2E8F0;
+  color: #1E293B;
+}
+
+.chip-logo {
+  height: 16px;
+  width: 16px;
+  object-fit: contain;
+  border-radius: 3px;
+}
+
+.chip-label-momo {
+  color: #F59E0B;
+}
+
+.chip-label-moov {
+  color: #0284C7;
+}
+
 .fee-breakdown-card {
   background: var(--bg-surface, #1E293B);
   border: 1px solid var(--border-color, rgba(255, 255, 255, 0.08));
@@ -2396,7 +2492,103 @@ body.light-theme .tab-btn {
   gap: 0.65rem;
 }
 
-body.light-theme .fee-breakdown-card {
+body.light-theme .saspay-card-hero {
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.08) 0%, rgba(99, 102, 241, 0.06) 100%);
+  border: 1px solid rgba(16, 185, 129, 0.25);
+  border-radius: 14px;
+  padding: 1.15rem;
+  margin-bottom: 1rem;
+  text-align: center;
+}
+
+body.light-theme .saspay-card-hero {
+  background: linear-gradient(135deg, #ECFDF5 0%, #EEF2FF 100%);
+  border-color: #A7F3D0;
+}
+
+.saspay-badge-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 20px;
+  background: rgba(16, 185, 129, 0.15);
+  color: #10B981;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 0.5rem;
+}
+
+.saspay-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #10B981;
+}
+
+.saspay-hero-title {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--text-primary, #F8FAFC);
+  margin: 0.25rem 0 0.35rem 0;
+}
+
+body.light-theme .saspay-hero-title {
+  color: #0F172A;
+}
+
+.saspay-hero-subtitle {
+  font-size: 0.8rem;
+  color: var(--text-muted, #94A3B8);
+  margin: 0 0 0.85rem 0;
+  line-height: 1.35;
+}
+
+.saspay-methods-strip {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.method-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: var(--bg-surface, #1E293B);
+  border: 1px solid var(--border-color, rgba(255, 255, 255, 0.1));
+  padding: 4px 9px;
+  border-radius: 8px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-primary, #F8FAFC);
+}
+
+body.light-theme .method-chip {
+  background: #FFFFFF;
+  border-color: #E2E8F0;
+  color: #1E293B;
+}
+
+.chip-logo {
+  height: 16px;
+  width: 16px;
+  object-fit: contain;
+  border-radius: 3px;
+}
+
+.chip-label-momo {
+  color: #F59E0B;
+}
+
+.chip-label-moov {
+  color: #0284C7;
+}
+
+.fee-breakdown-card {
   background: #F8FAFC;
   border-color: #E2E8F0;
 }

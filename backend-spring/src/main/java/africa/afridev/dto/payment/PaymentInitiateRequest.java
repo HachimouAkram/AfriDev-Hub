@@ -23,6 +23,7 @@ public class PaymentInitiateRequest {
 
     private String customerPhone;
     private String customerName;
+    private String customerEmail;
     private String country = "SN";
     private String otp; // Requis pour Orange Money Côte d'Ivoire (#144*82#)
 }

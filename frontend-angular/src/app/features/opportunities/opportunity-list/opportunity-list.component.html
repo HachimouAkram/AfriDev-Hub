@@ -403,7 +403,7 @@
 
   <!-- CREATE OPPORTUNITY MODAL -->
   <div class="modal-overlay" *ngIf="showCreateModal" (click)="closeCreateModal()">
-    <div class="app-card modal-card" (click)="$event.stopPropagation()">
+    <div class="app-card modal-card modal-card-wide" (click)="$event.stopPropagation()">
       <div class="modal-header">
         <h3>Publier une Opportunité</h3>
         <button (click)="closeCreateModal()" class="btn-icon">
@@ -414,14 +414,14 @@
       </div>
 
       <form (ngSubmit)="onSubmitOpportunity()" class="modal-form">
-        <div class="form-group">
-          <label for="oTitle" class="form-label">Titre du poste ou de la mission</label>
-          <input type="text" id="oTitle" [(ngModel)]="optTitle" name="optTitle" required class="form-input">
-        </div>
+        <div class="form-grid-2">
+          <div class="form-group">
+            <label for="oTitle" class="form-label">Titre du poste ou de la mission *</label>
+            <input type="text" id="oTitle" [(ngModel)]="optTitle" name="optTitle" required placeholder="Ex: Lead Développeur Full-Stack" class="form-input">
+          </div>
 
-        <div class="form-row">
-          <div class="form-group flex-1">
-            <label for="oType" class="form-label">Type d'opportunité</label>
+          <div class="form-group">
+            <label for="oType" class="form-label">Type d'opportunité *</label>
             <select id="oType" [(ngModel)]="optType" name="optType" class="form-select">
               <option value="JOB">Emploi (CDI / CDD)</option>
               <option value="FREELANCE">Mission Freelance</option>
@@ -430,20 +430,12 @@
             </select>
           </div>
 
-          <div class="form-group flex-1">
-            <label for="oLoc" class="form-label">Localisation / Pays</label>
-            <input type="text" id="oLoc" [(ngModel)]="optLocation" name="optLocation" required class="form-input">
+          <div class="form-group">
+            <label for="oLoc" class="form-label">Localisation / Pays *</label>
+            <input type="text" id="oLoc" [(ngModel)]="optLocation" name="optLocation" placeholder="Ex: Dakar, Sénégal / Full Remote" required class="form-input">
           </div>
-        </div>
 
-        <div class="form-group">
-          <label for="oDesc" class="form-label">Description détaillée</label>
-          <textarea id="oDesc" [(ngModel)]="optDescription" name="optDescription" rows="4" required class="form-textarea"></textarea>
-        </div>
-
-        <!-- Row: Nombre de personnes cherchées & Options -->
-        <div class="form-row">
-          <div class="form-group flex-1">
+          <div class="form-group">
             <label for="oMax" class="form-label">
               <svg class="icon-svg icon-svg-xs" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
@@ -460,11 +452,11 @@
               required
               placeholder="Ex: 1, 2, 5"
               class="form-input">
-            <small class="field-hint">Dès que vous aurez accepté ce nombre de candidats, l'offre deviendra indisponible.</small>
+            <small class="field-hint">Dès l'atteinte de ce quota, l'offre passera en clôturée.</small>
           </div>
 
           <!-- Si STAGE : Option Rémunéré ou Non -->
-          <div class="form-group flex-1" *ngIf="optType === 'INTERNSHIP'">
+          <div class="form-group col-span-full" *ngIf="optType === 'INTERNSHIP'">
             <label class="form-label">Rémunération du stage *</label>
             <div class="radio-pill-group">
               <label class="radio-pill" [class.selected]="optIsPaid">
@@ -477,11 +469,9 @@
               </label>
             </div>
           </div>
-        </div>
 
-        <div class="form-row">
           <!-- Budget / Rémunération -->
-          <div class="form-group flex-1" *ngIf="optType !== 'INTERNSHIP' || optIsPaid">
+          <div class="form-group" *ngIf="optType !== 'INTERNSHIP' || optIsPaid">
             <label for="oBudget" class="form-label">Budget / Rémunération</label>
             <input
               type="text"
@@ -492,9 +482,14 @@
               class="form-input">
           </div>
 
-          <div class="form-group flex-1">
+          <div class="form-group" [class.col-span-full]="optType === 'INTERNSHIP' && !optIsPaid">
             <label for="oStack" class="form-label">Stack requise</label>
-            <input type="text" id="oStack" [(ngModel)]="optStack" name="optStack" placeholder="Ex: React, Node.js" class="form-input">
+            <input type="text" id="oStack" [(ngModel)]="optStack" name="optStack" placeholder="Ex: React, Node.js, PostgreSQL" class="form-input">
+          </div>
+
+          <div class="form-group col-span-full">
+            <label for="oDesc" class="form-label">Description détaillée *</label>
+            <textarea id="oDesc" [(ngModel)]="optDescription" name="optDescription" rows="3" required placeholder="Présentez la mission, les responsabilités et les livrables attendus..." class="form-textarea"></textarea>
           </div>
         </div>
 

@@ -158,7 +158,7 @@
 
   <!-- DECLARE COLLABORATION MODAL -->
   <div class="modal-overlay" *ngIf="showCollabModal" (click)="closeCollabModal()">
-    <div class="app-card modal-card" (click)="$event.stopPropagation()">
+    <div class="app-card modal-card modal-card-wide" (click)="$event.stopPropagation()">
       <div class="modal-header">
         <h3>Déclarer une Collaboration avec un Pair</h3>
         <button (click)="closeCollabModal()" class="btn-icon">
@@ -169,24 +169,26 @@
       </div>
 
       <form (ngSubmit)="onSubmitCollab()" class="modal-form">
-        <div class="form-group">
-          <label for="pId" class="form-label">ID / Email du Partenaire</label>
-          <input type="text" id="pId" [(ngModel)]="partnerId" name="partnerId" placeholder="Ex: partner-user-id" required class="form-input">
-        </div>
+        <div class="form-grid-2">
+          <div class="form-group">
+            <label for="pId" class="form-label">ID / Email du Partenaire</label>
+            <input type="text" id="pId" [(ngModel)]="partnerId" name="partnerId" placeholder="Ex: partner-user-id" required class="form-input">
+          </div>
 
-        <div class="form-group">
-          <label for="cType" class="form-label">Type de Collaboration</label>
-          <select id="cType" [(ngModel)]="collabType" name="collabType" class="form-select">
-            <option value="COMMON_REPO">Dépôt Commun (Co-auteurs)</option>
-            <option value="PR_REVIEW">Revue de Pull Request</option>
-            <option value="JOINT_PROJECT">Projet Conjoint</option>
-            <option value="MENTORSHIP">Mentorat</option>
-          </select>
-        </div>
+          <div class="form-group">
+            <label for="cType" class="form-label">Type de Collaboration</label>
+            <select id="cType" [(ngModel)]="collabType" name="collabType" class="form-select">
+              <option value="COMMON_REPO">Dépôt Commun (Co-auteurs)</option>
+              <option value="PR_REVIEW">Revue de Pull Request</option>
+              <option value="JOINT_PROJECT">Projet Conjoint</option>
+              <option value="MENTORSHIP">Mentorat</option>
+            </select>
+          </div>
 
-        <div class="form-group">
-          <label for="pUrl" class="form-label">Lien de la preuve technique (Lien PR GitHub / Repo / Commit)</label>
-          <input type="url" id="pUrl" [(ngModel)]="proofUrl" name="proofUrl" placeholder="https://github.com/org/repo/pull/42" required class="form-input">
+          <div class="form-group col-span-full">
+            <label for="pUrl" class="form-label">Lien de la preuve technique (Lien PR GitHub / Repo / Commit)</label>
+            <input type="url" id="pUrl" [(ngModel)]="proofUrl" name="proofUrl" placeholder="https://github.com/org/repo/pull/42" required class="form-input">
+          </div>
         </div>
 
         <div *ngIf="collabErrorMessage" class="error-box">{{ collabErrorMessage }}</div>
@@ -202,7 +204,7 @@
 
   <!-- SUBMIT EVALUATION MODAL (4 CRITERIA) -->
   <div class="modal-overlay" *ngIf="showEvalModal" (click)="closeEvalModal()">
-    <div class="app-card modal-card" (click)="$event.stopPropagation()">
+    <div class="app-card modal-card modal-card-wide" (click)="$event.stopPropagation()">
       <div class="modal-header">
         <h3>Évaluer un Pair (Formulaire 4 Critères)</h3>
         <button (click)="closeEvalModal()" class="btn-icon">
@@ -249,25 +251,27 @@
           </div>
         </div>
 
-        <!-- 4 Criteria Selectors -->
-        <div class="form-group">
-          <label class="form-label">1. Qualité du Code (1 à 5) : <strong>{{ codeQuality }}/5</strong></label>
-          <input type="range" min="1" max="5" [(ngModel)]="codeQuality" name="codeQuality" class="slider-input">
-        </div>
+        <!-- 4 Criteria Selectors in 2-Column Horizontal Grid -->
+        <div class="form-grid-2">
+          <div class="form-group">
+            <label class="form-label">1. Qualité du Code (1 à 5) : <strong>{{ codeQuality }}/5</strong></label>
+            <input type="range" min="1" max="5" [(ngModel)]="codeQuality" name="codeQuality" class="slider-input">
+          </div>
 
-        <div class="form-group">
-          <label class="form-label">2. Profondeur Technique (1 à 5) : <strong>{{ technicalDepth }}/5</strong></label>
-          <input type="range" min="1" max="5" [(ngModel)]="technicalDepth" name="technicalDepth" class="slider-input">
-        </div>
+          <div class="form-group">
+            <label class="form-label">2. Profondeur Technique (1 à 5) : <strong>{{ technicalDepth }}/5</strong></label>
+            <input type="range" min="1" max="5" [(ngModel)]="technicalDepth" name="technicalDepth" class="slider-input">
+          </div>
 
-        <div class="form-group">
-          <label class="form-label">3. Fiabilité & Délais (1 à 5) : <strong>{{ reliability }}/5</strong></label>
-          <input type="range" min="1" max="5" [(ngModel)]="reliability" name="reliability" class="slider-input">
-        </div>
+          <div class="form-group">
+            <label class="form-label">3. Fiabilité & Délais (1 à 5) : <strong>{{ reliability }}/5</strong></label>
+            <input type="range" min="1" max="5" [(ngModel)]="reliability" name="reliability" class="slider-input">
+          </div>
 
-        <div class="form-group">
-          <label class="form-label">4. Collaboration & Communication (1 à 5) : <strong>{{ collaborationRating }}/5</strong></label>
-          <input type="range" min="1" max="5" [(ngModel)]="collaborationRating" name="collaborationRating" class="slider-input">
+          <div class="form-group">
+            <label class="form-label">4. Collaboration & Communication (1 à 5) : <strong>{{ collaborationRating }}/5</strong></label>
+            <input type="range" min="1" max="5" [(ngModel)]="collaborationRating" name="collaborationRating" class="slider-input">
+          </div>
         </div>
 
         <div class="form-group">

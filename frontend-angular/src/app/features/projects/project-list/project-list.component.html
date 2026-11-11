@@ -636,20 +636,30 @@
                 <p class="text-xs text-muted">Type de cession : <strong>{{ selectedProject.saleType || 'Code source complet' }}</strong></p>
               </div>
               <div class="detail-action-buttons-group">
-                <!-- Bouton Achat Direct UnitechPay / Stripe -->
+                <!-- Bouton Achat Direct SasPay (Sans emoji, icône SVG moderne) -->
                 <button 
-                  (click)="openPurchaseModal(selectedProject, $event)" 
-                  class="btn btn-emerald btn-sm">
-                  💳 {{ t('projects.buy', 'Acheter ce projet') }}
+                  (click)="buyProjectDirectWithSasPay(selectedProject, $event)" 
+                  class="btn btn-emerald btn-sm"
+                  [disabled]="isProcessingPurchase"
+                  title="Payer directement via SasPay (Wave, Orange Money, MoMo, Carte)">
+                  <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 6px;">
+                    <rect x="2" y="5" width="20" height="14" rx="2"></rect>
+                    <line x1="2" y1="10" x2="22" y2="10"></line>
+                  </svg>
+                  <span *ngIf="!isProcessingPurchase">{{ t('projects.buy', 'Acheter ce projet') }}</span>
+                  <span *ngIf="isProcessingPurchase">Ouverture de SasPay...</span>
                 </button>
 
-                <!-- Bouton WhatsApp Direct si activé par l'auteur -->
+                <!-- Bouton WhatsApp Direct (Sans emoji, icône SVG moderne) -->
                 <button 
                   *ngIf="canContactWhatsApp(selectedProject)"
                   (click)="openWhatsApp(selectedProject, $event)" 
                   class="btn btn-whatsapp btn-sm"
                   title="Discuter directement avec le développeur sur WhatsApp">
-                  📲 WhatsApp
+                  <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" style="margin-right: 6px;">
+                    <path d="M12.04 2c-5.46 0-9.91 4.45-9.91 9.91 0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38c1.45.79 3.08 1.21 4.74 1.21 5.46 0 9.91-4.45 9.91-9.91 0-2.65-1.03-5.14-2.9-7.01A9.816 9.816 0 0 0 12.04 2z"/>
+                  </svg>
+                  <span>WhatsApp</span>
                 </button>
 
                 <!-- Bouton Messagerie interne -->
@@ -1288,38 +1298,35 @@
       </div>
 
       <div class="modal-body" *ngIf="!purchaseSuccessData">
-        <!-- Payment Mode Tabs with Real Official Logos -->
-        <div class="provider-tabs">
-          <button class="tab-btn tab-wave" [class.active]="purchaseMethod === 'WAVE'" (click)="purchaseProvider = 'UNITECH_PAY'; purchaseMethod = 'WAVE'">
-            <img [src]="paymentLogos.wave" alt="Wave" class="payment-method-logo logo-wave" />
-            <span>Wave</span>
-          </button>
-          <button class="tab-btn tab-om" [class.active]="purchaseMethod === 'ORANGE_MONEY'" (click)="purchaseProvider = 'UNITECH_PAY'; purchaseMethod = 'ORANGE_MONEY'">
-            <img [src]="paymentLogos.orangeMoney" alt="Orange Money" class="payment-method-logo logo-om" />
-            <span>Orange Money</span>
-          </button>
-          <button class="tab-btn tab-card" [class.active]="purchaseMethod === 'CARD'" (click)="purchaseProvider = 'STRIPE'; purchaseMethod = 'CARD'">
-            <img [src]="paymentLogos.cardPaypal" alt="Carte Bancaire & PayPal" class="payment-method-logo logo-card" />
-            <span>Carte / PayPal</span>
-          </button>
-        </div>
+        <!-- SasPay Pan-African Gateway Hero Card -->
+        <div class="saspay-card-hero">
+          <div class="saspay-badge-tag">
+            <span class="saspay-dot"></span>
+            Passerelle Panafricaine SasPay
+          </div>
+          <h4 class="saspay-hero-title">Règlement Sécurisé en 1 Clic</h4>
+          <p class="saspay-hero-subtitle">Choisissez directement Wave, Orange Money, MTN MoMo, Moov Africa ou Carte Bancaire sur SasPay</p>
 
-        <!-- Phone input for Mobile Money -->
-        <div class="form-group" *ngIf="purchaseProvider === 'UNITECH_PAY'">
-          <label>Numéro de téléphone Mobile Money :</label>
-          <input type="tel" [(ngModel)]="purchasePhone" placeholder="Ex: 771234567 ou 0700000000" class="form-input" />
-        </div>
-
-        <!-- Country selection -->
-        <div class="form-group" *ngIf="purchaseProvider === 'UNITECH_PAY'">
-          <label>Pays de facturation :</label>
-          <select [(ngModel)]="purchaseCountry" class="form-select">
-            <option value="SN">Sénégal (SN)</option>
-            <option value="CI">Côte d'Ivoire (CI)</option>
-            <option value="BF">Burkina Faso (BF)</option>
-            <option value="TG">Togo (TG)</option>
-            <option value="BJ">Bénin (BJ)</option>
-          </select>
+          <div class="saspay-methods-strip">
+            <div class="method-chip">
+              <img [src]="paymentLogos.wave" alt="Wave" class="chip-logo" />
+              <span>Wave</span>
+            </div>
+            <div class="method-chip">
+              <img [src]="paymentLogos.orangeMoney" alt="Orange Money" class="chip-logo" />
+              <span>Orange Money</span>
+            </div>
+            <div class="method-chip chip-text-only">
+              <span class="chip-label-momo">MTN MoMo</span>
+            </div>
+            <div class="method-chip chip-text-only">
+              <span class="chip-label-moov">Moov</span>
+            </div>
+            <div class="method-chip">
+              <img [src]="paymentLogos.cardPaypal" alt="Carte" class="chip-logo" />
+              <span>Carte Visa/MC</span>
+            </div>
+          </div>
         </div>
 
         <!-- Transparent fee breakdown (Buyer pays fees) -->
@@ -1343,9 +1350,13 @@
         </div>
 
         <button class="btn btn-emerald btn-block" [disabled]="isProcessingPurchase" (click)="confirmProjectPurchase()">
-          <span *ngIf="!isProcessingPurchase">Procéder au Paiement Sécurisé</span>
-          <span *ngIf="isProcessingPurchase">Initialisation en cours...</span>
+          <span *ngIf="!isProcessingPurchase">Payer maintenant sur SasPay ({{ ((purchasingProject?.price || 0) * 1.07) | number:'1.0-0' }} {{ purchasingProject?.currency || 'XOF' }})</span>
+          <span *ngIf="isProcessingPurchase">Redirection vers SasPay en cours...</span>
         </button>
+
+        <p class="text-center text-xs text-muted" style="margin-top: 12px; margin-bottom: 0;">
+          🔒 Redirection sécurisée et chiffrée vers <strong>SasPay</strong>.
+        </p>
       </div>
 
       <!-- Payment Launched State -->
@@ -1360,7 +1371,7 @@
         <p class="text-sm text-muted">Commande <strong>#{{ purchaseSuccessData.orderNumber }}</strong></p>
 
         <div *ngIf="purchaseSuccessData.qrCodeData" class="qr-box">
-          <p class="qr-hint">Scannez ce QR Code avec votre application <strong>{{ purchaseMethod === 'WAVE' ? 'Wave' : 'Orange Money' }}</strong> :</p>
+          <p class="qr-hint">Scannez ce QR Code avec votre téléphone (<strong>Wave, Orange Money, MoMo</strong>) :</p>
           <div class="qr-frame">
             <img [src]="purchaseSuccessData.qrCodeData" alt="QR Code Paiement" class="qr-img" />
           </div>
@@ -1369,7 +1380,7 @@
         <div *ngIf="purchaseSuccessData.paymentUrl" class="link-box">
           <a [href]="purchaseSuccessData.paymentUrl" target="_blank" class="btn btn-emerald btn-block">
             <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" x2="21" y1="14" y2="3"/></svg>
-            {{ purchaseMethod === 'WAVE' ? 'Payer avec l\'application Wave' : 'Ouvrir la page de paiement' }}
+            {{ purchaseProvider === 'SASPAY' ? 'Payer maintenant via SasPay (Mobile & Carte)' : (purchaseMethod === 'WAVE' ? 'Payer avec Wave' : 'Ouvrir la page de paiement') }}
           </a>
         </div>
 

@@ -67,6 +67,15 @@ public class PaymentController {
         return ResponseEntity.ok("OK");
     }
 
+    @PostMapping("/webhook/saspay")
+    public ResponseEntity<String> sasPayWebhook(
+            @RequestBody String rawPayload,
+            @RequestHeader(value = "X-Webhook-Signature", required = false) String signatureHeader
+    ) {
+        paymentService.handleSasPayWebhook(rawPayload, signatureHeader);
+        return ResponseEntity.ok("OK");
+    }
+
     @PostMapping("/webhook/stripe")
     public ResponseEntity<String> stripeWebhook(
             @RequestBody String rawPayload,

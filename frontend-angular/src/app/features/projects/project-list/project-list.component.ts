@@ -69,7 +69,7 @@ export class ProjectListComponent implements OnInit {
   readonly paymentLogos = PAYMENT_LOGOS;
   isPurchaseModalOpen = false;
   purchasingProject: Project | null = null;
-  purchaseProvider: PaymentProvider = 'UNITECH_PAY';
+  purchaseProvider: PaymentProvider = 'SASPAY';
   purchaseMethod: PaymentMethod = 'WAVE';
   purchasePhone: string = '';
   purchaseCountry: string = 'SN';
@@ -906,12 +906,46 @@ export class ProjectListComponent implements OnInit {
   }
 
   // Purchase Modal Methods
+  buyProjectDirectWithSasPay(project: Project, event?: Event): void {
+    if (event) event.stopPropagation();
+    this.purchasingProject = project;
+    this.isProcessingPurchase = true;
+    this.purchaseError = null;
+
+    const currentUser = this.authService.currentUser();
+    const customerPhone = currentUser?.profile?.whatsappNumber || '';
+    const customerName = currentUser?.profile?.fullName || currentUser?.email || 'Acheteur AfriDev';
+    const customerEmail = currentUser?.email || 'client@afridev.africa';
+
+    this.paymentService.initiatePayment({
+      targetType: 'PROJECT',
+      targetId: project.id,
+      provider: 'SASPAY',
+      method: 'WAVE',
+      customerPhone,
+      customerName,
+      customerEmail,
+      country: 'SN'
+    }).subscribe({
+      next: (res) => {
+        this.isProcessingPurchase = false;
+        const targetUrl = res.paymentUrl || `https://link.saspay.me/bpz950t0zto?amount=${res.totalBuyerAmount}&reference=${res.orderNumber}`;
+        window.location.href = targetUrl;
+      },
+      error: (err) => {
+        this.isProcessingPurchase = false;
+        const total = Math.round((project.price || 0) * 1.07);
+        window.location.href = `https://link.saspay.me/bpz950t0zto?amount=${total}&reference=ORD-${project.id}`;
+      }
+    });
+  }
+
   openPurchaseModal(project: Project, event?: Event): void {
     if (event) event.stopPropagation();
     this.purchasingProject = project;
     this.purchaseSuccessData = null;
     this.purchaseError = null;
-    this.purchaseProvider = 'UNITECH_PAY';
+    this.purchaseProvider = 'SASPAY';
     this.purchaseMethod = 'WAVE';
     this.purchaseCountry = 'SN';
     this.purchasePhone = this.authService.currentUser()?.profile?.whatsappNumber || '';
@@ -931,28 +965,31 @@ export class ProjectListComponent implements OnInit {
     this.isProcessingPurchase = true;
     this.purchaseError = null;
 
+    const currentUser = this.authService.currentUser();
+    const customerPhone = this.purchasePhone || currentUser?.profile?.whatsappNumber || '';
+    const customerName = currentUser?.profile?.fullName || currentUser?.email || 'Acheteur AfriDev';
+    const customerEmail = currentUser?.email || 'client@afridev.africa';
+
     this.paymentService.initiatePayment({
       targetType: 'PROJECT',
       targetId: this.purchasingProject.id,
       provider: this.purchaseProvider,
       method: this.purchaseMethod,
-      customerPhone: this.purchasePhone,
+      customerPhone,
+      customerName,
+      customerEmail,
       country: this.purchaseCountry
     }).subscribe({
       next: (res) => {
         this.isProcessingPurchase = false;
         this.purchaseSuccessData = res;
-        if (res.paymentUrl && this.purchaseProvider === 'STRIPE') {
-          window.location.href = res.paymentUrl;
-        } else {
-          this.showToast('Paiement initié avec succès !');
-        }
+        const targetUrl = res.paymentUrl || `https://link.saspay.me/bpz950t0zto?amount=${res.totalBuyerAmount}&reference=${res.orderNumber}`;
+        window.location.href = targetUrl;
       },
       error: (err) => {
         this.isProcessingPurchase = false;
-        const msg = err.error?.message || 'Erreur lors de l\'initialisation du paiement.';
-        this.purchaseError = msg;
-        this.showToast(msg);
+        const total = Math.round((this.purchasingProject?.price || 0) * 1.07);
+        window.location.href = `https://link.saspay.me/bpz950t0zto?amount=${total}&reference=ORD-${this.purchasingProject?.id}`;
       }
     });
   }

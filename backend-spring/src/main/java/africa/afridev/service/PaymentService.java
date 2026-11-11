@@ -10,6 +10,7 @@ import africa.afridev.model.enums.*;
 import africa.afridev.repository.PaymentRepository;
 import africa.afridev.repository.ProjectRepository;
 import africa.afridev.repository.UserRepository;
+import africa.afridev.service.payment.SasPayGateway;
 import africa.afridev.service.payment.StripeGateway;
 import africa.afridev.service.payment.UnitechPayGateway;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -38,6 +39,7 @@ public class PaymentService {
     private final ProjectRepository projectRepository;
     private final UserRepository userRepository;
     private final WalletService walletService;
+    private final SasPayGateway sasPayGateway;
     private final UnitechPayGateway unitechPayGateway;
     private final StripeGateway stripeGateway;
     private final XpService xpService;
@@ -217,6 +219,40 @@ public class PaymentService {
                 paymentUrl = "https://checkout.stripe.com/c/pay/cs_test_" + orderNumber.toLowerCase();
                 externalRef = "cs_test_" + orderNumber;
             }
+        } else if (request.getProvider() == PaymentProvider.SASPAY || request.getProvider() == null) {
+            String buyerName = (request.getCustomerName() != null && !request.getCustomerName().isBlank()) 
+                    ? request.getCustomerName()
+                    : ((buyer != null && buyer.getProfile() != null && buyer.getProfile().getFullName() != null) 
+                            ? buyer.getProfile().getFullName() 
+                            : "Client AfriDev");
+            String buyerMail = (request.getCustomerEmail() != null && request.getCustomerEmail().contains("@"))
+                    ? request.getCustomerEmail()
+                    : ((buyer != null && buyer.getEmail() != null) ? buyer.getEmail() : "client@afridev.africa");
+
+            Map<String, Object> sessionData = sasPayGateway.createCheckoutSession(
+                    netSellerPrice,
+                    currency,
+                    targetTitle + " (#" + orderNumber + ")",
+                    buyerMail,
+                    buyerName,
+                    request.getCustomerPhone(),
+                    request.getCountry() != null ? request.getCountry() : "SN",
+                    orderNumber,
+                    successUrl,
+                    cancelUrl
+            );
+
+            paymentUrl = (String) sessionData.get("checkout_url");
+            externalRef = (String) sessionData.get("id");
+            if (paymentUrl != null && !paymentUrl.isBlank()) {
+                try {
+                    qrCodeData = "https://api.qrserver.com/v1/create-qr-code/?size=260x260&data="
+                            + URLEncoder.encode(paymentUrl, StandardCharsets.UTF_8.toString());
+                } catch (Exception ignored) {
+                    qrCodeData = "https://api.qrserver.com/v1/create-qr-code/?size=260x260&data=" + paymentUrl;
+                }
+                instructions = "Scannez le QR Code ou cliquez sur le bouton pour régler par Wave, Orange Money, MoMo ou Carte Bancaire via SasPay.";
+            }
         }
 
         PaymentEntity payment = PaymentEntity.builder()
@@ -346,6 +382,77 @@ public class PaymentService {
             }
         } catch (Exception e) {
             log.error("Erreur traitement Webhook Stripe: {}", e.getMessage());
+        }
+        return false;
+    }
+
+    /**
+     * Traitement du webhook SasPay (Panafricain : Wave, Orange Money, MoMo, Moov, Carte)
+     */
+    @Transactional
+    public boolean handleSasPayWebhook(String rawPayload, String signatureHeader) {
+        log.info("Réception Webhook SasPay: {}", rawPayload);
+        try {
+            Map<String, Object> event = objectMapper.readValue(rawPayload, Map.class);
+            String eventType = (String) event.get("event");
+            Map<String, Object> data = (Map<String, Object>) event.get("data");
+
+            String reference = null;
+            String status = null;
+
+            if (data != null) {
+                reference = (String) data.get("reference");
+                if (reference == null) {
+                    reference = (String) data.get("reference_externe");
+                }
+                status = (String) data.get("status");
+            }
+            if (reference == null) {
+                reference = (String) event.get("reference");
+            }
+            if (status == null) {
+                status = (String) event.get("status");
+            }
+
+            boolean isSuccess = "transaction.success".equalsIgnoreCase(eventType)
+                    || "payment.success".equalsIgnoreCase(eventType)
+                    || "completed".equalsIgnoreCase(status)
+                    || "paid".equalsIgnoreCase(status)
+                    || "success".equalsIgnoreCase(status);
+
+            if (isSuccess && reference != null) {
+                final String finalRef = reference;
+                PaymentEntity payment = paymentRepository.findByOrderNumber(finalRef)
+                        .orElseGet(() -> paymentRepository.findByExternalReference(finalRef).orElse(null));
+
+                if (payment != null && payment.getStatus() != PaymentStatus.COMPLETED) {
+                    payment.setStatus(PaymentStatus.COMPLETED);
+                    payment.setCompletedAt(LocalDateTime.now());
+                    payment.setRawResponse(rawPayload);
+                    paymentRepository.save(payment);
+
+                    // Créditer le vendeur à 100% du prix net
+                    if (payment.getSeller() != null) {
+                        walletService.creditSeller(
+                                payment.getSeller(),
+                                payment.getNetSellerAmount(),
+                                payment.getOrderNumber(),
+                                "Vente SasPay du projet: " + payment.getTargetTitle()
+                        );
+                        xpService.awardXp(payment.getSeller(), 50, XpSourceType.PROJECT_PUBLISHED, payment.getId(), "Vente confirmée via SasPay");
+                    }
+
+                    // Récompenser l'acheteur en XP
+                    if (payment.getBuyer() != null) {
+                        xpService.awardXp(payment.getBuyer(), 30, XpSourceType.PROJECT_PUBLISHED, payment.getId(), "Achat soutenu sur AfriDev Hub");
+                    }
+
+                    log.info("Paiement SasPay #{} validé et complété avec succès", payment.getOrderNumber());
+                    return true;
+                }
+            }
+        } catch (Exception e) {
+            log.error("Erreur traitement Webhook SasPay: {}", e.getMessage());
         }
         return false;
     }

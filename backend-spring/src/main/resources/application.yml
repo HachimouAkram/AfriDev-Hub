@@ -17,11 +17,11 @@ spring:
     password: ${DB_PASSWORD:yUcVbDGuDoXuzAAWeKYkXy4P}
     driver-class-name: org.postgresql.Driver
     hikari:
-      max-lifetime: 540000 # 9 minutes (inférieur aux 10 min du serveur PostgreSQL cloud)
-      idle-timeout: 300000 # 5 minutes
-      keepalive-time: 60000 # 1 minute (ping régulier pour éviter la fermeture brutale)
+      max-lifetime: 45000 # 45s (évite la coupure du proxy cloud Systalink fixé à 60s)
+      idle-timeout: 30000 # 30s
+      keepalive-time: 20000 # 20s (ping régulier pour maintenir la session TCP active)
       connection-timeout: 30000
-      minimum-idle: 2
+      minimum-idle: 1
       maximum-pool-size: 10
   jpa:
     hibernate:
@@ -74,6 +74,10 @@ app:
     url: ${FASTAPI_BASE_URL:http://localhost:8000}
     internal-key: ${FASTAPI_INTERNAL_KEY:afridev_internal_secret_key_2026_x7k9}
   payment:
+    saspay:
+      api-key: ${SASPAY_API_KEY:sk_live_5rmtOhLU_2ReoZK4Q5NAsvK4ms5J_dN8991cd5m8T78}
+      base-url: ${SASPAY_BASE_URL:https://api.saspay.me/api/v1}
+      fallback-link: ${SASPAY_FALLBACK_LINK:https://link.saspay.me/bpz950t0zto}
     unitech:
       api-key: ${UNITECH_API_KEY:eb347b5f5b68382b58d3f0babd3687e0186026209ef62357d341fef9bccd4fd3}
       base-url: ${UNITECH_BASE_URL:https://api.unitech.sn/api.php}

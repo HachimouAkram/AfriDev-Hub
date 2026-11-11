@@ -31,6 +31,45 @@ const server = http.createServer((req, res) => {
     return res.end('OK');
   }
 
+  // Reverse proxy pour toutes les requêtes API vers Spring Boot
+  if (req.url && (req.url.startsWith('/api/') || req.url === '/api')) {
+    const backendBase = process.env.BACKEND_URL || 'http://127.0.0.1:8081';
+    let targetUrl;
+    try {
+      targetUrl = new URL(req.url, backendBase);
+    } catch (e) {
+      targetUrl = new URL(req.url, 'http://127.0.0.1:8081');
+    }
+
+    const proxyHeaders = { ...req.headers };
+    proxyHeaders.host = targetUrl.host;
+
+    const proxyReq = http.request({
+      protocol: targetUrl.protocol,
+      hostname: targetUrl.hostname,
+      port: targetUrl.port || (targetUrl.protocol === 'https:' ? 443 : 80),
+      path: targetUrl.pathname + targetUrl.search,
+      method: req.method,
+      headers: proxyHeaders
+    }, (proxyRes) => {
+      res.writeHead(proxyRes.statusCode, proxyRes.headers);
+      proxyRes.pipe(res);
+    });
+
+    proxyReq.on('error', (err) => {
+      console.error(`[API Proxy Error] ${req.method} ${req.url} -> ${err.message}`);
+      res.writeHead(502, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({
+        status: 502,
+        error: 'Bad Gateway',
+        message: 'Impossible de joindre le backend Spring Boot (' + backendBase + ')'
+      }));
+    });
+
+    req.pipe(proxyReq);
+    return;
+  }
+
   // Nettoyage de l'URL
   let safePath = path.normalize(decodeURI(req.url.split('?')[0])).replace(/^(\.\.[\/\\])+/, '');
   let filePath = path.join(DIST_DIR, safePath);
