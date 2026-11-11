@@ -26,8 +26,8 @@ const MIME_TYPES = {
 };
 
 const server = http.createServer((req, res) => {
-  // Healthcheck probe pour Kubernetes (Systalink)
-  if (req.url === '/health' || req.url === '/healthz') {
+  // Support des probes Kubernetes (GET et HEAD sur /health, /healthz, /)
+  if (req.url === '/health' || req.url === '/healthz' || (req.method === 'HEAD' && req.url === '/')) {
     res.writeHead(200, { 'Content-Type': 'text/plain' });
     return res.end('OK');
   }
