@@ -1,4 +1,5 @@
 const http = require('http');
+const https = require('https');
 const fs = require('fs');
 const path = require('path');
 
@@ -33,18 +34,19 @@ const server = http.createServer((req, res) => {
 
   // Reverse proxy pour toutes les requêtes API vers Spring Boot
   if (req.url && (req.url.startsWith('/api/') || req.url === '/api')) {
-    const backendBase = process.env.BACKEND_URL || 'http://127.0.0.1:8081';
+    const backendBase = process.env.BACKEND_URL || 'http://31.207.36.107:8081';
     let targetUrl;
     try {
       targetUrl = new URL(req.url, backendBase);
     } catch (e) {
-      targetUrl = new URL(req.url, 'http://127.0.0.1:8081');
+      targetUrl = new URL(req.url, 'http://31.207.36.107:8081');
     }
 
     const proxyHeaders = { ...req.headers };
     proxyHeaders.host = targetUrl.host;
 
-    const proxyReq = http.request({
+    const client = targetUrl.protocol === 'https:' ? https : http;
+    const proxyReq = client.request({
       protocol: targetUrl.protocol,
       hostname: targetUrl.hostname,
       port: targetUrl.port || (targetUrl.protocol === 'https:' ? 443 : 80),
