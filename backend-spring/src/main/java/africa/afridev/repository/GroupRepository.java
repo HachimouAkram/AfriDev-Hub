@@ -23,9 +23,9 @@ public interface GroupRepository extends JpaRepository<GroupEntity, String> {
     Page<GroupEntity> findByAccessTypeNotOrderByMemberCountDesc(GroupAccessType accessType, Pageable pageable);
 
     @Query("SELECT g FROM GroupEntity g WHERE g.accessType <> 'PRIVE' " +
-           "AND (:country IS NULL OR LOWER(g.country) = LOWER(:country)) " +
-           "AND (:query IS NULL OR (LOWER(g.name) LIKE LOWER(CONCAT('%', :query, '%')) " +
-           "     OR LOWER(g.description) LIKE LOWER(CONCAT('%', :query, '%')))) " +
+           "AND (CAST(:country AS string) IS NULL OR LOWER(g.country) = LOWER(CAST(:country AS string))) " +
+           "AND (CAST(:query AS string) IS NULL OR (LOWER(g.name) LIKE LOWER(CONCAT('%', CAST(:query AS string), '%')) " +
+           "     OR LOWER(g.description) LIKE LOWER(CONCAT('%', CAST(:query AS string), '%')))) " +
            "ORDER BY g.memberCount DESC")
     Page<GroupEntity> searchPublicGroups(
             @Param("country") String country,

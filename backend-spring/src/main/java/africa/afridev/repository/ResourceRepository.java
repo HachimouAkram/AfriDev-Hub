@@ -16,8 +16,8 @@ public interface ResourceRepository extends JpaRepository<ResourceEntity, String
     @Query("SELECT r FROM ResourceEntity r WHERE " +
            "(:type IS NULL OR r.type = :type) AND " +
            "(:level IS NULL OR r.level = :level) AND " +
-           "(:tech IS NULL OR LOWER(r.technology) LIKE LOWER(CONCAT('%', :tech, '%'))) AND " +
-           "(:lang IS NULL OR r.language = :lang) AND " +
+           "(CAST(:tech AS string) IS NULL OR LOWER(r.technology) LIKE LOWER(CONCAT('%', CAST(:tech AS string), '%'))) AND " +
+           "(CAST(:lang AS string) IS NULL OR r.language = CAST(:lang AS string)) AND " +
            "(:isPaid IS NULL OR r.isPaid = :isPaid) " +
            "ORDER BY r.createdAt DESC")
     Page<ResourceEntity> searchResources(

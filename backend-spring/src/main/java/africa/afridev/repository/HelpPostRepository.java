@@ -45,8 +45,8 @@ public interface HelpPostRepository extends JpaRepository<HelpPostEntity, String
     @Query("SELECT h FROM HelpPostEntity h WHERE h.visibility = :visibility " +
            "AND (:type IS NULL OR h.type = :type) " +
            "AND (:status IS NULL OR h.status = :status) " +
-           "AND (:query IS NULL OR LOWER(h.title) LIKE LOWER(CONCAT('%', :query, '%')) " +
-           "     OR LOWER(h.description) LIKE LOWER(CONCAT('%', :query, '%'))) " +
+           "AND (CAST(:query AS string) IS NULL OR LOWER(h.title) LIKE LOWER(CONCAT('%', CAST(:query AS string), '%')) " +
+           "     OR LOWER(h.description) LIKE LOWER(CONCAT('%', CAST(:query AS string), '%'))) " +
            "ORDER BY h.createdAt DESC")
     Page<HelpPostEntity> findWithFilters(
             @Param("visibility") HelpPostVisibility visibility,

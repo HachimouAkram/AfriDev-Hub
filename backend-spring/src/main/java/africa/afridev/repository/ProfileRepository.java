@@ -22,10 +22,10 @@ public interface ProfileRepository extends JpaRepository<ProfileEntity, String> 
     List<ProfileEntity> findByIsMentorTrueOrderByXpPointsDesc();
 
     @org.springframework.data.jpa.repository.Query("SELECT p FROM ProfileEntity p WHERE p.isMentor = true " +
-           "AND (:country IS NULL OR LOWER(p.country) = LOWER(:country)) " +
-           "AND (:query IS NULL OR (LOWER(p.fullName) LIKE LOWER(CONCAT('%', :query, '%')) " +
-           "     OR LOWER(p.title) LIKE LOWER(CONCAT('%', :query, '%')) " +
-           "     OR LOWER(p.mentorBio) LIKE LOWER(CONCAT('%', :query, '%')))) " +
+           "AND (CAST(:country AS string) IS NULL OR LOWER(p.country) = LOWER(CAST(:country AS string))) " +
+           "AND (CAST(:query AS string) IS NULL OR (LOWER(p.fullName) LIKE LOWER(CONCAT('%', CAST(:query AS string), '%')) " +
+           "     OR LOWER(p.title) LIKE LOWER(CONCAT('%', CAST(:query AS string), '%')) " +
+           "     OR LOWER(p.mentorBio) LIKE LOWER(CONCAT('%', CAST(:query AS string), '%')))) " +
            "ORDER BY p.xpPoints DESC")
     org.springframework.data.domain.Page<ProfileEntity> searchMentors(
             @org.springframework.data.repository.query.Param("country") String country,
