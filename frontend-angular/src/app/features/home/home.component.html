@@ -1,122 +1,418 @@
 <div class="landing-container">
-  <!-- HERO SECTION -->
+  <!-- HERO SECTION (SPLIT LAYOUT + PAN-AFRICAN GLOBE NETWORK + REAL PHOTO + ALIGNED STATS) -->
   <header class="hero-section app-card">
-    <div class="hero-bg-glow"></div>
-    
-    <div class="hero-content">
-      <div class="badge badge-emerald hero-badge">
-        <span class="live-dot"></span>
-        <svg class="icon-svg icon-svg-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-          <circle cx="12" cy="12" r="10" stroke-width="2"/>
-          <path stroke-width="2" d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
-        </svg>
-        Le Premier Réseau Tech Panafricain Certifié
+    <div class="hero-bg-glow" aria-hidden="true"></div>
+
+    <div class="hero-layout">
+      <!-- Left Column: Human Copy & Primary Actions -->
+      <div class="hero-copy">
+        <div class="badge badge-emerald hero-badge">
+          <span class="live-dot" aria-hidden="true"></span>
+          <svg class="icon-svg icon-svg-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
+            <circle cx="12" cy="12" r="10" stroke-width="2"/>
+            <path stroke-width="2" d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+          </svg>
+          <span>Le Premier Réseau Tech Panafricain Certifié</span>
+        </div>
+
+        <h1 class="hero-title">
+          Connectez les Talents Tech Africains
+          <span class="gradient-text">Évaluez, Collaborez &amp; Propulsez votre Carrière</span>
+        </h1>
+
+        <p class="hero-subtitle">
+          AfriDev Hub réunit les développeurs, ingénieurs et recruteurs du continent.
+          Valorisez vos projets réels, certifiez votre réputation par vos pairs et accédez aux meilleures opportunités Tech.
+        </p>
+
+        <div class="hero-actions">
+          <a [routerLink]="isLoggedIn() ? '/dashboard' : '/register'" class="btn btn-emerald btn-hero">
+            <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
+            </svg>
+            <span *ngIf="!isLoggedIn()">Rejoindre la Communauté (Gratuit)</span>
+            <span *ngIf="isLoggedIn()">Accéder à mon Espace</span>
+          </a>
+          <a routerLink="/projects" class="btn btn-outline btn-hero">
+            <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" />
+            </svg>
+            <span>Découvrir les Projets</span>
+          </a>
+        </div>
       </div>
 
-      <h1 class="hero-title">
-        Connectez les Talents Tech Africains <br>
-        <span class="gradient-text">« Évaluez, Collaborez & Propulsez votre Carrière »</span>
-      </h1>
+      <!-- Right Column: Animated Pan-African Globe Hub + Country Flags + Curved Arrows + Real Photo -->
+      <div class="hero-visual-stage">
+        <div class="globe-network-card">
+          <div class="globe-card-toolbar">
+            <div class="globe-status-chip">
+              <span class="live-dot" aria-hidden="true"></span>
+              <span>Interconnexion Afrique • 54 Pays</span>
+            </div>
+            <button
+              type="button"
+              class="motion-toggle-btn"
+              (click)="toggleHeroMotion()"
+              [attr.aria-label]="isHeroMotionPaused ? 'Lire l\'animation du réseau' : 'Mettre en pause l\'animation du réseau'">
+              <svg *ngIf="!isHeroMotionPaused" class="motion-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                <rect x="6" y="5" width="4" height="14" rx="1"/>
+                <rect x="14" y="5" width="4" height="14" rx="1"/>
+              </svg>
+              <svg *ngIf="isHeroMotionPaused" class="motion-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                <path d="M8 5.14v14l11-7-11-7z"/>
+              </svg>
+              <span>{{ isHeroMotionPaused ? 'Lecture' : 'Pause' }}</span>
+            </button>
+          </div>
 
-      <p class="hero-subtitle">
-        AfriDev Hub réunit les développeurs, ingénieurs et recruteurs du continent. 
-        Mettez en avant vos projets réels, valorisez votre score de réputation certifié par vos pairs 
-        et accédez aux meilleures opportunités Tech en Afrique.
-      </p>
+          <div class="globe-svg-frame">
+            <svg
+              class="globe-network-svg"
+              [class.is-paused]="isHeroMotionPaused"
+              viewBox="0 0 460 320"
+              role="img"
+              aria-label="Globe panafricain animé reliant Sénégal, Maroc, Côte d'Ivoire, Nigéria, Kenya, Cameroun, Comores et Afrique du Sud">
+              <defs>
+                <radialGradient id="heroGlobeGrad" cx="42%" cy="38%" r="62%">
+                  <stop offset="0%" stop-color="#34D399" stop-opacity="0.38"/>
+                  <stop offset="55%" stop-color="#10B981" stop-opacity="0.18"/>
+                  <stop offset="100%" stop-color="#059669" stop-opacity="0.06"/>
+                </radialGradient>
+                <linearGradient id="arrowGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                  <stop offset="0%" stop-color="#10B981" stop-opacity="0.35"/>
+                  <stop offset="100%" stop-color="#34D399" stop-opacity="0.95"/>
+                </linearGradient>
+                <marker id="netArrowHead" viewBox="0 0 10 10" refX="7.5" refY="5" markerWidth="5.5" markerHeight="5.5" orient="auto">
+                  <path d="M 0 1.5 L 9 5 L 0 8.5 z" fill="#10B981"/>
+                </marker>
+                <clipPath id="flagClip"><rect x="0" y="0" width="18" height="12" rx="2.5"/></clipPath>
+              </defs>
 
-      <div class="hero-actions">
-        <a [routerLink]="isLoggedIn() ? '/dashboard' : '/register'" class="btn btn-emerald btn-hero">
-          <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
-          </svg>
-          <span *ngIf="!isLoggedIn()">Rejoindre la Communauté (Gratuit)</span>
-          <span *ngIf="isLoggedIn()">Accéder à mon Espace</span>
-        </a>
-        <a routerLink="/projects" class="btn btn-outline btn-hero">
-          <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" />
-          </svg>
-          Découvrir la Vitrine Projets
-        </a>
+              <!-- Subtle Concentric Network Orbits -->
+              <circle cx="230" cy="160" r="118" fill="none" stroke="#10B981" stroke-opacity="0.14" stroke-width="1" stroke-dasharray="4 6"/>
+              <circle cx="230" cy="160" r="92" fill="none" stroke="#10B981" stroke-opacity="0.1" stroke-width="1"/>
+
+              <!-- Curved Base Tracks + Animated Pointing Arrows toward Each Country -->
+              <g class="network-arrows" fill="none">
+                <!-- Sénégal -->
+                <path class="arrow-track" d="M 230 98 Q 212 68 230 43"/>
+                <path class="arrow-flow flow-1" d="M 230 98 Q 212 68 230 43" marker-end="url(#netArrowHead)"/>
+                <!-- Maroc -->
+                <path class="arrow-track" d="M 182 126 Q 134 94 108 62"/>
+                <path class="arrow-flow flow-2" d="M 182 126 Q 134 94 108 62" marker-end="url(#netArrowHead)"/>
+                <!-- Côte d'Ivoire -->
+                <path class="arrow-track" d="M 278 126 Q 326 94 348 62"/>
+                <path class="arrow-flow flow-3" d="M 278 126 Q 326 94 348 62" marker-end="url(#netArrowHead)"/>
+                <!-- Nigéria -->
+                <path class="arrow-track" d="M 168 160 Q 136 142 106 158"/>
+                <path class="arrow-flow flow-4" d="M 168 160 Q 136 142 106 158" marker-end="url(#netArrowHead)"/>
+                <!-- Kenya -->
+                <path class="arrow-track" d="M 292 160 Q 324 142 356 158"/>
+                <path class="arrow-flow flow-5" d="M 292 160 Q 324 142 356 158" marker-end="url(#netArrowHead)"/>
+                <!-- Cameroun -->
+                <path class="arrow-track" d="M 182 194 Q 140 230 112 258"/>
+                <path class="arrow-flow flow-6" d="M 182 194 Q 140 230 112 258" marker-end="url(#netArrowHead)"/>
+                <!-- Comores -->
+                <path class="arrow-track" d="M 278 194 Q 322 230 350 258"/>
+                <path class="arrow-flow flow-7" d="M 278 194 Q 322 230 350 258" marker-end="url(#netArrowHead)"/>
+                <!-- Afrique du Sud -->
+                <path class="arrow-track" d="M 230 222 Q 248 252 230 277"/>
+                <path class="arrow-flow flow-8" d="M 230 222 Q 248 252 230 277" marker-end="url(#netArrowHead)"/>
+              </g>
+
+              <!-- Rotating Central Pan-African Globe Hub -->
+              <g class="globe-center">
+                <circle class="globe-halo-pulse" cx="230" cy="160" r="64" fill="none" stroke="#10B981" stroke-opacity="0.32" stroke-width="1.5"/>
+
+                <!-- Rotating Outer Orbital Nodes Ring -->
+                <g class="globe-orbit-spin">
+                  <circle cx="230" cy="160" r="70" fill="none" stroke="#10B981" stroke-opacity="0.4" stroke-width="1.2" stroke-dasharray="14 10 3 10"/>
+                  <circle cx="230" cy="90" r="3" fill="#10B981"/>
+                  <circle cx="300" cy="160" r="2.5" fill="#34D399"/>
+                  <circle cx="160" cy="160" r="2.5" fill="#34D399"/>
+                </g>
+
+                <!-- Globe Sphere Surface -->
+                <circle cx="230" cy="160" r="52" fill="url(#heroGlobeGrad)" stroke="#10B981" stroke-width="1.75"/>
+
+                <!-- Rotating Meridians & Parallels -->
+                <g class="globe-meridians-spin" fill="none" stroke="#10B981" stroke-opacity="0.32" stroke-width="1">
+                  <ellipse cx="230" cy="160" rx="22" ry="51"/>
+                  <ellipse cx="230" cy="160" rx="40" ry="51"/>
+                  <line x1="179" y1="160" x2="281" y2="160"/>
+                  <path d="M 186 135 Q 230 143 274 135"/>
+                  <path d="M 186 185 Q 230 177 274 185"/>
+                </g>
+
+                <!-- Central Brand Africa Mark -->
+                <circle cx="230" cy="160" r="24" class="globe-core-badge"/>
+                <image href="/logo-africa.png" x="213" y="143" width="34" height="34" preserveAspectRatio="xMidYMid meet"/>
+              </g>
+
+              <!-- 8 Connected African Country Flag Pills (Clean Vector Flags across all OS) -->
+              <!-- 1. Sénégal -->
+              <g class="country-node" transform="translate(182, 10)">
+                <rect class="country-pill-bg" x="0" y="0" width="96" height="28" rx="14"/>
+                <g transform="translate(8, 8)" clip-path="url(#flagClip)">
+                  <rect x="0" y="0" width="6" height="12" fill="#00853F"/>
+                  <rect x="6" y="0" width="6" height="12" fill="#FDEF42"/>
+                  <rect x="12" y="0" width="6" height="12" fill="#E31B23"/>
+                  <polygon points="9,4 9.6,5.8 11.5,5.8 10,6.9 10.6,8.7 9,7.6 7.4,8.7 8,6.9 6.5,5.8 8.4,5.8" fill="#00853F"/>
+                </g>
+                <text class="country-pill-text" x="31" y="18">Sénégal</text>
+              </g>
+
+              <!-- 2. Maroc -->
+              <g class="country-node" transform="translate(22, 30)">
+                <rect class="country-pill-bg" x="0" y="0" width="84" height="28" rx="14"/>
+                <g transform="translate(8, 8)" clip-path="url(#flagClip)">
+                  <rect x="0" y="0" width="18" height="12" fill="#C1272D"/>
+                  <polygon points="9,3 9.7,5.2 12,5.2 10.1,6.5 10.8,8.7 9,7.4 7.2,8.7 7.9,6.5 6,5.2 8.3,5.2" fill="none" stroke="#006233" stroke-width="0.9"/>
+                </g>
+                <text class="country-pill-text" x="31" y="18">Maroc</text>
+              </g>
+
+              <!-- 3. Côte d'Ivoire -->
+              <g class="country-node" transform="translate(344, 30)">
+                <rect class="country-pill-bg" x="0" y="0" width="104" height="28" rx="14"/>
+                <g transform="translate(8, 8)" clip-path="url(#flagClip)">
+                  <rect x="0" y="0" width="6" height="12" fill="#F77F00"/>
+                  <rect x="6" y="0" width="6" height="12" fill="#FFFFFF"/>
+                  <rect x="12" y="0" width="6" height="12" fill="#009E60"/>
+                </g>
+                <text class="country-pill-text" x="31" y="18">Côte d'Iv.</text>
+              </g>
+
+              <!-- 4. Nigéria -->
+              <g class="country-node" transform="translate(8, 146)">
+                <rect class="country-pill-bg" x="0" y="0" width="92" height="28" rx="14"/>
+                <g transform="translate(8, 8)" clip-path="url(#flagClip)">
+                  <rect x="0" y="0" width="6" height="12" fill="#008751"/>
+                  <rect x="6" y="0" width="6" height="12" fill="#FFFFFF"/>
+                  <rect x="12" y="0" width="6" height="12" fill="#008751"/>
+                </g>
+                <text class="country-pill-text" x="31" y="18">Nigéria</text>
+              </g>
+
+              <!-- 5. Kenya -->
+              <g class="country-node" transform="translate(362, 146)">
+                <rect class="country-pill-bg" x="0" y="0" width="88" height="28" rx="14"/>
+                <g transform="translate(8, 8)" clip-path="url(#flagClip)">
+                  <rect x="0" y="0" width="18" height="3.5" fill="#111111"/>
+                  <rect x="0" y="3.5" width="18" height="1" fill="#FFFFFF"/>
+                  <rect x="0" y="4.5" width="18" height="3" fill="#BB0000"/>
+                  <rect x="0" y="7.5" width="18" height="1" fill="#FFFFFF"/>
+                  <rect x="0" y="8.5" width="18" height="3.5" fill="#006600"/>
+                  <ellipse cx="9" cy="6" rx="1.6" ry="3" fill="#BB0000" stroke="#FFFFFF" stroke-width="0.6"/>
+                </g>
+                <text class="country-pill-text" x="31" y="18">Kenya</text>
+              </g>
+
+              <!-- 6. Cameroun -->
+              <g class="country-node" transform="translate(11, 262)">
+                <rect class="country-pill-bg" x="0" y="0" width="106" height="28" rx="14"/>
+                <g transform="translate(8, 8)" clip-path="url(#flagClip)">
+                  <rect x="0" y="0" width="6" height="12" fill="#007A5E"/>
+                  <rect x="6" y="0" width="6" height="12" fill="#CE1126"/>
+                  <rect x="12" y="0" width="6" height="12" fill="#FCD116"/>
+                  <polygon points="9,4.2 9.5,5.7 11,5.7 9.8,6.6 10.3,8 9,7.1 7.7,8 8.2,6.6 7,5.7 8.5,5.7" fill="#FCD116"/>
+                </g>
+                <text class="country-pill-text" x="31" y="18">Cameroun</text>
+              </g>
+
+              <!-- 7. Comores -->
+              <g class="country-node" transform="translate(347, 262)">
+                <rect class="country-pill-bg" x="0" y="0" width="98" height="28" rx="14"/>
+                <g transform="translate(8, 8)" clip-path="url(#flagClip)">
+                  <rect x="0" y="0" width="18" height="3" fill="#FFC61E"/>
+                  <rect x="0" y="3" width="18" height="3" fill="#FFFFFF"/>
+                  <rect x="0" y="6" width="18" height="3" fill="#CE1126"/>
+                  <rect x="0" y="9" width="18" height="3" fill="#3A75C4"/>
+                  <polygon points="0,0 8.5,6 0,12" fill="#3D8E33"/>
+                  <circle cx="3.2" cy="6" r="1.8" fill="#FFFFFF"/>
+                  <circle cx="3.9" cy="6" r="1.4" fill="#3D8E33"/>
+                </g>
+                <text class="country-pill-text" x="31" y="18">Comores</text>
+              </g>
+
+              <!-- 8. Afrique du Sud -->
+              <g class="country-node" transform="translate(174, 282)">
+                <rect class="country-pill-bg" x="0" y="0" width="112" height="28" rx="14"/>
+                <g transform="translate(8, 8)" clip-path="url(#flagClip)">
+                  <rect x="0" y="0" width="18" height="6" fill="#E03C31"/>
+                  <rect x="0" y="6" width="18" height="6" fill="#001489"/>
+                  <path d="M 0,0 L 8,6 L 0,12 Z" fill="#111111"/>
+                  <path d="M 0,0 L 8.5,6 L 18,6" fill="none" stroke="#FFFFFF" stroke-width="2.4"/>
+                  <path d="M 0,12 L 8.5,6 L 18,6" fill="none" stroke="#FFFFFF" stroke-width="2.4"/>
+                  <path d="M 0,1 L 7.8,6 L 0,11" fill="none" stroke="#FFB81C" stroke-width="1.2"/>
+                  <path d="M 0,0 L 8.2,6 L 18,6 M 0,12 L 8.2,6" fill="none" stroke="#007749" stroke-width="1.7"/>
+                </g>
+                <text class="country-pill-text" x="31" y="18">Afr. du Sud</text>
+              </g>
+            </svg>
+          </div>
+        </div>
+
+        <!-- Real Collaboration Photo Paired Under the Network Diagram -->
+        <figure class="hero-photo-card">
+          <img
+            src="/hero-africa-devs.jpg"
+            alt="Développeurs africains collaborant sur des projets logiciels en espace de travail"
+            width="1100"
+            height="821"
+            fetchpriority="high"
+            decoding="async"
+            class="hero-photo-img" />
+          <figcaption class="hero-photo-caption">
+            <span class="caption-dot" aria-hidden="true"></span>
+            <span>Collaboration Tech Réelle • Afrique Connectée</span>
+          </figcaption>
+        </figure>
       </div>
+    </div>
 
-      <!-- Live Stats Banner -->
-      <div class="stats-counter-bar">
-        <div class="stat-item">
-          <span class="stat-num">100%</span>
-          <span class="stat-lbl">Réputation Certifiée</span>
-        </div>
-        <div class="stat-divider"></div>
-        <div class="stat-item">
-          <span class="stat-num">Live</span>
-          <span class="stat-lbl">GitHub Sync</span>
-        </div>
-        <div class="stat-divider"></div>
-        <div class="stat-item">
-          <span class="stat-num">Panafricain</span>
-          <span class="stat-lbl">Sénégal, CI, Cameroun...</span>
-        </div>
-        <div class="stat-divider"></div>
-        <div class="stat-item">
-          <span class="stat-num">Mobile Money</span>
-          <span class="stat-lbl">Comptes Vérifiés</span>
-        </div>
+    <!-- Bottom Full-Width Aligned Stats Ribbon -->
+    <div class="stats-counter-bar" role="list" aria-label="Indicateurs clés AfriDev Hub">
+      <div class="stat-item" role="listitem">
+        <span class="stat-num">100%</span>
+        <span class="stat-lbl">Réputation Certifiée</span>
+      </div>
+      <div class="stat-item" role="listitem">
+        <span class="stat-num">GitHub Live</span>
+        <span class="stat-lbl">Synchronisation Directe</span>
+      </div>
+      <div class="stat-item" role="listitem">
+        <span class="stat-num">54 Pays</span>
+        <span class="stat-lbl">Réseau Panafricain</span>
+      </div>
+      <div class="stat-item" role="listitem">
+        <span class="stat-num">Vérifié</span>
+        <span class="stat-lbl">Mobile Money &amp; Pairs</span>
       </div>
     </div>
   </header>
 
-  <!-- PILLARS / FEATURES SECTION -->
+  <!-- PILLARS / FEATURES SECTION (SCANNABLE ICON-LED CARDS) -->
   <section class="pillars-section reveal-on-scroll">
     <div class="section-header">
       <span class="badge badge-emerald">Pourquoi Choisir AfriDev Hub ?</span>
       <h2>Une Plateforme Conçue pour l'Écosystème Tech Africain</h2>
-      <p class="section-desc">Tout ce dont vous avez besoin pour valoriser votre savoir-faire et collaborer en toute confiance.</p>
+      <p class="section-desc">L'essentiel pour prouver votre valeur et collaborer en confiance.</p>
     </div>
 
     <div class="grid-4">
       <!-- Pillar 1 -->
-      <div class="app-card pillar-card">
-        <div class="pillar-icon icon-emerald">
-          <svg class="pillar-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 00-.182.557l1.285 5.385c.116.486-.412.87-.837.616l-4.71-2.826a.563.563 0 00-.586 0l-4.71 2.826c-.425.255-.953-.13-.837-.616l1.285-5.385a.563.563 0 00-.182-.557l-4.204-3.602c-.38-.325-.178-.948.32-.988l5.518-.442a.563.563 0 00.475-.345L11.48 3.5z" />
-          </svg>
+      <article class="app-card pillar-card accent-emerald">
+        <div class="pillar-top-row">
+          <div class="pillar-icon icon-emerald" aria-hidden="true">
+            <svg class="pillar-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12.75L11.25 15 15 9.75M21 12c0 1.268-.63 2.39-1.593 3.068a3.745 3.745 0 01-1.043 3.296 3.745 3.745 0 01-3.296 1.043A3.745 3.745 0 0112 21c-1.268 0-2.39-.63-3.068-1.593a3.746 3.746 0 01-3.296-1.043 3.745 3.745 0 01-1.043-3.296A3.745 3.745 0 013 12c0-1.268.63-2.39 1.593-3.068a3.745 3.745 0 011.043-3.296 3.746 3.746 0 013.296-1.043A3.746 3.746 0 0112 3c1.268 0 2.39.63 3.068 1.593a3.746 3.746 0 013.296 1.043 3.746 3.746 0 011.043 3.296A3.745 3.745 0 0121 12z" />
+            </svg>
+          </div>
+          <span class="pillar-kicker">Confiance</span>
         </div>
-        <h3>Réputation Certifiée par les Pairs</h3>
-        <p>Ne comptez plus sur de simples CV. Obtenez un score de réputation transparent basé sur 4 critères clés : qualité du code, collaboration, profondeur technique et fiabilité.</p>
-      </div>
+        <h3>Réputation Certifiée</h3>
+        <p class="pillar-lead">Un score technique audité par vos pairs.</p>
+        <ul class="pillar-points">
+          <li>
+            <svg class="check-svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M16.704 5.29a1 1 0 010 1.42l-7.5 7.5a1 1 0 01-1.414 0l-3.5-3.5a1 1 0 111.414-1.42L8.5 12.086l6.79-6.795a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+            <span>Qualité de code &amp; architecture</span>
+          </li>
+          <li>
+            <svg class="check-svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M16.704 5.29a1 1 0 010 1.42l-7.5 7.5a1 1 0 01-1.414 0l-3.5-3.5a1 1 0 111.414-1.42L8.5 12.086l6.79-6.795a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+            <span>Collaboration &amp; fiabilité prouvées</span>
+          </li>
+          <li>
+            <svg class="check-svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M16.704 5.29a1 1 0 010 1.42l-7.5 7.5a1 1 0 01-1.414 0l-3.5-3.5a1 1 0 111.414-1.42L8.5 12.086l6.79-6.795a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+            <span>Au-delà des simples CV</span>
+          </li>
+        </ul>
+      </article>
 
       <!-- Pillar 2 -->
-      <div class="app-card pillar-card">
-        <div class="pillar-icon icon-blue">
-          <svg class="pillar-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z" />
-          </svg>
+      <article class="app-card pillar-card accent-blue">
+        <div class="pillar-top-row">
+          <div class="pillar-icon icon-blue" aria-hidden="true">
+            <svg class="pillar-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.25 6.75L22.5 12l-5.25 5.25m-10.5 0L1.5 12l5.25-5.25m7.5-3l-4.5 16.5" />
+            </svg>
+          </div>
+          <span class="pillar-kicker">Code &amp; Stacks</span>
         </div>
-        <h3>Synchronisation GitHub & Stats</h3>
-        <p>Connectez votre compte GitHub pour mettre en valeur vos contributions des 12 derniers mois, vos langages de prédilection et vos étoiles en un clic.</p>
-      </div>
+        <h3>GitHub Live &amp; Stats</h3>
+        <p class="pillar-lead">Vos contributions parlent d'elles-mêmes.</p>
+        <ul class="pillar-points">
+          <li>
+            <svg class="check-svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M16.704 5.29a1 1 0 010 1.42l-7.5 7.5a1 1 0 01-1.414 0l-3.5-3.5a1 1 0 111.414-1.42L8.5 12.086l6.79-6.795a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+            <span>Activité des 12 derniers mois</span>
+          </li>
+          <li>
+            <svg class="check-svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M16.704 5.29a1 1 0 010 1.42l-7.5 7.5a1 1 0 01-1.414 0l-3.5-3.5a1 1 0 111.414-1.42L8.5 12.086l6.79-6.795a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+            <span>Langages &amp; étoiles valorisés</span>
+          </li>
+          <li>
+            <svg class="check-svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M16.704 5.29a1 1 0 010 1.42l-7.5 7.5a1 1 0 01-1.414 0l-3.5-3.5a1 1 0 111.414-1.42L8.5 12.086l6.79-6.795a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+            <span>Synchronisation en 1 clic</span>
+          </li>
+        </ul>
+      </article>
 
       <!-- Pillar 3 -->
-      <div class="app-card pillar-card">
-        <div class="pillar-icon icon-purple">
-          <svg class="pillar-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.25 14.15v4.25c0 .621-.504 1.125-1.125 1.125H4.875A1.125 1.125 0 013.75 18.4v-4.25m16.5 0a2.25 2.25 0 00-2.25-2.25H6a2.25 2.25 0 00-2.25 2.25m16.5 0v-2.25A2.25 2.25 0 0018 9.65h-2.25a2.25 2.25 0 00-2.25 2.25M3.75 14.15v-2.25A2.25 2.25 0 016 9.65h2.25a2.25 2.25 0 012.25 2.25M9 6.75A2.25 2.25 0 0111.25 4.5h1.5A2.25 2.25 0 0115 6.75v2.9h-6v-2.9z" />
-          </svg>
+      <article class="app-card pillar-card accent-purple">
+        <div class="pillar-top-row">
+          <div class="pillar-icon icon-purple" aria-hidden="true">
+            <svg class="pillar-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.25 14.15v4.25c0 .621-.504 1.125-1.125 1.125H4.875A1.125 1.125 0 013.75 18.4v-4.25m16.5 0a2.25 2.25 0 00-2.25-2.25H6a2.25 2.25 0 00-2.25 2.25m16.5 0v-2.25A2.25 2.25 0 0018 9.65h-2.25a2.25 2.25 0 00-2.25 2.25M3.75 14.15v-2.25A2.25 2.25 0 016 9.65h2.25a2.25 2.25 0 012.25 2.25M9 6.75A2.25 2.25 0 0111.25 4.5h1.5A2.25 2.25 0 0115 6.75v2.9h-6v-2.9z" />
+            </svg>
+          </div>
+          <span class="pillar-kicker">Carrière</span>
         </div>
-        <h3>Opportunités Tech Vérifiées</h3>
-        <p>Accédez à des offres de recrutement et de freelance vérifiées. Les profils et entreprises certifiés Mobile Money garantissent une confiance absolue.</p>
-      </div>
+        <h3>Opportunités Vérifiées</h3>
+        <p class="pillar-lead">Missions &amp; emplois tech sans mauvaise surprise.</p>
+        <ul class="pillar-points">
+          <li>
+            <svg class="check-svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M16.704 5.29a1 1 0 010 1.42l-7.5 7.5a1 1 0 01-1.414 0l-3.5-3.5a1 1 0 111.414-1.42L8.5 12.086l6.79-6.795a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+            <span>Offres CDI &amp; freelance contrôlées</span>
+          </li>
+          <li>
+            <svg class="check-svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M16.704 5.29a1 1 0 010 1.42l-7.5 7.5a1 1 0 01-1.414 0l-3.5-3.5a1 1 0 111.414-1.42L8.5 12.086l6.79-6.795a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+            <span>Profils Mobile Money vérifiés</span>
+          </li>
+          <li>
+            <svg class="check-svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M16.704 5.29a1 1 0 010 1.42l-7.5 7.5a1 1 0 01-1.414 0l-3.5-3.5a1 1 0 111.414-1.42L8.5 12.086l6.79-6.795a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+            <span>Paiements &amp; cessions sécurisés</span>
+          </li>
+        </ul>
+      </article>
 
       <!-- Pillar 4 -->
-      <div class="app-card pillar-card">
-        <div class="pillar-icon icon-amber">
-          <svg class="pillar-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.625 12a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H8.25m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0h-.375m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0h-.375M21 12c0 4.556-4.03 8.25-9 8.25a9.764 9.764 0 01-2.555-.337A5.972 5.972 0 015.41 20.97a.598.598 0 01-.743-.715 6.275 6.275 0 00.998-3.03A8.47 8.47 0 013 12c0-4.556 4.03-8.25 9-8.25s9 3.694 9 8.25z" />
-          </svg>
+      <article class="app-card pillar-card accent-amber">
+        <div class="pillar-top-row">
+          <div class="pillar-icon icon-amber" aria-hidden="true">
+            <svg class="pillar-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.625 12a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H8.25m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0h-.375m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0h-.375M21 12c0 4.556-4.03 8.25-9 8.25a9.764 9.764 0 01-2.555-.337A5.972 5.972 0 015.41 20.97a.598.598 0 01-.743-.715 6.275 6.275 0 00.998-3.03A8.47 8.47 0 013 12c0-4.556 4.03-8.25 9-8.25s9 3.694 9 8.25z" />
+            </svg>
+          </div>
+          <span class="pillar-kicker">Réseau</span>
         </div>
-        <h3>Messagerie Directe Instantanée</h3>
-        <p>Communiquez en direct style Messenger avec des développeurs, mentors et recruteurs. Échangez avec citation de messages et raccourcis fluides.</p>
-      </div>
+        <h3>Messagerie Instantanée</h3>
+        <p class="pillar-lead">Échangez en direct à travers tout le continent.</p>
+        <ul class="pillar-points">
+          <li>
+            <svg class="check-svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M16.704 5.29a1 1 0 010 1.42l-7.5 7.5a1 1 0 01-1.414 0l-3.5-3.5a1 1 0 111.414-1.42L8.5 12.086l6.79-6.795a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+            <span>Chat direct devs &amp; mentors</span>
+          </li>
+          <li>
+            <svg class="check-svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M16.704 5.29a1 1 0 010 1.42l-7.5 7.5a1 1 0 01-1.414 0l-3.5-3.5a1 1 0 111.414-1.42L8.5 12.086l6.79-6.795a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+            <span>Lien direct avec les recruteurs</span>
+          </li>
+          <li>
+            <svg class="check-svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M16.704 5.29a1 1 0 010 1.42l-7.5 7.5a1 1 0 01-1.414 0l-3.5-3.5a1 1 0 111.414-1.42L8.5 12.086l6.79-6.795a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+            <span>Citations &amp; suivi fluide</span>
+          </li>
+        </ul>
+      </article>
     </div>
   </section>
 
@@ -370,29 +666,69 @@
 
   <!-- HOW IT WORKS STEP-BY-STEP -->
   <section class="steps-section app-card reveal-on-scroll">
-    <div class="section-header">
-      <span class="badge badge-emerald">Parcours Simple & Rapide</span>
+    <div class="section-header steps-header">
+      <span class="badge badge-emerald">Parcours Simple &amp; Rapide</span>
       <h2>Comment Fonctionne AfriDev Hub ?</h2>
+      <p class="section-desc">Trois étapes simples pour passer de votre profil GitHub aux meilleures opportunités du continent.</p>
     </div>
 
     <div class="steps-grid">
-      <div class="step-card">
-        <div class="step-number">01</div>
+      <a [routerLink]="isLoggedIn() ? '/dashboard/profile' : '/register'" class="step-card">
+        <div class="step-top">
+          <span class="step-number">01</span>
+          <span class="step-icon-pill" aria-hidden="true">
+            <svg class="pillar-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
+            </svg>
+          </span>
+        </div>
         <h3>Créez votre Profil</h3>
-        <p>Remplissez vos compétences, votre ville et synchronisez votre compte GitHub en quelques secondes.</p>
-      </div>
+        <p>Ajoutez vos compétences, votre pays et synchronisez GitHub en quelques secondes.</p>
+        <span class="step-action">
+          <span>{{ isLoggedIn() ? 'Compléter mon profil' : 'Créer un profil' }}</span>
+          <svg class="icon-svg icon-svg-xs" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+          </svg>
+        </span>
+      </a>
 
-      <div class="step-card">
-        <div class="step-number">02</div>
-        <h3>Publiez & Certifiez</h3>
-        <p>Présentez vos projets open-source ou vitrines et recevez des évaluations certifiées par des pairs de confiance.</p>
-      </div>
+      <a routerLink="/projects" class="step-card">
+        <div class="step-top">
+          <span class="step-number">02</span>
+          <span class="step-icon-pill" aria-hidden="true">
+            <svg class="pillar-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z" />
+            </svg>
+          </span>
+        </div>
+        <h3>Publiez &amp; Certifiez</h3>
+        <p>Exposez vos projets réels et obtenez des évaluations vérifiées par vos pairs.</p>
+        <span class="step-action">
+          <span>Découvrir la vitrine</span>
+          <svg class="icon-svg icon-svg-xs" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+          </svg>
+        </span>
+      </a>
 
-      <div class="step-card">
-        <div class="step-number">03</div>
-        <h3>Collaborez & Postulez</h3>
-        <p>Échangez en direct par messagerie Messenger et décrochez les plus belles opportunités Tech d'Afrique.</p>
-      </div>
+      <a routerLink="/opportunities" class="step-card">
+        <div class="step-top">
+          <span class="step-number">03</span>
+          <span class="step-icon-pill" aria-hidden="true">
+            <svg class="pillar-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.25 14.15v4.25c0 .621-.504 1.125-1.125 1.125H4.875A1.125 1.125 0 013.75 18.4v-4.25m16.5 0a2.25 2.25 0 00-2.25-2.25H6a2.25 2.25 0 00-2.25 2.25m16.5 0v-2.25A2.25 2.25 0 0018 9.65h-2.25a2.25 2.25 0 00-2.25 2.25" />
+            </svg>
+          </span>
+        </div>
+        <h3>Collaborez &amp; Postulez</h3>
+        <p>Discutez en direct par messagerie et décrochez les meilleures missions Tech.</p>
+        <span class="step-action">
+          <span>Explorer les offres</span>
+          <svg class="icon-svg icon-svg-xs" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+          </svg>
+        </span>
+      </a>
     </div>
   </section>
 

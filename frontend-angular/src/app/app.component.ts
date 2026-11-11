@@ -27,22 +27,27 @@ import { Subscription } from 'rxjs';
         </a>
 
         <!-- Desktop Top Omnisearch Bar -->
-        <div class="omnisearch-wrapper desktop-search-slot" (click)="$event.stopPropagation()">
+        <div role="search" class="omnisearch-wrapper desktop-search-slot" (click)="$event.stopPropagation()">
           <div class="omnisearch-box">
-            <svg class="omnisearch-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <svg class="omnisearch-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
               <circle cx="11" cy="11" r="8"></circle>
               <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
             </svg>
             <input 
-              type="text" 
+              type="search"
+              name="globalSearch"
               [(ngModel)]="searchQuery" 
               (ngModelChange)="onSearchChange($event)" 
               (focus)="onSearchFocus()" 
               (keydown.enter)="goToAllResults()"
+              autocorrect="off"
+              autocapitalize="none"
+              spellcheck="false"
+              enterkeyhint="search"
               placeholder="Rechercher projet, personne, techno, pays... (ex: React, Hachim, Algérie)" 
               class="omnisearch-input"
               aria-label="Recherche globale AfriDev Hub" />
-            <button *ngIf="searchQuery" (click)="clearSearch($event)" class="omnisearch-clear" title="Effacer">✕</button>
+            <button type="button" *ngIf="searchQuery" (click)="clearSearch($event)" class="omnisearch-clear" title="Effacer" aria-label="Effacer la recherche">✕</button>
           </div>
 
           <!-- Instant Live Suggestion Dropdown -->
@@ -308,21 +313,27 @@ import { Subscription } from 'rxjs';
 
       <!-- Mobile Sticky Omnisearch Strip -->
       <div class="mobile-search-strip mobile-only" (click)="$event.stopPropagation()">
-        <div class="omnisearch-wrapper">
+        <div role="search" class="omnisearch-wrapper">
           <div class="omnisearch-box">
-            <svg class="omnisearch-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <svg class="omnisearch-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
               <circle cx="11" cy="11" r="8"></circle>
               <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
             </svg>
             <input 
-              type="text" 
+              type="search"
+              name="mobileGlobalSearch"
               [(ngModel)]="searchQuery" 
               (ngModelChange)="onSearchChange($event)" 
               (focus)="onSearchFocus()" 
               (keydown.enter)="goToAllResults()"
+              autocorrect="off"
+              autocapitalize="none"
+              spellcheck="false"
+              enterkeyhint="search"
               placeholder="Rechercher projet, personne, techno, pays..." 
-              class="omnisearch-input" />
-            <button *ngIf="searchQuery" (click)="clearSearch($event)" class="omnisearch-clear">✕</button>
+              class="omnisearch-input"
+              aria-label="Recherche globale mobile AfriDev Hub" />
+            <button type="button" *ngIf="searchQuery" (click)="clearSearch($event)" class="omnisearch-clear" aria-label="Effacer la recherche">✕</button>
           </div>
 
           <div class="omnisearch-dropdown mobile-dropdown" *ngIf="isSearchOpen && searchQuery.trim().length > 0">
@@ -468,7 +479,6 @@ import { Subscription } from 'rxjs';
 
     <!-- ELEGANT PROFESSIONAL FOOTER -->
     <footer class="app-footer" *ngIf="!hideNavAndFooter()">
-      <div class="footer-top-glow"></div>
       <div class="footer-container">
         <div class="footer-grid">
           
@@ -518,14 +528,14 @@ import { Subscription } from 'rxjs';
           <div class="footer-col col-newsletter">
             <h4 class="col-title">Restez Connecté</h4>
             <p class="newsletter-desc">Recevez les meilleures opportunités Tech et collaborations open-source directement.</p>
-            <div class="newsletter-form">
-              <input type="email" placeholder="Votre adresse email..." class="newsletter-input" />
-              <button class="btn btn-emerald btn-sm btn-newsletter">
-                <svg class="icon-svg icon-svg-xs" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <form class="newsletter-form" (submit)="$event.preventDefault()">
+              <input type="email" name="newsletterEmail" autocomplete="email" autocorrect="off" autocapitalize="none" spellcheck="false" enterkeyhint="send" aria-label="Votre adresse email pour la newsletter" placeholder="Votre adresse email..." class="newsletter-input" />
+              <button type="submit" class="btn btn-emerald btn-sm btn-newsletter" aria-label="S'abonner aux alertes Tech">
+                <svg class="icon-svg icon-svg-xs" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5" />
                 </svg>
               </button>
-            </div>
+            </form>
             <div class="social-pills">
               <span class="social-pill" title="GitHub"><i class="ri-github-fill"></i> GitHub</span>
               <span class="social-pill" title="LinkedIn"><i class="ri-linkedin-fill"></i> LinkedIn</span>
@@ -672,9 +682,18 @@ import { Subscription } from 'rxjs';
       border: none;
       outline: none;
       color: var(--text-heading);
-      font-size: 0.86rem;
+      font-size: 0.9rem;
       font-weight: 500;
       min-width: 0;
+      appearance: none;
+      -webkit-appearance: none;
+    }
+    .omnisearch-input::-webkit-search-decoration,
+    .omnisearch-input::-webkit-search-cancel-button,
+    .omnisearch-input::-webkit-search-results-button,
+    .omnisearch-input::-webkit-search-results-decoration {
+      -webkit-appearance: none;
+      appearance: none;
     }
     .app-nav.nav-light .omnisearch-input,
     :host-context(body.light-theme) .omnisearch-input {
@@ -685,6 +704,7 @@ import { Subscription } from 'rxjs';
       opacity: 0.85;
     }
     .omnisearch-clear {
+      position: relative;
       width: 24px;
       height: 24px;
       border-radius: 50%;
@@ -698,7 +718,21 @@ import { Subscription } from 'rxjs';
       align-items: center;
       justify-content: center;
       flex-shrink: 0;
-      transition: all 0.15s ease;
+      transition: background-color 0.15s ease, color 0.15s ease;
+    }
+    @media (max-width: 1140px), (pointer: coarse) {
+      .omnisearch-input {
+        font-size: max(1rem, 1em);
+      }
+      .mobile-search-strip .omnisearch-box {
+        min-block-size: 44px;
+        padding: 0.35rem 0.55rem 0.35rem 0.9rem;
+      }
+      .omnisearch-clear::after {
+        content: "";
+        position: absolute;
+        inset: -10px;
+      }
     }
     .app-nav.nav-light .omnisearch-clear,
     :host-context(body.light-theme) .omnisearch-clear {
@@ -1598,7 +1632,7 @@ import { Subscription } from 'rxjs';
         overflow-y: auto;
       }
       main.has-fixed-nav {
-        padding-top: 118px;
+        padding-top: 124px;
       }
     }
 
@@ -1609,31 +1643,21 @@ import { Subscription } from 'rxjs';
       position: relative;
       background: var(--bg-surface-card);
       border-top: 1px solid var(--border-subtle);
-      margin-top: 4rem;
-      padding-top: 3.5rem;
-      overflow: hidden;
+      margin-top: clamp(2.75rem, 5vw, 4rem);
+      padding-top: clamp(2.25rem, 4vw, 3.25rem);
+      overflow: clip;
       width: 100%;
       box-sizing: border-box;
-    }
-
-    .footer-top-glow {
-      position: absolute;
-      top: 0;
-      left: 50%;
-      transform: translateX(-50%);
-      width: min(800px, 90vw);
-      height: 2px;
-      background: linear-gradient(90deg, transparent, var(--emerald-500), transparent);
-      box-shadow: 0 0 20px var(--emerald-500);
     }
 
     .footer-container {
       max-width: 1400px;
       margin: 0 auto;
-      padding: 0 1.5rem 2rem;
+      padding: 0 clamp(1rem, 3vw, 1.5rem) max(5.25rem, calc(4.5rem + env(safe-area-inset-bottom, 0px)));
       display: flex;
       flex-direction: column;
-      gap: 3rem;
+      gap: 2.5rem;
+      box-sizing: border-box;
     }
 
     .footer-grid {
@@ -1770,14 +1794,24 @@ import { Subscription } from 'rxjs';
       border: none;
       outline: none;
       color: var(--text-heading);
-      font-size: 0.85rem;
+      font-size: 0.875rem;
       flex: 1;
       width: 100%;
+      min-width: 0;
+    }
+
+    @media (max-width: 900px), (pointer: coarse) {
+      .newsletter-input {
+        font-size: max(1rem, 1em);
+        min-block-size: 38px;
+      }
     }
 
     .btn-newsletter {
       padding: 0.45rem 0.75rem !important;
       border-radius: 7px;
+      min-block-size: 38px;
+      min-inline-size: 40px;
     }
 
     .social-pills {
@@ -1816,6 +1850,7 @@ import { Subscription } from 'rxjs';
       flex-wrap: wrap;
       gap: 1rem;
       padding-top: 1.5rem;
+      padding-right: clamp(0rem, 8vw, 8.5rem);
       border-top: 1px solid var(--border-subtle);
       font-size: 0.825rem;
       color: var(--text-muted);
@@ -1824,7 +1859,17 @@ import { Subscription } from 'rxjs';
     .footer-legal-links {
       display: flex;
       align-items: center;
-      gap: 0.65rem;
+      flex-wrap: wrap;
+      gap: 0.5rem 0.65rem;
+    }
+
+    @media (max-width: 768px) {
+      .footer-bottom-row {
+        flex-direction: column;
+        align-items: flex-start;
+        padding-right: 0;
+        gap: 0.75rem;
+      }
     }
 
     .legal-link {

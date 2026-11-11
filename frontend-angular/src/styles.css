@@ -961,4 +961,61 @@ font {
   object-fit: contain;
 }
 
+/* ==========================================================================
+   Global Mobile Form-Factor, Typography & iPhone iOS Auto-Zoom Safeguards
+   ========================================================================== */
+img,
+video {
+  max-inline-size: 100%;
+  block-size: auto;
+}
+
+body {
+  overflow-wrap: anywhere;
+}
+
+h1,
+h2,
+h3 {
+  text-wrap: balance;
+}
+
+p {
+  text-wrap: pretty;
+}
+
+@media (max-width: 900px), (pointer: coarse) {
+  :root:root body :is(
+    input:not([type="checkbox"], [type="radio"], [type="range"], [type="file"], [type="color"]),
+    select,
+    textarea,
+    .form-input,
+    .form-select,
+    .form-textarea,
+    .search-input,
+    .search-field,
+    .omnisearch-input,
+    .newsletter-input,
+    .price-input
+  ) {
+    font-size: max(1rem, 1em);
+  }
+
+  :root {
+    --touch-target-min: 44px;
+  }
+
+  :root:root body :is(
+    .form-input,
+    .form-select,
+    input[type="text"],
+    input[type="search"],
+    input[type="email"],
+    input[type="password"],
+    input[type="tel"],
+    input[type="url"]
+  ) {
+    min-block-size: var(--touch-target-min);
+  }
+}
 
