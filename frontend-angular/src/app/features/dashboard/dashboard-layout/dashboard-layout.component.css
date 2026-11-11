@@ -1226,14 +1226,10 @@ body.light-theme .dashboard-body::-webkit-scrollbar-thumb:hover {
   }
 }
 
-/* Screen is tight (Mobile & Small Tablets <= 768px): Hide Topbar Language & Theme icons */
+/* Screen is tight (Mobile & Small Tablets <= 768px): Keep Language & Theme always accessible */
 @media (max-width: 768px) {
-  .desktop-header-only {
-    display: none !important;
-  }
-
   .dashboard-topbar {
-    padding: 0 0.75rem;
+    padding: 0 0.7rem;
     gap: 0.4rem;
   }
 
@@ -1243,13 +1239,13 @@ body.light-theme .dashboard-body::-webkit-scrollbar-thumb:hover {
   }
 
   .mobile-topbar-brand {
-    font-size: 1.05rem;
+    font-size: 1.02rem;
     gap: 0.35rem;
     min-width: 0;
   }
 
   .mobile-topbar-brand .logo-text {
-    font-size: 1.05rem;
+    font-size: 1rem;
     letter-spacing: -0.3px;
   }
 
@@ -1260,12 +1256,22 @@ body.light-theme .dashboard-body::-webkit-scrollbar-thumb:hover {
   }
 
   .topbar-right {
-    gap: 0.45rem;
+    gap: 0.38rem;
     flex-shrink: 0;
   }
 
+  .lang-pill-btn {
+    padding: 0.38rem 0.55rem;
+    gap: 0.3rem;
+    font-size: 0.76rem;
+  }
+
+  .topbar-icon-btn {
+    padding: 0.42rem;
+  }
+
   .profile-user-pill {
-    padding: 0.25rem 0.4rem;
+    padding: 0.24rem 0.38rem;
   }
 
   .profile-dropdown-menu {
@@ -1277,13 +1283,46 @@ body.light-theme .dashboard-body::-webkit-scrollbar-thumb:hover {
   .notif-dropdown-menu {
     width: min(320px, calc(100vw - 1.5rem)) !important;
     max-width: calc(100vw - 1.5rem) !important;
-    right: -1rem !important;
+    right: -2.5rem !important;
   }
 
   .lang-dropdown-menu {
-    width: 240px !important;
+    width: min(240px, calc(100vw - 1.5rem)) !important;
     max-width: calc(100vw - 1.5rem) !important;
-    right: 0 !important;
+    right: -4.2rem !important;
+  }
+}
+
+@media (max-width: 420px) {
+  .dashboard-topbar {
+    padding: 0 0.5rem;
+    gap: 0.25rem;
+  }
+
+  .mobile-topbar-brand .logo-text {
+    font-size: 0.9rem;
+  }
+
+  .mobile-topbar-brand .logo-img {
+    width: 21px;
+    height: 21px;
+  }
+
+  .topbar-right {
+    gap: 0.28rem;
+  }
+
+  .lang-pill-btn {
+    padding: 0.34rem 0.46rem;
+    font-size: 0.72rem;
+  }
+
+  .topbar-icon-btn {
+    padding: 0.36rem;
+  }
+
+  .profile-user-pill .chevron-icon {
+    display: none;
   }
 }
 

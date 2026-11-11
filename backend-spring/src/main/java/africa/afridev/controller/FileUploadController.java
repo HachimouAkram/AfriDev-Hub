@@ -34,16 +34,33 @@ public class FileUploadController {
         return ResponseEntity.ok(ApiResponse.ok(Map.of("url", fileUrl)));
     }
 
+    @PostMapping("/video")
+    public ResponseEntity<ApiResponse<Map<String, String>>> uploadVideo(@RequestParam("file") MultipartFile file) {
+        String fileUrl = fileStorageService.storeVideo(file);
+        return ResponseEntity.ok(ApiResponse.ok(Map.of("url", fileUrl)));
+    }
+
     @GetMapping("/files/{filename:.+}")
     public ResponseEntity<Resource> getFile(@PathVariable String filename) {
         Resource resource = fileStorageService.loadFileAsResource(filename);
-        String contentType = "application/octet-stream";
+        String contentType = null;
         try {
             contentType = Files.probeContentType(Paths.get(resource.getFile().getAbsolutePath()));
         } catch (IOException ignored) {}
 
         if (contentType == null) {
-            contentType = "application/octet-stream";
+            String lower = filename.toLowerCase();
+            if (lower.endsWith(".mp4") || lower.endsWith(".m4v")) {
+                contentType = "video/mp4";
+            } else if (lower.endsWith(".webm")) {
+                contentType = "video/webm";
+            } else if (lower.endsWith(".mov")) {
+                contentType = "video/quicktime";
+            } else if (lower.endsWith(".pdf")) {
+                contentType = "application/pdf";
+            } else {
+                contentType = "application/octet-stream";
+            }
         }
 
         return ResponseEntity.ok()

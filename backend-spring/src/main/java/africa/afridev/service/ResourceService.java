@@ -92,6 +92,10 @@ public class ResourceService {
     @Transactional
     public ResourceDto createResource(String authorEmail, ResourceCreateRequest request) {
         UserEntity author = authorEmail != null ? userRepository.findByEmail(authorEmail).orElse(null) : null;
+        boolean paid = Boolean.TRUE.equals(request.getIsPaid());
+        if (paid && (request.getPrice() == null || request.getPrice().signum() <= 0)) {
+            throw new IllegalArgumentException("Veuillez indiquer un tarif valide en XOF pour une formation payante.");
+        }
 
         ResourceEntity resource = ResourceEntity.builder()
                 .title(request.getTitle())
@@ -104,9 +108,9 @@ public class ResourceService {
                 .thumbnailUrl(request.getThumbnailUrl())
                 .contentMarkdown(request.getContentMarkdown())
                 .pdfUrl(request.getPdfUrl())
-                .isPaid(Boolean.TRUE.equals(request.getIsPaid()))
-                .price(request.getPrice())
-                .currency(request.getCurrency() != null ? request.getCurrency() : "XOF")
+                .isPaid(paid)
+                .price(paid ? request.getPrice() : java.math.BigDecimal.ZERO)
+                .currency(request.getCurrency() != null && !request.getCurrency().isBlank() ? request.getCurrency() : "XOF")
                 .durationMinutes(request.getDurationMinutes())
                 .xpReward(request.getXpReward() != null ? request.getXpReward() : 50)
                 .author(author)
@@ -136,6 +140,17 @@ public class ResourceService {
             }
         }
 
+        String authorDisplay = "AfriDev Academy";
+        if (r.getAuthor() != null) {
+            if (r.getAuthor().getProfile() != null
+                    && r.getAuthor().getProfile().getFullName() != null
+                    && !r.getAuthor().getProfile().getFullName().isBlank()) {
+                authorDisplay = r.getAuthor().getProfile().getFullName();
+            } else {
+                authorDisplay = r.getAuthor().getEmail();
+            }
+        }
+
         return ResourceDto.builder()
                 .id(r.getId())
                 .title(r.getTitle())
@@ -155,7 +170,7 @@ public class ResourceService {
                 .xpReward(r.getXpReward())
                 .viewsCount(r.getViewsCount())
                 .completionsCount(r.getCompletionsCount())
-                .authorName(r.getAuthor() != null ? r.getAuthor().getEmail() : "AfriDev Academy")
+                .authorName(authorDisplay)
                 .isCompletedByCurrentUser(completed)
                 .isUnlockedByCurrentUser(unlocked)
                 .createdAt(r.getCreatedAt())

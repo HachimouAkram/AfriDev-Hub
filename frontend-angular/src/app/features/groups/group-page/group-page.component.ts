@@ -167,9 +167,19 @@ import { GroupChatComponent } from '../group-chat/group-chat.component';
 
         <!-- Liste des publications -->
         <div class="posts-list">
-          <div *ngIf="isLoadingPosts" class="loading-state">
-            <div class="spinner"></div>
-            <p>Chargement des publications...</p>
+          <div *ngIf="isLoadingPosts" class="sk-stack" aria-busy="true" aria-label="Chargement des publications">
+            <div class="sk-card" *ngFor="let i of [1,2,3]">
+              <div class="sk-meta-row">
+                <div class="sk-avatar sk-avatar-round sk-shimmer"></div>
+                <div style="flex: 1; display: flex; flex-direction: column; gap: 0.4rem;">
+                  <div class="sk-line sk-shimmer" style="width: 46%;"></div>
+                  <div class="sk-line-sm sk-shimmer" style="width: 28%;"></div>
+                </div>
+              </div>
+              <div class="sk-line-title sk-shimmer"></div>
+              <div class="sk-line sk-shimmer"></div>
+              <div class="sk-line sk-line-sm sk-shimmer" style="width: 72%;"></div>
+            </div>
           </div>
 
           <div *ngIf="!isLoadingPosts && posts.length === 0" class="empty-feed">

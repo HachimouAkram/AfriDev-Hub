@@ -26,7 +26,9 @@ import { AuthService } from '../../../core/services/auth.service';
         </div>
 
         <div class="channels-list">
-          <div *ngIf="isLoadingChannels" class="channels-loading">Chargement...</div>
+          <div *ngIf="isLoadingChannels" class="sk-stack" style="padding: 0.5rem;" aria-busy="true" aria-label="Chargement des salons">
+            <div class="sk-line sk-shimmer" *ngFor="let i of [1,2,3,4]" style="height: 30px;"></div>
+          </div>
 
           <button
             *ngFor="let ch of channels"
@@ -69,9 +71,14 @@ import { AuthService } from '../../../core/services/auth.service';
 
         <!-- Liste des messages -->
         <div class="messages-container" #messagesScrollContainer>
-          <div *ngIf="isLoadingMessages" class="messages-loading">
-            <div class="spinner-small"></div>
-            <span>Chargement des messages...</span>
+          <div *ngIf="isLoadingMessages" class="sk-stack" style="padding: 1rem;" aria-busy="true" aria-label="Chargement des messages">
+            <div class="sk-row" *ngFor="let i of [1,2,3,4]">
+              <div class="sk-avatar sk-avatar-round sk-shimmer"></div>
+              <div style="flex: 1; display: flex; flex-direction: column; gap: 0.4rem;">
+                <div class="sk-line sk-shimmer" style="width: 55%;"></div>
+                <div class="sk-line-sm sk-shimmer" style="width: 80%;"></div>
+              </div>
+            </div>
           </div>
 
           <div *ngIf="!isLoadingMessages && messages.length === 0" class="empty-chat">

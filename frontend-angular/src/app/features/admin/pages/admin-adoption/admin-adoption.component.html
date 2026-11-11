@@ -16,10 +16,19 @@
     </div>
   </div>
 
-  <!-- Loading State -->
-  <div *ngIf="isLoading" class="loading-state">
-    <div class="spinner"></div>
-    <p>Calcul et agrégation des données géographiques continentales...</p>
+  <!-- Loading Skeleton -->
+  <div *ngIf="isLoading" class="sk-stack" aria-busy="true" aria-label="Chargement de l'adoption continentale">
+    <div class="sk-grid" style="grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));">
+      <div class="sk-stat-card" *ngFor="let i of [1,2,3,4]">
+        <div class="sk-line-sm sk-shimmer" style="width: 60%;"></div>
+        <div class="sk-line-lg sk-shimmer" style="width: 45%;"></div>
+      </div>
+    </div>
+    <div class="sk-row" *ngFor="let r of [1,2,3,4]">
+      <div class="sk-pill sk-shimmer" style="width: 48px;"></div>
+      <div class="sk-line sk-shimmer" style="flex: 1;"></div>
+      <div class="sk-pill sk-shimmer" style="width: 80px;"></div>
+    </div>
   </div>
 
   <div *ngIf="!isLoading && adoptionSummary" class="adoption-content">

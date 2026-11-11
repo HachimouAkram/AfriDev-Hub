@@ -34,9 +34,15 @@
 
   <!-- Audit Table Card -->
   <div class="app-card table-card">
-    <div *ngIf="isLoadingAudit" class="loading-state">
-      <div class="spinner"></div>
-      <p>Consultation du registre d'audit...</p>
+    <div *ngIf="isLoadingAudit" class="sk-stack" style="padding: 1rem;" aria-busy="true" aria-label="Chargement du registre d'audit">
+      <div class="sk-row" *ngFor="let i of [1,2,3,4,5]">
+        <div class="sk-pill sk-shimmer" style="width: 110px;"></div>
+        <div style="flex: 1; display: flex; flex-direction: column; gap: 0.4rem;">
+          <div class="sk-line sk-shimmer" style="width: 68%;"></div>
+          <div class="sk-line-sm sk-shimmer" style="width: 44%;"></div>
+        </div>
+        <div class="sk-pill sk-shimmer" style="width: 82px;"></div>
+      </div>
     </div>
 
     <div *ngIf="!isLoadingAudit" class="table-responsive">

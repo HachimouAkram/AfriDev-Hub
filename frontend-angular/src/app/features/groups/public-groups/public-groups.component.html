@@ -72,9 +72,18 @@
 
   <!-- Grille des Communautés -->
   <div class="events-content">
-    <div *ngIf="isLoading" class="loading-state">
-      <div class="spinner"></div>
-      <p>Chargement des communautés panafricaines...</p>
+    <div *ngIf="isLoading" class="sk-grid" aria-busy="true" aria-label="Chargement des communautés">
+      <div class="sk-card" *ngFor="let i of [1,2,3,4,5,6]">
+        <div class="sk-thumb sk-shimmer"></div>
+        <div class="sk-meta-row">
+          <div class="sk-pill sk-shimmer"></div>
+          <div class="sk-pill sk-shimmer" style="width: 82px;"></div>
+        </div>
+        <div class="sk-line-title sk-shimmer"></div>
+        <div class="sk-line sk-shimmer"></div>
+        <div class="sk-line sk-line-sm sk-shimmer"></div>
+        <div class="sk-btn sk-shimmer" style="margin-top: auto;"></div>
+      </div>
     </div>
 
     <div *ngIf="!isLoading && filteredGroups.length === 0" class="empty-state">

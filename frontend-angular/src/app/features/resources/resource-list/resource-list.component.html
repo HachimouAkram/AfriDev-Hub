@@ -17,10 +17,32 @@
         <button class="chip" [class.active]="selectedLang() === 'wo'" (click)="setFilterLang('wo')">🇸🇳 Wolof</button>
         <button class="chip" [class.active]="selectedLang() === 'sw'" (click)="setFilterLang('sw')">🇹🇿 Kiswahili</button>
       </div>
+
+      <!-- Community Publish CTA -->
+      <div class="hero-cta-row">
+        <button type="button" class="hero-publish-btn" (click)="openPublishModal()">
+          <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M12 5v14M5 12h14"/>
+          </svg>
+          <span>Publier une vidéo / formation</span>
+        </button>
+        <span class="hero-publish-hint">Gratuit ou payant via <strong>SasPay</strong> (Wave, Orange Money, Carte)</span>
+      </div>
     </div>
   </header>
 
   <div class="container main-content">
+    <!-- Status Banners (Publication / SasPay Verification) -->
+    <div *ngIf="paymentStatusNotice()" class="status-banner" [ngClass]="'banner-' + paymentStatusNotice()?.type">
+      <span>{{ paymentStatusNotice()?.text }}</span>
+      <button type="button" class="banner-dismiss" (click)="paymentStatusNotice.set(null)" aria-label="Fermer">✕</button>
+    </div>
+
+    <div *ngIf="publishBannerNotice()" class="status-banner banner-success">
+      <span>{{ publishBannerNotice() }}</span>
+      <button type="button" class="banner-dismiss" (click)="publishBannerNotice.set(null)" aria-label="Fermer">✕</button>
+    </div>
+
     <!-- Filter bar -->
     <div class="filter-bar">
       <!-- Tech filters -->
@@ -47,16 +69,30 @@
     </div>
 
     <!-- Loading Skeleton -->
-    <div *ngIf="isLoading()" class="loading-grid">
-      <div class="skeleton-card" *ngFor="let i of [1,2,3,4,5,6]"></div>
+    <div *ngIf="isLoading()" class="loading-grid" aria-busy="true" aria-label="Chargement des ressources et formations">
+      <div class="sk-card" *ngFor="let i of [1,2,3,4,5,6]">
+        <div class="sk-thumb sk-shimmer"></div>
+        <div class="sk-meta-row">
+          <div class="sk-pill sk-shimmer"></div>
+          <div class="sk-pill sk-shimmer" style="width: 58px;"></div>
+          <div class="sk-pill sk-shimmer" style="width: 82px;"></div>
+        </div>
+        <div class="sk-line-title sk-shimmer"></div>
+        <div class="sk-line sk-shimmer"></div>
+        <div class="sk-line sk-line-sm sk-shimmer" style="width: 78%;"></div>
+        <div class="sk-btn sk-shimmer" style="margin-top: auto;"></div>
+      </div>
     </div>
 
     <!-- Empty State -->
     <div *ngIf="!isLoading() && resources().length === 0" class="empty-state">
       <div class="empty-icon">📚</div>
       <h3>Aucune ressource trouvée pour ces filtres</h3>
-      <p>Essayez de réinitialiser vos filtres ou de changer de langue.</p>
-      <button class="btn btn-emerald" (click)="setFilterTech('ALL'); setFilterLang('ALL'); setFilterLevel('ALL')">Réinitialiser les filtres</button>
+      <p>Essayez de réinitialiser vos filtres ou publiez la première formation sur ce sujet.</p>
+      <div class="empty-actions">
+        <button class="btn btn-emerald" (click)="setFilterTech('ALL'); setFilterLang('ALL'); setFilterLevel('ALL')">Réinitialiser les filtres</button>
+        <button class="btn btn-outline" (click)="openPublishModal()">+ Publier une formation</button>
+      </div>
     </div>
 
     <!-- Resources Cards Grid -->
@@ -65,7 +101,7 @@
         <!-- Thumbnail & Badges -->
         <div class="card-media">
           <img
-            [src]="item.thumbnailUrl || getFallbackThumbnail(item)"
+            [src]="getCardThumbnail(item)"
             (error)="onThumbnailError($event, item)"
             [alt]="item.title"
             width="800"
@@ -73,6 +109,7 @@
             loading="lazy"
             class="thumbnail-img" />
           <div class="card-badges-top">
+            <span class="badge badge-type">{{ getTypeLabel(item.type) }}</span>
             <span class="badge badge-tech">{{ item.technology }}</span>
             <span class="badge" [ngClass]="item.level === 'ADVANCED' ? 'badge-purple' : (item.level === 'INTERMEDIATE' ? 'badge-blue' : 'badge-emerald')">
               {{ item.level }}
@@ -91,24 +128,25 @@
             <span class="meta-item">👥 {{ item.completionsCount }} certifiés</span>
           </div>
           <h3 class="card-title">{{ item.title }}</h3>
+          <p class="author-chip">Par <strong>{{ item.authorName || 'Communauté AfriDev' }}</strong></p>
           <p class="card-desc">{{ item.description }}</p>
         </div>
 
         <!-- Actions Footer -->
         <div class="card-footer">
-          <ng-container *ngIf="item.isUnlockedByCurrentUser">
+          <ng-container *ngIf="!item.isPaid || item.isUnlockedByCurrentUser">
             <button class="btn btn-emerald btn-sm w-full" (click)="openResource(item)">
               ▶️ {{ t('resources.watch_video') }}
             </button>
           </ng-container>
 
-          <ng-container *ngIf="!item.isUnlockedByCurrentUser">
+          <ng-container *ngIf="item.isPaid && !item.isUnlockedByCurrentUser">
             <button class="btn btn-primary btn-sm w-full" (click)="openPayment(item)">
               <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 6px;">
                 <rect x="2" y="5" width="20" height="14" rx="2"></rect>
                 <line x1="2" y1="10" x2="22" y2="10"></line>
               </svg>
-              <span>{{ t('action.enroll') }} ({{ item.price }} {{ item.currency }})</span>
+              <span>{{ t('action.enroll') }} · {{ item.price }} {{ item.currency }} (SasPay)</span>
             </button>
           </ng-container>
         </div>
@@ -116,24 +154,39 @@
     </div>
   </div>
 
-  <!-- Video Player Modal -->
+  <!-- Video / Resource Player Modal -->
   <div class="modal-backdrop" *ngIf="selectedResource()" (click)="closeResource()">
     <div class="video-modal-card" (click)="$event.stopPropagation()">
       <div class="modal-header">
         <div>
           <h3>{{ selectedResource()?.title }}</h3>
-          <span class="badge badge-emerald">+{{ selectedResource()?.xpReward }} XP à la fin</span>
+          <div class="player-badges-row">
+            <span class="badge badge-emerald">+{{ selectedResource()?.xpReward }} XP à la fin</span>
+            <span class="author-inline" *ngIf="selectedResource()?.authorName">Par {{ selectedResource()?.authorName }}</span>
+          </div>
         </div>
-        <button class="btn-close" (click)="closeResource()">✕</button>
+        <button class="btn-close" (click)="closeResource()" aria-label="Fermer">✕</button>
       </div>
 
       <div class="video-container" *ngIf="activeVideoUrl()">
         <iframe [src]="activeVideoUrl()" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
       </div>
 
+      <div class="video-container" *ngIf="!activeVideoUrl() && activeDirectVideoUrl()">
+        <video [src]="activeDirectVideoUrl()" controls playsinline preload="metadata" class="native-video-player"></video>
+      </div>
+
       <div class="modal-footer">
         <p class="video-desc">{{ selectedResource()?.description }}</p>
+
+        <div class="markdown-guide-box" *ngIf="selectedResource()?.contentMarkdown">
+          {{ selectedResource()?.contentMarkdown }}
+        </div>
+
         <div class="modal-actions">
+          <a *ngIf="selectedResource()?.pdfUrl" [href]="resolveMediaUrl(selectedResource()?.pdfUrl)" target="_blank" rel="noopener" class="btn btn-outline btn-sm">
+            📄 Télécharger le support PDF
+          </a>
           <button class="btn btn-emerald" *ngIf="!selectedResource()?.isCompletedByCurrentUser" (click)="markCompleted(selectedResource()!)">
             ✓ Marquer comme terminé et gagner mes XP
           </button>
@@ -145,51 +198,222 @@
     </div>
   </div>
 
-  <!-- Transparent Payment Modal (Buyer Pays Fees) -->
+  <!-- Publish Video / Training Modal -->
+  <div class="modal-backdrop" *ngIf="isPublishModalOpen()" (click)="closePublishModal()">
+    <div class="publish-modal-card" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <div>
+          <h3>Publier une Vidéo ou Formation</h3>
+          <p class="subtitle">Partagez votre savoir gratuitement ou vendez votre formation via SasPay</p>
+        </div>
+        <button class="btn-close" (click)="closePublishModal()" aria-label="Fermer">✕</button>
+      </div>
+
+      <div class="modal-body">
+        <div *ngIf="publishError()" class="publish-alert-error">{{ publishError() }}</div>
+
+        <div class="publish-grid-2">
+          <div class="form-group">
+            <label>Titre de la vidéo / formation *</label>
+            <input type="text" [(ngModel)]="publishForm.title" maxlength="160" placeholder="Ex: Maîtriser Spring Boot & SasPay en pratique" class="form-input" />
+          </div>
+
+          <div class="form-group">
+            <label>Type de contenu *</label>
+            <select [(ngModel)]="publishForm.type" class="form-input">
+              <option value="VIDEO">🎥 Vidéo</option>
+              <option value="COURSE">🎓 Formation Complète</option>
+              <option value="TUTORIAL">🛠️ Tutoriel Pratique</option>
+              <option value="ARTICLE">📝 Article Technique</option>
+              <option value="TECH_CHEATSHEET">📋 Antisèche / Guide</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Description détaillée *</label>
+          <textarea [(ngModel)]="publishForm.description" rows="3" placeholder="Expliquez ce que les développeurs vont apprendre, les prérequis et le résultat concret..." class="form-input form-textarea"></textarea>
+        </div>
+
+        <div class="publish-grid-3">
+          <div class="form-group">
+            <label>Technologie *</label>
+            <select [(ngModel)]="publishForm.technology" class="form-input">
+              <option *ngFor="let tech of publishTechOptions" [value]="tech">{{ tech }}</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Niveau *</label>
+            <select [(ngModel)]="publishForm.level" class="form-input">
+              <option value="BEGINNER">Débutant</option>
+              <option value="INTERMEDIATE">Intermédiaire</option>
+              <option value="ADVANCED">Avancé</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Langue *</label>
+            <select [(ngModel)]="publishForm.language" class="form-input">
+              <option value="fr">🇫🇷 Français</option>
+              <option value="en">🇬🇧 English</option>
+              <option value="wo">🇸🇳 Wolof</option>
+              <option value="sw">🇹🇿 Kiswahili</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group" *ngIf="publishForm.technology === 'Autre'">
+          <label>Nom de la technologie *</label>
+          <input type="text" [(ngModel)]="customTech" placeholder="Ex: Flutter, Rust, Laravel, Go..." class="form-input" />
+        </div>
+
+        <!-- Video source selector -->
+        <div class="form-group">
+          <label>Source Vidéo (MP4/WebM/MOV jusqu'à 50 Mo ou lien YouTube / Vimeo)</label>
+          <div class="mode-switch-row">
+            <button type="button" class="mode-pill" [class.active]="videoSourceMode() === 'UPLOAD'" (click)="videoSourceMode.set('UPLOAD')">
+              📁 Importer une vidéo
+            </button>
+            <button type="button" class="mode-pill" [class.active]="videoSourceMode() === 'URL'" (click)="videoSourceMode.set('URL')">
+              🔗 Lien YouTube / URL Vidéo
+            </button>
+          </div>
+
+          <div *ngIf="videoSourceMode() === 'UPLOAD'" class="upload-dropzone">
+            <input type="file" accept="video/mp4,video/webm,video/quicktime,.mp4,.webm,.mov,.m4v" (change)="onVideoFileSelected($event)" id="resourceVideoFile" class="hidden-file-input" />
+            <label for="resourceVideoFile" class="upload-dropzone-label">
+              <span *ngIf="!isUploadingVideo() && !uploadedVideoFileName()">Cliquez pour choisir une vidéo (.mp4, .webm, .mov · max 50 Mo)</span>
+              <span *ngIf="isUploadingVideo()">Envoi de la vidéo en cours... {{ videoUploadProgress() }}%</span>
+              <span *ngIf="!isUploadingVideo() && uploadedVideoFileName()" class="upload-ok">✓ {{ uploadedVideoFileName() }} prête</span>
+            </label>
+            <div class="upload-progress-track" *ngIf="isUploadingVideo()">
+              <div class="upload-progress-fill" [style.width.%]="videoUploadProgress()"></div>
+            </div>
+          </div>
+
+          <div *ngIf="videoSourceMode() === 'URL'">
+            <input type="url" [(ngModel)]="publishForm.youtubeUrl" placeholder="https://www.youtube.com/watch?v=... ou https://.../video.mp4" class="form-input" />
+          </div>
+        </div>
+
+        <!-- Optional assets -->
+        <div class="publish-grid-2">
+          <div class="form-group">
+            <label>Miniature / Image de couverture (optionnel)</label>
+            <label class="upload-mini-btn">
+              <input type="file" accept="image/*" (change)="onThumbFileSelected($event)" class="hidden-file-input" />
+              <span *ngIf="isUploadingThumb()">Upload miniature...</span>
+              <span *ngIf="!isUploadingThumb() && uploadedThumbFileName()">✓ {{ uploadedThumbFileName() }}</span>
+              <span *ngIf="!isUploadingThumb() && !uploadedThumbFileName()">🖼️ Choisir une image</span>
+            </label>
+          </div>
+
+          <div class="form-group">
+            <label>Support PDF associé (optionnel)</label>
+            <label class="upload-mini-btn">
+              <input type="file" accept="application/pdf,.pdf" (change)="onPdfFileSelected($event)" class="hidden-file-input" />
+              <span *ngIf="isUploadingPdf()">Upload PDF...</span>
+              <span *ngIf="!isUploadingPdf() && uploadedPdfFileName()">✓ {{ uploadedPdfFileName() }}</span>
+              <span *ngIf="!isUploadingPdf() && !uploadedPdfFileName()">📄 Joindre un PDF</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Duration & XP -->
+        <div class="publish-grid-2">
+          <div class="form-group">
+            <label>Durée estimée (minutes)</label>
+            <input type="number" [(ngModel)]="publishForm.durationMinutes" min="1" max="1200" class="form-input" />
+          </div>
+          <div class="form-group">
+            <label>Récompense XP (10 - 500)</label>
+            <input type="number" [(ngModel)]="publishForm.xpReward" min="10" max="500" class="form-input" />
+          </div>
+        </div>
+
+        <!-- Free vs Paid SasPay Toggle -->
+        <div class="form-group">
+          <label>Tarification & Monétisation</label>
+          <div class="pricing-toggle-grid">
+            <button type="button" class="pricing-choice" [class.active]="!publishForm.isPaid" (click)="publishForm.isPaid = false; publishForm.price = 0">
+              <span class="choice-title">🎁 Ressource Gratuite</span>
+              <span class="choice-desc">Accès libre pour toute la communauté</span>
+            </button>
+            <button type="button" class="pricing-choice" [class.active]="publishForm.isPaid" (click)="publishForm.isPaid = true; publishForm.price = publishForm.price || 5000">
+              <span class="choice-title">💳 Formation Payante · SasPay</span>
+              <span class="choice-desc">Encaissement Wave, Orange Money & Carte</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="publish-grid-2" *ngIf="publishForm.isPaid">
+          <div class="form-group">
+            <label>Votre prix net créateur (XOF) *</label>
+            <input type="number" [(ngModel)]="publishForm.price" min="500" step="500" class="form-input" />
+          </div>
+          <div class="form-group">
+            <label>Prix affiché à l'acheteur (+7% frais)</label>
+            <div class="saspay-net-preview">
+              <span>{{ calcTotalBuyerPrice(publishForm.price) }} {{ publishForm.currency }} via SasPay</span>
+              <small>Vous recevez {{ publishForm.price || 0 }} {{ publishForm.currency }}</small>
+            </div>
+          </div>
+        </div>
+
+        <button type="button" class="btn btn-emerald btn-block" [disabled]="isSubmittingPublish() || isUploadingVideo()" (click)="submitPublishForm()">
+          {{ isSubmittingPublish() ? 'Publication en cours...' : 'Publier maintenant sur AfriDev Academy' }}
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Transparent Payment Modal (Buyer Pays Fees via SasPay) -->
   <div class="modal-backdrop" *ngIf="isPaymentModalOpen()" (click)="closePayment()">
     <div class="payment-modal-card" (click)="$event.stopPropagation()">
       <div class="modal-header">
         <div>
-          <h3>Règlement Sécurisé de la Formation</h3>
+          <h3>Règlement Sécurisé SasPay</h3>
           <p class="subtitle">{{ paymentTarget()?.title }}</p>
         </div>
-        <button class="btn-close" (click)="closePayment()">✕</button>
+        <button class="btn-close" (click)="closePayment()" aria-label="Fermer">✕</button>
       </div>
 
       <div class="modal-body" *ngIf="!paymentSuccessData()">
-        <!-- Mode Tabs with Real Logos -->
+        <!-- Mode Tabs with Real Logos (All routed through SasPay) -->
         <div class="provider-tabs">
-          <button class="tab-btn" [class.active]="selectedProvider() === 'SASPAY' && selectedMethod() === 'WAVE'" (click)="selectedProvider.set('SASPAY'); selectedMethod.set('WAVE')">
+          <button class="tab-btn" [class.active]="selectedMethod() === 'WAVE'" (click)="selectedProvider.set('SASPAY'); selectedMethod.set('WAVE')">
             <img [src]="paymentLogos.wave" alt="Wave" class="payment-method-logo logo-wave" />
-            <span>Wave</span>
+            <span>Wave SasPay</span>
           </button>
-          <button class="tab-btn" [class.active]="selectedProvider() === 'SASPAY' && selectedMethod() === 'ORANGE_MONEY'" (click)="selectedProvider.set('SASPAY'); selectedMethod.set('ORANGE_MONEY')">
+          <button class="tab-btn" [class.active]="selectedMethod() === 'ORANGE_MONEY'" (click)="selectedProvider.set('SASPAY'); selectedMethod.set('ORANGE_MONEY')">
             <img [src]="paymentLogos.orangeMoney" alt="Orange Money" class="payment-method-logo logo-om" />
             <span>Orange Money</span>
           </button>
-          <button class="tab-btn" [class.active]="selectedProvider() === 'STRIPE' || selectedMethod() === 'CARD'" (click)="selectedProvider.set('STRIPE'); selectedMethod.set('CARD')">
-            <img [src]="paymentLogos.cardPaypal" alt="Carte & PayPal" class="payment-method-logo logo-card" />
-            <span>Carte / International</span>
+          <button class="tab-btn" [class.active]="selectedMethod() === 'CARD'" (click)="selectedProvider.set('SASPAY'); selectedMethod.set('CARD')">
+            <img [src]="paymentLogos.cardPaypal" alt="Carte Bancaire SasPay" class="payment-method-logo logo-card" />
+            <span>Carte / SasPay</span>
           </button>
         </div>
 
         <!-- Phone input for Mobile Money -->
-        <div class="form-group" *ngIf="selectedProvider() === 'SASPAY' || selectedProvider() === 'UNITECH_PAY'">
+        <div class="form-group">
           <label>Numéro de téléphone Mobile Money :</label>
           <input type="tel" [(ngModel)]="customerPhone" placeholder="Ex: 771234567 ou 0700000000" class="form-input" />
         </div>
 
         <!-- Country selection -->
-        <div class="form-group" *ngIf="selectedProvider() === 'SASPAY' || selectedProvider() === 'UNITECH_PAY'">
+        <div class="form-group">
           <label>Pays de facturation :</label>
           <select [(ngModel)]="country" class="form-select">
             <option value="SN">🇸🇳 Sénégal</option>
             <option value="CI">🇨🇮 Côte d'Ivoire</option>
+            <option value="GN">🇬🇳 Guinée</option>
+            <option value="ML">🇲🇱 Mali</option>
             <option value="BF">🇧🇫 Burkina Faso</option>
             <option value="TG">🇹🇬 Togo</option>
             <option value="BJ">🇧🇯 Bénin</option>
-            <option value="ML">🇲🇱 Mali</option>
-            <option value="GN">🇬🇳 Guinée</option>
+            <option value="CM">🇨🇲 Cameroun</option>
           </select>
         </div>
 
@@ -201,27 +425,27 @@
           </div>
           <div class="fee-row">
             <span>Frais plateforme AfriDev Hub (5 %) :</span>
-            <span>+{{ (paymentTarget()?.price || 0) * 0.05 }} {{ paymentTarget()?.currency }}</span>
+            <span>+{{ calcPlatformFee(paymentTarget()?.price) }} {{ paymentTarget()?.currency }}</span>
           </div>
           <div class="fee-row">
-            <span>Frais opérateur de paiement (2 %) :</span>
-            <span>+{{ (paymentTarget()?.price || 0) * 0.02 }} {{ paymentTarget()?.currency }}</span>
+            <span>Frais opérateur SasPay (2 %) :</span>
+            <span>+{{ calcOperatorFee(paymentTarget()?.price) }} {{ paymentTarget()?.currency }}</span>
           </div>
           <div class="fee-row fee-total">
-            <span>Total à payer (Frais inclus pour l'acheteur) :</span>
-            <strong class="total-price">{{ (paymentTarget()?.price || 0) * 1.07 }} {{ paymentTarget()?.currency }}</strong>
+            <span>Total à payer via SasPay :</span>
+            <strong class="total-price">{{ calcTotalBuyerPrice(paymentTarget()?.price) }} {{ paymentTarget()?.currency }}</strong>
           </div>
         </div>
 
         <button class="btn btn-emerald btn-block" [disabled]="isProcessingPayment()" (click)="confirmPayment()">
-          {{ isProcessingPayment() ? 'Initialisation en cours...' : 'Procéder au Paiement Sécurisé' }}
+          {{ isProcessingPayment() ? 'Initialisation SasPay en cours...' : 'Payer avec SasPay' }}
         </button>
       </div>
 
       <!-- Payment Launched State -->
       <div class="modal-body text-center" *ngIf="paymentSuccessData()">
         <div class="success-icon">⏳</div>
-        <h4>Session de paiement initiée !</h4>
+        <h4>Session SasPay initiée !</h4>
         <p>Commande <strong>#{{ paymentSuccessData()?.orderNumber }}</strong></p>
 
         <div *ngIf="paymentSuccessData()?.qrCodeData" class="qr-box">
@@ -230,13 +454,18 @@
         </div>
 
         <div *ngIf="paymentSuccessData()?.paymentUrl" class="link-box">
-          <a [href]="paymentSuccessData()?.paymentUrl" target="_blank" class="btn btn-emerald">
-            Ouvrir la page de paiement
+          <a [href]="paymentSuccessData()?.paymentUrl" target="_blank" rel="noopener" class="btn btn-emerald">
+            Ouvrir la page de paiement SasPay
           </a>
         </div>
 
-        <p class="refresh-hint">Une fois le paiement validé, la formation sera débloquée instantanément.</p>
-        <button class="btn btn-outline btn-sm" (click)="closePayment(); loadResources();">Fermer</button>
+        <p class="refresh-hint">Une fois le paiement validé sur SasPay, cliquez sur vérifier pour débloquer immédiatement la formation.</p>
+        <div class="payment-verify-actions">
+          <button type="button" class="btn btn-emerald btn-sm" [disabled]="isCheckingPayment()" (click)="checkPendingOrderStatus()">
+            {{ isCheckingPayment() ? 'Vérification...' : '✓ Vérifier le paiement' }}
+          </button>
+          <button type="button" class="btn btn-outline btn-sm" (click)="closePayment(); loadResources(true);">Fermer</button>
+        </div>
       </div>
     </div>
   </div>

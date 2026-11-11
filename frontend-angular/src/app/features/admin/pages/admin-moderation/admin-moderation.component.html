@@ -47,10 +47,17 @@
     </div>
   </div>
 
-  <!-- Reports Cards Grid -->
-  <div *ngIf="isLoadingReports" class="loading-state">
-    <div class="spinner"></div>
-    <p>Chargement des signalements...</p>
+  <!-- Reports Cards Skeleton -->
+  <div *ngIf="isLoadingReports" class="sk-grid" aria-busy="true" aria-label="Chargement des signalements">
+    <div class="sk-card" *ngFor="let i of [1,2,3,4]">
+      <div class="sk-meta-row" style="justify-content: space-between;">
+        <div class="sk-pill sk-shimmer" style="width: 110px;"></div>
+        <div class="sk-line-sm sk-shimmer" style="width: 90px;"></div>
+      </div>
+      <div class="sk-line-title sk-shimmer"></div>
+      <div class="sk-line sk-shimmer"></div>
+      <div class="sk-btn sk-shimmer" style="margin-top: auto;"></div>
+    </div>
   </div>
 
   <div *ngIf="!isLoadingReports" class="reports-container">

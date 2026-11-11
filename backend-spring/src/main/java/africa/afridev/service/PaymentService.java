@@ -5,10 +5,12 @@ import africa.afridev.dto.payment.PaymentInitiateRequest;
 import africa.afridev.dto.payment.PaymentInitiateResponse;
 import africa.afridev.model.entity.PaymentEntity;
 import africa.afridev.model.entity.ProjectEntity;
+import africa.afridev.model.entity.ResourceEntity;
 import africa.afridev.model.entity.UserEntity;
 import africa.afridev.model.enums.*;
 import africa.afridev.repository.PaymentRepository;
 import africa.afridev.repository.ProjectRepository;
+import africa.afridev.repository.ResourceRepository;
 import africa.afridev.repository.UserRepository;
 import africa.afridev.service.payment.SasPayGateway;
 import africa.afridev.service.payment.StripeGateway;
@@ -21,6 +23,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -37,6 +41,7 @@ public class PaymentService {
 
     private final PaymentRepository paymentRepository;
     private final ProjectRepository projectRepository;
+    private final ResourceRepository resourceRepository;
     private final UserRepository userRepository;
     private final WalletService walletService;
     private final SasPayGateway sasPayGateway;
@@ -47,6 +52,24 @@ public class PaymentService {
 
     @Value("${app.payment.platform-fee-percent:5.0}")
     private double platformFeePercent = 5.0;
+
+    @Value("${app.frontend-url:https://afridevhub.economestore.com}")
+    private String frontendBaseUrl = "https://afridevhub.economestore.com";
+
+    private String resolveFrontendBaseUrl() {
+        try {
+            if (RequestContextHolder.getRequestAttributes() instanceof ServletRequestAttributes attrs) {
+                String origin = attrs.getRequest().getHeader("Origin");
+                if (origin != null && (origin.startsWith("http://") || origin.startsWith("https://"))) {
+                    return origin.endsWith("/") ? origin.substring(0, origin.length() - 1) : origin;
+                }
+            }
+        } catch (Exception ignored) {}
+        String base = (frontendBaseUrl != null && !frontendBaseUrl.isBlank())
+                ? frontendBaseUrl.trim()
+                : "https://afridevhub.economestore.com";
+        return base.endsWith("/") ? base.substring(0, base.length() - 1) : base;
+    }
 
     /**
      * Initier un paiement pour un projet ou une formation
@@ -76,10 +99,24 @@ public class PaymentService {
             netSellerPrice = project.getPrice() != null ? project.getPrice() : BigDecimal.ZERO;
             currency = project.getCurrency() != null ? project.getCurrency() : "XOF";
             targetTitle = project.getTitle();
+        } else if (request.getTargetType() == PaymentTargetType.COURSE) {
+            ResourceEntity resource = resourceRepository.findById(request.getTargetId())
+                    .orElseThrow(() -> new IllegalArgumentException("Formation introuvable: " + request.getTargetId()));
+
+            if (!Boolean.TRUE.equals(resource.getIsPaid())) {
+                throw new IllegalArgumentException("Cette ressource est gratuite. Aucun paiement n'est requis.");
+            }
+
+            seller = resource.getAuthor();
+            if (seller != null && buyer != null && seller.getId().equals(buyer.getId())) {
+                throw new IllegalArgumentException("Vous êtes déjà l'auteur de cette formation.");
+            }
+
+            netSellerPrice = resource.getPrice() != null ? resource.getPrice() : BigDecimal.ZERO;
+            currency = (resource.getCurrency() != null && !resource.getCurrency().isBlank()) ? resource.getCurrency() : "XOF";
+            targetTitle = resource.getTitle();
         } else {
-            // Cours / formation payante
-            targetTitle = "Formation AfriDev Hub";
-            netSellerPrice = new BigDecimal("15000"); // Tarif par défaut en XOF
+            throw new IllegalArgumentException("Type de contenu non pris en charge pour le paiement.");
         }
 
         if (netSellerPrice.compareTo(BigDecimal.ZERO) <= 0) {
@@ -90,15 +127,20 @@ public class PaymentService {
         BigDecimal platformFee = netSellerPrice.multiply(BigDecimal.valueOf(platformFeePercent / 100.0))
                 .setScale(2, RoundingMode.HALF_UP);
 
-        // Frais opérateur (estimé à 2% pour Unitech / Stripe)
+        // Frais opérateur (estimé à 2% pour SasPay / Unitech / Stripe)
         BigDecimal providerFee = netSellerPrice.multiply(BigDecimal.valueOf(0.02))
                 .setScale(2, RoundingMode.HALF_UP);
 
         BigDecimal totalBuyerAmount = netSellerPrice.add(platformFee).add(providerFee);
 
         String orderNumber = "ORD-" + UUID.randomUUID().toString().substring(0, 8).toUpperCase();
-        String successUrl = "http://localhost:4200/dashboard/orders?success=true&order=" + orderNumber;
-        String cancelUrl = "http://localhost:4200/dashboard/orders?canceled=true";
+        String originBase = resolveFrontendBaseUrl();
+        String successUrl = (request.getTargetType() == PaymentTargetType.COURSE)
+                ? originBase + "/resources?orderNumber=" + orderNumber
+                : originBase + "/dashboard/orders?success=true&order=" + orderNumber;
+        String cancelUrl = (request.getTargetType() == PaymentTargetType.COURSE)
+                ? originBase + "/resources?canceled=true"
+                : originBase + "/dashboard/orders?canceled=true";
 
         String paymentUrl = null;
         String qrCodeData = null;
@@ -230,7 +272,7 @@ public class PaymentService {
                     : ((buyer != null && buyer.getEmail() != null) ? buyer.getEmail() : "client@afridev.africa");
 
             Map<String, Object> sessionData = sasPayGateway.createCheckoutSession(
-                    netSellerPrice,
+                    totalBuyerAmount,
                     currency,
                     targetTitle + " (#" + orderNumber + ")",
                     buyerMail,
@@ -437,7 +479,7 @@ public class PaymentService {
                                 payment.getSeller(),
                                 payment.getNetSellerAmount(),
                                 payment.getOrderNumber(),
-                                "Vente SasPay du projet: " + payment.getTargetTitle()
+                                "Vente SasPay: " + payment.getTargetTitle()
                         );
                         xpService.awardXp(payment.getSeller(), 50, XpSourceType.PROJECT_PUBLISHED, payment.getId(), "Vente confirmée via SasPay");
                     }

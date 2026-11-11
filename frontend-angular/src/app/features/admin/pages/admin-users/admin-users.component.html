@@ -68,9 +68,16 @@
 
   <!-- Users Table Card -->
   <div class="app-card table-card">
-    <div *ngIf="isLoadingUsers && users.length === 0" class="loading-state">
-      <div class="spinner"></div>
-      <p>Chargement des utilisateurs...</p>
+    <div *ngIf="isLoadingUsers && users.length === 0" class="sk-stack" style="padding: 1rem;" aria-busy="true" aria-label="Chargement des utilisateurs">
+      <div class="sk-row" *ngFor="let i of [1,2,3,4,5,6]">
+        <div class="sk-avatar sk-avatar-round sk-shimmer"></div>
+        <div style="flex: 1; display: flex; flex-direction: column; gap: 0.4rem;">
+          <div class="sk-line sk-shimmer" style="width: 42%;"></div>
+          <div class="sk-line-sm sk-shimmer" style="width: 28%;"></div>
+        </div>
+        <div class="sk-pill sk-shimmer" style="width: 78px;"></div>
+        <div class="sk-pill sk-shimmer" style="width: 64px;"></div>
+      </div>
     </div>
 
     <div *ngIf="!isLoadingUsers || users.length > 0" class="table-responsive">

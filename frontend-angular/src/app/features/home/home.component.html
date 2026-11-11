@@ -159,106 +159,147 @@
                 <image href="/logo-africa.png" x="213" y="143" width="34" height="34" preserveAspectRatio="xMidYMid meet"/>
               </g>
 
-              <!-- 8 Connected African Country Flag Pills (Clean Vector Flags across all OS) -->
-              <!-- 1. Sénégal -->
-              <g class="country-node" transform="translate(182, 10)">
-                <rect class="country-pill-bg" x="0" y="0" width="96" height="28" rx="14"/>
-                <g transform="translate(8, 8)" clip-path="url(#flagClip)">
-                  <rect x="0" y="0" width="6" height="12" fill="#00853F"/>
-                  <rect x="6" y="0" width="6" height="12" fill="#FDEF42"/>
-                  <rect x="12" y="0" width="6" height="12" fill="#E31B23"/>
-                  <polygon points="9,4 9.6,5.8 11.5,5.8 10,6.9 10.6,8.7 9,7.6 7.4,8.7 8,6.9 6.5,5.8 8.4,5.8" fill="#00853F"/>
+              <!-- 8 Orbital Slots Rotating Through 18 African Country Vector Flags -->
+              <ng-container *ngFor="let slot of globeSlots">
+                <g class="country-node" [attr.transform]="getSlotTransform(slot)">
+                  <g class="country-pill-anim" [class.is-swapping]="slot.isSwapping">
+                    <rect class="country-pill-bg" x="0" y="0" [attr.width]="slot.current.width" height="28" rx="14"/>
+                    <g transform="translate(8, 8)" clip-path="url(#flagClip)" [ngSwitch]="slot.current.code">
+                      <!-- Sénégal -->
+                      <ng-container *ngSwitchCase="'SN'">
+                        <rect x="0" y="0" width="6" height="12" fill="#00853F"/>
+                        <rect x="6" y="0" width="6" height="12" fill="#FDEF42"/>
+                        <rect x="12" y="0" width="6" height="12" fill="#E31B23"/>
+                        <polygon points="9,4 9.6,5.8 11.5,5.8 10,6.9 10.6,8.7 9,7.6 7.4,8.7 8,6.9 6.5,5.8 8.4,5.8" fill="#00853F"/>
+                      </ng-container>
+                      <!-- Guinée -->
+                      <ng-container *ngSwitchCase="'GN'">
+                        <rect x="0" y="0" width="6" height="12" fill="#CE1126"/>
+                        <rect x="6" y="0" width="6" height="12" fill="#FCD116"/>
+                        <rect x="12" y="0" width="6" height="12" fill="#009460"/>
+                      </ng-container>
+                      <!-- Mali -->
+                      <ng-container *ngSwitchCase="'ML'">
+                        <rect x="0" y="0" width="6" height="12" fill="#14B53A"/>
+                        <rect x="6" y="0" width="6" height="12" fill="#FCD116"/>
+                        <rect x="12" y="0" width="6" height="12" fill="#CE1126"/>
+                      </ng-container>
+                      <!-- Maroc -->
+                      <ng-container *ngSwitchCase="'MA'">
+                        <rect x="0" y="0" width="18" height="12" fill="#C1272D"/>
+                        <polygon points="9,3 9.7,5.2 12,5.2 10.1,6.5 10.8,8.7 9,7.4 7.2,8.7 7.9,6.5 6,5.2 8.3,5.2" fill="none" stroke="#006233" stroke-width="0.9"/>
+                      </ng-container>
+                      <!-- Tunisie -->
+                      <ng-container *ngSwitchCase="'TN'">
+                        <rect x="0" y="0" width="18" height="12" fill="#E70013"/>
+                        <circle cx="9" cy="6" r="3.6" fill="#FFFFFF"/>
+                        <circle cx="9.2" cy="6" r="2.2" fill="#E70013"/>
+                        <circle cx="9.9" cy="6" r="1.75" fill="#FFFFFF"/>
+                        <polygon points="10.4,4.9 10.7,5.7 11.5,5.7 10.9,6.2 11.1,7 10.4,6.5 9.7,7 9.9,6.2 9.3,5.7 10.1,5.7" fill="#E70013"/>
+                      </ng-container>
+                      <!-- Côte d'Ivoire -->
+                      <ng-container *ngSwitchCase="'CI'">
+                        <rect x="0" y="0" width="6" height="12" fill="#F77F00"/>
+                        <rect x="6" y="0" width="6" height="12" fill="#FFFFFF"/>
+                        <rect x="12" y="0" width="6" height="12" fill="#009E60"/>
+                      </ng-container>
+                      <!-- Ghana -->
+                      <ng-container *ngSwitchCase="'GH'">
+                        <rect x="0" y="0" width="18" height="4" fill="#CE1126"/>
+                        <rect x="0" y="4" width="18" height="4" fill="#FCD116"/>
+                        <rect x="0" y="8" width="18" height="4" fill="#006B3F"/>
+                        <polygon points="9,4.2 9.5,5.6 10.9,5.6 9.8,6.4 10.2,7.8 9,7 7.8,7.8 8.2,6.4 7.1,5.6 8.5,5.6" fill="#111111"/>
+                      </ng-container>
+                      <!-- Nigéria -->
+                      <ng-container *ngSwitchCase="'NG'">
+                        <rect x="0" y="0" width="6" height="12" fill="#008751"/>
+                        <rect x="6" y="0" width="6" height="12" fill="#FFFFFF"/>
+                        <rect x="12" y="0" width="6" height="12" fill="#008751"/>
+                      </ng-container>
+                      <!-- Burkina Faso -->
+                      <ng-container *ngSwitchCase="'BF'">
+                        <rect x="0" y="0" width="18" height="6" fill="#EF2B2D"/>
+                        <rect x="0" y="6" width="18" height="6" fill="#009E49"/>
+                        <polygon points="9,3.8 9.6,5.4 11.2,5.4 9.9,6.4 10.4,8 9,7 7.6,8 8.1,6.4 6.8,5.4 8.4,5.4" fill="#FCD116"/>
+                      </ng-container>
+                      <!-- Kenya -->
+                      <ng-container *ngSwitchCase="'KE'">
+                        <rect x="0" y="0" width="18" height="3.5" fill="#111111"/>
+                        <rect x="0" y="3.5" width="18" height="1" fill="#FFFFFF"/>
+                        <rect x="0" y="4.5" width="18" height="3" fill="#BB0000"/>
+                        <rect x="0" y="7.5" width="18" height="1" fill="#FFFFFF"/>
+                        <rect x="0" y="8.5" width="18" height="3.5" fill="#006600"/>
+                        <ellipse cx="9" cy="6" rx="1.6" ry="3" fill="#BB0000" stroke="#FFFFFF" stroke-width="0.6"/>
+                      </ng-container>
+                      <!-- Rwanda -->
+                      <ng-container *ngSwitchCase="'RW'">
+                        <rect x="0" y="0" width="18" height="6" fill="#00A1DE"/>
+                        <rect x="0" y="6" width="18" height="3" fill="#FAD201"/>
+                        <rect x="0" y="9" width="18" height="3" fill="#20603D"/>
+                        <circle cx="14" cy="2.6" r="1.4" fill="#E5BE01"/>
+                      </ng-container>
+                      <!-- Cameroun -->
+                      <ng-container *ngSwitchCase="'CM'">
+                        <rect x="0" y="0" width="6" height="12" fill="#007A5E"/>
+                        <rect x="6" y="0" width="6" height="12" fill="#CE1126"/>
+                        <rect x="12" y="0" width="6" height="12" fill="#FCD116"/>
+                        <polygon points="9,4.2 9.5,5.7 11,5.7 9.8,6.6 10.3,8 9,7.1 7.7,8 8.2,6.6 7,5.7 8.5,5.7" fill="#FCD116"/>
+                      </ng-container>
+                      <!-- Bénin -->
+                      <ng-container *ngSwitchCase="'BJ'">
+                        <rect x="0" y="0" width="7" height="12" fill="#008751"/>
+                        <rect x="7" y="0" width="11" height="6" fill="#FCD116"/>
+                        <rect x="7" y="6" width="11" height="6" fill="#E8112D"/>
+                      </ng-container>
+                      <!-- Comores -->
+                      <ng-container *ngSwitchCase="'KM'">
+                        <rect x="0" y="0" width="18" height="3" fill="#FFC61E"/>
+                        <rect x="0" y="3" width="18" height="3" fill="#FFFFFF"/>
+                        <rect x="0" y="6" width="18" height="3" fill="#CE1126"/>
+                        <rect x="0" y="9" width="18" height="3" fill="#3A75C4"/>
+                        <polygon points="0,0 8.5,6 0,12" fill="#3D8E33"/>
+                        <circle cx="3.2" cy="6" r="1.8" fill="#FFFFFF"/>
+                        <circle cx="3.9" cy="6" r="1.4" fill="#3D8E33"/>
+                      </ng-container>
+                      <!-- RD Congo -->
+                      <ng-container *ngSwitchCase="'CD'">
+                        <rect x="0" y="0" width="18" height="12" fill="#007FFF"/>
+                        <path d="M 0,10.5 L 15.5,0 L 18,0 L 18,1.5 L 2.5,12 L 0,12 Z" fill="#F7D618"/>
+                        <path d="M 0,11.2 L 16.5,0 L 18,0 L 18,0.8 L 1.5,12 L 0,12 Z" fill="#CE1021"/>
+                        <polygon points="3.5,1.6 3.9,2.8 5.2,2.8 4.2,3.5 4.5,4.7 3.5,4 2.5,4.7 2.8,3.5 1.8,2.8 3.1,2.8" fill="#F7D618"/>
+                      </ng-container>
+                      <!-- Égypte -->
+                      <ng-container *ngSwitchCase="'EG'">
+                        <rect x="0" y="0" width="18" height="4" fill="#CE1126"/>
+                        <rect x="0" y="4" width="18" height="4" fill="#FFFFFF"/>
+                        <rect x="0" y="8" width="18" height="4" fill="#111111"/>
+                        <rect x="8.2" y="4.6" width="1.6" height="2.8" rx="0.5" fill="#C09300"/>
+                      </ng-container>
+                      <!-- Togo -->
+                      <ng-container *ngSwitchCase="'TG'">
+                        <rect x="0" y="0" width="18" height="2.4" fill="#006A4E"/>
+                        <rect x="0" y="2.4" width="18" height="2.4" fill="#FFCE00"/>
+                        <rect x="0" y="4.8" width="18" height="2.4" fill="#006A4E"/>
+                        <rect x="0" y="7.2" width="18" height="2.4" fill="#FFCE00"/>
+                        <rect x="0" y="9.6" width="18" height="2.4" fill="#006A4E"/>
+                        <rect x="0" y="0" width="7.2" height="7.2" fill="#D21034"/>
+                        <polygon points="3.6,1.8 4.1,3.1 5.4,3.1 4.4,3.9 4.8,5.2 3.6,4.4 2.4,5.2 2.8,3.9 1.8,3.1 3.1,3.1" fill="#FFFFFF"/>
+                      </ng-container>
+                      <!-- Afrique du Sud -->
+                      <ng-container *ngSwitchCase="'ZA'">
+                        <rect x="0" y="0" width="18" height="6" fill="#E03C31"/>
+                        <rect x="0" y="6" width="18" height="6" fill="#001489"/>
+                        <path d="M 0,0 L 8,6 L 0,12 Z" fill="#111111"/>
+                        <path d="M 0,0 L 8.5,6 L 18,6" fill="none" stroke="#FFFFFF" stroke-width="2.4"/>
+                        <path d="M 0,12 L 8.5,6 L 18,6" fill="none" stroke="#FFFFFF" stroke-width="2.4"/>
+                        <path d="M 0,1 L 7.8,6 L 0,11" fill="none" stroke="#FFB81C" stroke-width="1.2"/>
+                        <path d="M 0,0 L 8.2,6 L 18,6 M 0,12 L 8.2,6" fill="none" stroke="#007749" stroke-width="1.7"/>
+                      </ng-container>
+                    </g>
+                    <text class="country-pill-text" x="31" y="18">{{ slot.current.label }}</text>
+                  </g>
                 </g>
-                <text class="country-pill-text" x="31" y="18">Sénégal</text>
-              </g>
-
-              <!-- 2. Maroc -->
-              <g class="country-node" transform="translate(22, 30)">
-                <rect class="country-pill-bg" x="0" y="0" width="84" height="28" rx="14"/>
-                <g transform="translate(8, 8)" clip-path="url(#flagClip)">
-                  <rect x="0" y="0" width="18" height="12" fill="#C1272D"/>
-                  <polygon points="9,3 9.7,5.2 12,5.2 10.1,6.5 10.8,8.7 9,7.4 7.2,8.7 7.9,6.5 6,5.2 8.3,5.2" fill="none" stroke="#006233" stroke-width="0.9"/>
-                </g>
-                <text class="country-pill-text" x="31" y="18">Maroc</text>
-              </g>
-
-              <!-- 3. Côte d'Ivoire -->
-              <g class="country-node" transform="translate(344, 30)">
-                <rect class="country-pill-bg" x="0" y="0" width="104" height="28" rx="14"/>
-                <g transform="translate(8, 8)" clip-path="url(#flagClip)">
-                  <rect x="0" y="0" width="6" height="12" fill="#F77F00"/>
-                  <rect x="6" y="0" width="6" height="12" fill="#FFFFFF"/>
-                  <rect x="12" y="0" width="6" height="12" fill="#009E60"/>
-                </g>
-                <text class="country-pill-text" x="31" y="18">Côte d'Iv.</text>
-              </g>
-
-              <!-- 4. Nigéria -->
-              <g class="country-node" transform="translate(8, 146)">
-                <rect class="country-pill-bg" x="0" y="0" width="92" height="28" rx="14"/>
-                <g transform="translate(8, 8)" clip-path="url(#flagClip)">
-                  <rect x="0" y="0" width="6" height="12" fill="#008751"/>
-                  <rect x="6" y="0" width="6" height="12" fill="#FFFFFF"/>
-                  <rect x="12" y="0" width="6" height="12" fill="#008751"/>
-                </g>
-                <text class="country-pill-text" x="31" y="18">Nigéria</text>
-              </g>
-
-              <!-- 5. Kenya -->
-              <g class="country-node" transform="translate(362, 146)">
-                <rect class="country-pill-bg" x="0" y="0" width="88" height="28" rx="14"/>
-                <g transform="translate(8, 8)" clip-path="url(#flagClip)">
-                  <rect x="0" y="0" width="18" height="3.5" fill="#111111"/>
-                  <rect x="0" y="3.5" width="18" height="1" fill="#FFFFFF"/>
-                  <rect x="0" y="4.5" width="18" height="3" fill="#BB0000"/>
-                  <rect x="0" y="7.5" width="18" height="1" fill="#FFFFFF"/>
-                  <rect x="0" y="8.5" width="18" height="3.5" fill="#006600"/>
-                  <ellipse cx="9" cy="6" rx="1.6" ry="3" fill="#BB0000" stroke="#FFFFFF" stroke-width="0.6"/>
-                </g>
-                <text class="country-pill-text" x="31" y="18">Kenya</text>
-              </g>
-
-              <!-- 6. Cameroun -->
-              <g class="country-node" transform="translate(11, 262)">
-                <rect class="country-pill-bg" x="0" y="0" width="106" height="28" rx="14"/>
-                <g transform="translate(8, 8)" clip-path="url(#flagClip)">
-                  <rect x="0" y="0" width="6" height="12" fill="#007A5E"/>
-                  <rect x="6" y="0" width="6" height="12" fill="#CE1126"/>
-                  <rect x="12" y="0" width="6" height="12" fill="#FCD116"/>
-                  <polygon points="9,4.2 9.5,5.7 11,5.7 9.8,6.6 10.3,8 9,7.1 7.7,8 8.2,6.6 7,5.7 8.5,5.7" fill="#FCD116"/>
-                </g>
-                <text class="country-pill-text" x="31" y="18">Cameroun</text>
-              </g>
-
-              <!-- 7. Comores -->
-              <g class="country-node" transform="translate(347, 262)">
-                <rect class="country-pill-bg" x="0" y="0" width="98" height="28" rx="14"/>
-                <g transform="translate(8, 8)" clip-path="url(#flagClip)">
-                  <rect x="0" y="0" width="18" height="3" fill="#FFC61E"/>
-                  <rect x="0" y="3" width="18" height="3" fill="#FFFFFF"/>
-                  <rect x="0" y="6" width="18" height="3" fill="#CE1126"/>
-                  <rect x="0" y="9" width="18" height="3" fill="#3A75C4"/>
-                  <polygon points="0,0 8.5,6 0,12" fill="#3D8E33"/>
-                  <circle cx="3.2" cy="6" r="1.8" fill="#FFFFFF"/>
-                  <circle cx="3.9" cy="6" r="1.4" fill="#3D8E33"/>
-                </g>
-                <text class="country-pill-text" x="31" y="18">Comores</text>
-              </g>
-
-              <!-- 8. Afrique du Sud -->
-              <g class="country-node" transform="translate(174, 282)">
-                <rect class="country-pill-bg" x="0" y="0" width="112" height="28" rx="14"/>
-                <g transform="translate(8, 8)" clip-path="url(#flagClip)">
-                  <rect x="0" y="0" width="18" height="6" fill="#E03C31"/>
-                  <rect x="0" y="6" width="18" height="6" fill="#001489"/>
-                  <path d="M 0,0 L 8,6 L 0,12 Z" fill="#111111"/>
-                  <path d="M 0,0 L 8.5,6 L 18,6" fill="none" stroke="#FFFFFF" stroke-width="2.4"/>
-                  <path d="M 0,12 L 8.5,6 L 18,6" fill="none" stroke="#FFFFFF" stroke-width="2.4"/>
-                  <path d="M 0,1 L 7.8,6 L 0,11" fill="none" stroke="#FFB81C" stroke-width="1.2"/>
-                  <path d="M 0,0 L 8.2,6 L 18,6 M 0,12 L 8.2,6" fill="none" stroke="#007749" stroke-width="1.7"/>
-                </g>
-                <text class="country-pill-text" x="31" y="18">Afr. du Sud</text>
-              </g>
+              </ng-container>
             </svg>
           </div>
         </div>
@@ -536,7 +577,28 @@
     </div>
 
     <ng-template #loadingProjectsTpl>
-      <div class="loading-box app-card">Chargement des projets...</div>
+      <div class="projects-grid" aria-busy="true" aria-label="Chargement des projets">
+        <div class="sk-card" *ngFor="let i of [1,2,3]">
+          <div class="sk-meta-row" style="justify-content: space-between;">
+            <div class="sk-pill sk-shimmer" style="width: 115px;"></div>
+            <div class="sk-pill sk-shimmer" style="width: 78px;"></div>
+          </div>
+          <div class="sk-line-title sk-shimmer"></div>
+          <div class="sk-line sk-shimmer"></div>
+          <div class="sk-line sk-line-sm sk-shimmer" style="width: 82%;"></div>
+          <div class="sk-meta-row">
+            <div class="sk-pill sk-shimmer" style="width: 62px;"></div>
+            <div class="sk-pill sk-shimmer" style="width: 68px;"></div>
+          </div>
+          <div class="sk-meta-row" style="justify-content: space-between; margin-top: auto;">
+            <div class="sk-meta-row">
+              <div class="sk-avatar sk-avatar-round sk-shimmer" style="width: 30px; height: 30px;"></div>
+              <div class="sk-line-sm sk-shimmer" style="width: 90px;"></div>
+            </div>
+            <div class="sk-pill sk-shimmer" style="width: 68px;"></div>
+          </div>
+        </div>
+      </div>
     </ng-template>
   </section>
 
@@ -596,7 +658,27 @@
     </div>
 
     <ng-template #loadingMembersTpl>
-      <div class="loading-box app-card">Chargement des membres...</div>
+      <div class="members-grid" aria-busy="true" aria-label="Chargement des membres">
+        <div class="sk-card" *ngFor="let i of [1,2,3]">
+          <div class="sk-meta-row">
+            <div class="sk-avatar sk-avatar-round sk-shimmer"></div>
+            <div style="flex: 1; display: flex; flex-direction: column; gap: 0.4rem;">
+              <div class="sk-line sk-shimmer" style="width: 65%;"></div>
+              <div class="sk-line-sm sk-shimmer" style="width: 52%;"></div>
+              <div class="sk-line-sm sk-shimmer" style="width: 44%;"></div>
+            </div>
+          </div>
+          <div class="sk-meta-row">
+            <div class="sk-pill sk-shimmer" style="width: 60px;"></div>
+            <div class="sk-pill sk-shimmer" style="width: 74px;"></div>
+            <div class="sk-pill sk-shimmer" style="width: 56px;"></div>
+          </div>
+          <div class="sk-meta-row" style="justify-content: space-between; margin-top: auto;">
+            <div class="sk-line-sm sk-shimmer" style="width: 60px;"></div>
+            <div class="sk-pill sk-shimmer" style="width: 96px;"></div>
+          </div>
+        </div>
+      </div>
     </ng-template>
   </section>
 
@@ -653,7 +735,24 @@
     </div>
 
     <ng-template #loadingCommTpl>
-      <div class="loading-box app-card">Chargement des communautés...</div>
+      <div class="projects-grid" aria-busy="true" aria-label="Chargement des communautés">
+        <div class="sk-card" *ngFor="let i of [1,2,3]">
+          <div class="sk-meta-row" style="justify-content: space-between;">
+            <div class="sk-pill sk-shimmer" style="width: 105px;"></div>
+            <div class="sk-pill sk-shimmer" style="width: 68px;"></div>
+          </div>
+          <div class="sk-line-title sk-shimmer"></div>
+          <div class="sk-line sk-shimmer"></div>
+          <div class="sk-line sk-line-sm sk-shimmer" style="width: 80%;"></div>
+          <div class="sk-meta-row" style="justify-content: space-between; margin-top: auto;">
+            <div class="sk-meta-row">
+              <div class="sk-avatar sk-avatar-round sk-shimmer" style="width: 30px; height: 30px;"></div>
+              <div class="sk-line-sm sk-shimmer" style="width: 85px;"></div>
+            </div>
+            <div class="sk-pill sk-shimmer" style="width: 78px;"></div>
+          </div>
+        </div>
+      </div>
     </ng-template>
   </section>
 

@@ -88,11 +88,43 @@ export class ResourceService {
     return this.http.get<ApiResponse<ResourceItem>>(`${this.baseUrl}/${id}`).pipe(map(res => res.data));
   }
 
-  completeResource(id: string): Observable<ResourceItem> {
-    return this.http.post<ApiResponse<ResourceItem>>(`${this.baseUrl}/${id}/complete`, {}).pipe(map(res => res.data));
+  clearCache(): void {
+    this.cache.clear();
   }
 
-  createResource(req: any): Observable<ResourceItem> {
-    return this.http.post<ApiResponse<ResourceItem>>(this.baseUrl, req).pipe(map(res => res.data));
+  completeResource(id: string): Observable<ResourceItem> {
+    return this.http.post<ApiResponse<ResourceItem>>(`${this.baseUrl}/${id}/complete`, {}).pipe(
+      map(res => {
+        this.clearCache();
+        return res.data;
+      })
+    );
   }
+
+  createResource(req: ResourceCreatePayload): Observable<ResourceItem> {
+    return this.http.post<ApiResponse<ResourceItem>>(this.baseUrl, req).pipe(
+      map(res => {
+        this.clearCache();
+        return res.data;
+      })
+    );
+  }
+}
+
+export interface ResourceCreatePayload {
+  title: string;
+  description: string;
+  type: ResourceType;
+  level: SkillLevel;
+  technology: string;
+  language: string;
+  youtubeUrl?: string | null;
+  thumbnailUrl?: string | null;
+  contentMarkdown?: string | null;
+  pdfUrl?: string | null;
+  isPaid: boolean;
+  price?: number | null;
+  currency?: string | null;
+  durationMinutes?: number | null;
+  xpReward?: number | null;
 }

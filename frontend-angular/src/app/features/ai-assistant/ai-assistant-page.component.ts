@@ -259,3 +259,4 @@ export class AiAssistantPageComponent implements OnInit, OnDestroy {
     }
   }
 }
+

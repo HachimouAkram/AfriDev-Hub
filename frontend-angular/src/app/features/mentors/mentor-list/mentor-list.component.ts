@@ -109,9 +109,22 @@ import { POPULAR_TAGS } from '../../../core/services/help.service';
 
       <!-- Grille Principale des Mentors -->
       <section class="mentors-content-section">
-        <div *ngIf="isLoading" class="loading-state app-card">
-          <div class="spinner"></div>
-          <p class="subtext">Recherche des mentors disponibles...</p>
+        <div *ngIf="isLoading" class="sk-grid" aria-busy="true" aria-label="Chargement des mentors">
+          <div class="sk-card" *ngFor="let i of [1,2,3,4,5,6]">
+            <div class="sk-meta-row">
+              <div class="sk-avatar sk-avatar-round sk-shimmer"></div>
+              <div style="flex: 1; display: flex; flex-direction: column; gap: 0.4rem;">
+                <div class="sk-line sk-shimmer" style="width: 66%;"></div>
+                <div class="sk-line-sm sk-shimmer" style="width: 48%;"></div>
+              </div>
+            </div>
+            <div class="sk-line sk-shimmer"></div>
+            <div class="sk-meta-row">
+              <div class="sk-pill sk-shimmer" style="width: 62px;"></div>
+              <div class="sk-pill sk-shimmer" style="width: 72px;"></div>
+            </div>
+            <div class="sk-btn sk-shimmer" style="margin-top: auto;"></div>
+          </div>
         </div>
 
         <div *ngIf="!isLoading && mentors.length === 0" class="empty-state app-card">

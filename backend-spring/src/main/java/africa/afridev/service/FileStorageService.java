@@ -28,8 +28,10 @@ public class FileStorageService {
     private final Path uploadLocation;
     private static final List<String> ALLOWED_IMAGE_EXTENSIONS = List.of("png", "jpg", "jpeg", "webp");
     private static final List<String> ALLOWED_PDF_EXTENSIONS = List.of("pdf");
+    private static final List<String> ALLOWED_VIDEO_EXTENSIONS = List.of("mp4", "webm", "mov", "m4v");
     private static final long MAX_IMAGE_SIZE = 5 * 1024 * 1024; // 5 MB
     private static final long MAX_PDF_SIZE = 10 * 1024 * 1024; // 10 MB
+    private static final long MAX_VIDEO_SIZE = 50L * 1024 * 1024; // 50 MB
 
     public FileStorageService(Cloudinary cloudinary, @Value("${file.upload-dir:uploads}") String uploadDir) {
         this.cloudinary = cloudinary;
@@ -47,6 +49,10 @@ public class FileStorageService {
 
     public String storePdf(MultipartFile file) {
         return storeToCloudinaryOrLocal(file, ALLOWED_PDF_EXTENSIONS, MAX_PDF_SIZE, "Le document doit être au format PDF et ne pas dépasser 10 Mo.", "afridev/documents", "raw");
+    }
+
+    public String storeVideo(MultipartFile file) {
+        return storeToCloudinaryOrLocal(file, ALLOWED_VIDEO_EXTENSIONS, MAX_VIDEO_SIZE, "La vidéo doit être au format MP4, WEBM, MOV ou M4V et ne pas dépasser 50 Mo.", "afridev/videos", "video");
     }
 
     private String storeToCloudinaryOrLocal(MultipartFile file, List<String> allowedExtensions, long maxSize, String errorMessage, String folder, String resourceType) {

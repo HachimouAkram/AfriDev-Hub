@@ -61,8 +61,14 @@
       </div>
 
       <ng-template #loadingConversationsTpl>
-        <div class="loading-sidebar-box">
-          Chargement des discussions...
+        <div class="sk-stack" style="padding: 0.75rem;" aria-busy="true" aria-label="Chargement des discussions">
+          <div class="sk-row" *ngFor="let i of [1,2,3,4,5]">
+            <div class="sk-avatar sk-avatar-round sk-shimmer"></div>
+            <div style="flex: 1; display: flex; flex-direction: column; gap: 0.45rem;">
+              <div class="sk-line sk-shimmer" style="width: 62%;"></div>
+              <div class="sk-line-sm sk-shimmer" style="width: 84%;"></div>
+            </div>
+          </div>
         </div>
       </ng-template>
     </div>
@@ -161,8 +167,11 @@
         </div>
 
         <ng-template #loadingMessagesTpl>
-          <div class="loading-messages-box">
-            Chargement des messages...
+          <div class="sk-stack" style="padding: 1.25rem;" aria-busy="true" aria-label="Chargement des messages">
+            <div class="sk-card" style="max-width: 62%; padding: 0.85rem 1rem;" *ngFor="let side of [0,1,0,1]; let idx = index" [style.align-self]="side === 1 ? 'flex-end' : 'flex-start'">
+              <div class="sk-line sk-shimmer" [style.width]="side === 1 ? '180px' : '220px'"></div>
+              <div class="sk-line-sm sk-shimmer" style="width: 110px;"></div>
+            </div>
           </div>
         </ng-template>
       </div>
@@ -249,7 +258,16 @@
             class="form-input">
         </div>
 
-        <div *ngIf="isLoadingMembers" class="loading-box">Chargement de l'annuaire...</div>
+        <div *ngIf="isLoadingMembers" class="sk-stack" aria-busy="true" aria-label="Chargement de l'annuaire">
+          <div class="sk-row" *ngFor="let i of [1,2,3,4]">
+            <div class="sk-avatar sk-avatar-round sk-shimmer"></div>
+            <div style="flex: 1; display: flex; flex-direction: column; gap: 0.4rem;">
+              <div class="sk-line sk-shimmer" style="width: 58%;"></div>
+              <div class="sk-line-sm sk-shimmer" style="width: 72%;"></div>
+            </div>
+            <div class="sk-pill sk-shimmer" style="width: 72px;"></div>
+          </div>
+        </div>
 
         <div *ngIf="!isLoadingMembers && filteredMembers.length > 0" class="members-selection-list">
           <div 

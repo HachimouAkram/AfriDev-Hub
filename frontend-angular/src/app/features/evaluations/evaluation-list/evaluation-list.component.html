@@ -107,7 +107,25 @@
       <h2>Évaluations & Avis Reçus</h2>
     </div>
 
-    <div class="reviews-grid" *ngIf="evaluations.length > 0; else emptyReviews">
+    <div class="sk-grid" *ngIf="isLoading" aria-busy="true" aria-label="Chargement des évaluations">
+      <div class="sk-card" *ngFor="let i of [1,2,3]">
+        <div class="sk-meta-row">
+          <div class="sk-avatar sk-avatar-round sk-shimmer"></div>
+          <div style="flex: 1; display: flex; flex-direction: column; gap: 0.4rem;">
+            <div class="sk-line sk-shimmer" style="width: 58%;"></div>
+            <div class="sk-line-sm sk-shimmer" style="width: 42%;"></div>
+          </div>
+        </div>
+        <div class="sk-line sk-shimmer"></div>
+        <div class="sk-line sk-line-sm sk-shimmer" style="width: 74%;"></div>
+        <div class="sk-meta-row">
+          <div class="sk-pill sk-shimmer" style="width: 68px;"></div>
+          <div class="sk-pill sk-shimmer" style="width: 68px;"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="reviews-grid" *ngIf="!isLoading && evaluations.length > 0; else emptyReviews">
       <div *ngFor="let ev of evaluations" class="app-card review-card">
         <div class="review-header">
           <div class="evaluator-info">
@@ -152,7 +170,7 @@
     </div>
 
     <ng-template #emptyReviews>
-      <div class="empty-box app-card">Aucune évaluation enregistrée pour le moment.</div>
+      <div class="empty-box app-card" *ngIf="!isLoading">Aucune évaluation enregistrée pour le moment.</div>
     </ng-template>
   </div>
 

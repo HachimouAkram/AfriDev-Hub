@@ -95,9 +95,19 @@
           <h2>Publications & Échanges Publics</h2>
         </div>
 
-        <div *ngIf="isLoadingPosts" class="feed-loading">
-          <div class="spinner"></div>
-          <p class="subtext">Chargement des publications...</p>
+        <div *ngIf="isLoadingPosts" class="sk-stack" aria-busy="true" aria-label="Chargement des publications">
+          <div class="sk-card" *ngFor="let i of [1,2,3]">
+            <div class="sk-meta-row">
+              <div class="sk-avatar sk-avatar-round sk-shimmer"></div>
+              <div style="flex: 1; display: flex; flex-direction: column; gap: 0.4rem;">
+                <div class="sk-line sk-shimmer" style="width: 48%;"></div>
+                <div class="sk-line-sm sk-shimmer" style="width: 30%;"></div>
+              </div>
+            </div>
+            <div class="sk-line-title sk-shimmer"></div>
+            <div class="sk-line sk-shimmer"></div>
+            <div class="sk-line sk-line-sm sk-shimmer"></div>
+          </div>
         </div>
 
         <div *ngIf="!isLoadingPosts && publicPosts.length === 0" class="empty-feed">
@@ -183,8 +193,19 @@
   </div>
 </div>
 
-<div *ngIf="isLoading" class="loading-full-page">
-  <div class="spinner"></div>
-  <p>Chargement de la communauté...</p>
+<div *ngIf="isLoading" class="sk-stack" style="max-width: 1120px; margin: 2rem auto; padding: 0 1rem;" aria-busy="true" aria-label="Chargement de la communauté">
+  <div class="sk-banner sk-shimmer" style="height: 190px;"></div>
+  <div class="sk-card">
+    <div class="sk-line-title sk-shimmer" style="width: 45%;"></div>
+    <div class="sk-line sk-shimmer" style="width: 82%;"></div>
+    <div class="sk-line-sm sk-shimmer" style="width: 64%;"></div>
+  </div>
+  <div class="sk-row" *ngFor="let i of [1,2,3]">
+    <div class="sk-avatar sk-avatar-round sk-shimmer"></div>
+    <div style="flex: 1; display: flex; flex-direction: column; gap: 0.45rem;">
+      <div class="sk-line sk-shimmer" style="width: 55%;"></div>
+      <div class="sk-line-sm sk-shimmer" style="width: 78%;"></div>
+    </div>
+  </div>
 </div>
 

@@ -205,9 +205,9 @@
       </div>
 
       <div class="topbar-right">
-        <!-- Multilingual Language Selector with Voice (Desktop header only; on mobile accessible in Profile & Dropdown) -->
-        <div class="lang-dropdown-wrapper desktop-header-only notranslate" translate="no">
-          <button (click)="toggleLangMenu($event)" class="topbar-icon-btn lang-pill-btn notranslate" translate="no" title="Changer de langue / Làkk">
+        <!-- Multilingual Language Selector with Voice -->
+        <div class="lang-dropdown-wrapper notranslate" translate="no">
+          <button (click)="toggleLangMenu($event)" class="topbar-icon-btn lang-pill-btn notranslate" translate="no" aria-label="Changer de langue" title="Changer de langue / Làkk">
             <span class="lang-code notranslate" translate="no">{{ currentLang().code.toUpperCase() }}</span>
             <svg class="chevron-icon-sm" [class.rotated]="isLangMenuOpen" viewBox="0 0 24 24" fill="none" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
@@ -238,6 +238,16 @@
             </div>
           </div>
         </div>
+
+        <!-- Theme Toggle Button (Always visible on desktop & mobile next to Language) -->
+        <button (click)="toggleTheme()" class="topbar-icon-btn theme-btn" aria-label="Changer le thème" [title]="isDark() ? 'Passer au Mode Clair' : 'Passer au Mode Sombre'">
+          <svg *ngIf="isDark()" class="icon-svg icon-svg-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v2.25m0 13.5V21m8.966-8.966h-2.25M4.284 12h-2.25m15.364 6.364l-1.591-1.591M6.759 6.759L5.168 5.168m12.728 0l-1.591 1.591M6.759 17.241l-1.591 1.591M12 8.25a3.75 3.75 0 100 7.5 3.75 3.75 0 000-7.5z" />
+          </svg>
+          <svg *ngIf="!isDark()" class="icon-svg icon-svg-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21.752 15.002A9.718 9.718 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 009.002-5.998z" />
+          </svg>
+        </button>
 
         <!-- Notification Bell Button -->
         <div class="notif-dropdown-wrapper">
@@ -294,16 +304,6 @@
             </div>
           </div>
         </div>
-
-        <!-- Theme Toggle Button (Desktop header only; on mobile accessible in Profile & Dropdown) -->
-        <button (click)="toggleTheme()" class="topbar-icon-btn theme-btn desktop-header-only" [title]="isDark() ? 'Passer au Mode Clair' : 'Passer au Mode Sombre'">
-          <svg *ngIf="isDark()" class="icon-svg icon-svg-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v2.25m0 13.5V21m8.966-8.966h-2.25M4.284 12h-2.25m15.364 6.364l-1.591-1.591M6.759 6.759L5.168 5.168m12.728 0l-1.591 1.591M6.759 17.241l-1.591 1.591M12 8.25a3.75 3.75 0 100 7.5 3.75 3.75 0 000-7.5z" />
-          </svg>
-          <svg *ngIf="!isDark()" class="icon-svg icon-svg-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21.752 15.002A9.718 9.718 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 009.002-5.998z" />
-          </svg>
-        </button>
 
         <!-- User Profile Dropdown Pill -->
         <div class="profile-dropdown-wrapper">

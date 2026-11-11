@@ -101,9 +101,15 @@
 
   <!-- Table Container Card (Same style as Mes Projets) -->
   <div class="table-container-card app-card">
-    <div *ngIf="isLoading()" class="loading-state">
-      <div class="spinner"></div>
-      <p>Chargement de vos événements...</p>
+    <div *ngIf="isLoading()" class="sk-stack" style="padding: 1rem;" aria-busy="true" aria-label="Chargement de vos événements">
+      <div class="sk-row" *ngFor="let i of [1,2,3,4]">
+        <div class="sk-avatar sk-shimmer"></div>
+        <div style="flex: 1; display: flex; flex-direction: column; gap: 0.45rem;">
+          <div class="sk-line sk-shimmer" style="width: 54%;"></div>
+          <div class="sk-line-sm sk-shimmer" style="width: 36%;"></div>
+        </div>
+        <div class="sk-pill sk-shimmer" style="width: 84px;"></div>
+      </div>
     </div>
 
     <div *ngIf="!isLoading() && filteredEvents.length === 0" class="empty-projects-state">

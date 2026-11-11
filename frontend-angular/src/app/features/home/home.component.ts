@@ -6,6 +6,44 @@ import { ProjectService, Project } from '../../core/services/project.service';
 import { NetworkService, UserNetwork } from '../../core/services/network.service';
 import { CommunityGroupService, Group } from '../../core/services/community-group.service';
 
+interface GlobeCountry {
+  code: string;
+  label: string;
+  width: number;
+}
+
+interface GlobeSlot {
+  id: number;
+  y: number;
+  align: 'center' | 'left' | 'right';
+  anchorX: number;
+  pool: GlobeCountry[];
+  poolIdx: number;
+  current: GlobeCountry;
+  isSwapping: boolean;
+}
+
+const GLOBE_COUNTRIES: Record<string, GlobeCountry> = {
+  SN: { code: 'SN', label: 'Sénégal', width: 94 },
+  GN: { code: 'GN', label: 'Guinée', width: 88 },
+  ML: { code: 'ML', label: 'Mali', width: 78 },
+  MA: { code: 'MA', label: 'Maroc', width: 84 },
+  TN: { code: 'TN', label: 'Tunisie', width: 92 },
+  CI: { code: 'CI', label: "Côte d'Iv.", width: 102 },
+  GH: { code: 'GH', label: 'Ghana', width: 88 },
+  NG: { code: 'NG', label: 'Nigéria', width: 92 },
+  BF: { code: 'BF', label: 'Burkina', width: 92 },
+  KE: { code: 'KE', label: 'Kenya', width: 86 },
+  RW: { code: 'RW', label: 'Rwanda', width: 94 },
+  CM: { code: 'CM', label: 'Cameroun', width: 104 },
+  BJ: { code: 'BJ', label: 'Bénin', width: 84 },
+  KM: { code: 'KM', label: 'Comores', width: 98 },
+  CD: { code: 'CD', label: 'RD Congo', width: 104 },
+  ZA: { code: 'ZA', label: 'Afr. du Sud', width: 108 },
+  EG: { code: 'EG', label: 'Égypte', width: 90 },
+  TG: { code: 'TG', label: 'Togo', width: 82 }
+};
+
 @Component({
   selector: 'app-home',
   standalone: true,
@@ -27,6 +65,23 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
   isLoadingMembers = false;
   isLoadingCommunities = false;
 
+  // 18 Pan-African Countries rotating smoothly across the 8 orbital globe slots (8 initial + 10 added)
+  globeSlots: GlobeSlot[] = [
+    { id: 0, y: 10, align: 'center', anchorX: 230, pool: [GLOBE_COUNTRIES['SN'], GLOBE_COUNTRIES['GN'], GLOBE_COUNTRIES['ML']], poolIdx: 0, current: GLOBE_COUNTRIES['SN'], isSwapping: false },
+    { id: 1, y: 30, align: 'left', anchorX: 112, pool: [GLOBE_COUNTRIES['MA'], GLOBE_COUNTRIES['TN']], poolIdx: 0, current: GLOBE_COUNTRIES['MA'], isSwapping: false },
+    { id: 2, y: 30, align: 'right', anchorX: 346, pool: [GLOBE_COUNTRIES['CI'], GLOBE_COUNTRIES['GH']], poolIdx: 0, current: GLOBE_COUNTRIES['CI'], isSwapping: false },
+    { id: 3, y: 146, align: 'left', anchorX: 104, pool: [GLOBE_COUNTRIES['NG'], GLOBE_COUNTRIES['BF']], poolIdx: 0, current: GLOBE_COUNTRIES['NG'], isSwapping: false },
+    { id: 4, y: 146, align: 'right', anchorX: 358, pool: [GLOBE_COUNTRIES['KE'], GLOBE_COUNTRIES['RW']], poolIdx: 0, current: GLOBE_COUNTRIES['KE'], isSwapping: false },
+    { id: 5, y: 262, align: 'left', anchorX: 112, pool: [GLOBE_COUNTRIES['CM'], GLOBE_COUNTRIES['BJ']], poolIdx: 0, current: GLOBE_COUNTRIES['CM'], isSwapping: false },
+    { id: 6, y: 262, align: 'right', anchorX: 348, pool: [GLOBE_COUNTRIES['KM'], GLOBE_COUNTRIES['CD']], poolIdx: 0, current: GLOBE_COUNTRIES['KM'], isSwapping: false },
+    { id: 7, y: 282, align: 'center', anchorX: 230, pool: [GLOBE_COUNTRIES['ZA'], GLOBE_COUNTRIES['EG'], GLOBE_COUNTRIES['TG']], poolIdx: 0, current: GLOBE_COUNTRIES['ZA'], isSwapping: false }
+  ];
+
+  private readonly clockwiseOrder = [0, 2, 4, 6, 7, 5, 3, 1];
+  private rotationCursor = 0;
+  private flagRotationInterval?: ReturnType<typeof setInterval>;
+  private flagSwapTimeouts: ReturnType<typeof setTimeout>[] = [];
+
   // Animated Statistics above Showcase
   statDevs = 0;
   statProjects = 0;
@@ -40,6 +95,7 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
     this.loadFeaturedMembers();
     this.loadFeaturedCommunities();
     this.animateCounters();
+    this.startFlagRotation();
   }
 
   ngAfterViewInit(): void {
@@ -50,6 +106,45 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
     if (this.scrollObserver) {
       this.scrollObserver.disconnect();
     }
+    if (this.flagRotationInterval) {
+      clearInterval(this.flagRotationInterval);
+    }
+    this.flagSwapTimeouts.forEach((t) => clearTimeout(t));
+    this.flagSwapTimeouts = [];
+  }
+
+  private startFlagRotation(): void {
+    if (typeof window === 'undefined') return;
+    if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      return;
+    }
+
+    this.flagRotationInterval = setInterval(() => {
+      const slotIdx = this.clockwiseOrder[this.rotationCursor % this.clockwiseOrder.length];
+      this.rotationCursor++;
+      const slot = this.globeSlots[slotIdx];
+      if (!slot) return;
+
+      slot.isSwapping = true;
+      const timer = setTimeout(() => {
+        slot.poolIdx = (slot.poolIdx + 1) % slot.pool.length;
+        slot.current = slot.pool[slot.poolIdx];
+        slot.isSwapping = false;
+      }, 260);
+      this.flagSwapTimeouts.push(timer);
+    }, 1350);
+  }
+
+  getSlotTransform(slot: GlobeSlot): string {
+    let x = slot.anchorX;
+    if (slot.align === 'center') {
+      x = Math.round(slot.anchorX - slot.current.width / 2);
+    } else if (slot.align === 'left') {
+      x = Math.max(4, Math.round(slot.anchorX - slot.current.width));
+    } else {
+      x = Math.min(456 - slot.current.width, slot.anchorX);
+    }
+    return `translate(${x}, ${slot.y})`;
   }
 
   private initScrollReveal(): void {

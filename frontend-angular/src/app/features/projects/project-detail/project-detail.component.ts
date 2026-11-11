@@ -629,3 +629,4 @@ export class ProjectDetailComponent implements OnInit, OnDestroy {
     }, 3500);
   }
 }
+

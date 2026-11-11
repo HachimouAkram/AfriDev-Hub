@@ -104,9 +104,17 @@ import { POPULAR_TAGS } from '../../../core/services/help.service';
 
       <!-- Grille des groupes -->
       <section class="groups-content-section">
-        <div *ngIf="isLoading" class="loading-state app-card">
-          <div class="spinner"></div>
-          <p class="subtext">Chargement des communautés...</p>
+        <div *ngIf="isLoading" class="sk-grid" aria-busy="true" aria-label="Chargement des communautés">
+          <div class="sk-card" *ngFor="let i of [1,2,3,4,5,6]">
+            <div class="sk-thumb sk-shimmer"></div>
+            <div class="sk-meta-row">
+              <div class="sk-pill sk-shimmer"></div>
+              <div class="sk-pill sk-shimmer" style="width: 84px;"></div>
+            </div>
+            <div class="sk-line-title sk-shimmer"></div>
+            <div class="sk-line sk-shimmer"></div>
+            <div class="sk-btn sk-shimmer" style="margin-top: auto;"></div>
+          </div>
         </div>
 
         <div *ngIf="!isLoading && groups.length === 0" class="empty-state app-card">

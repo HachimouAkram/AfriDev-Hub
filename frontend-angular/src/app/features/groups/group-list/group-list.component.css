@@ -208,11 +208,33 @@
 .filter-select {
   padding: 0.45rem 0.85rem;
   border-radius: 8px;
-  border: 1px solid var(--border-subtle, #e2e8f0);
-  background: var(--bg-surface-card, #ffffff);
-  color: var(--text-heading, #1e293b);
+  border: 1px solid var(--border-subtle);
+  background: var(--bg-input);
+  color: var(--text-heading);
   font-size: 0.85rem;
   outline: none;
+}
+
+.filter-select option {
+  background: var(--bg-surface-card);
+  color: var(--text-heading);
+}
+
+@media (max-width: 640px) {
+  .search-input,
+  .filter-select {
+    font-size: max(1rem, 1em);
+  }
+  .search-box {
+    min-width: 100%;
+  }
+  .select-filters-group {
+    width: 100%;
+    flex-wrap: wrap;
+  }
+  .filter-select {
+    flex: 1;
+  }
 }
 
 .counter-badge {

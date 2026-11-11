@@ -276,9 +276,45 @@ import { Subscription } from 'rxjs';
           </div>
         </div>
 
-        <!-- Mobile Controls (Theme Toggle + Hamburger Toggle) -->
+        <!-- Mobile Controls (Language + Theme Toggle + Hamburger Toggle) -->
         <div class="mobile-controls mobile-only">
-          <button (click)="toggleTheme()" class="theme-toggle-btn icon-only" [title]="isDark() ? 'Passer au Mode Clair' : 'Passer au Mode Sombre'">
+          <div class="lang-dropdown-container mobile-lang-dropdown notranslate" translate="no">
+            <button type="button" (click)="toggleLangMenu($event)" class="lang-toggle-btn mobile-lang-btn notranslate" translate="no" aria-label="Changer de langue" title="Changer de langue / Wàllu làkk">
+              <span class="lang-code notranslate" translate="no">{{ currentLang().code.toUpperCase() }}</span>
+              <svg class="chevron-svg" [class.rotated]="isLangMenuOpen" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+              </svg>
+            </button>
+
+            <div class="lang-dropdown-card mobile-lang-card notranslate" translate="no" *ngIf="isLangMenuOpen" (click)="$event.stopPropagation()">
+              <div class="lang-menu-header notranslate" translate="no">
+                <span>Choisir une langue</span>
+              </div>
+              <div class="lang-menu-list notranslate" translate="no">
+                <div *ngFor="let lang of availableLanguages"
+                     class="lang-menu-item notranslate"
+                     translate="no"
+                     [class.selected]="lang.code === currentLang().code"
+                     (click)="selectLanguage(lang)">
+                  <div class="lang-item-left notranslate" translate="no">
+                    <span class="lang-code-pill notranslate" translate="no">{{ lang.code.toUpperCase() }}</span>
+                    <span class="lang-name notranslate" translate="no">{{ lang.label }}</span>
+                  </div>
+                  <button type="button"
+                          class="voice-btn notranslate"
+                          translate="no"
+                          (click)="speakVoice(lang, $event)"
+                          [title]="'Écouter en ' + lang.label">
+                    <svg class="icon-svg icon-svg-xs" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.114 5.636a9 9 0 010 12.728M16.463 8.288a5.25 5.25 0 010 7.424M6.75 8.25l4.72-4.72a.75.75 0 011.28.53v15.88a.75.75 0 01-1.28.53l-4.72-4.72H4.51c-.88 0-1.704-.507-1.938-1.354A9.01 9.01 0 012.25 12c0-.83.112-1.633.322-2.396C2.806 8.757 3.63 8.25 4.51 8.25H6.75z" />
+                    </svg>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <button type="button" (click)="toggleTheme()" class="theme-toggle-btn icon-only" [title]="isDark() ? 'Passer au Mode Clair' : 'Passer au Mode Sombre'" aria-label="Changer le thème">
             <svg *ngIf="isDark()" class="icon-svg icon-svg-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v2.25m0 13.5V21m8.966-8.966h-2.25M4.284 12h-2.25m15.364 6.364l-1.591-1.591M6.759 6.759L5.168 5.168m12.728 0l-1.591 1.591M6.759 17.241l-1.591 1.591M12 8.25a3.75 3.75 0 100 7.5 3.75 3.75 0 000-7.5z" />
             </svg>
@@ -307,7 +343,6 @@ import { Subscription } from 'rxjs';
           <a routerLink="/communautes" routerLinkActive="active" class="nav-link">{{ t('nav.communities') }}</a>
           <a routerLink="/resources" routerLinkActive="active" class="nav-link">{{ t('nav.resources') }}</a>
           <a routerLink="/leaderboard" routerLinkActive="active" class="nav-link">{{ t('nav.leaderboard') }}</a>
-          <a routerLink="/ai-assistant" routerLinkActive="active" class="nav-link nav-ai-highlight">✨ Assistant IA</a>
         </div>
       </div>
 
@@ -424,7 +459,6 @@ import { Subscription } from 'rxjs';
           <a routerLink="/communautes" (click)="closeAllMenus()" routerLinkActive="active" class="mobile-nav-link">{{ t('nav.communities') }}</a>
           <a routerLink="/resources" (click)="closeAllMenus()" routerLinkActive="active" class="mobile-nav-link">{{ t('nav.resources') }}</a>
           <a routerLink="/leaderboard" (click)="closeAllMenus()" routerLinkActive="active" class="mobile-nav-link">{{ t('nav.leaderboard') }}</a>
-          <a routerLink="/ai-assistant" (click)="closeAllMenus()" routerLinkActive="active" class="mobile-nav-link nav-ai-highlight">✨ Assistant IA</a>
           <a *ngIf="isLoggedIn()" routerLink="/messages" (click)="closeAllMenus()" routerLinkActive="active" class="mobile-nav-link">Messagerie</a>
           <a *ngIf="isLoggedIn()" routerLink="/dashboard/profile" (click)="closeAllMenus()" routerLinkActive="active" class="mobile-nav-link">Mon Profil</a>
           <a *ngIf="isLoggedIn()" routerLink="/dashboard" (click)="closeAllMenus()" routerLinkActive="active" class="mobile-nav-link">Tableau de bord</a>
@@ -434,32 +468,6 @@ import { Subscription } from 'rxjs';
           
           <button *ngIf="isLoggedIn()" (click)="logout(); closeAllMenus();" class="btn btn-outline btn-block logout-mobile-btn">
             Se Déconnecter
-          </button>
-
-          <!-- Mobile Language Selector with Voice -->
-          <div class="mobile-lang-section notranslate" translate="no">
-            <span class="mobile-lang-label notranslate" translate="no">Langue & Voix / Wàllu làkk :</span>
-            <div class="mobile-lang-grid notranslate" translate="no">
-              <button *ngFor="let lang of availableLanguages" 
-                      type="button"
-                      class="mobile-lang-chip notranslate"
-                      translate="no"
-                      [class.active]="lang.code === currentLang().code"
-                      (click)="selectLanguage(lang)">
-                <span class="notranslate" translate="no"><strong class="mobile-lang-code">{{ lang.code.toUpperCase() }}</strong> {{ lang.label }}</span>
-                <span class="voice-icon-mini" (click)="speakVoice(lang, $event)" [title]="'Écouter en ' + lang.label">🔊</span>
-              </button>
-            </div>
-          </div>
-
-          <button (click)="toggleTheme(); closeAllMenus();" class="theme-toggle-btn mobile-theme-btn">
-            <svg *ngIf="isDark()" class="icon-svg icon-svg-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v2.25m0 13.5V21m8.966-8.966h-2.25M4.284 12h-2.25m15.364 6.364l-1.591-1.591M6.759 6.759L5.168 5.168m12.728 0l-1.591 1.591M6.759 17.241l-1.591 1.591M12 8.25a3.75 3.75 0 100 7.5 3.75 3.75 0 000-7.5z" />
-            </svg>
-            <svg *ngIf="!isDark()" class="icon-svg icon-svg-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21.752 15.002A9.718 9.718 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 009.002-5.998z" />
-            </svg>
-            <span>Passer au Mode {{ isDark() ? 'Clair' : 'Sombre' }}</span>
           </button>
         </div>
       </div>
@@ -994,10 +1002,6 @@ import { Subscription } from 'rxjs';
       padding: 0 1rem;
       justify-content: center;
     }
-    .nav-ai-highlight {
-      color: #10B981 !important;
-      font-weight: 700 !important;
-    }
     .mobile-search-strip {
       padding: 0.5rem 0.9rem 0.55rem;
       border-top: 1px solid var(--border-subtle);
@@ -1316,50 +1320,6 @@ import { Subscription } from 'rxjs';
       transform: scale(1.08);
     }
 
-    /* Mobile Language Drawer Styles */
-    .mobile-lang-section {
-      padding: 0.75rem 0;
-      border-top: 1px solid var(--border-subtle);
-      border-bottom: 1px solid var(--border-subtle);
-      margin: 0.5rem 0;
-    }
-    .mobile-lang-label {
-      font-size: 0.775rem;
-      font-weight: 700;
-      color: var(--text-muted);
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      display: block;
-      margin-bottom: 0.5rem;
-    }
-    .mobile-lang-grid {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 0.5rem;
-    }
-    .mobile-lang-chip {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 0.5rem 0.75rem;
-      background: rgba(255, 255, 255, 0.05);
-      border: 1px solid var(--border-subtle);
-      border-radius: 8px;
-      color: var(--text-heading);
-      font-size: 0.825rem;
-      font-weight: 600;
-      cursor: pointer;
-    }
-    .mobile-lang-chip.active {
-      background: rgba(16, 185, 129, 0.15);
-      border-color: var(--emerald-500);
-      color: var(--emerald-500);
-    }
-    .voice-icon-mini {
-      font-size: 0.9rem;
-      padding-left: 0.35rem;
-    }
-
     .btn-sm {
       padding: 0.42rem 0.85rem;
       font-size: 0.835rem;
@@ -1526,13 +1486,6 @@ import { Subscription } from 'rxjs';
       color: #EF4444;
     }
 
-    .mobile-theme-btn {
-      width: 100%;
-      justify-content: center;
-      margin-top: 0.5rem;
-      padding: 0.65rem;
-    }
-
     .logout-mobile-btn {
       color: #EF4444;
       border-color: rgba(239, 68, 68, 0.3);
@@ -1546,7 +1499,40 @@ import { Subscription } from 'rxjs';
     .mobile-controls {
       display: flex;
       align-items: center;
-      gap: 0.5rem;
+      gap: 0.42rem;
+      flex-shrink: 0;
+    }
+    .mobile-lang-btn {
+      padding: 0.38rem 0.6rem;
+      font-size: 0.78rem;
+      gap: 0.3rem;
+      min-height: 34px;
+    }
+    .mobile-lang-card {
+      right: -2.4rem;
+      width: min(230px, calc(100vw - 1.5rem));
+      z-index: 1200;
+    }
+    @media (max-width: 400px) {
+      .nav-content {
+        padding: 0 0.7rem;
+        gap: 0.4rem;
+      }
+      .logo {
+        font-size: 1.12rem;
+        gap: 0.42rem;
+      }
+      .mobile-controls {
+        gap: 0.3rem;
+      }
+      .mobile-lang-btn {
+        padding: 0.34rem 0.5rem;
+        font-size: 0.74rem;
+      }
+      .mobile-controls .theme-toggle-btn.icon-only,
+      .mobile-controls .mobile-toggle-btn {
+        padding: 0.36rem;
+      }
     }
 
     /* DESKTOP DEFAULT: Hide mobile elements */
@@ -2108,6 +2094,7 @@ export class AppComponent implements OnDestroy {
 
   toggleMobileMenu(): void {
     this.isMobileMenuOpen = !this.isMobileMenuOpen;
+    this.isLangMenuOpen = false;
     this.isSearchOpen = false;
   }
 

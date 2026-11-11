@@ -248,6 +248,17 @@
   stroke: rgba(5, 150, 105, 0.28);
 }
 
+.country-pill-anim {
+  transform-box: fill-box;
+  transform-origin: center;
+  transition: opacity 0.28s cubic-bezier(0.16, 1, 0.3, 1), transform 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.country-pill-anim.is-swapping {
+  opacity: 0;
+  transform: scale(0.88);
+}
+
 .country-pill-text {
   font-family: var(--font-sans);
   font-size: 11px;
