@@ -1,6 +1,7 @@
 import { Component, inject, OnInit, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { ActivatedRoute } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
 import { OpportunityService, Opportunity } from '../../../core/services/opportunity.service';
 import { ProfileService } from '../../../core/services/profile.service';
@@ -16,8 +17,11 @@ export class OpportunityListComponent implements OnInit {
   private opportunityService = inject(OpportunityService);
   private authService = inject(AuthService);
   private profileService = inject(ProfileService);
+  private route = inject(ActivatedRoute);
 
   opportunities: Opportunity[] = [];
+  filteredOpportunities: Opportunity[] = [];
+  searchQuery: string = '';
   selectedType: string = 'ALL';
   currentSort: string = 'SUGGESTED';
   isLoading = true;
@@ -67,7 +71,31 @@ export class OpportunityListComponent implements OnInit {
   optIsPaid = true; // Pour un stage: rémunéré ou non
 
   ngOnInit(): void {
+    this.route.queryParamMap.subscribe(params => {
+      const q = params.get('q');
+      this.searchQuery = q || '';
+      this.applySearchFilter();
+    });
     this.loadOpportunities();
+  }
+
+  applySearchFilter(): void {
+    const q = this.searchQuery.trim().toLowerCase();
+    if (!q) {
+      this.filteredOpportunities = [...this.opportunities];
+      return;
+    }
+    this.filteredOpportunities = this.opportunities.filter(o =>
+      (o.title && o.title.toLowerCase().includes(q)) ||
+      (o.description && o.description.toLowerCase().includes(q)) ||
+      (o.location && o.location.toLowerCase().includes(q)) ||
+      (o.stack && o.stack.some(s => s.toLowerCase().includes(q)))
+    );
+  }
+
+  clearSearchFilter(): void {
+    this.searchQuery = '';
+    this.applySearchFilter();
   }
 
   loadOpportunities(): void {
@@ -99,10 +127,12 @@ export class OpportunityListComponent implements OnInit {
         }
 
         this.opportunities = fetched;
+        this.applySearchFilter();
       },
       error: () => {
         this.isLoading = false;
         this.opportunities = [];
+        this.filteredOpportunities = [];
       }
     });
   }
@@ -136,6 +166,7 @@ export class OpportunityListComponent implements OnInit {
           const existingIds = new Set(this.opportunities.map(o => o.id));
           const toAdd = newItems.filter(o => !existingIds.has(o.id));
           this.opportunities = [...this.opportunities, ...toAdd];
+          this.applySearchFilter();
         }
 
         if (isLast || newItems.length < this.pageSize || (this.totalOpportunities > 0 && this.opportunities.length >= this.totalOpportunities)) {

@@ -10,11 +10,16 @@
     </div>
 
     <!-- Error Alert -->
-    <div *ngIf="errorMessage" class="alert alert-error" role="alert">
+    <div *ngIf="errorMessage" class="alert alert-error" [class.alert-lockout]="isLocked" role="alert">
       <svg class="icon-svg text-red" viewBox="0 0 24 24" fill="none" stroke="currentColor">
         <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
       </svg>
-      <span>{{ errorMessage }}</span>
+      <div>
+        <span>{{ errorMessage }}</span>
+        <div *ngIf="isLocked && lockRemainingSeconds > 0" class="lock-countdown-badge">
+          ⏳ Déblocage automatique dans : <strong>{{ Math.floor(lockRemainingSeconds / 60) }}m {{ lockRemainingSeconds % 60 }}s</strong>
+        </div>
+      </div>
     </div>
 
     <!-- Success Alert -->

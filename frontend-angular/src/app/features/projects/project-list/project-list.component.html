@@ -245,118 +245,135 @@
 
   <!-- Projects Grid -->
   <div class="projects-grid" *ngIf="!isLoading && !isServerOffline && filteredProjects.length > 0; else loadingState">
-    <div *ngFor="let p of filteredProjects" class="app-card project-card" [class.is-recommended-project]="p.matchPercentage && p.matchPercentage >= 75" (click)="openDetailModal(p)">
-      <div class="card-top">
-        <div class="author-info">
-          <div class="author-avatar">
-            {{ (p.author?.profile?.fullName || p.author?.email || 'A').charAt(0).toUpperCase() }}
-          </div>
-          <div class="author-meta">
-            <div class="author-name-row">
-              <a [routerLink]="['/profile', p.author?.profile?.id || p.author?.id]" (click)="$event.stopPropagation()" class="author-name">
-                {{ p.author?.profile?.fullName || p.author?.email || 'Développeur' }}
-              </a>
-              <span class="author-followed-badge" *ngIf="p.isAuthorFollowed" title="Vous suivez cet auteur">
-                <svg class="icon-svg icon-svg-xs" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7.5v3m0 0v3m0-3h3m-3 0h-3m-2.25-1.5a4.5 4.5 0 11-9 0 4.5 4.5 0 019 0zM3.751 20.105a8.25 8.25 0 0116.498 0 .75.75 0 01-.437.695A18.683 18.683 0 0112 22.5c-2.786 0-5.433-.608-7.812-1.7a.75.75 0 01-.437-.695z" />
+    <div *ngFor="let p of filteredProjects" class="app-card project-card has-cover-design" [class.is-recommended-project]="p.matchPercentage && p.matchPercentage >= 75" (click)="openProjectDetail(p)">
+      <!-- Photo de Couverture / Hero Banner en haut de la card -->
+      <div class="card-cover-banner">
+        <img 
+          *ngIf="p.screenshots && p.screenshots.length > 0" 
+          [src]="getMediaUrl(p.screenshots[0])" 
+          [alt]="p.title" 
+          loading="lazy"
+          class="cover-banner-img" />
+        <div *ngIf="!p.screenshots || p.screenshots.length === 0" class="cover-banner-fallback">
+          <div class="cover-pattern"></div>
+          <span class="cover-monogram">{{ p.title.charAt(0).toUpperCase() }}</span>
+        </div>
+
+        <!-- Badges flottants sur la couverture -->
+        <div class="cover-overlay-badges">
+          <span class="badge" [ngClass]="getProjectTypeBadge(p.projectType).class">
+            {{ getProjectTypeBadge(p.projectType).label }}
+          </span>
+          <span class="project-affinity-pill" *ngIf="p.matchPercentage">
+            <i class="ri-magic-line"></i> {{ p.matchPercentage | number:'1.0-0' }}% Match
+          </span>
+        </div>
+      </div>
+
+      <div class="card-body-inner">
+        <div class="card-top">
+          <div class="author-info">
+            <div class="author-avatar">
+              {{ (p.author?.profile?.fullName || p.author?.email || 'A').charAt(0).toUpperCase() }}
+            </div>
+            <div class="author-meta">
+              <div class="author-name-row">
+                <a [routerLink]="['/profile', p.author?.profile?.id || p.author?.id]" (click)="$event.stopPropagation()" class="author-name">
+                  {{ p.author?.profile?.fullName || p.author?.email || 'Développeur' }}
+                </a>
+                <span class="author-followed-badge" *ngIf="p.isAuthorFollowed" title="Vous suivez cet auteur">
+                  Suivi
+                </span>
+              </div>
+              <span class="author-country" *ngIf="p.author?.profile?.country">
+                <svg class="inline-icon-xs" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" />
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" />
                 </svg>
-                Suivi
+                {{ p.author?.profile?.country }}
               </span>
             </div>
-            <span class="author-country" *ngIf="p.author?.profile?.country">
-              <svg class="inline-icon-xs" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" />
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" />
+          </div>
+        </div>
+
+        <div class="card-main">
+          <h3 class="project-title">{{ p.title }}</h3>
+
+          <!-- Raison explicite de la recommandation -->
+          <div class="project-reason-row" *ngIf="p.suggestionReason">
+            <svg class="icon-svg icon-svg-xs text-amber" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 00-.182.557l1.285 5.385a.562.562 0 01-.84.61l-4.725-2.885a.563.563 0 00-.586 0L6.982 20.54a.562.562 0 01-.84-.61l1.285-5.386a.562.562 0 00-.182-.557l-4.204-3.602a.563.563 0 01.321-.988l5.518-.442a.563.563 0 00.475-.345L11.48 3.5z" />
+            </svg>
+            <span class="reason-text">{{ p.suggestionReason }}</span>
+          </div>
+
+          <!-- Company if enterprise -->
+          <div *ngIf="p.companyName" class="enterprise-tag-line text-xs text-muted">
+            <svg class="inline-icon-xs" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.25 21h19.5m-18-18v18m10.5-18v18m6-13.5V21" />
+            </svg>
+            {{ p.companyName }} • {{ p.companyRole }}
+          </div>
+
+          <!-- Price if sale -->
+          <div *ngIf="p.projectType === 'FOR_SALE'" class="price-tag-line">
+            <svg class="inline-icon-xs text-amber" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.568 3H5.25A2.25 2.25 0 003 5.25v4.318c0 .597.237 1.17.659 1.591l9.581 9.581c.699.699 1.78.872 2.607.33a18.095 18.095 0 005.223-5.223c.542-.827.369-1.908-.33-2.607L11.16 3.66A2.25 2.25 0 009.568 3z" />
+            </svg>
+            <strong>{{ p.price | number }} {{ p.currency || 'XOF' }}</strong>
+          </div>
+
+          <!-- Maximum 3 technologies sur la carte (+N pour voir le reste dans le détail) -->
+          <div class="stack-list" *ngIf="p.stack && p.stack.length">
+            <span *ngFor="let tech of p.stack.slice(0, 3)" 
+                  class="badge" 
+                  [ngClass]="isMatchedTech(p, tech) ? 'badge-tech-matched' : 'badge-gray'">
+              <svg *ngIf="isMatchedTech(p, tech)" class="icon-svg icon-svg-xs text-emerald" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M4.5 12.75l6 6 9-13.5" />
               </svg>
-              {{ p.author?.profile?.country }}
+              {{ tech }}
+            </span>
+            <span *ngIf="p.stack.length > 3" class="badge badge-more-tech" title="Voir toutes les technologies dans les détails">
+              +{{ p.stack.length - 3 }}
             </span>
           </div>
         </div>
 
-        <div class="card-badges-group">
-          <span class="project-affinity-pill" *ngIf="p.matchPercentage">
-            <i class="ri-magic-line"></i> {{ p.matchPercentage | number:'1.0-0' }}% Match
-          </span>
-          <span class="badge" [ngClass]="getProjectTypeBadge(p.projectType).class">
-            {{ getProjectTypeBadge(p.projectType).label }}
-          </span>
-        </div>
-      </div>
+        <div class="card-bottom">
+          <div class="project-actions-left">
+            <button 
+              (click)="toggleRecognize(p, $event)" 
+              class="btn btn-sm"
+              [ngClass]="p.recognizedByCurrentUser ? 'btn-emerald' : 'btn-outline'"
+              [title]="isLoggedIn() ? 'Reconnaître ce projet' : 'Connectez-vous pour voter'">
+              <svg class="icon-svg icon-svg-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 00-.182.557l1.285 5.385a.562.562 0 01-.84.61l-4.725-2.885a.563.563 0 00-.586 0L6.982 20.54a.562.562 0 01-.84-.61l1.285-5.386a.562.562 0 00-.182-.557l-4.204-3.602a.563.563 0 01.321-.988l5.518-.442a.563.563 0 00.475-.345L11.48 3.5z" />
+              </svg>
+              <span>{{ p.recognitionsCount }}</span>
+            </button>
 
-      <div class="card-main">
-        <h3 class="project-title">{{ p.title }}</h3>
-        <p class="project-desc">{{ p.description }}</p>
+            <span class="project-views-pill" [title]="(p.viewsCount || 0) + ' vue(s)'">
+              <svg class="icon-svg icon-svg-xs" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+              </svg>
+              <span>{{ p.viewsCount || 0 }}</span>
+            </span>
 
-        <!-- Raison explicite de la recommandation -->
-        <div class="project-reason-row" *ngIf="p.suggestionReason">
-          <svg class="icon-svg icon-svg-xs text-amber" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18v-5.25m0 0a6.01 6.01 0 001.5-.189m-1.5.189a6.01 6.01 0 01-1.5-.189m3.75 2.625a3.375 3.375 0 00-3.75-3.375m-3.75 3.375a3.375 3.375 0 013.75-3.375m0 0V5.25m0 0a2.25 2.25 0 00-2.25-2.25h-1.5A2.25 2.25 0 006 5.25v2.25m6-4.5a2.25 2.25 0 012.25 2.25v2.25" />
-          </svg>
-          <span class="reason-text">{{ p.suggestionReason }}</span>
-        </div>
+            <button (click)="openProjectDetail(p, $event)" class="btn btn-outline btn-sm icon-only-btn" title="Voir les détails & commentaires">
+              <svg class="icon-svg icon-svg-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 20.25c4.97 0 9-3.694 9-8.25s-4.03-8.25-9-8.25S3 7.444 3 12c0 2.104.859 4.023 2.273 5.48.432.447.74 1.04.586 1.641a4.483 4.483 0 01-.923 1.785A5.969 5.969 0 0012 20.25z" />
+              </svg>
+            </button>
+          </div>
 
-        <!-- Company if enterprise -->
-        <div *ngIf="p.companyName" class="enterprise-tag-line text-xs text-muted">
-          <svg class="inline-icon-xs" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.25 21h19.5m-18-18v18m10.5-18v18m6-13.5V21" />
-          </svg>
-          {{ p.companyName }} • {{ p.companyRole }}
-        </div>
-
-        <!-- Price if sale -->
-        <div *ngIf="p.projectType === 'FOR_SALE'" class="price-tag-line">
-          <svg class="inline-icon-xs text-amber" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.568 3H5.25A2.25 2.25 0 003 5.25v4.318c0 .597.237 1.17.659 1.591l9.581 9.581c.699.699 1.78.872 2.607.33a18.095 18.095 0 005.223-5.223c.542-.827.369-1.908-.33-2.607L11.16 3.66A2.25 2.25 0 009.568 3z" />
-          </svg>
-          <strong>{{ p.price | number }} {{ p.currency || 'XOF' }}</strong>
-        </div>
-
-        <div class="stack-list" *ngIf="p.stack && p.stack.length">
-          <span *ngFor="let tech of p.stack" 
-                class="badge" 
-                [ngClass]="isMatchedTech(p, tech) ? 'badge-tech-matched' : 'badge-gray'">
-            <svg *ngIf="isMatchedTech(p, tech)" class="icon-svg icon-svg-xs text-emerald" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M4.5 12.75l6 6 9-13.5" />
-            </svg>
-            {{ tech }}
-          </span>
-        </div>
-      </div>
-
-      <div class="card-bottom">
-        <div class="project-actions-left">
-          <button 
-            (click)="toggleRecognize(p, $event)" 
-            class="btn btn-sm"
-            [ngClass]="p.recognizedByCurrentUser ? 'btn-emerald' : 'btn-outline'"
-            [title]="isLoggedIn() ? 'Reconnaître ce projet' : 'Connectez-vous pour voter'">
-            <svg class="icon-svg icon-svg-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 00-.182.557l1.285 5.385a.562.562 0 01-.84.61l-4.725-2.885a.563.563 0 00-.586 0L6.982 20.54a.562.562 0 01-.84-.61l1.285-5.386a.562.562 0 00-.182-.557l-4.204-3.602a.563.563 0 01.321-.988l5.518-.442a.563.563 0 00.475-.345L11.48 3.5z" />
-            </svg>
-            <span>{{ p.recognitionsCount }}</span>
-          </button>
-
-          <span class="project-views-pill" [title]="(p.viewsCount || 0) + ' vue(s)'">
-            <svg class="icon-svg icon-svg-xs" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-            </svg>
-            <span>{{ p.viewsCount || 0 }}</span>
-          </span>
-
-          <button (click)="openDetailModal(p); $event.stopPropagation();" class="btn btn-outline btn-sm icon-only-btn" title="Commenter">
-            <svg class="icon-svg icon-svg-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 20.25c4.97 0 9-3.694 9-8.25s-4.03-8.25-9-8.25S3 7.444 3 12c0 2.104.859 4.023 2.273 5.48.432.447.74 1.04.586 1.641a4.483 4.483 0 01-.923 1.785A5.969 5.969 0 0012 20.25z" />
-            </svg>
-          </button>
-        </div>
-
-        <div class="project-actions-right">
-          <button (click)="shareProject(p, undefined, $event)" class="btn btn-outline btn-sm icon-only-btn" title="Partager">
-            <svg class="icon-svg icon-svg-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7.217 10.907a2.25 2.25 0 100 2.186m0-2.186c.18.324.283.696.283 1.093s-.103.77-.283 1.093m0-2.186l9.566-5.314m-9.566 7.5l9.566 5.314m0 0a2.25 2.25 0 103.935 2.186 2.25 2.25 0 00-3.935-2.186zm0-12.814a2.25 2.25 0 103.933-2.185 2.25 2.25 0 00-3.933 2.185z" />
-            </svg>
-          </button>
+          <div class="project-actions-right">
+            <button (click)="shareProject(p, undefined, $event)" class="btn btn-outline btn-sm icon-only-btn" title="Partager">
+              <svg class="icon-svg icon-svg-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7.217 10.907a2.25 2.25 0 100 2.186m0-2.186c.18.324.283.696.283 1.093s-.103.77-.283 1.093m0-2.186l9.566-5.314m-9.566 7.5l9.566 5.314m0 0a2.25 2.25 0 103.935 2.186 2.25 2.25 0 00-3.935-2.186zm0-12.814a2.25 2.25 0 103.933-2.185 2.25 2.25 0 00-3.933 2.185z" />
+              </svg>
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -375,8 +392,32 @@
     <span>Vous avez exploré tous les projets disponibles</span>
   </div>
 
+  <!-- SKELETON LOADING CARDS (Shimmer effect moderne) -->
   <ng-template #loadingState>
-    <div class="loading-box app-card" *ngIf="isLoading">Chargement de la vitrine des projets...</div>
+    <div class="projects-grid" *ngIf="isLoading">
+      <div class="app-card skeleton-project-card" *ngFor="let i of [1, 2, 3, 4, 5, 6]">
+        <div class="skeleton-cover skeleton-shimmer"></div>
+        <div class="skeleton-card-content">
+          <div class="skeleton-author-row">
+            <div class="skeleton-avatar skeleton-shimmer"></div>
+            <div class="skeleton-meta">
+              <div class="skeleton-line w-60 skeleton-shimmer"></div>
+              <div class="skeleton-line w-40 skeleton-shimmer"></div>
+            </div>
+          </div>
+          <div class="skeleton-line w-85 title-sk skeleton-shimmer"></div>
+          <div class="skeleton-badges-row">
+            <div class="skeleton-pill skeleton-shimmer"></div>
+            <div class="skeleton-pill skeleton-shimmer"></div>
+            <div class="skeleton-pill skeleton-shimmer"></div>
+          </div>
+          <div class="skeleton-footer-row">
+            <div class="skeleton-pill sm skeleton-shimmer"></div>
+            <div class="skeleton-pill sm skeleton-shimmer"></div>
+          </div>
+        </div>
+      </div>
+    </div>
   </ng-template>
 
   <!-- DETAIL & COMMENTS MODAL (VECTOR SVG ONLY, NO EMOJIS) -->

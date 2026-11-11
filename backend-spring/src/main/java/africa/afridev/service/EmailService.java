@@ -258,6 +258,44 @@ public class EmailService {
         sendHtmlEmail(toEmail, subject, body);
     }
 
+    // ── Email Alerte Compte Désactivé (Rate Limiting / Anti-Brute Force) ──
+    @Async
+    public void sendAccountLockedEmail(String toEmail, int lockoutMinutes, String ipAddress, String deviceName) {
+        String subject = "\uD83D\uDEA8 [AfriDev Hub] Sécurité : Votre compte a été temporairement désactivé";
+        String body = """
+            <div style="font-family: Inter, Arial, sans-serif; max-width: 520px; margin: auto; background: #0F1828; color: #E2E8F0; border-radius: 16px; overflow: hidden; border: 1px solid #EF4444;">
+              <div style="background: linear-gradient(135deg, #EF4444, #B91C1C); padding: 28px; text-align: center;">
+                <h1 style="margin: 0; color: #fff; font-size: 22px; font-weight: 800;">Alerte de Sécurité AfriDev Hub</h1>
+                <p style="margin: 6px 0 0; color: rgba(255,255,255,0.9); font-size: 13px;">Suspension Temporaire de Connexion</p>
+              </div>
+              <div style="padding: 28px;">
+                <div style="background: rgba(239, 68, 68, 0.1); border-left: 4px solid #EF4444; padding: 14px 18px; border-radius: 8px; margin-bottom: 20px;">
+                  <strong style="color: #F87171; font-size: 15px;">5 tentatives de connexion infructueuses détectées</strong>
+                  <p style="color: #CBD5E1; font-size: 13px; margin: 6px 0 0;">
+                    Par mesure de protection contre les attaques par force brute, votre compte a été temporairement désactivé pour <strong>%d minutes</strong>.
+                  </p>
+                </div>
+                <div style="background: #1E293B; border-radius: 10px; padding: 16px; margin-bottom: 20px; font-size: 13px; line-height: 1.6; color: #94A3B8;">
+                  <div style="color: #F1F5F9; font-weight: 600; margin-bottom: 6px;">Détails de l'incident :</div>
+                  <div>📍 Adresse IP : <span style="color: #38BDF8; font-family: monospace;">%s</span></div>
+                  <div>💻 Appareil : <span style="color: #F1F5F9;">%s</span></div>
+                  <div>⏳ Durée du blocage : <strong style="color: #F87171;">%d minutes</strong></div>
+                </div>
+                <p style="color: #94A3B8; font-size: 13px; line-height: 1.5;">
+                  <strong>Que devez-vous faire ?</strong><br/>
+                  1. Veuillez patienter et réessayer de vous connecter dans <strong>%d minutes</strong>.<br/>
+                  2. Si vous n'êtes pas à l'origine de ces tentatives, quelqu'un a essayé de deviner votre mot de passe. Nous vous recommandons vivement de réinitialiser votre mot de passe dès la fin du blocage.
+                </p>
+              </div>
+              <div style="background: #0B1120; padding: 14px; text-align: center;">
+                <p style="margin: 0; color: #475569; font-size: 11px;">© 2026 AfriDev Hub · Sécurité de l'Infrastructure Panafricaine</p>
+              </div>
+            </div>
+            """.formatted(lockoutMinutes, ipAddress != null ? ipAddress : "Inconnue", deviceName != null ? deviceName : "Navigateur web", lockoutMinutes, lockoutMinutes);
+
+        sendHtmlEmail(toEmail, subject, body);
+    }
+
     // ── Generic fire-and-forget (errors logged, not propagated) ───────────────
     private void sendHtmlEmail(String to, String subject, String htmlBody) {
         try {

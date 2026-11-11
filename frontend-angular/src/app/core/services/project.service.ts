@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, tap } from 'rxjs';
 import { ApiResponse, User } from './auth.service';
 import { getUploadApiUrl } from '../utils/upload-helper';
 
@@ -61,7 +61,15 @@ export class ProjectService {
   private http = inject(HttpClient);
   private apiUrl = '/api/v1/projects';
 
-  getProjects(page = 0, size = 20, projectType?: string, sort?: string): Observable<ApiResponse<any>> {
+  // Cache mémoire réactif (Stale-While-Revalidate) pour chargement instantané (0 ms)
+  private projectsCache = new Map<string, { timestamp: number; data: ApiResponse<any> }>();
+  private singleProjectCache = new Map<string, { timestamp: number; data: ApiResponse<Project> }>();
+  private CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes
+
+  getProjects(page = 0, size = 20, projectType?: string, sort?: string, forceRefresh = false): Observable<ApiResponse<any>> {
+    const cacheKey = `p_${page}_s_${size}_t_${projectType || 'ALL'}_sort_${sort || 'DEFAULT'}`;
+    const cached = this.projectsCache.get(cacheKey);
+
     let params = new HttpParams()
       .set('page', page.toString())
       .set('size', size.toString());
@@ -74,7 +82,34 @@ export class ProjectService {
       params = params.set('sort', sort);
     }
 
-    return this.http.get<ApiResponse<any>>(this.apiUrl, { params });
+    const network$ = this.http.get<ApiResponse<any>>(this.apiUrl, { params }).pipe(
+      tap((res) => {
+        if (res && res.success) {
+          this.projectsCache.set(cacheKey, { timestamp: Date.now(), data: res });
+          const items: Project[] = res?.data?.content || res?.data || [];
+          if (Array.isArray(items)) {
+            items.forEach(p => {
+              if (p && p.id) {
+                this.singleProjectCache.set(p.id, { timestamp: Date.now(), data: { success: true, data: p } });
+              }
+            });
+          }
+        }
+      })
+    );
+
+    // Si nous avons des données en cache valides et qu'un rafraîchissement forcé n'est pas demandé
+    if (!forceRefresh && cached && (Date.now() - cached.timestamp < this.CACHE_TTL_MS)) {
+      // Retourne immédiatement le cache via un Observable synchrone
+      return new Observable<ApiResponse<any>>((observer) => {
+        observer.next(cached.data);
+        observer.complete();
+        // Revalidation silencieuse en arrière-plan sans bloquer l'UI
+        network$.subscribe({ error: () => {} });
+      });
+    }
+
+    return network$;
   }
 
   getProjectsByAuthor(authorId: string, page = 0, size = 10): Observable<ApiResponse<any>> {
@@ -85,8 +120,30 @@ export class ProjectService {
     return this.http.get<ApiResponse<any>>(`${this.apiUrl}/user/${authorId}`, { params });
   }
 
-  getProjectById(id: string): Observable<ApiResponse<Project>> {
-    return this.http.get<ApiResponse<Project>>(`${this.apiUrl}/${id}`);
+  getProjectById(id: string, forceRefresh = false): Observable<ApiResponse<Project>> {
+    const cached = this.singleProjectCache.get(id);
+    const network$ = this.http.get<ApiResponse<Project>>(`${this.apiUrl}/${id}`).pipe(
+      tap((res) => {
+        if (res && res.success) {
+          this.singleProjectCache.set(id, { timestamp: Date.now(), data: res });
+        }
+      })
+    );
+
+    if (!forceRefresh && cached && (Date.now() - cached.timestamp < this.CACHE_TTL_MS)) {
+      return new Observable<ApiResponse<Project>>((observer) => {
+        observer.next(cached.data);
+        observer.complete();
+        network$.subscribe({ error: () => {} });
+      });
+    }
+
+    return network$;
+  }
+
+  clearMemoryCache(): void {
+    this.projectsCache.clear();
+    this.singleProjectCache.clear();
   }
 
   getMyProjects(page = 0, size = 50): Observable<ApiResponse<any>> {
@@ -98,27 +155,27 @@ export class ProjectService {
   }
 
   createProject(data: any): Observable<ApiResponse<Project>> {
-    return this.http.post<ApiResponse<Project>>(this.apiUrl, data);
+    return this.http.post<ApiResponse<Project>>(this.apiUrl, data).pipe(tap(() => this.clearMemoryCache()));
   }
 
   updateProject(id: string, data: any): Observable<ApiResponse<Project>> {
-    return this.http.put<ApiResponse<Project>>(`${this.apiUrl}/${id}`, data);
+    return this.http.put<ApiResponse<Project>>(`${this.apiUrl}/${id}`, data).pipe(tap(() => this.clearMemoryCache()));
   }
 
   toggleProjectStatus(id: string): Observable<ApiResponse<Project>> {
-    return this.http.patch<ApiResponse<Project>>(`${this.apiUrl}/${id}/toggle-status`, {});
+    return this.http.patch<ApiResponse<Project>>(`${this.apiUrl}/${id}/toggle-status`, {}).pipe(tap(() => this.clearMemoryCache()));
   }
 
   deleteProject(id: string): Observable<ApiResponse<any>> {
-    return this.http.delete<ApiResponse<any>>(`${this.apiUrl}/${id}`);
+    return this.http.delete<ApiResponse<any>>(`${this.apiUrl}/${id}`).pipe(tap(() => this.clearMemoryCache()));
   }
 
   recognizeProject(id: string): Observable<ApiResponse<Project>> {
-    return this.http.post<ApiResponse<Project>>(`${this.apiUrl}/${id}/recognize`, {});
+    return this.http.post<ApiResponse<Project>>(`${this.apiUrl}/${id}/recognize`, {}).pipe(tap(() => this.clearMemoryCache()));
   }
 
   unrecognizeProject(id: string): Observable<ApiResponse<Project>> {
-    return this.http.delete<ApiResponse<Project>>(`${this.apiUrl}/${id}/recognize`);
+    return this.http.delete<ApiResponse<Project>>(`${this.apiUrl}/${id}/recognize`).pipe(tap(() => this.clearMemoryCache()));
   }
 
   recordView(projectId: string): Observable<ApiResponse<Project>> {

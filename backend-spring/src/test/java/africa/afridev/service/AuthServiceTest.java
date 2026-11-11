@@ -46,6 +46,9 @@ class AuthServiceTest {
     @Mock
     private LoginSessionRepository loginSessionRepository;
 
+    @Mock
+    private RedisCacheService redisCacheService;
+
     @InjectMocks
     private AuthService authService;
 
@@ -143,5 +146,36 @@ class AuthServiceTest {
 
         IllegalStateException ex = assertThrows(IllegalStateException.class, () -> authService.login(request));
         assertTrue(ex.getMessage().contains("suspendu ou banni"));
+    }
+
+    @Test
+    void testLogin_5FailedAttempts_LocksAccountAndSendsEmail() {
+        LoginRequest request = new LoginRequest();
+        request.setEmail("test@afridev.africa");
+        request.setPassword("wrong_password");
+
+        when(redisCacheService.isLoginLocked("test@afridev.africa")).thenReturn(false);
+        when(userRepository.findByEmail("test@afridev.africa")).thenReturn(Optional.of(mockUser));
+        when(passwordEncoder.matches("wrong_password", "hashed_pass")).thenReturn(false);
+        when(redisCacheService.incrementFailedLoginAttempts(eq("test@afridev.africa"), any())).thenReturn(5L);
+
+        IllegalStateException ex = assertThrows(IllegalStateException.class, () -> authService.login(request));
+        assertTrue(ex.getMessage().startsWith("COMPTE_TEMPORAIREMENT_BLOQUE:"));
+        verify(redisCacheService, times(1)).lockLogin(eq("test@afridev.africa"), any());
+        verify(emailService, times(1)).sendAccountLockedEmail(eq("test@afridev.africa"), eq(10), any(), any());
+    }
+
+    @Test
+    void testLogin_AlreadyLocked_ThrowsLockoutImmediately() {
+        LoginRequest request = new LoginRequest();
+        request.setEmail("test@afridev.africa");
+        request.setPassword("password123");
+
+        when(redisCacheService.isLoginLocked("test@afridev.africa")).thenReturn(true);
+        when(redisCacheService.getLoginLockRemainingSeconds("test@afridev.africa")).thenReturn(420L);
+
+        IllegalStateException ex = assertThrows(IllegalStateException.class, () -> authService.login(request));
+        assertTrue(ex.getMessage().startsWith("COMPTE_TEMPORAIREMENT_BLOQUE:"));
+        verify(userRepository, never()).findByEmail(any());
     }
 }

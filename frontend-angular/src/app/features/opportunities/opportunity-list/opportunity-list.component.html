@@ -52,10 +52,16 @@
     </div>
   </div>
 
+  <!-- Active Search Query Pill -->
+  <div *ngIf="searchQuery" style="display:flex;align-items:center;justify-content:space-between;gap:0.75rem;padding:0.65rem 1rem;margin-bottom:1rem;background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.3);border-radius:12px;">
+    <span style="font-size:0.88rem;font-weight:600;">Résultats filtrés pour : <strong>« {{ searchQuery }} »</strong></span>
+    <button (click)="clearSearchFilter()" class="btn btn-outline btn-sm">Effacer le filtre</button>
+  </div>
+
   <!-- Opportunities Grid -->
   <div *ngIf="!isLoading; else loadingState">
-    <div class="opportunities-grid" *ngIf="opportunities.length > 0; else emptyState">
-      <div *ngFor="let opt of opportunities"
+    <div class="opportunities-grid" *ngIf="filteredOpportunities.length > 0; else emptyState">
+      <div *ngFor="let opt of filteredOpportunities"
            class="opt-card"
            [class.opt-card-closed]="(opt.acceptedCount || 0) >= (opt.maxApplicants || 1)">
 
@@ -143,13 +149,13 @@
           <p class="opt-desc">{{ opt.description }}</p>
 
           <div class="stack-list" *ngIf="opt.stack && opt.stack.length">
-            <span *ngFor="let tech of opt.stack.slice(0, 5)"
+            <span *ngFor="let tech of opt.stack.slice(0, 3)"
                   class="badge badge-sm"
                   [ngClass]="isMatchedTech(tech, opt) ? 'badge-tech-matched' : 'badge-gray'"
                   [title]="isMatchedTech(tech, opt) ? 'Compétence présente dans votre profil !' : ''">
               <i *ngIf="isMatchedTech(tech, opt)" class="ri-check-line tag-icon-match"></i> {{ tech }}
             </span>
-            <span *ngIf="opt.stack.length > 5" class="badge badge-gray badge-sm">+{{ opt.stack.length - 5 }}</span>
+            <span *ngIf="opt.stack.length > 3" class="badge badge-gray badge-sm">+{{ opt.stack.length - 3 }}</span>
           </div>
         </div>
 

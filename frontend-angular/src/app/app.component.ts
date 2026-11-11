@@ -1,16 +1,19 @@
-import { Component, inject, HostListener } from '@angular/core';
+import { Component, inject, HostListener, OnDestroy } from '@angular/core';
 import { RouterOutlet, RouterLink, RouterLinkActive, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { AuthService } from './core/services/auth.service';
 import { ThemeService } from './core/services/theme.service';
 import { TranslationService, Language } from './core/services/translation.service';
 import { OfflineSyncService } from './core/services/offline-sync.service';
+import { GlobalSearchService, GlobalSearchResults } from './core/services/global-search.service';
 import { AiAssistantComponent } from './shared/components/ai-assistant/ai-assistant.component';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [CommonModule, RouterOutlet, RouterLink, RouterLinkActive, AiAssistantComponent],
+  imports: [CommonModule, FormsModule, RouterOutlet, RouterLink, RouterLinkActive, AiAssistantComponent],
   template: `
     <nav class="app-nav" [class.nav-scrolled]="isScrolled" [class.nav-light]="!isDark()" *ngIf="!hideNavAndFooter()">
       <div class="nav-content">
@@ -23,18 +26,90 @@ import { AiAssistantComponent } from './shared/components/ai-assistant/ai-assist
           </div>
         </a>
 
-        <!-- Desktop Nav Links - Centered Pill Navigation -->
-        <div class="nav-center-pill desktop-only">
-          <ng-container *ngIf="!isDashboardPage()">
-            <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" class="nav-link">{{ t('nav.home') }}</a>
-            <a routerLink="/projects" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" class="nav-link">{{ t('nav.projects') }}</a>
-            <a routerLink="/opportunities" routerLinkActive="active" class="nav-link">{{ t('nav.opportunities') }}</a>
-            <a routerLink="/network" routerLinkActive="active" class="nav-link">{{ t('nav.network') }}</a>
-            <a routerLink="/events" routerLinkActive="active" class="nav-link">{{ t('nav.events') }}</a>
-            <a routerLink="/communautes" routerLinkActive="active" class="nav-link">{{ t('nav.communities') }}</a>
-            <a routerLink="/resources" routerLinkActive="active" class="nav-link">{{ t('nav.resources') }}</a>
-            <a routerLink="/leaderboard" routerLinkActive="active" class="nav-link">{{ t('nav.leaderboard') }}</a>
-          </ng-container>
+        <!-- Desktop Top Omnisearch Bar -->
+        <div class="omnisearch-wrapper desktop-search-slot" (click)="$event.stopPropagation()">
+          <div class="omnisearch-box">
+            <svg class="omnisearch-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="11" cy="11" r="8"></circle>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+            <input 
+              type="text" 
+              [(ngModel)]="searchQuery" 
+              (ngModelChange)="onSearchChange($event)" 
+              (focus)="onSearchFocus()" 
+              (keydown.enter)="goToAllResults()"
+              placeholder="Rechercher projet, personne, techno, pays... (ex: React, Hachim, Algérie)" 
+              class="omnisearch-input"
+              aria-label="Recherche globale AfriDev Hub" />
+            <button *ngIf="searchQuery" (click)="clearSearch($event)" class="omnisearch-clear" title="Effacer">✕</button>
+          </div>
+
+          <!-- Instant Live Suggestion Dropdown -->
+          <div class="omnisearch-dropdown" *ngIf="isSearchOpen && searchQuery.trim().length > 0">
+            <div *ngIf="isSearching" class="search-loading-row">
+              <span>Recherche intelligente en cours...</span>
+            </div>
+
+            <ng-container *ngIf="searchResults && !isSearching">
+              <div *ngIf="searchResults.totalMatches === 0" class="search-empty-row">
+                Aucun résultat exact pour « <strong>{{ searchQuery }}</strong> ». Essayez React, Hachim, Sénégal...
+              </div>
+
+              <!-- Technologies / Tags -->
+              <div *ngIf="searchResults.technologies.length > 0" class="search-section">
+                <div class="search-section-label">Technologies & Compétences</div>
+                <div class="search-tech-chips">
+                  <button *ngFor="let tech of searchResults.technologies" (click)="goToTech(tech)" class="search-tech-chip">
+                    <span class="tech-hash">#</span> {{ tech }}
+                  </button>
+                </div>
+              </div>
+
+              <!-- Projets -->
+              <div *ngIf="searchResults.projects.length > 0" class="search-section">
+                <div class="search-section-label">Projets & Réalisations</div>
+                <button *ngFor="let p of searchResults.projects" (click)="goToProject(p.id)" class="search-result-item">
+                  <div class="res-avatar proj-av">{{ p.title.charAt(0).toUpperCase() }}</div>
+                  <div class="res-info">
+                    <div class="res-title">{{ p.title }}</div>
+                    <div class="res-sub">{{ p.authorName }} <span *ngIf="p.country">• {{ p.country }}</span> • {{ p.stack.join(', ') }}</div>
+                  </div>
+                  <span class="res-type-badge">{{ p.category }}</span>
+                </button>
+              </div>
+
+              <!-- Développeurs & Profils -->
+              <div *ngIf="searchResults.developers.length > 0" class="search-section">
+                <div class="search-section-label">Développeurs & Talents</div>
+                <button *ngFor="let dev of searchResults.developers" (click)="goToProfile(dev.id)" class="search-result-item">
+                  <div class="res-avatar dev-av">{{ dev.fullName.charAt(0).toUpperCase() }}</div>
+                  <div class="res-info">
+                    <div class="res-title">{{ dev.fullName }}</div>
+                    <div class="res-sub">{{ dev.title }} <span *ngIf="dev.country">• {{ dev.country }}</span></div>
+                  </div>
+                  <span class="res-type-badge badge-dev">Profil</span>
+                </button>
+              </div>
+
+              <!-- Opportunités -->
+              <div *ngIf="searchResults.opportunities.length > 0" class="search-section">
+                <div class="search-section-label">Opportunités & Offres</div>
+                <button *ngFor="let opp of searchResults.opportunities" (click)="goToOpportunities(opp.title)" class="search-result-item">
+                  <div class="res-avatar opp-av">💼</div>
+                  <div class="res-info">
+                    <div class="res-title">{{ opp.title }}</div>
+                    <div class="res-sub">{{ opp.location }} • {{ opp.type }}</div>
+                  </div>
+                </button>
+              </div>
+
+              <!-- Direct Explorer footer -->
+              <button (click)="goToAllResults()" class="search-explore-all">
+                Voir tous les projets correspondant à « {{ searchQuery }} » →
+              </button>
+            </ng-container>
+          </div>
         </div>
 
         <!-- Desktop Right Actions (Language Switcher, Theme Switcher, Auth & Profile) -->
@@ -189,6 +264,94 @@ import { AiAssistantComponent } from './shared/components/ai-assistant/ai-assist
         </div>
       </div>
 
+      <!-- Desktop Sub-Navbar Row (Lowered neatly under the Search Bar) -->
+      <div class="nav-sub-row desktop-only" *ngIf="!isDashboardPage()">
+        <div class="nav-center-pill">
+          <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" class="nav-link">{{ t('nav.home') }}</a>
+          <a routerLink="/projects" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" class="nav-link">{{ t('nav.projects') }}</a>
+          <a routerLink="/opportunities" routerLinkActive="active" class="nav-link">{{ t('nav.opportunities') }}</a>
+          <a routerLink="/network" routerLinkActive="active" class="nav-link">{{ t('nav.network') }}</a>
+          <a routerLink="/events" routerLinkActive="active" class="nav-link">{{ t('nav.events') }}</a>
+          <a routerLink="/communautes" routerLinkActive="active" class="nav-link">{{ t('nav.communities') }}</a>
+          <a routerLink="/resources" routerLinkActive="active" class="nav-link">{{ t('nav.resources') }}</a>
+          <a routerLink="/leaderboard" routerLinkActive="active" class="nav-link">{{ t('nav.leaderboard') }}</a>
+          <a routerLink="/ai-assistant" routerLinkActive="active" class="nav-link nav-ai-highlight">✨ Assistant IA</a>
+        </div>
+      </div>
+
+      <!-- Mobile Sticky Omnisearch Strip -->
+      <div class="mobile-search-strip mobile-only" (click)="$event.stopPropagation()">
+        <div class="omnisearch-wrapper">
+          <div class="omnisearch-box">
+            <svg class="omnisearch-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="11" cy="11" r="8"></circle>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+            <input 
+              type="text" 
+              [(ngModel)]="searchQuery" 
+              (ngModelChange)="onSearchChange($event)" 
+              (focus)="onSearchFocus()" 
+              (keydown.enter)="goToAllResults()"
+              placeholder="Rechercher projet, personne, techno, pays..." 
+              class="omnisearch-input" />
+            <button *ngIf="searchQuery" (click)="clearSearch($event)" class="omnisearch-clear">✕</button>
+          </div>
+
+          <div class="omnisearch-dropdown mobile-dropdown" *ngIf="isSearchOpen && searchQuery.trim().length > 0">
+            <div *ngIf="isSearching" class="search-loading-row">
+              <span>Recherche intelligente...</span>
+            </div>
+            <ng-container *ngIf="searchResults && !isSearching">
+              <div *ngIf="searchResults.totalMatches === 0" class="search-empty-row">
+                Aucun résultat pour « <strong>{{ searchQuery }}</strong> ».
+              </div>
+              <div *ngIf="searchResults.technologies.length > 0" class="search-section">
+                <div class="search-section-label">Technologies</div>
+                <div class="search-tech-chips">
+                  <button *ngFor="let tech of searchResults.technologies" (click)="goToTech(tech)" class="search-tech-chip">
+                    <span class="tech-hash">#</span> {{ tech }}
+                  </button>
+                </div>
+              </div>
+              <div *ngIf="searchResults.projects.length > 0" class="search-section">
+                <div class="search-section-label">Projets</div>
+                <button *ngFor="let p of searchResults.projects" (click)="goToProject(p.id)" class="search-result-item">
+                  <div class="res-avatar proj-av">{{ p.title.charAt(0).toUpperCase() }}</div>
+                  <div class="res-info">
+                    <div class="res-title">{{ p.title }}</div>
+                    <div class="res-sub">{{ p.authorName }} • {{ p.stack.join(', ') }}</div>
+                  </div>
+                </button>
+              </div>
+              <div *ngIf="searchResults.developers.length > 0" class="search-section">
+                <div class="search-section-label">Développeurs</div>
+                <button *ngFor="let dev of searchResults.developers" (click)="goToProfile(dev.id)" class="search-result-item">
+                  <div class="res-avatar dev-av">{{ dev.fullName.charAt(0).toUpperCase() }}</div>
+                  <div class="res-info">
+                    <div class="res-title">{{ dev.fullName }}</div>
+                    <div class="res-sub">{{ dev.title }} <span *ngIf="dev.country">• {{ dev.country }}</span></div>
+                  </div>
+                </button>
+              </div>
+              <div *ngIf="searchResults.opportunities.length > 0" class="search-section">
+                <div class="search-section-label">Opportunités</div>
+                <button *ngFor="let opp of searchResults.opportunities" (click)="goToOpportunities(opp.title)" class="search-result-item">
+                  <div class="res-avatar opp-av">💼</div>
+                  <div class="res-info">
+                    <div class="res-title">{{ opp.title }}</div>
+                    <div class="res-sub">{{ opp.location }}</div>
+                  </div>
+                </button>
+              </div>
+              <button (click)="goToAllResults()" class="search-explore-all">
+                Voir tous les résultats pour « {{ searchQuery }} » →
+              </button>
+            </ng-container>
+          </div>
+        </div>
+      </div>
+
       <!-- Mobile Navigation Drawer -->
       <div class="mobile-drawer" [class.open]="isMobileMenuOpen">
         <div class="mobile-drawer-links">
@@ -200,6 +363,7 @@ import { AiAssistantComponent } from './shared/components/ai-assistant/ai-assist
           <a routerLink="/communautes" (click)="closeAllMenus()" routerLinkActive="active" class="mobile-nav-link">{{ t('nav.communities') }}</a>
           <a routerLink="/resources" (click)="closeAllMenus()" routerLinkActive="active" class="mobile-nav-link">{{ t('nav.resources') }}</a>
           <a routerLink="/leaderboard" (click)="closeAllMenus()" routerLinkActive="active" class="mobile-nav-link">{{ t('nav.leaderboard') }}</a>
+          <a routerLink="/ai-assistant" (click)="closeAllMenus()" routerLinkActive="active" class="mobile-nav-link nav-ai-highlight">✨ Assistant IA</a>
           <a *ngIf="isLoggedIn()" routerLink="/messages" (click)="closeAllMenus()" routerLinkActive="active" class="mobile-nav-link">Messagerie</a>
           <a *ngIf="isLoggedIn()" routerLink="/dashboard/profile" (click)="closeAllMenus()" routerLinkActive="active" class="mobile-nav-link">Mon Profil</a>
           <a *ngIf="isLoggedIn()" routerLink="/dashboard" (click)="closeAllMenus()" routerLinkActive="active" class="mobile-nav-link">Tableau de bord</a>
@@ -343,7 +507,7 @@ import { AiAssistantComponent } from './shared/components/ai-assistant/ai-assist
   styles: [`
     .offline-banner {
       position: fixed;
-      top: 60px;
+      top: 112px;
       left: 0;
       right: 0;
       background: #f59e0b;
@@ -376,28 +540,28 @@ import { AiAssistantComponent } from './shared/components/ai-assistant/ai-assist
       right: 0;
       width: 100%;
       z-index: 1000;
-      background: rgba(11, 15, 25, 0.88);
+      background: rgba(11, 15, 25, 0.9);
       backdrop-filter: blur(16px);
       -webkit-backdrop-filter: blur(16px);
       border-bottom: 1px solid var(--border-subtle);
-      padding: 0.85rem 0;
+      padding: 0.6rem 0 0.5rem;
       transition: background-color 0.25s ease, border-color 0.25s ease, padding 0.25s ease, box-shadow 0.25s ease;
     }
     .app-nav.nav-scrolled {
-      background: rgba(11, 15, 25, 0.96);
+      background: rgba(11, 15, 25, 0.97);
       box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
       border-bottom-color: var(--border-light);
-      padding: 0.65rem 0;
+      padding: 0.48rem 0 0.4rem;
     }
     .app-nav.nav-light,
     :host-context(body.light-theme) .app-nav {
-      background: rgba(255, 255, 255, 0.94);
+      background: rgba(255, 255, 255, 0.95);
       border-bottom-color: rgba(0, 0, 0, 0.08);
       box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
     }
     .app-nav.nav-light.nav-scrolled,
     :host-context(body.light-theme) .app-nav.nav-scrolled {
-      background: rgba(255, 255, 255, 0.98);
+      background: rgba(255, 255, 255, 0.99);
       box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
       border-bottom-color: rgba(0, 0, 0, 0.12);
     }
@@ -410,7 +574,302 @@ import { AiAssistantComponent } from './shared/components/ai-assistant/ai-assist
       color: #64748B;
     }
     main.has-fixed-nav {
-      padding-top: 74px;
+      padding-top: 122px;
+    }
+
+    /* OMNISEARCH BAR & SUB-NAVBAR */
+    .omnisearch-wrapper {
+      position: relative;
+      flex: 1;
+      max-width: 560px;
+      margin: 0 1rem;
+    }
+    .omnisearch-box {
+      display: flex;
+      align-items: center;
+      gap: 0.55rem;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid var(--border-subtle);
+      border-radius: 999px;
+      padding: 0.48rem 0.9rem;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .omnisearch-box:focus-within {
+      background: rgba(15, 23, 42, 0.96);
+      border-color: var(--emerald-500);
+      box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.16);
+    }
+    .app-nav.nav-light .omnisearch-box,
+    :host-context(body.light-theme) .omnisearch-box {
+      background: #F1F5F9;
+      border-color: rgba(15, 23, 42, 0.1);
+    }
+    .app-nav.nav-light .omnisearch-box:focus-within,
+    :host-context(body.light-theme) .omnisearch-box:focus-within {
+      background: #FFFFFF;
+      border-color: var(--emerald-500);
+      box-shadow: 0 4px 16px rgba(16, 185, 129, 0.14);
+    }
+    .omnisearch-icon {
+      width: 16px;
+      height: 16px;
+      color: var(--text-muted);
+      flex-shrink: 0;
+    }
+    .omnisearch-input {
+      flex: 1;
+      background: transparent;
+      border: none;
+      outline: none;
+      color: var(--text-heading);
+      font-size: 0.86rem;
+      font-weight: 500;
+      min-width: 0;
+    }
+    .app-nav.nav-light .omnisearch-input,
+    :host-context(body.light-theme) .omnisearch-input {
+      color: #0F172A;
+    }
+    .omnisearch-input::placeholder {
+      color: var(--text-muted);
+      opacity: 0.85;
+    }
+    .omnisearch-clear {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      border: none;
+      background: rgba(255, 255, 255, 0.12);
+      color: var(--text-heading);
+      font-size: 0.72rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      transition: all 0.15s ease;
+    }
+    .app-nav.nav-light .omnisearch-clear,
+    :host-context(body.light-theme) .omnisearch-clear {
+      background: rgba(15, 23, 42, 0.08);
+      color: #334155;
+    }
+    .omnisearch-clear:hover {
+      background: #EF4444;
+      color: #FFFFFF;
+    }
+    .omnisearch-dropdown {
+      position: absolute;
+      top: calc(100% + 0.55rem);
+      left: 0;
+      right: 0;
+      max-height: 70dvh;
+      overflow-y: auto;
+      background: #0F172A;
+      border: 1px solid var(--border-light);
+      border-radius: 16px;
+      box-shadow: 0 20px 45px rgba(0, 0, 0, 0.45);
+      z-index: 1100;
+      padding: 0.65rem;
+      animation: dropdownFadeIn 0.16s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .app-nav.nav-light .omnisearch-dropdown,
+    :host-context(body.light-theme) .omnisearch-dropdown {
+      background: #FFFFFF;
+      border-color: rgba(15, 23, 42, 0.1);
+      box-shadow: 0 18px 40px rgba(15, 23, 42, 0.14);
+    }
+    .search-loading-row,
+    .search-empty-row {
+      padding: 1rem 0.75rem;
+      text-align: center;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+    .search-section {
+      padding: 0.35rem 0;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+    .search-section:last-of-type {
+      border-bottom: none;
+    }
+    .app-nav.nav-light .search-section,
+    :host-context(body.light-theme) .search-section {
+      border-bottom-color: rgba(15, 23, 42, 0.06);
+    }
+    .search-section-label {
+      font-size: 0.7rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--emerald-500);
+      padding: 0.25rem 0.6rem 0.35rem;
+    }
+    .search-tech-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+      padding: 0.25rem 0.6rem 0.45rem;
+    }
+    .search-tech-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.2rem;
+      padding: 0.3rem 0.7rem;
+      border-radius: 999px;
+      background: rgba(16, 185, 129, 0.1);
+      border: 1px solid rgba(16, 185, 129, 0.25);
+      color: var(--emerald-400);
+      font-size: 0.78rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .app-nav.nav-light .search-tech-chip,
+    :host-context(body.light-theme) .search-tech-chip {
+      color: #059669;
+      background: #ECFDF5;
+    }
+    .search-tech-chip:hover {
+      background: var(--emerald-500);
+      color: #FFFFFF;
+    }
+    .search-result-item {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.55rem 0.65rem;
+      border-radius: 10px;
+      border: none;
+      background: transparent;
+      text-align: left;
+      cursor: pointer;
+      transition: background-color 0.15s ease;
+    }
+    .search-result-item:hover {
+      background: rgba(16, 185, 129, 0.1);
+    }
+    .res-avatar {
+      width: 34px;
+      height: 34px;
+      border-radius: 9px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 0.88rem;
+      flex-shrink: 0;
+    }
+    .res-avatar.proj-av {
+      background: linear-gradient(135deg, #10b981, #059669);
+      color: #fff;
+    }
+    .res-avatar.dev-av {
+      background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+      color: #fff;
+    }
+    .res-avatar.opp-av {
+      background: rgba(245, 158, 11, 0.16);
+      font-size: 1rem;
+    }
+    .res-info {
+      flex: 1;
+      min-width: 0;
+    }
+    .res-title {
+      font-size: 0.875rem;
+      font-weight: 700;
+      color: var(--text-heading);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .app-nav.nav-light .res-title,
+    :host-context(body.light-theme) .res-title {
+      color: #0F172A;
+    }
+    .res-sub {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      margin-top: 0.1rem;
+    }
+    .res-type-badge {
+      font-size: 0.68rem;
+      font-weight: 700;
+      padding: 0.18rem 0.5rem;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.08);
+      color: var(--text-muted);
+      flex-shrink: 0;
+    }
+    .app-nav.nav-light .res-type-badge,
+    :host-context(body.light-theme) .res-type-badge {
+      background: #F1F5F9;
+      color: #475569;
+    }
+    .res-type-badge.badge-dev {
+      background: rgba(59, 130, 246, 0.14);
+      color: #60a5fa;
+    }
+    .app-nav.nav-light .res-type-badge.badge-dev,
+    :host-context(body.light-theme) .res-type-badge.badge-dev {
+      color: #2563EB;
+    }
+    .search-explore-all {
+      width: 100%;
+      margin-top: 0.35rem;
+      padding: 0.65rem 0.75rem;
+      border-radius: 10px;
+      border: 1px solid rgba(16, 185, 129, 0.25);
+      background: rgba(16, 185, 129, 0.1);
+      color: var(--emerald-400);
+      font-size: 0.83rem;
+      font-weight: 700;
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.15s ease;
+    }
+    .app-nav.nav-light .search-explore-all,
+    :host-context(body.light-theme) .search-explore-all {
+      color: #059669;
+      background: #ECFDF5;
+    }
+    .search-explore-all:hover {
+      background: var(--emerald-500);
+      color: #FFFFFF;
+    }
+    .nav-sub-row {
+      max-width: 1440px;
+      margin: 0.45rem auto 0;
+      padding: 0 1rem;
+      justify-content: center;
+    }
+    .nav-ai-highlight {
+      color: #10B981 !important;
+      font-weight: 700 !important;
+    }
+    .mobile-search-strip {
+      padding: 0.5rem 0.9rem 0.55rem;
+      border-top: 1px solid var(--border-subtle);
+      width: 100%;
+      box-sizing: border-box;
+    }
+    .app-nav.nav-light .mobile-search-strip,
+    :host-context(body.light-theme) .mobile-search-strip {
+      border-top-color: rgba(15, 23, 42, 0.06);
+    }
+    .mobile-search-strip .omnisearch-wrapper {
+      margin: 0;
+      max-width: 100%;
+      width: 100%;
+    }
+    .mobile-search-strip .omnisearch-dropdown.mobile-dropdown {
+      max-height: 62dvh;
     }
     .nav-content {
       max-width: 1440px;
@@ -1015,7 +1474,8 @@ import { AiAssistantComponent } from './shared/components/ai-assistant/ai-assist
 
     /* MOBILE & TABLET BREAKPOINT (< 1140px): Switch cleanly to mobile drawer */
     @media (max-width: 1140px) {
-      .desktop-only {
+      .desktop-only,
+      .desktop-search-slot {
         display: none !important;
       }
       .mobile-only {
@@ -1023,8 +1483,11 @@ import { AiAssistantComponent } from './shared/components/ai-assistant/ai-assist
       }
       .mobile-drawer.open {
         display: block !important;
-        max-height: calc(100vh - 72px);
+        max-height: calc(100dvh - 110px);
         overflow-y: auto;
+      }
+      main.has-fixed-nav {
+        padding-top: 118px;
       }
     }
 
@@ -1319,11 +1782,12 @@ import { AiAssistantComponent } from './shared/components/ai-assistant/ai-assist
     }
   `]
 })
-export class AppComponent {
+export class AppComponent implements OnDestroy {
   private authService = inject(AuthService);
   private themeService = inject(ThemeService);
   private translationService = inject(TranslationService);
   public offlineSync = inject(OfflineSyncService);
+  private globalSearchService = inject(GlobalSearchService);
   private router = inject(Router);
 
   isMobileMenuOpen = false;
@@ -1331,11 +1795,101 @@ export class AppComponent {
   isLangMenuOpen = false;
   isScrolled = false;
 
+  // Global Omnisearch State
+  searchQuery = '';
+  searchResults: GlobalSearchResults | null = null;
+  isSearchOpen = false;
+  isSearching = false;
+  private searchTimer: any;
+  private searchSub?: Subscription;
+
   availableLanguages = this.translationService.languages;
   currentLang = this.translationService.currentLang;
 
+  ngOnDestroy(): void {
+    clearTimeout(this.searchTimer);
+    this.searchSub?.unsubscribe();
+  }
+
   t(key: string): string {
     return this.translationService.t(key);
+  }
+
+  onSearchChange(val: string): void {
+    clearTimeout(this.searchTimer);
+    this.searchSub?.unsubscribe();
+
+    if (!val || !val.trim()) {
+      this.searchResults = null;
+      this.isSearchOpen = false;
+      this.isSearching = false;
+      return;
+    }
+
+    this.isSearchOpen = true;
+    this.isSearching = true;
+    this.searchTimer = setTimeout(() => {
+      this.searchSub = this.globalSearchService.search(val).subscribe({
+        next: (res) => {
+          this.searchResults = res;
+          this.isSearching = false;
+        },
+        error: () => {
+          this.isSearching = false;
+        }
+      });
+    }, 100);
+  }
+
+  onSearchFocus(): void {
+    if (this.searchQuery && this.searchQuery.trim().length > 0) {
+      this.isSearchOpen = true;
+      if (!this.searchResults) {
+        this.onSearchChange(this.searchQuery);
+      }
+    }
+  }
+
+  clearSearch(event?: Event): void {
+    event?.stopPropagation();
+    clearTimeout(this.searchTimer);
+    this.searchSub?.unsubscribe();
+    this.searchQuery = '';
+    this.searchResults = null;
+    this.isSearchOpen = false;
+    this.isSearching = false;
+  }
+
+  goToProject(id: string): void {
+    this.clearSearch();
+    this.closeAllMenus();
+    this.router.navigate(['/projects', id]);
+  }
+
+  goToProfile(id: string): void {
+    this.clearSearch();
+    this.closeAllMenus();
+    this.router.navigate(['/profile', id]);
+  }
+
+  goToTech(tech: string): void {
+    this.clearSearch();
+    this.closeAllMenus();
+    this.router.navigate(['/projects'], { queryParams: { tech } });
+  }
+
+  goToOpportunities(q: string): void {
+    this.clearSearch();
+    this.closeAllMenus();
+    this.router.navigate(['/opportunities'], { queryParams: { q } });
+  }
+
+  goToAllResults(): void {
+    const q = this.searchQuery.trim();
+    if (!q) return;
+    this.clearSearch();
+    this.closeAllMenus();
+    this.router.navigate(['/projects'], { queryParams: { q } });
   }
 
   @HostListener('window:scroll')
@@ -1347,12 +1901,14 @@ export class AppComponent {
   onDocumentClick(): void {
     this.isProfileMenuOpen = false;
     this.isLangMenuOpen = false;
+    this.isSearchOpen = false;
   }
 
   toggleLangMenu(event: Event): void {
     event.stopPropagation();
     this.isLangMenuOpen = !this.isLangMenuOpen;
     this.isProfileMenuOpen = false;
+    this.isSearchOpen = false;
   }
 
   selectLanguage(lang: Language): void {
@@ -1370,6 +1926,7 @@ export class AppComponent {
     event.stopPropagation();
     this.isProfileMenuOpen = !this.isProfileMenuOpen;
     this.isLangMenuOpen = false;
+    this.isSearchOpen = false;
   }
 
   closeProfileMenu(): void {
@@ -1378,6 +1935,7 @@ export class AppComponent {
 
   toggleMobileMenu(): void {
     this.isMobileMenuOpen = !this.isMobileMenuOpen;
+    this.isSearchOpen = false;
   }
 
   closeMobileMenu(): void {
@@ -1388,6 +1946,7 @@ export class AppComponent {
     this.isMobileMenuOpen = false;
     this.isProfileMenuOpen = false;
     this.isLangMenuOpen = false;
+    this.isSearchOpen = false;
   }
 
   toggleTheme(): void {
@@ -1402,6 +1961,7 @@ export class AppComponent {
     const url = this.router.url.split('?')[0];
     return url.startsWith('/dashboard') || 
            url.startsWith('/admin') ||
+           url.startsWith('/ai-assistant') ||
            url === '/login' || 
            url === '/register' || 
            url === '/verify-otp';

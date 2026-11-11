@@ -1,6 +1,7 @@
 import { Component, inject, OnInit, OnDestroy, ElementRef, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 import { AIService } from '../../../core/services/ai.service';
 import { TranslationService, Language } from '../../../core/services/translation.service';
 
@@ -22,6 +23,7 @@ export interface ChatMessageItem {
 export class AiAssistantComponent implements OnInit, OnDestroy {
   private aiService = inject(AIService);
   public translationService = inject(TranslationService);
+  private router = inject(Router);
 
   @ViewChild('messagesContainer') private messagesContainer!: ElementRef;
   @ViewChild('fileInput') private fileInput!: ElementRef;
@@ -69,10 +71,11 @@ export class AiAssistantComponent implements OnInit, OnDestroy {
   }
 
   toggleChat(): void {
-    this.isOpen = !this.isOpen;
-    if (this.isOpen) {
-      setTimeout(() => this.scrollToBottom(), 200);
-    }
+    this.router.navigate(['/ai-assistant']);
+  }
+
+  isAssistantPage(): boolean {
+    return this.router.url.startsWith('/ai-assistant');
   }
 
   closeChat(): void {

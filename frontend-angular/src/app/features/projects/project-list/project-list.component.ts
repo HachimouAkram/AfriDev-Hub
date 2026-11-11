@@ -185,12 +185,24 @@ export class ProjectListComponent implements OnInit {
   ngOnInit(): void {
     this.route.queryParamMap.subscribe(params => {
       const cat = params.get('category');
+      const tech = params.get('tech');
+      const q = params.get('q');
       if (cat) {
         this.selectedCategory = cat;
-        this.applyFilter();
       }
+      if (tech) {
+        this.searchQuery = tech;
+      } else if (q !== null) {
+        this.searchQuery = q;
+      }
+      this.applyFilter();
     });
     this.loadProjects();
+  }
+
+  openProjectDetail(project: Project, event?: Event): void {
+    if (event) event.stopPropagation();
+    this.router.navigate(['/projects', project.id]);
   }
 
   loadProjects(): void {
@@ -302,6 +314,28 @@ export class ProjectListComponent implements OnInit {
     this.applyFilter();
   }
 
+  private normalizeSearchText(text: string | null | undefined): string {
+    if (!text) return '';
+    return text
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/[-_]/g, ' ')
+      .trim();
+  }
+
+  private matchesFuzzyTerm(target: string | null | undefined, terms: string[]): boolean {
+    if (!target) return false;
+    const normTarget = this.normalizeSearchText(target);
+    return terms.some(term => {
+      if (normTarget.includes(term)) return true;
+      if (term.length >= 4 && (normTarget.includes(term.slice(0, -1)) || term.includes(normTarget))) {
+        return true;
+      }
+      return false;
+    });
+  }
+
   applyFilter(): void {
     let result = [...this.projects];
 
@@ -321,14 +355,17 @@ export class ProjectListComponent implements OnInit {
       result = result.filter(p => p.licenseType === this.selectedLicense);
     }
 
-    const q = this.searchQuery.trim().toLowerCase();
-    if (q) {
+    const rawQ = this.searchQuery.trim();
+    if (rawQ) {
+      const terms = this.normalizeSearchText(rawQ).split(/\s+/).filter(Boolean);
       result = result.filter(p =>
-        p.title.toLowerCase().includes(q) ||
-        p.description.toLowerCase().includes(q) ||
-        (p.companyName && p.companyName.toLowerCase().includes(q)) ||
-        (p.stack && p.stack.some(s => s.toLowerCase().includes(q))) ||
-        (p.author?.profile?.fullName && p.author.profile.fullName.toLowerCase().includes(q))
+        this.matchesFuzzyTerm(p.title, terms) ||
+        this.matchesFuzzyTerm(p.description, terms) ||
+        this.matchesFuzzyTerm(p.companyName, terms) ||
+        this.matchesFuzzyTerm(p.projectType, terms) ||
+        (p.stack && p.stack.some(s => this.matchesFuzzyTerm(s, terms))) ||
+        this.matchesFuzzyTerm(p.author?.profile?.fullName, terms) ||
+        this.matchesFuzzyTerm(p.author?.profile?.country, terms)
       );
     }
 

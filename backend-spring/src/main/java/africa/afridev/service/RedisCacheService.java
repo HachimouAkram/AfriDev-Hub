@@ -172,4 +172,67 @@ public class RedisCacheService {
     public void evictAdminUsersCache() {
         evictByPrefix("cache:admin:users:");
     }
+
+    // --- Gestion du Rate Limiting & Lockout de Connexion (Anti-Brute Force) ---
+
+    private static final String LOGIN_ATTEMPTS_PREFIX = "auth:attempts:";
+    private static final String LOGIN_LOCKOUT_PREFIX = "auth:lockout:";
+
+    public boolean isLoginLocked(String email) {
+        if (email == null) return false;
+        try {
+            return Boolean.TRUE.equals(redisTemplate.hasKey(LOGIN_LOCKOUT_PREFIX + email.trim().toLowerCase()));
+        } catch (Exception e) {
+            log.warn("Erreur vérification verrouillage Redis: {}", e.getMessage());
+            return false;
+        }
+    }
+
+    public long getLoginLockRemainingSeconds(String email) {
+        if (email == null) return 0L;
+        try {
+            Long expire = redisTemplate.getExpire(LOGIN_LOCKOUT_PREFIX + email.trim().toLowerCase());
+            return expire != null && expire > 0 ? expire : 0L;
+        } catch (Exception e) {
+            return 0L;
+        }
+    }
+
+    public long incrementFailedLoginAttempts(String email, Duration window) {
+        if (email == null) return 1L;
+        try {
+            String key = LOGIN_ATTEMPTS_PREFIX + email.trim().toLowerCase();
+            Long attempts = redisTemplate.opsForValue().increment(key);
+            if (attempts != null && attempts == 1) {
+                redisTemplate.expire(key, window);
+            }
+            return attempts != null ? attempts : 1L;
+        } catch (Exception e) {
+            log.warn("Erreur incrément tentatives Redis: {}", e.getMessage());
+            return 1L;
+        }
+    }
+
+    public void lockLogin(String email, Duration lockoutDuration) {
+        if (email == null) return;
+        try {
+            String normEmail = email.trim().toLowerCase();
+            redisTemplate.opsForValue().set(LOGIN_LOCKOUT_PREFIX + normEmail, "LOCKED", lockoutDuration);
+            redisTemplate.delete(LOGIN_ATTEMPTS_PREFIX + normEmail);
+            log.warn("[SECURITY] Compte {} verrouillé pour {} minutes suite à trop d'échecs", normEmail, lockoutDuration.toMinutes());
+        } catch (Exception e) {
+            log.warn("Erreur verrouillage Redis: {}", e.getMessage());
+        }
+    }
+
+    public void clearFailedLoginAttempts(String email) {
+        if (email == null) return;
+        try {
+            String normEmail = email.trim().toLowerCase();
+            redisTemplate.delete(LOGIN_ATTEMPTS_PREFIX + normEmail);
+            redisTemplate.delete(LOGIN_LOCKOUT_PREFIX + normEmail);
+        } catch (Exception e) {
+            log.warn("Erreur nettoyage tentatives Redis: {}", e.getMessage());
+        }
+    }
 }

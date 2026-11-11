@@ -1,4 +1,4 @@
-import { Component, inject, AfterViewInit } from '@angular/core';
+import { Component, inject, AfterViewInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
@@ -13,9 +13,10 @@ declare const google: any;
   templateUrl: './login.component.html',
   styleUrl: './login.component.css'
 })
-export class LoginComponent implements AfterViewInit {
+export class LoginComponent implements AfterViewInit, OnDestroy {
   private authService = inject(AuthService);
   private router = inject(Router);
+  protected readonly Math = Math;
 
   activeTab: 'password' | 'otp' = 'password';
 
@@ -34,9 +35,19 @@ export class LoginComponent implements AfterViewInit {
   is2faRequired = false;
   twoFactorMessage = '';
 
+  // Rate limiting / Lockout state
+  isLocked = false;
+  lockRemainingSeconds = 0;
+  private lockTimerInterval: any;
+
   onLoginPassword(): void {
     if (!this.email || !this.password) {
       this.errorMessage = 'Veuillez saisir votre adresse email et votre mot de passe.';
+      return;
+    }
+
+    if (this.isLocked) {
+      this.errorMessage = `Votre compte est temporairement bloqué. Veuillez patienter ${Math.ceil(this.lockRemainingSeconds / 60)} minute(s).`;
       return;
     }
 
@@ -46,6 +57,7 @@ export class LoginComponent implements AfterViewInit {
     this.authService.login({ email: this.email, password: this.password }).subscribe({
       next: (res) => {
         this.isLoading = false;
+        this.clearLockTimer();
         if (res.success) {
           if (res.data?.twoFactorRequired) {
             this.is2faRequired = true;
@@ -60,18 +72,44 @@ export class LoginComponent implements AfterViewInit {
         this.isLoading = false;
         console.error('[AUTH] Login error:', err);
         const code = err.error?.error?.code;
+        const msg = err.error?.error?.message || err.error?.message;
+
         if (code === 'EMAIL_NOT_VERIFIED') {
           // Un OTP a été renvoyé automatiquement par le backend
           this.router.navigate(['/verify-otp'], { queryParams: { email: this.email, mode: 'login' } });
+        } else if (code === 'COMPTE_TEMPORAIREMENT_BLOQUE' || (msg && (msg.toLowerCase().includes('temporairement désactivé') || msg.toLowerCase().includes('temporairement bloqué')))) {
+          this.isLocked = true;
+          this.errorMessage = msg || 'Votre compte est désactivé suite à 5 tentatives incorrectes. Veuillez patienter et réessayer dans 10 minutes.';
+          const minMatch = msg ? msg.match(/(\d+)\s*minute/) : null;
+          const mins = minMatch ? Math.max(1, parseInt(minMatch[1], 10)) : 10;
+          this.startLockCountdown(mins * 60);
         } else {
-          this.errorMessage = err.error?.error?.message 
-            || err.error?.message 
-            || (err.status === 400 || err.status === 401 
-                ? 'Identifiants invalides (email ou mot de passe incorrect).' 
-                : 'Impossible de joindre le serveur. Veuillez vérifier votre connexion.');
+          this.errorMessage = msg || (err.status === 400 || err.status === 401 
+              ? 'Identifiants invalides (email ou mot de passe incorrect).' 
+              : 'Impossible de joindre le serveur. Veuillez vérifier votre connexion.');
         }
       }
     });
+  }
+
+  private startLockCountdown(seconds: number): void {
+    this.clearLockTimer();
+    this.lockRemainingSeconds = seconds;
+    this.lockTimerInterval = setInterval(() => {
+      this.lockRemainingSeconds--;
+      if (this.lockRemainingSeconds <= 0) {
+        this.clearLockTimer();
+        this.isLocked = false;
+        this.errorMessage = 'Le délai de sécurité est écoulé. Vous pouvez réessayer de vous connecter.';
+      }
+    }, 1000);
+  }
+
+  private clearLockTimer(): void {
+    if (this.lockTimerInterval) {
+      clearInterval(this.lockTimerInterval);
+      this.lockTimerInterval = null;
+    }
   }
 
   onVerify2fa(): void {
@@ -166,6 +204,13 @@ export class LoginComponent implements AfterViewInit {
 
   ngAfterViewInit(): void {
     this.initGoogleSignIn();
+  }
+
+  ngOnDestroy(): void {
+    this.clearLockTimer();
+    if (this.resizeHandler) {
+      window.removeEventListener('resize', this.resizeHandler);
+    }
   }
 
   private resizeHandler?: () => void;

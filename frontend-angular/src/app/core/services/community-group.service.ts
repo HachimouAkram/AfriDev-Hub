@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, tap } from 'rxjs';
 import { ApiResponse, User } from './auth.service';
 
 export type GroupAccessType = 'PUBLIC' | 'OUVERT' | 'PRIVE';
@@ -85,8 +85,13 @@ export interface GroupPostCreateRequest {
 export class CommunityGroupService {
   private http = inject(HttpClient);
   private apiUrl = '/api/v1/groups';
+  private cache = new Map<string, { timestamp: number; data: ApiResponse<any> }>();
+  private CACHE_TTL_MS = 5 * 60 * 1000;
 
-  searchGroups(country?: string, tag?: string, query?: string, page = 0, size = 15): Observable<ApiResponse<any>> {
+  searchGroups(country?: string, tag?: string, query?: string, page = 0, size = 15, forceRefresh = false): Observable<ApiResponse<any>> {
+    const cacheKey = `grp_${country || 'ALL'}_${tag || 'ALL'}_${query || ''}_${page}_${size}`;
+    const cached = this.cache.get(cacheKey);
+
     let params = new HttpParams()
       .set('page', page.toString())
       .set('size', size.toString());
@@ -95,7 +100,23 @@ export class CommunityGroupService {
     if (tag && tag !== 'ALL') params = params.set('tag', tag);
     if (query && query.trim()) params = params.set('query', query.trim());
 
-    return this.http.get<ApiResponse<any>>(this.apiUrl, { params });
+    const network$ = this.http.get<ApiResponse<any>>(this.apiUrl, { params }).pipe(
+      tap((res) => {
+        if (res && res.success) {
+          this.cache.set(cacheKey, { timestamp: Date.now(), data: res });
+        }
+      })
+    );
+
+    if (!forceRefresh && cached && (Date.now() - cached.timestamp < this.CACHE_TTL_MS)) {
+      return new Observable<ApiResponse<any>>((observer) => {
+        observer.next(cached.data);
+        observer.complete();
+        network$.subscribe({ error: () => {} });
+      });
+    }
+
+    return network$;
   }
 
   getMyGroups(page = 0, size = 20): Observable<ApiResponse<any>> {

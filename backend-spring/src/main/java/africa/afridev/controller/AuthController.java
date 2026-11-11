@@ -31,14 +31,20 @@ public class AuthController {
             AuthResponse response = authService.login(request, httpRequest);
             return ResponseEntity.ok(ApiResponse.ok(response));
         } catch (IllegalStateException e) {
-            if ("EMAIL_NOT_VERIFIED".equals(e.getMessage())) {
+            String msg = e.getMessage() != null ? e.getMessage() : "";
+            if ("EMAIL_NOT_VERIFIED".equals(msg)) {
                 // Retourner un code spécifique que le frontend peut détecter
                 return ResponseEntity.status(HttpStatus.FORBIDDEN)
                         .body(ApiResponse.error("EMAIL_NOT_VERIFIED",
                                 "Votre email n'est pas encore vérifié. Un nouveau code OTP vient d'être envoyé à votre adresse."));
             }
+            if (msg.startsWith("COMPTE_TEMPORAIREMENT_BLOQUE:")) {
+                String cleanMsg = msg.substring("COMPTE_TEMPORAIREMENT_BLOQUE:".length()).trim();
+                return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS)
+                        .body(ApiResponse.error("COMPTE_TEMPORAIREMENT_BLOQUE", cleanMsg));
+            }
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                    .body(ApiResponse.error("FORBIDDEN", e.getMessage()));
+                    .body(ApiResponse.error("FORBIDDEN", msg));
         }
     }
 

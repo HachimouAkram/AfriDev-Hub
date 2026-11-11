@@ -1,0 +1,528 @@
+<div class="detail-page-wrapper">
+  <!-- Toast notification -->
+  <div *ngIf="toastMessage" class="toast-notification animate-fade-in">
+    {{ toastMessage }}
+  </div>
+
+  <!-- Top Navigation Breadcrumb / Back Action -->
+  <div class="detail-top-nav">
+    <button type="button" (click)="goBack()" class="btn-back-link">
+      <svg class="icon-svg icon-svg-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
+      </svg>
+      <span>Retour aux projets</span>
+    </button>
+    <div class="detail-breadcrumb-meta" *ngIf="project">
+      <span class="crumb-sep">/</span>
+      <span class="crumb-current">{{ project.title }}</span>
+    </div>
+  </div>
+
+  <!-- Loading Skeleton State -->
+  <div *ngIf="isLoading" class="detail-skeleton-wrapper">
+    <div class="skeleton-hero skeleton-shimmer"></div>
+    <div class="skeleton-body">
+      <div class="skeleton-line lg skeleton-shimmer"></div>
+      <div class="skeleton-line md skeleton-shimmer"></div>
+      <div class="skeleton-author-bar skeleton-shimmer"></div>
+      <div class="skeleton-block skeleton-shimmer"></div>
+    </div>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="!isLoading && errorMessage" class="app-card error-state-card">
+    <div class="error-icon-box">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
+      </svg>
+    </div>
+    <h2>Projet introuvable</h2>
+    <p>{{ errorMessage }}</p>
+    <button (click)="goBack()" class="btn btn-emerald">Revenir à la vitrine</button>
+  </div>
+
+  <!-- Main Project Detail Container -->
+  <article *ngIf="!isLoading && project" class="detail-main-container">
+    <!-- Hero Cover Banner -->
+    <div class="detail-hero-cover" [class.has-image]="project.screenshots && project.screenshots.length > 0">
+      <img
+        *ngIf="project.screenshots && project.screenshots.length > 0"
+        [src]="getMediaUrl(project.screenshots[0])"
+        [alt]="project.title"
+        class="hero-cover-img" />
+      <div *ngIf="!project.screenshots || project.screenshots.length === 0" class="hero-cover-gradient">
+        <div class="gradient-pattern-grid"></div>
+        <div class="gradient-badge-center">
+          <span class="hero-initial-badge">{{ project.title.charAt(0).toUpperCase() }}</span>
+          <div class="hero-tech-floating" *ngIf="project.stack && project.stack.length">
+            <span *ngFor="let t of project.stack.slice(0, 3)" class="floating-tech-chip">{{ t }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Overlay badges on cover bottom -->
+      <div class="hero-cover-overlay">
+        <div class="overlay-badges-left">
+          <span class="badge" [ngClass]="getProjectTypeBadge(project.projectType).class">
+            {{ getProjectTypeBadge(project.projectType).label }}
+          </span>
+          <span class="project-affinity-pill" *ngIf="project.matchPercentage">
+            <i class="ri-magic-line"></i> {{ project.matchPercentage | number:'1.0-0' }}% Match IA
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Header & Primary Metadata -->
+    <header class="detail-article-header app-card">
+      <div class="title-and-actions-row">
+        <div class="title-col">
+          <h1 class="detail-project-title">{{ project.title }}</h1>
+          <div class="detail-meta-strip">
+            <span class="status-badge status-published">
+              <span class="dot"></span>
+              Publié
+            </span>
+            <span class="meta-dot" *ngIf="project.createdAt">• Publié le {{ project.createdAt | date:'mediumDate' }}</span>
+            <span class="meta-dot">
+              • <svg class="inline-icon-xs" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+              {{ project.viewsCount || 0 }} vue{{ (project.viewsCount || 0) > 1 ? 's' : '' }}
+            </span>
+          </div>
+        </div>
+
+        <div class="header-primary-cta">
+          <button
+            (click)="toggleRecognize()"
+            class="btn btn-md"
+            [ngClass]="project.recognizedByCurrentUser ? 'btn-emerald' : 'btn-outline'"
+            title="Soutenir ce projet">
+            <svg class="icon-svg icon-svg-sm" viewBox="0 0 24 24" fill="currentColor" stroke="none">
+              <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
+            </svg>
+            <span>{{ project.recognitionsCount || 0 }}</span>
+          </button>
+
+          <button (click)="shareProject()" class="btn btn-outline btn-md" title="Partager ce projet">
+            <svg class="icon-svg icon-svg-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7.217 10.907a2.25 2.25 0 100 2.186m0-2.186c.18.324.283.696.283 1.093s-.103.77-.283 1.093m0-2.186l9.566-5.314m-9.566 7.5l9.566 5.314m0 0a2.25 2.25 0 103.935 2.186 2.25 2.25 0 00-3.935-2.186zm0-12.814a2.25 2.25 0 103.933-2.185 2.25 2.25 0 00-3.933 2.185z" />
+            </svg>
+            <span class="hide-xs">Partager</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Author Bar -->
+      <div class="detail-author-bar" *ngIf="project.author">
+        <div class="detail-author-left">
+          <div class="author-avatar lg">
+            {{ (project.author?.profile?.fullName || project.author?.email || 'A').charAt(0).toUpperCase() }}
+          </div>
+          <div class="author-text-col">
+            <div class="author-name-lg">
+              <a [routerLink]="['/profile', project.author?.profile?.id || project.author?.id]" class="author-link">
+                {{ project.author?.profile?.fullName || project.author?.email || 'Développeur' }}
+              </a>
+              <span class="badge badge-emerald text-xs" *ngIf="project.author?.profile?.mobileMoneyVerified">
+                ★ Vérifié
+              </span>
+            </div>
+            <div class="author-subtext">
+              {{ project.author?.profile?.title || 'Développeur AfriDev Hub' }}
+              <span *ngIf="project.author?.profile?.city || project.author?.profile?.country">
+                • {{ project.author?.profile?.city || '' }} {{ project.author?.profile?.country || '' }}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <div class="detail-author-right">
+          <button
+            *ngIf="isLoggedIn() && project.author?.id !== authService.currentUser()?.id"
+            (click)="contactAuthor('COLLAB')"
+            class="btn btn-emerald btn-sm">
+            <svg class="icon-svg icon-svg-xs" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.625 12a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H8.25m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H12m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0h-.375M21 12c0 4.556-4.03 8.25-9 8.25a9.764 9.764 0 01-2.555-.337A5.972 5.972 0 015.41 20.97a.598.598 0 01-.743-.598l.147-1.44a5.962 5.962 0 01-1.814-4.432C3 10.444 7.03 6.75 12 6.75s9 3.694 9 8.25z" />
+            </svg>
+            <span>Discuter</span>
+          </button>
+
+          <button
+            *ngIf="isLoggedIn() && project.author?.id !== authService.currentUser()?.id && authorFollowStats"
+            (click)="toggleAuthorFollow()"
+            [disabled]="isTogglingAuthorFollow"
+            class="btn btn-sm follow-rel-btn"
+            [ngClass]="{
+              'btn-friends': authorFollowStats.followedByCurrentUser && authorFollowStats.followsCurrentUser,
+              'btn-follow-back': !authorFollowStats.followedByCurrentUser && authorFollowStats.followsCurrentUser,
+              'btn-outline': authorFollowStats.followedByCurrentUser && !authorFollowStats.followsCurrentUser,
+              'btn-emerald': !authorFollowStats.followedByCurrentUser && !authorFollowStats.followsCurrentUser
+            }">
+            <span *ngIf="authorFollowStats.followedByCurrentUser && authorFollowStats.followsCurrentUser">Amis</span>
+            <span *ngIf="!authorFollowStats.followedByCurrentUser && authorFollowStats.followsCurrentUser">Suivre en retour</span>
+            <span *ngIf="authorFollowStats.followedByCurrentUser && !authorFollowStats.followsCurrentUser">Abonné(e)</span>
+            <span *ngIf="!authorFollowStats.followedByCurrentUser && !authorFollowStats.followsCurrentUser">+ Suivre</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Navigation Tabs inside Page -->
+      <div class="detail-tabs-nav">
+        <button
+          type="button"
+          class="detail-nav-tab"
+          [class.active]="activeTab === 'overview'"
+          (click)="activeTab = 'overview'">
+          Présentation du Projet
+        </button>
+        <button
+          type="button"
+          class="detail-nav-tab"
+          [class.active]="activeTab === 'collaboration'"
+          (click)="activeTab = 'collaboration'">
+          Collaboration & Kanban
+          <span *ngIf="projectProgress" class="tab-chip">{{ projectProgress.completionPercentage }}%</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- ══ TAB 1: OVERVIEW ══ -->
+    <div *ngIf="activeTab === 'overview'" class="detail-grid-layout">
+      <!-- Left Main Content -->
+      <div class="detail-left-column">
+        <!-- YouTube Video Demo if provided -->
+        <div *ngIf="project.youtubeUrl && getYouTubeEmbedUrl(project.youtubeUrl)" class="app-card video-card">
+          <div class="video-container-box">
+            <iframe
+              [src]="getYouTubeEmbedUrl(project.youtubeUrl)!"
+              title="Démonstration Vidéo"
+              frameborder="0"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowfullscreen>
+            </iframe>
+          </div>
+        </div>
+
+        <!-- Description & AI Tools -->
+        <section class="app-card detail-section-card">
+          <div class="section-header-flex">
+            <h3>À propos du Projet</h3>
+            <div class="ai-tools-row">
+              <button (click)="translateDescription()" class="btn btn-outline btn-xs">
+                🌍 {{ isTranslating ? 'Traduction...' : (translatedDescription ? 'Original' : 'Traduire (' + translationService.currentLang().code.toUpperCase() + ')') }}
+              </button>
+              <button (click)="runAIAudit()" class="btn btn-outline btn-xs" [disabled]="isAuditingProject">
+                ✨ {{ isAuditingProject ? 'Audit...' : 'Audit IA' }}
+              </button>
+            </div>
+          </div>
+
+          <p class="full-description" *ngIf="!translatedDescription">{{ project.description }}</p>
+          <div class="translated-box" *ngIf="translatedDescription">
+            <span class="badge badge-emerald">Traduction IA ({{ translationService.currentLang().label }})</span>
+            <p class="full-description margin-top-xs">{{ translatedDescription }}</p>
+          </div>
+
+          <!-- Gemini Audit Result -->
+          <div class="ai-audit-card" *ngIf="aiAuditResult">
+            <div class="audit-header">
+              <div>
+                <span class="badge badge-purple">Rapport d'Audit IA (Gemini)</span>
+                <h4>Score Global : {{ aiAuditResult.overall_score }}/100</h4>
+              </div>
+              <button class="btn-close-sm" (click)="closeAIAudit()" title="Fermer">✕</button>
+            </div>
+            <div class="audit-scores-grid">
+              <div class="audit-score-pill">Sécurité : <strong>{{ aiAuditResult.security_score }}/100</strong></div>
+              <div class="audit-score-pill">Architecture : <strong>{{ aiAuditResult.architecture_score }}/100</strong></div>
+              <div class="audit-score-pill">Doc : <strong>{{ aiAuditResult.documentation_score }}/100</strong></div>
+            </div>
+            <p class="audit-summary">{{ aiAuditResult.summary }}</p>
+            <div class="audit-lists">
+              <div class="audit-strengths">
+                <strong>Points forts :</strong>
+                <ul><li *ngFor="let s of aiAuditResult.strengths">{{ s }}</li></ul>
+              </div>
+              <div class="audit-improvements">
+                <strong>Recommandations :</strong>
+                <ul><li *ngFor="let imp of aiAuditResult.improvements">{{ imp }}</li></ul>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Full Tech Stack (All technologies visible here!) -->
+        <section class="app-card detail-section-card" *ngIf="project.stack && project.stack.length">
+          <h3>Stack Technique Complète ({{ project.stack.length }})</h3>
+          <div class="full-stack-tags">
+            <span *ngFor="let tech of project.stack" class="tech-tag-pill">{{ tech }}</span>
+          </div>
+        </section>
+
+        <!-- Screenshots Gallery -->
+        <section *ngIf="project.screenshots && project.screenshots.length > 0" class="app-card detail-section-card">
+          <h3>Captures d'écran ({{ project.screenshots.length }})</h3>
+          <div class="screenshots-grid">
+            <a *ngFor="let s of project.screenshots" [href]="getMediaUrl(s)" target="_blank" class="screenshot-card">
+              <img [src]="getMediaUrl(s)" [alt]="project.title" loading="lazy" />
+            </a>
+          </div>
+        </section>
+
+        <!-- Comments Section -->
+        <section class="app-card detail-section-card">
+          <h3>Commentaires & Échanges ({{ comments.length }})</h3>
+
+          <div class="add-comment-box" *ngIf="isLoggedIn(); else loginPrompt">
+            <textarea
+              [(ngModel)]="newCommentText"
+              rows="3"
+              placeholder="Partagez un retour constructif ou posez une question au créateur..."
+              class="form-textarea"></textarea>
+            <button
+              (click)="postComment()"
+              [disabled]="isPostingComment || !newCommentText.trim()"
+              class="btn btn-emerald btn-sm align-self-start">
+              <span *ngIf="!isPostingComment">Publier le commentaire</span>
+              <span *ngIf="isPostingComment">Publication...</span>
+            </button>
+          </div>
+
+          <ng-template #loginPrompt>
+            <div class="login-prompt-box">
+              <p>Connectez-vous pour rejoindre la discussion et poser des questions au créateur.</p>
+              <a routerLink="/login" class="btn btn-outline btn-sm">Se connecter</a>
+            </div>
+          </ng-template>
+
+          <div class="comments-list" *ngIf="comments.length > 0; else noComments">
+            <div *ngFor="let c of comments" class="comment-item">
+              <div class="comment-avatar">
+                {{ (c.author?.profile?.fullName || c.author?.email || 'U').charAt(0).toUpperCase() }}
+              </div>
+              <div class="comment-body">
+                <div class="comment-header-row">
+                  <span class="comment-author">{{ c.author?.profile?.fullName || c.author?.email || 'Développeur' }}</span>
+                  <span class="comment-date">{{ c.createdAt | date:'short' }}</span>
+                </div>
+                <p class="comment-text">{{ c.content }}</p>
+              </div>
+            </div>
+          </div>
+
+          <ng-template #noComments>
+            <p class="no-comments-text">Aucun commentaire pour le moment. Soyez le premier à réagir !</p>
+          </ng-template>
+        </section>
+      </div>
+
+      <!-- Right Sidebar Column (Contextual Purchase / Links / Badges) -->
+      <aside class="detail-right-sidebar">
+        <!-- Sale Box (FOR_SALE) -->
+        <div *ngIf="project.projectType === 'FOR_SALE'" class="app-card sidebar-highlight-card amber-border">
+          <span class="sidebar-card-label amber-text">Modalités & Acquisition</span>
+          <div class="sidebar-price-display">{{ project.price | number }} {{ project.currency || 'XOF' }}</div>
+          <p class="sidebar-subinfo">Cession : <strong>{{ project.saleType || 'Code source complet' }}</strong></p>
+
+          <div class="sidebar-cta-stack">
+            <button
+              (click)="buyWithSasPay()"
+              [disabled]="isProcessingPurchase"
+              class="btn btn-emerald btn-full">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="2" y="5" width="20" height="14" rx="2"></rect>
+                <line x1="2" y1="10" x2="22" y2="10"></line>
+              </svg>
+              <span>{{ isProcessingPurchase ? 'Redirection SasPay...' : 'Acheter via SasPay (1 Clic)' }}</span>
+            </button>
+
+            <button
+              *ngIf="canContactWhatsApp()"
+              (click)="openWhatsApp()"
+              class="btn btn-whatsapp btn-full">
+              <span>Discuter sur WhatsApp</span>
+            </button>
+
+            <button
+              *ngIf="project.author?.id !== authService.currentUser()?.id"
+              (click)="contactAuthor('BUY')"
+              class="btn btn-outline btn-full">
+              <span>Envoyer un message privé</span>
+            </button>
+          </div>
+          <p class="payment-note">Wave, Orange Money, MTN MoMo & Cartes acceptés.</p>
+        </div>
+
+        <!-- SaaS Access Box (SAAS) -->
+        <div *ngIf="project.projectType === 'SAAS'" class="app-card sidebar-highlight-card purple-border">
+          <span class="sidebar-card-label purple-text">Application SaaS</span>
+          <div class="saas-pill-badge">{{ project.saasPricingType || 'FREEMIUM' }}</div>
+          <div class="demo-creds" *ngIf="project.demoAccountInfo">
+            <span class="lbl">Accès Démo :</span>
+            <code>{{ project.demoAccountInfo }}</code>
+          </div>
+          <button
+            *ngIf="project.author?.id !== authService.currentUser()?.id"
+            (click)="contactAuthor('DEMO')"
+            class="btn btn-purple btn-full margin-top-sm">
+            Demander un Accès Démo
+          </button>
+        </div>
+
+        <!-- Enterprise NDA Box -->
+        <div *ngIf="project.companyName" class="app-card sidebar-highlight-card">
+          <span class="sidebar-card-label">Projet Entreprise</span>
+          <p class="sidebar-subinfo"><strong>Client :</strong> {{ project.companyName }}</p>
+          <p class="sidebar-subinfo"><strong>Rôle :</strong> {{ project.companyRole }}</p>
+          <div class="nda-notice">Code source protégé sous accord de confidentialité (NDA).</div>
+        </div>
+
+        <!-- Open Source License Box -->
+        <div *ngIf="project.projectType === 'OPEN_SOURCE'" class="app-card sidebar-highlight-card emerald-border">
+          <span class="sidebar-card-label emerald-text">Open Source</span>
+          <p class="sidebar-subinfo">Licence : <strong>{{ project.licenseType || 'MIT' }}</strong></p>
+        </div>
+
+        <!-- Direct Resources & Links -->
+        <div class="app-card sidebar-links-card">
+          <h4>Liens & Ressources</h4>
+          <div class="sidebar-links-list">
+            <a *ngIf="project.repoUrl" [href]="project.repoUrl" target="_blank" class="btn btn-outline btn-full">
+              Code Source (GitHub)
+            </a>
+            <a *ngIf="project.demoUrl" [href]="project.demoUrl" target="_blank" class="btn btn-emerald btn-full">
+              Ouvrir la Démo Live
+            </a>
+            <a *ngIf="project.documentationPdfUrl" [href]="getMediaUrl(project.documentationPdfUrl)" target="_blank" class="btn btn-outline btn-full">
+              Documentation PDF
+            </a>
+          </div>
+
+          <div class="social-share-strip">
+            <span class="share-label">Partager :</span>
+            <div class="share-btns">
+              <button (click)="shareProject('linkedin')" class="share-circle" title="LinkedIn">in</button>
+              <button (click)="shareProject('twitter')" class="share-circle" title="X">X</button>
+              <button (click)="shareProject('whatsapp')" class="share-circle" title="WhatsApp">WA</button>
+              <button (click)="shareProject()" class="share-circle" title="Copier le lien">🔗</button>
+            </div>
+          </div>
+        </div>
+      </aside>
+    </div>
+
+    <!-- ══ TAB 2: COLLABORATION & KANBAN ══ -->
+    <div *ngIf="activeTab === 'collaboration'" class="collab-detail-view app-card detail-section-card">
+      <div class="team-header-row">
+        <div>
+          <h3>Équipe du Projet & Tâches</h3>
+          <p class="text-muted text-sm">Suivi de l'avancement et recrutement collaboratif</p>
+        </div>
+        <div>
+          <span *ngIf="isCurrentUserLead()" class="lead-pill">Chef de projet</span>
+          <span *ngIf="isCurrentUserMember() && !isCurrentUserLead()" class="member-pill">Membre actif</span>
+          <span *ngIf="isCurrentUserPendingMember()" class="pending-pill">Candidature en attente</span>
+          <button
+            *ngIf="!isCurrentUserLead() && !isCurrentUserMember() && !isCurrentUserPendingMember()"
+            (click)="openApplyModal()"
+            class="btn btn-emerald btn-sm">
+            + Rejoindre l'équipe
+          </button>
+        </div>
+      </div>
+
+      <!-- Team Members Grid -->
+      <div class="team-members-grid">
+        <div class="member-card lead-card">
+          <div class="member-avatar lead-avatar">{{ (project.author?.profile?.fullName || 'L').charAt(0).toUpperCase() }}</div>
+          <div class="member-info">
+            <span class="member-name">{{ project.author?.profile?.fullName || project.author?.email }}</span>
+            <span class="badge badge-emerald badge-xs">Lead</span>
+          </div>
+        </div>
+        <div *ngFor="let m of projectMembers" class="member-card">
+          <div class="member-avatar">{{ (m.userName || m.userEmail || 'D').charAt(0).toUpperCase() }}</div>
+          <div class="member-info">
+            <span class="member-name">{{ m.userName || m.userEmail }}</span>
+            <span class="badge badge-xs" [ngClass]="m.status === 'ACCEPTED' ? 'badge-blue' : 'badge-amber'">
+              {{ m.status === 'ACCEPTED' ? m.role : 'En attente' }}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Locked Notice for Non-Members -->
+      <div class="collab-locked-card" *ngIf="!(isCurrentUserLead() || isCurrentUserMember())">
+        <h4>Espace Kanban Réservé à l'Équipe</h4>
+        <p>Postulez pour rejoindre l'équipe afin de consulter et mettre à jour le tableau des tâches.</p>
+        <button *ngIf="!isCurrentUserPendingMember()" (click)="openApplyModal()" class="btn btn-emerald btn-sm margin-top-xs">
+          Postuler maintenant
+        </button>
+      </div>
+
+      <!-- Kanban Board for Members/Lead -->
+      <div *ngIf="isCurrentUserLead() || isCurrentUserMember()" class="kanban-board-grid">
+        <div class="kanban-col" *ngFor="let col of [
+          { status: 'TODO', label: 'À Faire', dot: 'dot-gray' },
+          { status: 'IN_PROGRESS', label: 'En Cours', dot: 'dot-blue' },
+          { status: 'REVIEW', label: 'En Revue', dot: 'dot-purple' },
+          { status: 'DONE', label: 'Terminé', dot: 'dot-emerald' }
+        ]">
+          <div class="kanban-col-header">
+            <span class="col-dot" [ngClass]="col.dot"></span>
+            <span class="col-title">{{ col.label }}</span>
+            <span class="col-count">{{ filterTasksByStatus($any(col.status)).length }}</span>
+          </div>
+          <div class="kanban-cards-stack">
+            <div *ngFor="let t of filterTasksByStatus($any(col.status))" class="kanban-task-card">
+              <div class="task-top-badges">
+                <span class="badge badge-priority">{{ t.priority }}</span>
+              </div>
+              <h5 class="task-card-title">{{ t.title }}</h5>
+              <p *ngIf="t.description" class="task-card-desc">{{ t.description }}</p>
+              <select [ngModel]="t.status" (ngModelChange)="updateTaskStatus(t, $event)" class="status-select">
+                <option value="TODO">À Faire</option>
+                <option value="IN_PROGRESS">En Cours</option>
+                <option value="REVIEW">En Revue</option>
+                <option value="DONE">Terminé</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </article>
+
+  <!-- Responsive Modal for Collaboration Application -->
+  <div *ngIf="showApplyModal" class="modal-backdrop-inner" (click)="closeApplyModal()">
+    <div class="modal-box-inner" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>Postuler pour rejoindre l'équipe</h3>
+        <button (click)="closeApplyModal()" class="btn-close">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label">Rôle souhaité *</label>
+          <input type="text" [(ngModel)]="applyRole" placeholder="Ex: Développeur Frontend Angular..." class="form-input" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Message de motivation</label>
+          <textarea [(ngModel)]="applyMessage" rows="3" placeholder="Vos compétences..." class="form-textarea"></textarea>
+        </div>
+        <div class="form-group">
+          <label class="form-label">CV PDF</label>
+          <input type="file" accept=".pdf,application/pdf" (change)="onCvFileSelected($event)" />
+          <span *ngIf="isUploadingCv" class="text-xs text-emerald">Téléversement...</span>
+          <span *ngIf="uploadedCvName" class="text-xs text-emerald">Prêt : {{ uploadedCvName }}</span>
+          <span *ngIf="cvUploadError" class="text-xs text-red">{{ cvUploadError }}</span>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button (click)="closeApplyModal()" class="btn btn-outline btn-sm">Annuler</button>
+        <button (click)="submitApplication()" [disabled]="isSubmittingApply || !applyRole.trim()" class="btn btn-emerald btn-sm">
+          {{ isSubmittingApply ? 'Envoi...' : 'Envoyer Candidature' }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

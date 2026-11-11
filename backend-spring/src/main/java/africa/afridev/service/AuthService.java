@@ -20,6 +20,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -36,6 +37,7 @@ public class AuthService {
     private final OtpService otpService;
     private final EmailService emailService;
     private final LoginSessionRepository loginSessionRepository;
+    private final RedisCacheService redisCacheService;
 
     @Value("${app.google.client-id:}")
     private String googleClientId;
@@ -93,12 +95,46 @@ public class AuthService {
 
     @Transactional
     public AuthResponse login(LoginRequest request, HttpServletRequest httpRequest) {
-        UserEntity user = userRepository.findByEmail(request.getEmail())
-                .orElseThrow(() -> new IllegalArgumentException("Identifiants invalides (email ou mot de passe incorrect)."));
+        String email = request.getEmail() != null ? request.getEmail().trim().toLowerCase() : "";
 
-        if (user.getPasswordHash() == null || !passwordEncoder.matches(request.getPassword(), user.getPasswordHash())) {
-            throw new IllegalArgumentException("Identifiants invalides (email ou mot de passe incorrect).");
+        // 1. Protection Anti-Brute Force : Vérifier si le compte est temporairement bloqué (10 minutes)
+        if (redisCacheService.isLoginLocked(email)) {
+            long remainingSec = redisCacheService.getLoginLockRemainingSeconds(email);
+            long minutes = Math.max(1, (remainingSec + 59) / 60);
+            throw new IllegalStateException("COMPTE_TEMPORAIREMENT_BLOQUE: Votre compte a été temporairement désactivé suite à 5 tentatives de mot de passe incorrectes. Veuillez patienter encore " + minutes + " minute(s) avant de réessayer.");
         }
+
+        UserEntity user = userRepository.findByEmail(email)
+                .or(() -> request.getEmail() != null ? userRepository.findByEmail(request.getEmail().trim()) : java.util.Optional.empty())
+                .orElse(null);
+        DeviceParserUtil.DeviceInfo deviceInfo = DeviceParserUtil.parse(httpRequest);
+
+        // 2. Vérification des identifiants (Mot de passe)
+        if (user == null || user.getPasswordHash() == null || !passwordEncoder.matches(request.getPassword(), user.getPasswordHash())) {
+            // Incrémenter les tentatives d'échecs (durée de validité de la fenêtre : 10 minutes)
+            long attempts = redisCacheService.incrementFailedLoginAttempts(email, Duration.ofMinutes(10));
+            if (attempts >= 5) {
+                // Déclencher le verrouillage temporaire pour 10 minutes
+                redisCacheService.lockLogin(email, Duration.ofMinutes(10));
+
+                // Envoyer l'email d'alerte sécurité si le compte existe
+                if (user != null) {
+                    try {
+                        emailService.sendAccountLockedEmail(user.getEmail(), 10, deviceInfo.ipAddress(), deviceInfo.deviceName());
+                    } catch (Exception e) {
+                        log.warn("[SECURITY] Échec d'envoi de l'email d'alerte de verrouillage à {} : {}", user.getEmail(), e.getMessage());
+                    }
+                }
+
+                throw new IllegalStateException("COMPTE_TEMPORAIREMENT_BLOQUE: Votre compte a été temporairement désactivé suite à 5 tentatives consécutives incorrectes. Un email d'alerte a été envoyé sur votre compte email. Veuillez patienter et réessayer dans 10 minutes.");
+            } else {
+                long remaining = 5 - attempts;
+                throw new IllegalArgumentException("Identifiants invalides (email ou mot de passe incorrect). Attention : il vous reste " + remaining + " tentative(s) avant la désactivation temporaire de votre compte (10 min).");
+            }
+        }
+
+        // Si le mot de passe est correct, réinitialiser immédiatement le compteur d'échecs
+        redisCacheService.clearFailedLoginAttempts(email);
 
         if (user.getStatus() == UserStatus.SUSPENDED || user.getStatus() == UserStatus.BANNED) {
             throw new IllegalStateException("Ce compte est suspendu ou banni.");
@@ -116,7 +152,6 @@ public class AuthService {
         }
 
         // ── Device & 2FA Check ──
-        DeviceParserUtil.DeviceInfo deviceInfo = DeviceParserUtil.parse(httpRequest);
         String deviceId = (request.getDeviceId() != null && !request.getDeviceId().isBlank())
                 ? request.getDeviceId()
                 : "dev_" + Math.abs((deviceInfo.ipAddress() + deviceInfo.deviceName()).hashCode());

@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, tap } from 'rxjs';
 import { ApiResponse, User } from './auth.service';
 
 export interface Opportunity {
@@ -51,7 +51,13 @@ export class OpportunityService {
   private http = inject(HttpClient);
   private apiUrl = '/api/v1/opportunities';
 
-  getOpportunities(type?: string, page = 0, size = 20, sort = 'SUGGESTED'): Observable<ApiResponse<any>> {
+  private oppsCache = new Map<string, { timestamp: number; data: ApiResponse<any> }>();
+  private CACHE_TTL_MS = 5 * 60 * 1000;
+
+  getOpportunities(type?: string, page = 0, size = 20, sort = 'SUGGESTED', forceRefresh = false): Observable<ApiResponse<any>> {
+    const cacheKey = `o_${type || 'ALL'}_p_${page}_s_${size}_sort_${sort}`;
+    const cached = this.oppsCache.get(cacheKey);
+
     let params = new HttpParams()
       .set('sort', sort)
       .set('page', page.toString())
@@ -59,7 +65,23 @@ export class OpportunityService {
 
     if (type) params = params.set('type', type);
 
-    return this.http.get<ApiResponse<any>>(this.apiUrl, { params });
+    const network$ = this.http.get<ApiResponse<any>>(this.apiUrl, { params }).pipe(
+      tap((res) => {
+        if (res && res.success) {
+          this.oppsCache.set(cacheKey, { timestamp: Date.now(), data: res });
+        }
+      })
+    );
+
+    if (!forceRefresh && cached && (Date.now() - cached.timestamp < this.CACHE_TTL_MS)) {
+      return new Observable<ApiResponse<any>>((observer) => {
+        observer.next(cached.data);
+        observer.complete();
+        network$.subscribe({ error: () => {} });
+      });
+    }
+
+    return network$;
   }
 
   getOpportunityById(id: string): Observable<ApiResponse<Opportunity>> {

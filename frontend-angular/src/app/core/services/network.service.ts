@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, tap } from 'rxjs';
 import { ApiResponse } from './auth.service';
 
 export interface UserNetwork {
@@ -35,6 +35,8 @@ export interface NetworkSuggestion {
 export class NetworkService {
   private http = inject(HttpClient);
   private apiUrl = '/api/v1/network';
+  private cache = new Map<string, { timestamp: number; data: ApiResponse<any> }>();
+  private CACHE_TTL_MS = 5 * 60 * 1000;
 
   getNetworkUsers(params?: {
     role?: string;
@@ -44,7 +46,10 @@ export class NetworkService {
     sort?: string;
     page?: number;
     size?: number;
-  }): Observable<ApiResponse<any>> {
+  }, forceRefresh = false): Observable<ApiResponse<any>> {
+    const cacheKey = JSON.stringify(params || {});
+    const cached = this.cache.get(cacheKey);
+
     let httpParams = new HttpParams();
     if (params?.role && params.role !== 'ALL') httpParams = httpParams.set('role', params.role);
     if (params?.query) httpParams = httpParams.set('query', params.query);
@@ -54,7 +59,23 @@ export class NetworkService {
     if (params?.page !== undefined) httpParams = httpParams.set('page', params.page.toString());
     if (params?.size !== undefined) httpParams = httpParams.set('size', params.size.toString());
 
-    return this.http.get<ApiResponse<any>>(`${this.apiUrl}/users`, { params: httpParams });
+    const network$ = this.http.get<ApiResponse<any>>(`${this.apiUrl}/users`, { params: httpParams }).pipe(
+      tap((res) => {
+        if (res && res.success) {
+          this.cache.set(cacheKey, { timestamp: Date.now(), data: res });
+        }
+      })
+    );
+
+    if (!forceRefresh && cached && (Date.now() - cached.timestamp < this.CACHE_TTL_MS)) {
+      return new Observable<ApiResponse<any>>((observer) => {
+        observer.next(cached.data);
+        observer.complete();
+        network$.subscribe({ error: () => {} });
+      });
+    }
+
+    return network$;
   }
 
   getNetworkSuggestions(limit: number = 10): Observable<ApiResponse<NetworkSuggestion[]>> {

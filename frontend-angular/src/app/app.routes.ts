@@ -123,6 +123,14 @@ export const routes: Routes = [
     loadComponent: () => import('./features/projects/project-list/project-list.component').then(m => m.ProjectListComponent)
   },
   {
+    path: 'projects/:id',
+    loadComponent: () => import('./features/projects/project-detail/project-detail.component').then(m => m.ProjectDetailComponent)
+  },
+  {
+    path: 'ai-assistant',
+    loadComponent: () => import('./features/ai-assistant/ai-assistant-page.component').then(m => m.AiAssistantPageComponent)
+  },
+  {
     path: 'opportunities',
     loadComponent: () => import('./features/opportunities/opportunity-list/opportunity-list.component').then(m => m.OpportunityListComponent)
   },
