@@ -48,12 +48,12 @@ def health_check():
 
 if __name__ == "__main__":
     import uvicorn
-    raw_port = os.getenv("PORT", "8000")
+    raw_port = os.getenv("PORT", "8080")
     try:
         port = int(raw_port)
     except ValueError:
-        port = 8000
-    uvicorn.run(app, host="0.0.0.0", port=port)
+        port = 8080
+    uvicorn.run("app.main:app", host="0.0.0.0", port=port)
 
 
 
