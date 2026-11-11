@@ -2,6 +2,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap');
 
 :root {
+  color-scheme: dark;
   /* Fonts */
   --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
   --font-heading: 'Plus Jakarta Sans', sans-serif;
@@ -40,12 +41,21 @@
 
   /* Component Aliases & Dynamic Theme Variables */
   --bg-card: var(--bg-surface-card);
+  --card-bg: var(--bg-surface-card);
+  --bg-card-hover: var(--bg-surface-hover);
   --bg-main: var(--bg-dark);
+  --bg-secondary: var(--bg-surface);
+  --bg-input: #1E293B;
   --bg-surface-primary: #0B1120;
   --text-main: var(--text-heading);
+  --text-color: var(--text-heading);
   --text-primary: #E2E8F0;
+  --text-secondary: var(--text-muted);
   --border-color: var(--border-subtle);
+  --border-medium: var(--border-light);
   --emerald: var(--emerald-500);
+  --primary: var(--emerald-500);
+  --primary-soft: rgba(16, 185, 129, 0.14);
 
   /* Gradient & Specialized Tokens */
   --hero-bg-gradient: linear-gradient(135deg, rgba(16, 185, 129, 0.08) 0%, rgba(15, 23, 42, 0.85) 60%, rgba(6, 78, 59, 0.25) 100%);
@@ -64,16 +74,21 @@
   --box-subtle-bg: rgba(255, 255, 255, 0.03);
 }
 
+:root:has(body.light-theme) {
+  color-scheme: light;
+}
+
 /* Light Theme Overrides - Crisp, Modern & Sleek */
 body.light-theme {
+  color-scheme: light;
   --bg-dark: #F8FAFC;
   --bg-surface: #F1F5F9;
   --bg-surface-card: #FFFFFF;
   --bg-surface-primary: #F8FAFC;
   --bg-surface-hover: #E2E8F0;
 
-  --border-subtle: rgba(0, 0, 0, 0.08);
-  --border-light: rgba(0, 0, 0, 0.14);
+  --border-subtle: rgba(15, 23, 42, 0.1);
+  --border-light: rgba(15, 23, 42, 0.18);
   --border-emerald: rgba(16, 185, 129, 0.4);
 
   --emerald-400: #10B981;
@@ -85,15 +100,24 @@ body.light-theme {
   --text-heading: #0F172A;
   --text-body: #334155;
   --text-primary: #0F172A;
-  --text-muted: #64748B;
-  --text-dim: #94A3B8;
+  --text-muted: #475569;
+  --text-dim: #64748B;
 
   /* Component Aliases */
   --bg-card: #FFFFFF;
+  --card-bg: #FFFFFF;
+  --bg-card-hover: #F1F5F9;
   --bg-main: #F8FAFC;
+  --bg-secondary: #F1F5F9;
+  --bg-input: #FFFFFF;
   --text-main: #0F172A;
-  --border-color: rgba(0, 0, 0, 0.08);
+  --text-color: #0F172A;
+  --text-secondary: #475569;
+  --border-color: rgba(15, 23, 42, 0.1);
+  --border-medium: rgba(15, 23, 42, 0.18);
   --emerald: #059669;
+  --primary: #059669;
+  --primary-soft: rgba(5, 150, 105, 0.12);
 
   /* Gradient & Specialized Tokens */
   --hero-bg-gradient: linear-gradient(135deg, rgba(16, 185, 129, 0.08) 0%, #FFFFFF 60%, rgba(16, 185, 129, 0.06) 100%);

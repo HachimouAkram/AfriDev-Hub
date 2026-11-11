@@ -32,13 +32,8 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
   statProjects = 0;
   statOffers = 0;
   statCountries = 0;
-  isHeroMotionPaused = false;
 
   private scrollObserver?: IntersectionObserver;
-
-  toggleHeroMotion(): void {
-    this.isHeroMotionPaused = !this.isHeroMotionPaused;
-  }
 
   ngOnInit(): void {
     this.loadFeaturedProjects();

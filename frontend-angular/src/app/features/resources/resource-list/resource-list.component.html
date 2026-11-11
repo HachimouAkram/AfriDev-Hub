@@ -64,7 +64,14 @@
       <div *ngFor="let item of resources()" class="resource-card">
         <!-- Thumbnail & Badges -->
         <div class="card-media">
-          <img [src]="item.thumbnailUrl || 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=800'" [alt]="item.title" class="thumbnail-img" />
+          <img
+            [src]="item.thumbnailUrl || getFallbackThumbnail(item)"
+            (error)="onThumbnailError($event, item)"
+            [alt]="item.title"
+            width="800"
+            height="450"
+            loading="lazy"
+            class="thumbnail-img" />
           <div class="card-badges-top">
             <span class="badge badge-tech">{{ item.technology }}</span>
             <span class="badge" [ngClass]="item.level === 'ADVANCED' ? 'badge-purple' : (item.level === 'INTERMEDIATE' ? 'badge-blue' : 'badge-emerald')">
