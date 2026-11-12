@@ -33,6 +33,7 @@ public class CompanyService {
     private final ResourceRepository resourceRepository;
     private final UserRepository userRepository;
     private final CompanyXpService companyXpService;
+    private final EmailService emailService;
 
     @Transactional
     public CompanyDto createCompany(UserEntity user, CreateCompanyRequest request) {
@@ -210,6 +211,14 @@ public class CompanyService {
 
         validateOwnerAccess(company, requester);
 
+        // Rate limiting : max 10 invitations par jour par entreprise
+        LocalDateTime startOfDay = LocalDateTime.now().minusHours(24);
+        long recentInvites = companyActivityLogRepository.countByCompanyIdAndActivityTypeAndCreatedAtAfter(
+                companyId, CompanyActivityType.MEMBER_INVITED, startOfDay);
+        if (recentInvites >= 10) {
+            throw new IllegalStateException("Limite quotidienne atteinte : vous ne pouvez pas envoyer plus de 10 invitations par période de 24 heures.");
+        }
+
         String targetEmail = request.getEmail().trim().toLowerCase();
         UserEntity targetUser = userRepository.findByEmail(targetEmail)
                 .orElseThrow(() -> new IllegalArgumentException("Aucun utilisateur trouvé avec l'email : " + targetEmail + ". Le membre doit d'abord créer un compte sur la plateforme."));
@@ -226,8 +235,9 @@ public class CompanyService {
                         .status(CompanyMemberStatus.ACTIVE)
                         .build());
 
+        String jobTitle = request.getJobTitle() != null ? request.getJobTitle().trim() : "Recruteur";
         member.setStatus(CompanyMemberStatus.ACTIVE);
-        member.setJobTitle(request.getJobTitle() != null ? request.getJobTitle().trim() : "Recruteur");
+        member.setJobTitle(jobTitle);
         member.setInvitedByUserId(requester.getId());
         member.setJoinedAt(LocalDateTime.now());
 
@@ -235,6 +245,17 @@ public class CompanyService {
 
         logActivity(company, requester, CompanyActivityType.MEMBER_INVITED, targetUser.getId(), "member",
                 requester.getEmail() + " a ajouté " + targetEmail + " à l'équipe recrutement");
+
+        // Envoi de l'email de notification d'invitation équipe
+        try {
+            String recipientName = targetUser.getProfile() != null && targetUser.getProfile().getFullName() != null
+                    ? targetUser.getProfile().getFullName() : targetUser.getEmail();
+            String inviterName = requester.getProfile() != null && requester.getProfile().getFullName() != null
+                    ? requester.getProfile().getFullName() : requester.getEmail();
+            emailService.sendTeamInvitationEmail(targetEmail, recipientName, company.getName(), inviterName, jobTitle);
+        } catch (Exception e) {
+            log.warn("[COMPANY] Erreur lors de l'envoi de l'email d'invitation : {}", e.getMessage());
+        }
 
         return mapMemberToDto(saved);
     }
@@ -326,6 +347,29 @@ public class CompanyService {
     }
 
     @Transactional
+    public CompanyDto updateCompanyStatus(String companyId, UserEntity admin, ContentStatus status, Boolean verified) {
+        if (admin.getRole() != Role.ADMIN && admin.getRole() != Role.SUPER_ADMIN) {
+            throw new SecurityException("Seul un administrateur peut modifier le statut d'une entreprise.");
+        }
+
+        CompanyEntity company = companyRepository.findById(companyId)
+                .orElseThrow(() -> new IllegalArgumentException("Entreprise introuvable : " + companyId));
+
+        if (status != null) {
+            company.setStatus(status);
+        }
+        if (verified != null) {
+            company.setVerified(verified);
+        }
+
+        CompanyEntity saved = companyRepository.save(company);
+
+        logActivity(company, admin, CompanyActivityType.COMPANY_UPDATED, company.getId(), "company",
+                "Statut modifié par l'administrateur " + admin.getEmail() + " : " + (status != null ? status : "") + " (vérifié=" + verified + ")");
+
+        return mapToDto(saved);
+    }
+
     public void logActivity(CompanyEntity company, UserEntity actor, CompanyActivityType type, String targetId, String targetType, String description) {
         if (company == null || actor == null) return;
         CompanyActivityLogEntity logEntry = CompanyActivityLogEntity.builder()

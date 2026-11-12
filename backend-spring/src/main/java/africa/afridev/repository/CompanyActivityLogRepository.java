@@ -19,5 +19,10 @@ public interface CompanyActivityLogRepository extends JpaRepository<CompanyActiv
             String companyId,
             String actorId,
             Pageable pageable);
+
+    long countByCompanyIdAndActivityTypeAndCreatedAtAfter(
+            String companyId,
+            africa.afridev.model.enums.CompanyActivityType activityType,
+            java.time.LocalDateTime after);
 }
 

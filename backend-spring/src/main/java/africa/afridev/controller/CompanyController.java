@@ -56,6 +56,7 @@ public class CompanyController {
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("@companySecurityService.isMember(#id, authentication.name)")
     public ResponseEntity<ApiResponse<CompanyDto>> updateCompany(
             @PathVariable String id,
             Authentication authentication,
@@ -67,6 +68,7 @@ public class CompanyController {
     }
 
     @GetMapping("/{id}/members")
+    @PreAuthorize("@companySecurityService.isMember(#id, authentication.name)")
     public ResponseEntity<ApiResponse<PagedResult<CompanyMemberDto>>> listMembers(
             @PathVariable String id,
             Authentication authentication,
@@ -79,7 +81,8 @@ public class CompanyController {
         return ResponseEntity.ok(ApiResponse.ok(members));
     }
 
-    @PostMapping("/{id}/members/invite")
+    @PostMapping("/{id}/members")
+    @PreAuthorize("@companySecurityService.isOwner(#id, authentication.name)")
     public ResponseEntity<ApiResponse<CompanyMemberDto>> inviteMember(
             @PathVariable String id,
             Authentication authentication,
@@ -91,6 +94,7 @@ public class CompanyController {
     }
 
     @DeleteMapping("/{id}/members/{targetUserId}")
+    @PreAuthorize("@companySecurityService.isOwner(#id, authentication.name)")
     public ResponseEntity<ApiResponse<String>> removeMember(
             @PathVariable String id,
             @PathVariable String targetUserId,
@@ -102,6 +106,7 @@ public class CompanyController {
     }
 
     @GetMapping("/{id}/activity-log")
+    @PreAuthorize("@companySecurityService.isMember(#id, authentication.name)")
     public ResponseEntity<ApiResponse<PagedResult<CompanyActivityLogDto>>> getActivityLogs(
             @PathVariable String id,
             Authentication authentication,
@@ -115,6 +120,7 @@ public class CompanyController {
     }
 
     @GetMapping("/{id}/stats")
+    @PreAuthorize("@companySecurityService.isMember(#id, authentication.name)")
     public ResponseEntity<ApiResponse<CompanyStatsDto>> getCompanyStats(
             @PathVariable String id,
             Authentication authentication
@@ -122,6 +128,19 @@ public class CompanyController {
         UserEntity user = getAuthenticatedUser(authentication);
         CompanyStatsDto stats = companyService.getCompanyStats(id, user);
         return ResponseEntity.ok(ApiResponse.ok(stats));
+    }
+
+    @PatchMapping("/{id}/admin-status")
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
+    public ResponseEntity<ApiResponse<CompanyDto>> updateCompanyAdminStatus(
+            @PathVariable String id,
+            Authentication authentication,
+            @RequestParam(required = false) ContentStatus status,
+            @RequestParam(required = false) Boolean verified
+    ) {
+        UserEntity admin = getAuthenticatedUser(authentication);
+        CompanyDto dto = companyService.updateCompanyStatus(id, admin, status, verified);
+        return ResponseEntity.ok(ApiResponse.ok(dto));
     }
 
     @GetMapping

@@ -296,6 +296,43 @@ public class EmailService {
         sendHtmlEmail(toEmail, subject, body);
     }
 
+    @Async
+    public void sendTeamInvitationEmail(String toEmail, String recipientName, String companyName, String inviterName, String jobTitle) {
+        String subject = "\uD83C\uDFE2 Invitation à rejoindre l'équipe de recrutement : " + companyName;
+        String body = """
+            <div style="font-family: Inter, Arial, sans-serif; max-width: 560px; margin: auto; background: #0F1828; color: #E2E8F0; border-radius: 16px; overflow: hidden; border: 1px solid #1E293B;">
+              <div style="background: linear-gradient(135deg, #10B981, #059669); padding: 30px; text-align: center;">
+                <h1 style="margin: 0; color: #fff; font-size: 24px; font-weight: 800;">AfriDev Hub</h1>
+                <p style="margin: 6px 0 0; color: rgba(255,255,255,0.85); font-size: 14px;">Espace Entreprise & Recrutement</p>
+              </div>
+              <div style="padding: 30px;">
+                <h2 style="font-size: 18px; color: #F8FAFC; margin-bottom: 12px;">Bonjour %s,</h2>
+                <p style="color: #94A3B8; font-size: 15px; line-height: 1.6; margin-bottom: 20px;">
+                  <strong>%s</strong> vous a invité(e) à rejoindre l'équipe de recrutement de l'entreprise <strong style="color: #10B981;">%s</strong> sur AfriDev Hub en tant que <strong>%s</strong>.
+                </p>
+                <div style="background: #1E293B; border-radius: 12px; padding: 20px; margin-bottom: 24px; border: 1px solid #334155;">
+                  <div style="color: #F8FAFC; font-size: 14px; margin-bottom: 8px;">🏢 Entreprise : <strong>%s</strong></div>
+                  <div style="color: #F8FAFC; font-size: 14px; margin-bottom: 8px;">💼 Rôle attribué : <strong>%s</strong></div>
+                  <div style="color: #34D399; font-size: 13px;">✓ Vos privilèges d'accès sont dès à présent actifs sur votre compte.</div>
+                </div>
+                <p style="color: #94A3B8; font-size: 14px; line-height: 1.5; margin-bottom: 24px;">
+                  Vous pouvez dès maintenant accéder au cockpit recruteur pour publier des offres d'emploi, analyser les candidatures et organiser des événements tech au nom de votre entreprise.
+                </p>
+                <div style="text-align: center;">
+                  <a href="https://afridev.africa/dashboard/recruiter" style="background: #10B981; color: #064E3B; padding: 12px 24px; border-radius: 8px; text-decoration: none; font-weight: 700; font-size: 14px; display: inline-block;">
+                    Accéder au Cockpit Recruteur →
+                  </a>
+                </div>
+              </div>
+              <div style="background: #0B1120; padding: 16px; text-align: center;">
+                <p style="margin: 0; color: #475569; font-size: 12px;">© 2026 AfriDev Hub · Plateforme Panafricaine des Développeurs et Recruteurs</p>
+              </div>
+            </div>
+            """.formatted(recipientName, inviterName, companyName, jobTitle, companyName, jobTitle);
+
+        sendHtmlEmail(toEmail, subject, body);
+    }
+
     // ── Generic fire-and-forget (errors logged, not propagated) ───────────────
     private void sendHtmlEmail(String to, String subject, String htmlBody) {
         try {
