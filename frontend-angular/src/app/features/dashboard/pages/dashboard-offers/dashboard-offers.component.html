@@ -282,7 +282,7 @@
             <i class="ri-checkbox-circle-line"></i> Décision prise
           </span>
 
-          <button (click)="openChatModal(app.applicant)" class="btn btn-emerald btn-sm">
+          <button (click)="openChatModal(app.applicant, app)" class="btn btn-emerald btn-sm">
             <svg class="icon-svg icon-svg-xs" viewBox="0 0 24 24" fill="none" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.625 12a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H8.25m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H12m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0h-.375M21 12c0 4.556-4.03 8.25-9 8.25a9.764 9.764 0 01-2.555-.337A5.972 5.972 0 015.41 20.97a.598.598 0 01-.743-.598l.147-1.44a5.962 5.962 0 01-1.814-4.432C3 10.444 7.03 6.75 12 6.75s9 3.694 9 8.25z" />
             </svg>
@@ -415,7 +415,7 @@
 
                 <span *ngIf="app.status === 'REJECTED'" class="status-definitive-tag">Décision prise</span>
 
-                <button (click)="openChatModal(app.applicant)" class="btn btn-emerald btn-xs"><i class="ri-chat-1-line"></i> Discuter</button>
+                <button (click)="openChatModal(app.applicant, app)" class="btn btn-emerald btn-xs"><i class="ri-chat-1-line"></i> Discuter</button>
                 <button (click)="openReportModal(app)" class="btn btn-outline btn-xs btn-report"><i class="ri-alert-line"></i> Signaler</button>
               </div>
             </div>
@@ -549,19 +549,74 @@
   <!-- 4. DIRECT MESSAGING CHAT MODAL -->
   <div class="modal-overlay" *ngIf="showChatModal" (click)="closeChatModal()">
     <div class="app-card modal-card chat-modal" (click)="$event.stopPropagation()">
-      <div class="modal-header">
-        <h3>Discussion directe {{ chatRecipient?.profile?.fullName ? 'avec ' + chatRecipient?.profile?.fullName : '' }}</h3>
-        <button (click)="closeChatModal()" class="close-btn">&times;</button>
+      <div class="modal-header chat-header">
+        <div class="chat-header-user">
+          <div class="chat-avatar-circle">
+            {{ (chatRecipient?.profile?.fullName || chatRecipient?.email || 'C').charAt(0).toUpperCase() }}
+          </div>
+          <div class="chat-header-meta">
+            <h3>Discussion avec {{ chatRecipient?.profile?.fullName || chatRecipient?.email }}</h3>
+            <span class="chat-header-subtitle">
+              {{ chatRecipient?.profile?.title || 'Candidat' }}
+              <span *ngIf="chatTargetApplication?.opportunityTitle"> · {{ chatTargetApplication?.opportunityTitle }}</span>
+            </span>
+          </div>
+        </div>
+
+        <div class="chat-header-actions">
+          <button 
+            *ngIf="chatTargetApplication" 
+            (click)="reportFromChat()" 
+            class="btn btn-outline btn-xs btn-report-chat" 
+            title="Signaler ce candidat ou cette discussion aux modérateurs">
+            <svg class="icon-svg icon-svg-xs" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
+            </svg>
+            <span>Signaler</span>
+          </button>
+          <button (click)="closeChatModal()" class="close-btn" aria-label="Fermer">&times;</button>
+        </div>
       </div>
 
       <div class="modal-body chat-body-modal">
-        <div class="chat-messages-container">
+        <div class="chat-messages-container" #chatContainer>
           <div *ngIf="chatMessages.length === 0" class="empty-chat-box">
-            Aucun message échangé pour l'instant. Envoyez un message de prise de contact.
+            <div class="empty-chat-icon">💬</div>
+            <h4>Discussion directe</h4>
+            <p>Aucun message pour l'instant avec <strong>{{ chatRecipient?.profile?.fullName || 'ce candidat' }}</strong>. Échangez sur la candidature, posez vos questions ou convenez d'un entretien.</p>
           </div>
-          <div *ngFor="let msg of chatMessages" class="chat-bubble" [class.my-msg]="msg.sender?.id === user()?.id">
-            <p>{{ msg.content }}</p>
-            <span class="chat-time">{{ msg.createdAt | date:'shortTime' }}</span>
+
+          <div *ngFor="let msg of chatMessages" class="chat-message-row" [class.my-row]="msg.sender?.id === user()?.id">
+            <!-- Avatar for candidate / recipient -->
+            <div class="msg-avatar-col" *ngIf="msg.sender?.id !== user()?.id">
+              <div class="chat-avatar-sm">
+                {{ (msg.sender?.profile?.fullName || chatRecipient?.profile?.fullName || 'C').charAt(0).toUpperCase() }}
+              </div>
+            </div>
+
+            <div class="msg-content-wrapper">
+              <!-- Sender label so user clearly sees who sent the message -->
+              <div class="msg-sender-info">
+                <span class="msg-sender-name">
+                  {{ msg.sender?.id === user()?.id ? 'Vous' : (msg.sender?.profile?.fullName || chatRecipient?.profile?.fullName || 'Candidat') }}
+                </span>
+                <span class="msg-time">{{ msg.createdAt | date:'shortTime' }}</span>
+
+                <!-- Quick report button on incoming message -->
+                <button 
+                  *ngIf="msg.sender?.id !== user()?.id && chatTargetApplication" 
+                  (click)="reportSpecificMessage(msg)" 
+                  class="btn-flag-msg" 
+                  title="Signaler ce message">
+                  🚩
+                </button>
+              </div>
+
+              <!-- Bubble -->
+              <div class="chat-bubble" [class.my-msg]="msg.sender?.id === user()?.id">
+                <p class="msg-text">{{ msg.content }}</p>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -570,10 +625,11 @@
             type="text" 
             [(ngModel)]="newChatMessage" 
             (keyup.enter)="sendChatMessage()" 
-            placeholder="Écrivez un message..." 
+            placeholder="Écrivez un message à {{ chatRecipient?.profile?.fullName || 'ce candidat' }}..." 
             class="form-input flex-1" />
           <button (click)="sendChatMessage()" [disabled]="isSendingMessage || !newChatMessage.trim()" class="btn btn-emerald">
-            Envoyer
+            <span *ngIf="!isSendingMessage">Envoyer</span>
+            <span *ngIf="isSendingMessage">Envoi...</span>
           </button>
         </div>
       </div>

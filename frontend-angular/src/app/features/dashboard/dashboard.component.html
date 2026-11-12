@@ -570,27 +570,53 @@
   <!-- DIRECT MESSAGING CHAT MODAL -->
   <div class="modal-overlay" *ngIf="showChatModal" (click)="closeChatModal()">
     <div class="app-card modal-card chat-modal" (click)="$event.stopPropagation()">
-      <div class="modal-header">
-        <h3>Discussion directe {{ chatRecipient?.profile?.fullName ? 'avec ' + chatRecipient?.profile?.fullName : '' }}</h3>
-        <button (click)="closeChatModal()" class="close-btn">
-          <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
-          </svg>
-        </button>
+      <div class="modal-header chat-header">
+        <div class="chat-header-user">
+          <div class="chat-avatar-circle">
+            {{ (chatRecipient?.profile?.fullName || chatRecipient?.email || 'C').charAt(0).toUpperCase() }}
+          </div>
+          <div class="chat-header-meta">
+            <h3>Discussion avec {{ chatRecipient?.profile?.fullName || chatRecipient?.email }}</h3>
+            <span class="chat-header-subtitle">{{ chatRecipient?.profile?.title || 'Candidat' }}</span>
+          </div>
+        </div>
+        <button (click)="closeChatModal()" class="close-btn" aria-label="Fermer">&times;</button>
       </div>
 
       <div class="modal-body chat-body-modal">
         <div class="chat-messages-container">
           <div *ngIf="chatMessages.length === 0" class="empty-chat-box">
-            Aucun message échangé pour l'instant. Envoyez un message de prise de contact.
+            <div class="empty-chat-icon">💬</div>
+            <h4>Discussion directe</h4>
+            <p>Aucun message pour l'instant avec <strong>{{ chatRecipient?.profile?.fullName || 'ce candidat' }}</strong>.</p>
           </div>
-          <div *ngFor="let msg of chatMessages" class="chat-bubble" [class.my-msg]="msg.sender?.id === user()?.id">
-            <p>{{ msg.content }}</p>
-            <span class="chat-time">{{ msg.createdAt | date:'shortTime' }}</span>
+          <div *ngFor="let msg of chatMessages" class="chat-message-row" [class.my-row]="msg.sender?.id === user()?.id">
+            <div class="msg-content-wrapper">
+              <div class="msg-sender-info">
+                <span class="msg-sender-name">{{ msg.sender?.id === user()?.id ? 'Vous' : (msg.sender?.profile?.fullName || 'Candidat') }}</span>
+                <span class="msg-time">{{ msg.createdAt | date:'shortTime' }}</span>
+              </div>
+              <div class="chat-bubble" [class.my-msg]="msg.sender?.id === user()?.id">
+                <p class="msg-text">{{ msg.content }}</p>
+              </div>
+            </div>
           </div>
         </div>
 
         <div class="chat-input-row">
+          <input 
+            type="text" 
+            [(ngModel)]="newChatMessage" 
+            (keyup.enter)="sendChatMessage()" 
+            placeholder="Écrivez un message..." 
+            class="form-input flex-1" />
+          <button (click)="sendChatMessage()" [disabled]="isSendingMessage || !newChatMessage.trim()" class="btn btn-emerald">
+            Envoyer
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
           <input 
             type="text" 
             [(ngModel)]="newChatMessage" 

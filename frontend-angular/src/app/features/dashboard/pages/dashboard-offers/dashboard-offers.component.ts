@@ -61,6 +61,7 @@ export class DashboardOffersComponent implements OnInit {
   // Chat Modal State
   showChatModal = false;
   chatRecipient: User | null = null;
+  chatTargetApplication: Application | null = null;
   chatMessages: DirectMessage[] = [];
   newChatMessage = '';
   isSendingMessage = false;
@@ -362,9 +363,10 @@ export class DashboardOffersComponent implements OnInit {
   }
 
   // Direct Chat Modal Handlers
-  openChatModal(applicantUser: User | undefined): void {
+  openChatModal(applicantUser: User | undefined, app?: Application): void {
     if (!applicantUser) return;
     this.chatRecipient = applicantUser;
+    this.chatTargetApplication = app || null;
     this.showChatModal = true;
     this.chatMessages = [];
     this.loadConversation(applicantUser.id);
@@ -373,7 +375,24 @@ export class DashboardOffersComponent implements OnInit {
   closeChatModal(): void {
     this.showChatModal = false;
     this.chatRecipient = null;
+    this.chatTargetApplication = null;
     this.newChatMessage = '';
+  }
+
+  reportFromChat(): void {
+    if (!this.chatTargetApplication) return;
+    const app = this.chatTargetApplication;
+    this.closeChatModal();
+    this.openReportModal(app);
+  }
+
+  reportSpecificMessage(msg: DirectMessage): void {
+    if (!this.chatTargetApplication) return;
+    const app = this.chatTargetApplication;
+    const senderName = msg.sender?.profile?.fullName || 'ce candidat';
+    this.closeChatModal();
+    this.openReportModal(app);
+    this.reportReason = `Message suspect / abusif reçu de ${senderName} : « ${msg.content} »`;
   }
 
   loadConversation(otherUserId: string): void {
