@@ -16,6 +16,8 @@ public class GroupMemberDto {
     private UserDto user;
     private GroupMemberRole role;
     private GroupMemberStatus status;
+    private String banReason;
+    private LocalDateTime bannedAt;
     private LocalDateTime joinedAt;
 }
 

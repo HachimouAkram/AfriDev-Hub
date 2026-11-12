@@ -37,6 +37,8 @@ export interface GroupMember {
   user: User;
   role: GroupMemberRole;
   status: GroupMemberStatus;
+  banReason?: string;
+  bannedAt?: string;
   joinedAt: string;
 }
 
@@ -165,9 +167,22 @@ export class CommunityGroupService {
     return this.http.patch<ApiResponse<GroupMember>>(`${this.apiUrl}/${groupId}/members/${userId}/role`, {}, { params });
   }
 
-  moderateMember(groupId: string, userId: string, status: GroupMemberStatus): Observable<ApiResponse<any>> {
-    const params = new HttpParams().set('status', status);
+  updateBanner(groupId: string, bannerUrl?: string): Observable<ApiResponse<Group>> {
+    let params = new HttpParams();
+    if (bannerUrl) params = params.set('bannerUrl', bannerUrl);
+    return this.http.patch<ApiResponse<Group>>(`${this.apiUrl}/${groupId}/banner`, {}, { params });
+  }
+
+  moderateMember(groupId: string, userId: string, status: GroupMemberStatus, reason?: string): Observable<ApiResponse<any>> {
+    let params = new HttpParams().set('status', status);
+    if (reason) params = params.set('reason', reason);
     return this.http.patch<ApiResponse<any>>(`${this.apiUrl}/${groupId}/members/${userId}/status`, {}, { params });
+  }
+
+  uploadImage(file: File): Observable<ApiResponse<{ url: string }>> {
+    const formData = new FormData();
+    formData.append('file', file);
+    return this.http.post<ApiResponse<{ url: string }>>('/api/v1/uploads/image', formData);
   }
 
   getGroupFeed(groupId: string, type?: GroupPostType, page = 0, size = 15): Observable<ApiResponse<any>> {

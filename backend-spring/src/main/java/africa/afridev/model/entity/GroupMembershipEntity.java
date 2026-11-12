@@ -46,6 +46,12 @@ public class GroupMembershipEntity {
     @Builder.Default
     private GroupMemberStatus status = GroupMemberStatus.ACTIVE;
 
+    @Column(name = "ban_reason", length = 500)
+    private String banReason;
+
+    @Column(name = "banned_at")
+    private LocalDateTime bannedAt;
+
     @CreationTimestamp
     @Column(updatable = false)
     private LocalDateTime joinedAt;

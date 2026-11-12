@@ -17,6 +17,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -242,7 +243,20 @@ public class CommunityGroupService {
     }
 
     @Transactional
+    public GroupDto updateBanner(String userEmail, String groupId, String bannerUrl) {
+        GroupEntity group = getGroupOrThrow(groupId);
+        assertCanManageGroup(group, userEmail);
+        group.setBannerUrl(bannerUrl != null && !bannerUrl.isBlank() ? bannerUrl.trim() : null);
+        return mapToDto(groupRepository.save(group), userEmail);
+    }
+
+    @Transactional
     public void moderateMember(String actorEmail, String groupId, String targetUserId, GroupMemberStatus newStatus) {
+        moderateMember(actorEmail, groupId, targetUserId, newStatus, null);
+    }
+
+    @Transactional
+    public void moderateMember(String actorEmail, String groupId, String targetUserId, GroupMemberStatus newStatus, String reason) {
         GroupEntity group = getGroupOrThrow(groupId);
         assertCanManageGroup(group, actorEmail);
 
@@ -255,6 +269,13 @@ public class CommunityGroupService {
 
         GroupMemberStatus oldStatus = membership.getStatus();
         membership.setStatus(newStatus);
+        if (newStatus == GroupMemberStatus.BANNED) {
+            membership.setBanReason(reason != null && !reason.isBlank() ? reason.trim() : "Non spécifié");
+            membership.setBannedAt(LocalDateTime.now());
+        } else if (newStatus == GroupMemberStatus.ACTIVE) {
+            membership.setBanReason(null);
+            membership.setBannedAt(null);
+        }
         membershipRepository.save(membership);
 
         if (oldStatus != GroupMemberStatus.ACTIVE && newStatus == GroupMemberStatus.ACTIVE) {
@@ -432,6 +453,8 @@ public class CommunityGroupService {
                 .user(authService.mapToUserDto(m.getUser()))
                 .role(m.getRole())
                 .status(m.getStatus())
+                .banReason(m.getBanReason())
+                .bannedAt(m.getBannedAt())
                 .joinedAt(m.getJoinedAt())
                 .build();
     }

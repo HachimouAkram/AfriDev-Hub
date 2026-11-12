@@ -156,10 +156,21 @@ public class GroupController {
             @PathVariable String id,
             @PathVariable String userId,
             @RequestParam GroupMemberStatus status,
+            @RequestParam(required = false) String reason,
             Authentication authentication
     ) {
-        groupService.moderateMember(authentication.getName(), id, userId, status);
+        groupService.moderateMember(authentication.getName(), id, userId, status, reason);
         return ResponseEntity.ok(ApiResponse.ok(null));
+    }
+
+    @PatchMapping("/{id}/banner")
+    public ResponseEntity<ApiResponse<GroupDto>> updateBanner(
+            @PathVariable String id,
+            @RequestParam(required = false) String bannerUrl,
+            Authentication authentication
+    ) {
+        GroupDto group = groupService.updateBanner(authentication.getName(), id, bannerUrl);
+        return ResponseEntity.ok(ApiResponse.ok(group));
     }
 
     // ==========================================
