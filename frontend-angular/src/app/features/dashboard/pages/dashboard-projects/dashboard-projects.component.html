@@ -125,63 +125,56 @@
       <table class="projects-table">
         <thead>
           <tr>
-            <th>Projet</th>
-            <th>Type</th>
-            <th>Détails & Prix</th>
-            <th>Reconnaissances</th>
-            <th>Statut</th>
-            <th>Date</th>
-            <th class="text-right">Actions</th>
+            <th class="col-title">Projet</th>
+            <th class="col-type">Type</th>
+            <th class="col-details">Tarif / Modèle</th>
+            <th class="col-recognitions">Reconnaissances</th>
+            <th class="col-status">Statut</th>
+            <th class="col-date">Date</th>
+            <th class="col-actions text-right">Actions</th>
           </tr>
         </thead>
         <tbody>
           <tr *ngFor="let proj of filteredProjects()" [class.row-archived]="proj.status === 'ARCHIVED'">
             
-            <!-- Project Title & Description -->
+            <!-- Project Title & Subtext (Ellipsis-constrained) -->
             <td class="col-title">
               <div class="project-identity">
                 <div class="project-avatar-icon">
                   {{ proj.title.charAt(0).toUpperCase() }}
                 </div>
                 <div class="project-text-meta">
-                  <span class="proj-name">{{ proj.title }}</span>
-                  <span class="proj-subtext text-muted" *ngIf="proj.companyName"><i class="ri-building-line"></i> {{ proj.companyName }} ({{ proj.companyRole }})</span>
+                  <span class="proj-name" [title]="proj.title">{{ proj.title }}</span>
+                  <span class="proj-subtext text-muted" *ngIf="proj.companyName" [title]="proj.companyName + ' (' + proj.companyRole + ')'">
+                    <i class="ri-building-line"></i> {{ proj.companyName }}
+                  </span>
                 </div>
               </div>
             </td>
 
-            <!-- Project Type Badge -->
+            <!-- Project Type Badge (Nowrap) -->
             <td class="col-type">
               <span class="badge" [ngClass]="getProjectTypeBadge(proj.projectType).class">
                 {{ getProjectTypeBadge(proj.projectType).label }}
               </span>
             </td>
 
-            <!-- Details & Price -->
+            <!-- Price / Offer (Compact, limited text) -->
             <td class="col-details">
-              <div *ngIf="proj.projectType === 'COLLABORATIVE'">
-                <span class="badge badge-teal badge-xs"><i class="ri-team-line"></i> Recrutement d'équipe</span>
-              </div>
               <div *ngIf="proj.projectType === 'FOR_SALE'">
                 <span class="price-highlight">{{ proj.price | number }} {{ proj.currency || 'XOF' }}</span>
               </div>
               <div *ngIf="proj.projectType === 'SAAS'">
-                <span class="saas-pricing-pill">{{ proj.saasPricingType || 'FREEMIUM' }}</span>
+                <span class="saas-pricing-pill">{{ proj.saasPricingType || 'Freemium' }}</span>
               </div>
-              <div *ngIf="proj.projectType === 'OPEN_SOURCE'">
-                <span class="text-xs text-muted">Licence : {{ proj.licenseType || 'MIT' }}</span>
-              </div>
-              <div *ngIf="proj.projectType === 'ENTERPRISE'">
-                <span class="text-xs text-slate font-medium"><i class="ri-lock-line"></i> Confidentiel NDA</span>
-              </div>
-              <div *ngIf="proj.projectType === 'PORTFOLIO'">
-                <span class="text-xs text-muted">Site Vitrine</span>
+              <div *ngIf="proj.projectType !== 'FOR_SALE' && proj.projectType !== 'SAAS'">
+                <span class="text-xs text-muted font-mono">—</span>
               </div>
             </td>
 
             <!-- Recognitions Count -->
             <td class="col-recognitions">
-              <div class="recognition-pill">
+              <div class="recognition-pill" [title]="(proj.recognitionsCount || 0) + ' reconnaissance(s)'">
                 <span class="star-icon"><i class="ri-star-fill"></i></span>
                 <span class="count">{{ proj.recognitionsCount || 0 }}</span>
               </div>
@@ -191,20 +184,31 @@
             <td class="col-status">
               <span class="status-badge" [ngClass]="proj.status === 'PUBLISHED' ? 'status-published' : 'status-disabled'">
                 <span class="dot"></span>
-                {{ proj.status === 'PUBLISHED' ? 'Publié' : 'Désactivé' }}
+                <span>{{ proj.status === 'PUBLISHED' ? 'Publié' : 'Désactivé' }}</span>
               </span>
             </td>
 
             <!-- Creation Date -->
             <td class="col-date">
-              <span class="date-text">{{ proj.createdAt | date:'shortDate' }}</span>
+              <span class="date-text">{{ proj.createdAt | date:'dd/MM/yyyy' }}</span>
             </td>
 
             <!-- Action Buttons -->
             <td class="col-actions text-right">
               <div class="action-buttons-group">
                 
-                <!-- 0. Espace Collaboration & Gestion Tâches (Leader / Créateur) -->
+                <!-- 1. Voir Détail (Primary, mis en valeur pour consulter tous les détails) -->
+                <button 
+                  (click)="openDetailModal(proj)" 
+                  class="action-btn btn-view" 
+                  title="Voir tous les détails du projet">
+                  <svg class="action-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.573 16.49 16.638 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                  </svg>
+                </button>
+
+                <!-- 2. Espace Collaboration & Gestion Tâches (Leader / Créateur) -->
                 <button 
                   *ngIf="proj.projectType === 'COLLABORATIVE' && isProjectOwner(proj)"
                   (click)="openCollabModal(proj)" 
@@ -213,10 +217,10 @@
                   <svg class="action-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 18.72a9.094 9.094 0 003.741-.479 3 3 0 00-4.682-2.72m.94 3.198l.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0112 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 016 18.719m12 0a5.971 5.971 0 00-.941-3.197m0 0A5.995 5.995 0 0012 12.75a5.995 5.995 0 00-5.058 2.772m0 0a3 3 0 00-4.681 2.72 8.986 8.986 0 003.74.477m.999-3.199a5.971 5.971 0 00-.94 3.197M15 6.75a3 3 0 11-6 0 3 3 0 016 0zm6 3a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0zm-13.5 0a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z" />
                   </svg>
-                  <span>Gérer l'Équipe</span>
+                  <span>Équipe</span>
                 </button>
 
-                <!-- 0 bis. Accéder à mes Tâches (Collaborateur / Développeur invité) -->
+                <!-- 2 bis. Accéder à mes Tâches (Collaborateur / Développeur invité) -->
                 <button 
                   *ngIf="proj.projectType === 'COLLABORATIVE' && !isProjectOwner(proj)"
                   (click)="openCollabModal(proj)" 
@@ -225,21 +229,10 @@
                   <svg class="action-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
                   </svg>
-                  <span>Voir mes tâches</span>
+                  <span>Tâches</span>
                 </button>
 
-                <!-- 1. Voir Détail (Visible par tous) -->
-                <button 
-                  (click)="openDetailModal(proj)" 
-                  class="action-btn btn-view" 
-                  title="Voir les détails du projet">
-                  <svg class="action-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.573 16.49 16.638 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                  </svg>
-                </button>
-
-                <!-- 2. Modifier (Réservé au Chef de Projet) -->
+                <!-- 3. Modifier (Réservé au Chef de Projet) -->
                 <button 
                   *ngIf="isProjectOwner(proj)"
                   (click)="openEditModal(proj)" 
@@ -250,7 +243,7 @@
                   </svg>
                 </button>
 
-                <!-- 3. Désactiver / Activer (Réservé au Chef de Projet) -->
+                <!-- 4. Désactiver / Activer (Réservé au Chef de Projet) -->
                 <button 
                   *ngIf="isProjectOwner(proj)"
                   (click)="toggleStatus(proj)" 
@@ -265,7 +258,7 @@
                   </svg>
                 </button>
 
-                <!-- 4. Supprimer (Réservé au Chef de Projet) -->
+                <!-- 5. Supprimer (Réservé au Chef de Projet) -->
                 <button 
                   *ngIf="isProjectOwner(proj)"
                   (click)="confirmDelete(proj)" 
@@ -925,25 +918,29 @@
 
   <!-- 3. MODAL DE DÉTAIL PROJET DYNAMIQUE (ULTRA-COMPLET AVEC VECTOR SVG) -->
   <div class="modal-overlay" *ngIf="showDetailModal && selectedProject" (click)="closeDetailModal()">
-    <div class="app-card modal-card detail-modal" (click)="$event.stopPropagation()">
+    <div class="app-card modal-card detail-modal animate-scale-up" (click)="$event.stopPropagation()">
       <div class="modal-header">
         <div class="detail-header-left">
-          <h3>{{ selectedProject.title }}</h3>
-          <span class="badge" [ngClass]="getProjectTypeBadge(selectedProject.projectType).class">
-            {{ getProjectTypeBadge(selectedProject.projectType).label }}
-          </span>
-          <span class="status-badge" [ngClass]="selectedProject.status === 'PUBLISHED' ? 'status-published' : 'status-disabled'">
-            <span class="dot"></span>
-            {{ selectedProject.status === 'PUBLISHED' ? 'Publié' : 'Désactivé' }}
-          </span>
-          <span class="text-xs text-muted" *ngIf="selectedProject.createdAt">
-            • Publié le {{ selectedProject.createdAt | date:'mediumDate' }}
-          </span>
+          <div class="detail-title-row">
+            <h3>{{ selectedProject.title }}</h3>
+          </div>
+          <div class="detail-header-badges">
+            <span class="badge" [ngClass]="getProjectTypeBadge(selectedProject.projectType).class">
+              {{ getProjectTypeBadge(selectedProject.projectType).label }}
+            </span>
+            <span class="status-badge" [ngClass]="selectedProject.status === 'PUBLISHED' ? 'status-published' : 'status-disabled'">
+              <span class="dot"></span>
+              {{ selectedProject.status === 'PUBLISHED' ? 'Publié' : 'Désactivé' }}
+            </span>
+            <span class="text-xs text-muted" *ngIf="selectedProject.createdAt">
+              • Publié le {{ selectedProject.createdAt | date:'dd MMMM yyyy' }}
+            </span>
+          </div>
         </div>
-        <button (click)="closeDetailModal()" class="close-btn">&times;</button>
+        <button (click)="closeDetailModal()" class="close-btn" aria-label="Fermer">&times;</button>
       </div>
 
-      <div class="modal-body">
+      <div class="modal-body detail-modal-body">
         
         <!-- Toast Notification inside Modal -->
         <div *ngIf="toastMessage" class="toast-notification animate-fade-in margin-bottom-sm">
