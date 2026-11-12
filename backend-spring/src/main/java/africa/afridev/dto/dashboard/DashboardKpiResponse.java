@@ -1,0 +1,25 @@
+package africa.afridev.dto.dashboard;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+import java.io.Serializable;
+
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class DashboardKpiResponse implements Serializable {
+    private static final long serialVersionUID = 1L;
+
+    private long totalProjects;
+    private long totalOpportunities;
+    private long totalRelations;
+    private long totalApplications;
+    private long xpPoints;
+    private String levelTitle;
+    private int levelNumber;
+    private boolean cached;
+}

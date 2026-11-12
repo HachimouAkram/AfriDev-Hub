@@ -10,6 +10,7 @@ import { OpportunityService } from '../../../../core/services/opportunity.servic
 import { NetworkService } from '../../../../core/services/network.service';
 import { FollowService } from '../../../../core/services/follow.service';
 import { ProjectCollaborationService, ProjectProgress } from '../../../../core/services/project-collaboration.service';
+import { DashboardService } from '../../../../core/services/dashboard.service';
 
 export interface TopViewedProject {
   id: string;
@@ -47,6 +48,7 @@ export class DashboardOverviewComponent implements OnInit {
   private networkService = inject(NetworkService);
   private followService = inject(FollowService);
   private collaborationService = inject(ProjectCollaborationService);
+  private dashboardService = inject(DashboardService);
   private router = inject(Router);
 
   user = this.authService.currentUser;
@@ -139,54 +141,38 @@ export class DashboardOverviewComponent implements OnInit {
     const u = this.user();
     if (!u) return;
 
-    // 1. Load the CURRENT USER'S OWN projects
+    // 1. KPI instantanés servis par le cache Redis (TTL 5 min)
+    this.dashboardService.getDashboardKpis().subscribe({
+      next: (res) => {
+        if (res?.success && res.data) {
+          const kpis = res.data;
+          this.totalProjectsCount.set(kpis.totalProjects);
+          this.totalOpportunitiesCount.set(kpis.totalOpportunities);
+          this.totalRelationsCount.set(kpis.totalRelations);
+          this.totalApplicationsCount.set(kpis.totalApplications);
+        }
+      },
+      error: (err) => console.warn('Fallback chargement local KPI', err)
+    });
+
+    // 2. Charger les projets en arrière-plan pour le widget Top Projets
     this.projectService.getMyProjects(0, 50).subscribe({
       next: (res) => {
-        if (res.success && res.data) {
+        if (res?.success && res.data) {
           const projects: Project[] = res.data.content || res.data || [];
-          this.totalProjectsCount.set(res.data.totalElements || projects.length);
           this.calculateTopProjects(projects);
         }
       }
     });
 
-    // 2. Load MY OWN applications (as developer) AND my posted opportunities (as recruiter)
+    // 3. Charger les candidatures en arrière-plan pour le graphique chronologique d'activité
     this.opportunityService.getMyApplications().subscribe({
       next: (res) => {
-        if (res.success && res.data) {
-          this.totalApplicationsCount.set(res.data.length);
-          // Build personal activity timeline from real data
+        if (res?.success && res.data) {
           this.buildPersonalActivityTimeline(res.data);
         }
       }
     });
-
-    // 3. My posted opportunities count
-    this.opportunityService.getMyPostedOpportunities().subscribe({
-      next: (res) => {
-        if (res.success && res.data) {
-          this.totalOpportunitiesCount.set(res.data.length);
-        }
-      }
-    });
-
-    // 4. Relations: utilisateurs suivis par l'utilisateur connecté
-    if (u?.id) {
-      this.followService.getStats(u.id).subscribe({
-        next: (res) => {
-          if (res?.success && res.data) {
-            this.totalRelationsCount.set(res.data.followingCount ?? 0);
-          } else {
-            this.totalRelationsCount.set(0);
-          }
-        },
-        error: () => {
-          this.totalRelationsCount.set(0);
-        }
-      });
-    } else {
-      this.totalRelationsCount.set(0);
-    }
   }
 
   private buildPersonalActivityTimeline(applications: any[]): void {
@@ -318,6 +304,22 @@ export class DashboardOverviewComponent implements OnInit {
   showToast(msg: string): void {
     this.toastMessage.set(msg);
     setTimeout(() => this.toastMessage.set(''), 4000);
+  }
+
+  getLevelTitleFromXp(xp: number = 0): string {
+    if (xp >= 7000) return 'Leader';
+    if (xp >= 4000) return 'Tech';
+    if (xp >= 2000) return 'Expert';
+    if (xp >= 500) return 'Senior';
+    return 'Junior';
+  }
+
+  getLevelBadgeFromXp(xp: number = 0): string {
+    if (xp >= 7000) return '👑';
+    if (xp >= 4000) return '🟠';
+    if (xp >= 2000) return '🟣';
+    if (xp >= 500) return '🔵';
+    return '🟢';
   }
 
   getLevelBadge(levelNumber?: number): string {

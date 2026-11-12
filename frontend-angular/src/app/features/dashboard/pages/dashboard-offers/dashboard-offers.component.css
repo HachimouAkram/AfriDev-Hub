@@ -47,12 +47,15 @@
 }
 
 .table-responsive {
+.table-responsive {
   width: 100%;
   overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 .offers-table {
   width: 100%;
+  min-width: 880px;
   border-collapse: collapse;
   text-align: left;
   font-size: 0.9rem;
@@ -171,18 +174,21 @@
   border-radius: 999px;
   font-size: 0.775rem;
   font-weight: 700;
+  white-space: nowrap !important;
 }
 
 .status-badge .dot {
   width: 7px;
   height: 7px;
   border-radius: 50%;
+  flex-shrink: 0;
 }
 
 .status-published {
   background: rgba(16, 185, 129, 0.12);
   color: #10B981;
   border: 1px solid rgba(16, 185, 129, 0.3);
+  white-space: nowrap !important;
 }
 .status-published .dot { background: #10B981; box-shadow: 0 0 8px #10B981; }
 
@@ -190,12 +196,14 @@
   background: rgba(156, 163, 175, 0.12);
   color: #9CA3AF;
   border: 1px solid rgba(156, 163, 175, 0.25);
+  white-space: nowrap !important;
 }
 .status-disabled .dot { background: #9CA3AF; }
 
 .date-text {
   font-size: 0.8rem;
   color: var(--text-muted);
+  white-space: nowrap !important;
 }
 
 /* Action Buttons Group */
@@ -1036,6 +1044,7 @@
   border-radius: 8px;
   background: rgba(59, 130, 246, 0.08);
   border: 1px solid rgba(59, 130, 246, 0.2);
+  white-space: nowrap !important;
 }
 
 .quota-pill .quota-count {
@@ -1237,3 +1246,115 @@
   font-size: 0.875rem;
   color: var(--text-heading);
 }
+
+.col-type .badge {
+  white-space: nowrap !important;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ── Modal Visionneuse PDF Intégrée (CV & Lettre) ──────── */
+.modal-pdf-overlay {
+  z-index: 1060;
+  backdrop-filter: blur(8px);
+}
+
+.modal-pdf-card {
+  max-width: 960px !important;
+  width: 95vw !important;
+  height: 88vh !important;
+  max-height: 88vh !important;
+  display: flex !important;
+  flex-direction: column !important;
+  background: var(--bg-surface-card, #111827);
+  border: 1px solid var(--border-light, rgba(255, 255, 255, 0.1));
+  border-radius: 16px;
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.6);
+  overflow: hidden !important;
+}
+
+.pdf-icon-badge {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: rgba(239, 68, 68, 0.15);
+  color: #EF4444;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.pdf-icon-badge svg {
+  width: 20px;
+  height: 20px;
+}
+
+.modal-pdf-body {
+  flex: 1 1 auto !important;
+  height: 100% !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  position: relative;
+  background: #1e293b;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden !important;
+}
+
+.pdf-loading-state {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  background: var(--bg-surface-card, #111827);
+  color: var(--text-muted, #94a3b8);
+  font-size: 0.95rem;
+  z-index: 10;
+}
+
+.pdf-iframe-viewer {
+  width: 100% !important;
+  height: 100% !important;
+  flex: 1 1 auto !important;
+  border: none !important;
+  background: #525659;
+}
+
+/* Responsiveness for Detail Offer Modal */
+@media (max-width: 768px) {
+  .detail-offer-modal {
+    width: 96vw !important;
+    max-width: 96vw !important;
+    max-height: 92vh !important;
+    border-radius: 16px 16px 0 0 !important;
+  }
+
+  .modal-pdf-card {
+    width: 100% !important;
+    max-width: 100% !important;
+    height: 94dvh !important;
+    max-height: 94dvh !important;
+    border-radius: 16px 16px 0 0 !important;
+  }
+
+  .details-chips-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .cand-actions {
+    flex-wrap: wrap;
+    gap: 0.4rem;
+  }
+
+  .candidate-actions-footer {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+}
+

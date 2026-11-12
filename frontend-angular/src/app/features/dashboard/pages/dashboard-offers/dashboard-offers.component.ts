@@ -2,6 +2,7 @@ import { Component, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
+import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { AuthService, User } from '../../../../core/services/auth.service';
 import { OpportunityService, Opportunity, Application } from '../../../../core/services/opportunity.service';
 import { AdminService } from '../../../../core/services/admin.service';
@@ -21,15 +22,94 @@ export class DashboardOffersComponent implements OnInit {
   private adminService = inject(AdminService);
   private messageService = inject(MessageService);
   private profileService = inject(ProfileService);
+  private sanitizer = inject(DomSanitizer);
 
   /** Résout les URLs relatives des fichiers téléversés (CV, lettre PDF) */
   fileUrl(url: string | undefined | null): string {
     return this.profileService.getFullFileUrl(url);
   }
 
-  /** Retourne l'URL du visualiseur PDF inline */
-  pdfViewerUrl(url: string | undefined | null): string {
-    return this.profileService.getPdfViewerUrl(url);
+  // In-App PDF Viewer Modal State
+  showPdfModal = false;
+  isLoadingPdf = false;
+  safeCvUrl: SafeResourceUrl | null = null;
+  currentPdfBlobUrl: string | null = null;
+  currentRawPdfUrl: string | null = null;
+  currentPdfTitle = 'Document';
+  currentPdfSubtitle = '';
+  currentPdfFilename = 'document.pdf';
+
+  openPdfViewer(rawUrl?: string | null, filename = 'Document.pdf', title = 'Curriculum Vitae', subtitle = 'Document du candidat'): void {
+    if (!rawUrl) return;
+    const fullUrl = this.profileService.getFullAvatarUrl(rawUrl);
+    this.currentRawPdfUrl = fullUrl;
+    this.currentPdfFilename = filename;
+    this.currentPdfTitle = title;
+    this.currentPdfSubtitle = subtitle;
+    this.isLoadingPdf = true;
+    this.showPdfModal = true;
+
+    fetch(fullUrl)
+      .then(res => {
+        if (!res.ok) throw new Error('Status ' + res.status);
+        return res.blob();
+      })
+      .then(blob => {
+        const pdfBlob = new Blob([blob], { type: 'application/pdf' });
+        if (this.currentPdfBlobUrl) {
+          URL.revokeObjectURL(this.currentPdfBlobUrl);
+        }
+        this.currentPdfBlobUrl = URL.createObjectURL(pdfBlob);
+        this.safeCvUrl = this.sanitizer.bypassSecurityTrustResourceUrl(this.currentPdfBlobUrl);
+        this.isLoadingPdf = false;
+      })
+      .catch(err => {
+        console.warn('Erreur fetch PDF blob, fallback URL directe:', err);
+        this.safeCvUrl = this.sanitizer.bypassSecurityTrustResourceUrl(fullUrl);
+        this.isLoadingPdf = false;
+      });
+  }
+
+  closePdfModal(): void {
+    this.showPdfModal = false;
+    this.safeCvUrl = null;
+    if (this.currentPdfBlobUrl) {
+      URL.revokeObjectURL(this.currentPdfBlobUrl);
+      this.currentPdfBlobUrl = null;
+    }
+  }
+
+  openPdfInNewTab(): void {
+    if (this.currentPdfBlobUrl) {
+      window.open(this.currentPdfBlobUrl, '_blank');
+    } else if (this.currentRawPdfUrl) {
+      window.open(this.currentRawPdfUrl, '_blank');
+    }
+  }
+
+  downloadPdf(): void {
+    const url = this.currentPdfBlobUrl || this.currentRawPdfUrl;
+    if (!url) return;
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = this.currentPdfFilename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+  }
+
+  getApplicantName(app: Application): string {
+    return app.applicant?.profile?.fullName || app.applicant?.email || 'Candidat';
+  }
+
+  getTypeLabel(type: string | undefined): string {
+    switch (type) {
+      case 'JOB': return 'Emploi (CDI/CDD)';
+      case 'FREELANCE': return 'Freelance';
+      case 'INTERNSHIP': return 'Stage';
+      case 'COLLABORATION': return 'Collaboration';
+      default: return type || 'Autre';
+    }
   }
 
   user = this.authService.currentUser;

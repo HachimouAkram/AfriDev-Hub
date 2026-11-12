@@ -306,6 +306,12 @@ export class DashboardComponent implements OnInit {
     return this.profileService.getPdfViewerUrl(url);
   }
 
+  viewCv(url?: string): void {
+    if (url) {
+      this.profileService.openPdfInNewTab(url, 'CV_Candidature.pdf');
+    }
+  }
+
   showToast(msg: string): void {
     this.toastMessage.set(msg);
     setTimeout(() => this.toastMessage.set(''), 4000);

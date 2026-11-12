@@ -22,7 +22,7 @@
 
       <!-- Quick Level Badge & XP Pill (Only for Developers) -->
       <a routerLink="/leaderboard" class="overview-level-pill" *ngIf="u.role === 'DEVELOPER'" title="Consulter mon classement panafricain">
-        <span class="o-level-badge">{{ getLevelBadge(u.profile?.levelNumber || 1) }} {{ u.profile?.levelTitle || 'Junior' }}</span>
+        <span class="o-level-badge">{{ getLevelBadgeFromXp(u.profile?.xpPoints || 0) }} {{ getLevelTitleFromXp(u.profile?.xpPoints || 0) }}</span>
         <span class="o-xp-points">{{ u.profile?.xpPoints || 0 }} XP</span>
       </a>
 
@@ -149,12 +149,12 @@
       <div class="kpi-card-top">
         <span class="kpi-label">Niveau & Points XP</span>
         <div class="kpi-icon-wrap xp-wrap">
-          <span class="kpi-xp-emoji">{{ getLevelBadge(u.profile?.levelNumber || 1) }}</span>
+          <span class="kpi-xp-emoji">{{ getLevelBadgeFromXp(u.profile?.xpPoints || 0) }}</span>
         </div>
       </div>
       <div class="kpi-value-row">
         <span class="kpi-number">{{ u.profile?.xpPoints || 0 }} <span class="kpi-unit">XP</span></span>
-        <span class="kpi-trend highlight">{{ u.profile?.levelTitle || 'Junior' }}</span>
+        <span class="kpi-trend highlight">{{ getLevelTitleFromXp(u.profile?.xpPoints || 0) }}</span>
       </div>
       <!-- Mini XP Progress -->
       <div class="kpi-xp-progress-track">

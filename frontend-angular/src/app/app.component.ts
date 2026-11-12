@@ -2086,6 +2086,9 @@ export class AppComponent implements OnDestroy {
     this.isProfileMenuOpen = !this.isProfileMenuOpen;
     this.isLangMenuOpen = false;
     this.isSearchOpen = false;
+    if (this.isProfileMenuOpen && this.authService.isLoggedIn()) {
+      this.authService.refreshCurrentUser().subscribe({ error: () => {} });
+    }
   }
 
   closeProfileMenu(): void {
@@ -2166,21 +2169,21 @@ export class AppComponent implements OnDestroy {
   }
 
   getUserLevelTitle(): string {
-    const u = this.authService.currentUser();
-    return u?.profile?.levelTitle || 'Junior';
+    const xp = this.getUserXp() ?? 0;
+    if (xp >= 7000) return 'Leader';
+    if (xp >= 4000) return 'Tech';
+    if (xp >= 2000) return 'Expert';
+    if (xp >= 500) return 'Senior';
+    return 'Junior';
   }
 
   getUserLevelBadge(): string {
-    const u = this.authService.currentUser();
-    const num = u?.profile?.levelNumber || 1;
-    switch (num) {
-      case 5: return '👑';
-      case 4: return '🟠';
-      case 3: return '🟣';
-      case 2: return '🔵';
-      case 1:
-      default: return '🟢';
-    }
+    const xp = this.getUserXp() ?? 0;
+    if (xp >= 7000) return '👑';
+    if (xp >= 4000) return '🟠';
+    if (xp >= 2000) return '🟣';
+    if (xp >= 500) return '🔵';
+    return '🟢';
   }
 
   logout(): void {
