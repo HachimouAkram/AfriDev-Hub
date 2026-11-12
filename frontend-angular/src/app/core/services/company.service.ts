@@ -113,7 +113,7 @@ export interface PagedData<T> {
 })
 export class CompanyService {
   private http = inject(HttpClient);
-  private apiUrl = '/api';
+  private apiUrl = '/api/v1';
 
   getMyCompany(): Observable<ApiResponse<Company>> {
     return this.http.get<ApiResponse<Company>>(`${this.apiUrl}/companies/me`);

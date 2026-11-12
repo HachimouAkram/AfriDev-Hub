@@ -154,10 +154,18 @@ import { CompanyBadgeComponent } from '../../../shared/components/company-badge/
     </div>
 
     <ng-template #loadingTpl>
-      <div class="loading-state">
+      <div class="loading-state" *ngIf="!errorMessage(); else errorTpl">
         <div class="spinner"></div>
         <p>Chargement de votre espace entreprise...</p>
       </div>
+      <ng-template #errorTpl>
+        <div class="loading-state" style="color: #ef4444;">
+          <p style="font-size: 1.1rem; font-weight: 700; margin-bottom: 0.5rem;">⚠️ {{ errorMessage() }}</p>
+          <a routerLink="/dashboard/recruiter/profile" class="btn btn-primary-glass" style="margin-top: 1rem;">
+            Créer ou compléter ma fiche entreprise
+          </a>
+        </div>
+      </ng-template>
     </ng-template>
   `,
   styles: [`
@@ -528,6 +536,7 @@ export class RecruiterOverviewComponent implements OnInit {
   company = signal<Company | null>(null);
   stats = signal<CompanyStats | null>(null);
   recentActivities = signal<CompanyActivityLog[]>([]);
+  errorMessage = signal<string>('');
 
   ngOnInit(): void {
     this.companyService.getMyCompany().subscribe({
@@ -536,7 +545,13 @@ export class RecruiterOverviewComponent implements OnInit {
           this.company.set(res.data);
           this.loadStats(res.data.id);
           this.loadActivities(res.data.id);
+        } else {
+          this.errorMessage.set('Aucune entreprise associée ou erreur de chargement.');
         }
+      },
+      error: (err) => {
+        console.error('Erreur chargement entreprise:', err);
+        this.errorMessage.set('Impossible de charger votre entreprise. Vérifiez que le serveur est bien démarré.');
       }
     });
   }
