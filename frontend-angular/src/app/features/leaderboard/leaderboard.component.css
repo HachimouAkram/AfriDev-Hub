@@ -1,11 +1,11 @@
 .leaderboard-page {
-  max-width: 1400px;
   width: 100%;
-  margin: 0 auto;
-  padding: clamp(1rem, 3vw, 2.5rem) clamp(1rem, 2.5vw, 1.5rem);
+  max-width: 100%;
+  margin: 0;
+  padding: 0;
   display: flex;
   flex-direction: column;
-  gap: 2rem;
+  gap: 1.25rem;
   box-sizing: border-box;
 }
 
@@ -15,8 +15,8 @@
   justify-content: space-between;
   align-items: center;
   flex-wrap: wrap;
-  gap: 1.5rem;
-  padding: 2rem;
+  gap: 1.25rem;
+  padding: 1.25rem 1.5rem;
 }
 
 .header-text h1 {

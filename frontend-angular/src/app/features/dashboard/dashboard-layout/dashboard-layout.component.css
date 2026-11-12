@@ -986,7 +986,7 @@ body.light-theme .nav-item .nav-badge.badge-event {
   overflow-x: hidden;
   min-height: 0;
   min-width: 0;
-  padding: 1.25rem 1.75rem 2.5rem;
+  padding: 0.75rem 1.25rem 1.75rem;
   display: flex;
   flex-direction: column;
   gap: 1.25rem;
@@ -1021,11 +1021,13 @@ body.light-theme .dashboard-body::-webkit-scrollbar-thumb:hover {
   background: rgba(16, 185, 129, 0.5);
 }
 
-.dashboard-body .profile-container,
-.dashboard-body .evaluations-container {
-  padding: 0;
-  margin: 0;
-  max-width: 100%;
+::ng-deep .dashboard-body .profile-container,
+::ng-deep .dashboard-body .evaluations-container,
+::ng-deep .dashboard-body .leaderboard-page {
+  padding: 0 !important;
+  margin: 0 !important;
+  max-width: 100% !important;
+  width: 100% !important;
 }
 
 .dashboard-body.full-viewport-page {

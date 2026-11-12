@@ -51,7 +51,7 @@
   </section>
 
   <!-- Loading Skeleton -->
-  <div class="sk-stack" style="max-width: 1100px; margin: 1.5rem auto; padding: 0 1rem;" *ngIf="isLoading()" aria-busy="true" aria-label="Chargement du classement">
+  <div class="sk-stack" style="width: 100%; margin: 1rem 0;" *ngIf="isLoading()" aria-busy="true" aria-label="Chargement du classement">
     <div class="sk-grid" style="grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));">
       <div class="sk-card" *ngFor="let i of [1,2,3]">
         <div class="sk-meta-row">
