@@ -46,6 +46,7 @@
   --bg-main: var(--bg-dark);
   --bg-secondary: var(--bg-surface);
   --bg-input: #1E293B;
+  --input-bg: var(--bg-input);
   --bg-surface-primary: #0B1120;
   --text-main: var(--text-heading);
   --text-color: var(--text-heading);
@@ -110,6 +111,7 @@ body.light-theme {
   --bg-main: #F8FAFC;
   --bg-secondary: #F1F5F9;
   --bg-input: #FFFFFF;
+  --input-bg: #FFFFFF;
   --text-main: #0F172A;
   --text-color: #0F172A;
   --text-secondary: #475569;

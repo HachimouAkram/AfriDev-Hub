@@ -81,13 +81,20 @@
 .type-btn {
   padding: 0.5rem 1rem;
   border-radius: 999px;
-  border: 1px solid var(--border-color, #e5e7eb);
-  background: var(--bg-secondary, #f9fafb);
-  color: var(--text-secondary, #374151);
+  border: 1px solid var(--border-color, rgba(255, 255, 255, 0.1));
+  background: var(--bg-surface, #111827);
+  color: var(--text-secondary, #94a3b8);
   font-size: 0.85rem;
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s;
+}
+
+:host-context(body.light-theme) .type-btn,
+body.light-theme .type-btn {
+  background: #f9fafb;
+  color: #374151;
+  border-color: #e5e7eb;
 }
 
 .type-btn:hover {
@@ -105,13 +112,20 @@
 .form-control {
   width: 100%;
   padding: 0.75rem 1rem;
-  border: 1px solid var(--border-color, #e5e7eb);
+  border: 1px solid var(--border-color, rgba(255, 255, 255, 0.12));
   border-radius: 10px;
   font-size: 0.95rem;
-  background: var(--input-bg, #fff);
-  color: var(--text-primary, #111);
+  background: var(--bg-input, #1E293B);
+  color: var(--text-primary, #E2E8F0);
   transition: border-color 0.2s;
   box-sizing: border-box;
+}
+
+:host-context(body.light-theme) .form-control,
+body.light-theme .form-control {
+  background: #FFFFFF;
+  color: #0F172A;
+  border-color: rgba(15, 23, 42, 0.15);
 }
 
 .form-control:focus {
@@ -137,11 +151,17 @@ textarea.form-control {
   flex-wrap: wrap;
   gap: 0.4rem;
   padding: 0.5rem 0.75rem;
-  border: 1px solid var(--border-color, #e5e7eb);
+  border: 1px solid var(--border-color, rgba(255, 255, 255, 0.12));
   border-radius: 10px;
-  background: var(--input-bg, #fff);
+  background: var(--bg-input, #1E293B);
   min-height: 44px;
   align-items: center;
+}
+
+:host-context(body.light-theme) .tags-input-wrapper,
+body.light-theme .tags-input-wrapper {
+  background: #FFFFFF;
+  border-color: rgba(15, 23, 42, 0.15);
 }
 
 .tag-pill {
@@ -192,11 +212,18 @@ textarea.form-control {
   font-size: 0.72rem;
   padding: 0.15rem 0.5rem;
   border-radius: 999px;
-  background: var(--bg-secondary, #f3f4f6);
-  border: 1px solid var(--border-color, #e5e7eb);
-  color: var(--text-secondary, #6b7280);
+  background: var(--bg-surface, #111827);
+  border: 1px solid var(--border-color, rgba(255, 255, 255, 0.1));
+  color: var(--text-secondary, #94a3b8);
   cursor: pointer;
   transition: all 0.15s;
+}
+
+:host-context(body.light-theme) .suggested-tag-btn,
+body.light-theme .suggested-tag-btn {
+  background: #f3f4f6;
+  border-color: #e5e7eb;
+  color: #6b7280;
 }
 
 .suggested-tag-btn:hover, .suggested-tag-btn.selected {
