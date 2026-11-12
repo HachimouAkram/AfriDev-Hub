@@ -31,6 +31,10 @@ public class OpportunityEntity {
     @JoinColumn(name = "publisher_id", nullable = false)
     private UserEntity publisher;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "company_id")
+    private CompanyEntity company;
+
     @Column(nullable = false)
     private String title;
 

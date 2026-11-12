@@ -56,6 +56,10 @@ public class TechEventEntity {
     @JoinColumn(name = "organizer_id")
     private UserEntity organizer;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "company_id")
+    private CompanyEntity company;
+
     private String organizerName;
 
     @ElementCollection(fetch = FetchType.EAGER)

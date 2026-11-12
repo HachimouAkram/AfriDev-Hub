@@ -91,6 +91,10 @@ public class ResourceEntity {
     @JoinColumn(name = "author_id")
     private UserEntity author;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "company_id")
+    private CompanyEntity company;
+
     @CreationTimestamp
     @Column(updatable = false)
     private LocalDateTime createdAt;

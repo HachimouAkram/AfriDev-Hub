@@ -1,4 +1,53 @@
 <div class="landing-container">
+  <!-- ARRIÈRE-PLAN DYNAMIQUE : GLOBE 3D ROTATIF AU SCROLL + ENVIRONNEMENT DÉVELOPPEUR -->
+  <div class="home-backdrop-stage" aria-hidden="true">
+    <!-- Grille matricielle développeur & halo d'ambiance -->
+    <div class="bg-dev-grid"></div>
+    <div class="bg-radial-aurora"></div>
+
+    <!-- VRAI GLOBE TERRESTRE 3D PHOTOGRAPHIQUE (WEBGL + TEXTURE TERRE TOURNANT AU SCROLL) -->
+    <div class="bg-globe-anchor">
+      <div class="earth-globe-wrapper">
+        <canvas #earthCanvas class="earth-webgl-canvas"></canvas>
+        <!-- Anneau orbital technologique avec satellites de données connectés -->
+        <div class="earth-tech-orbit">
+          <span class="orbit-tech-node node-1"></span>
+          <span class="orbit-tech-node node-2"></span>
+          <span class="orbit-tech-node node-3"></span>
+          <span class="orbit-tech-node node-4"></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Éléments d'environnement de développement flottants & parallax scroll -->
+    <div class="bg-dev-floating-elements">
+      <div class="dev-float-pill pill-pos-1">
+        <span class="pill-dot"></span>
+        <code>git commit -m "Pan-Africa Tech Hub" ✨</code>
+      </div>
+      <div class="dev-float-pill pill-pos-2">
+        <code>const talent = await afridev.connect(54);</code>
+      </div>
+      <div class="dev-float-pill pill-pos-3">
+        <code>&lt;FullStack stack="Spring • Angular • Cloud" /&gt;</code>
+      </div>
+      <div class="dev-float-pill pill-pos-4">
+        <span class="pill-badge-ok">200 OK</span>
+        <code>peerReview.verify(status: CERTIFIED)</code>
+      </div>
+      <div class="dev-float-pill pill-pos-5">
+        <code>docker compose up -d --scale microservices=54</code>
+      </div>
+
+      <!-- Glyphes de syntaxe discrets -->
+      <span class="dev-syntax-glyph glyph-1">&lt;/&gt;</span>
+      <span class="dev-syntax-glyph glyph-2">&#123; &#125;</span>
+      <span class="dev-syntax-glyph glyph-3">=&gt;</span>
+      <span class="dev-syntax-glyph glyph-4">&#955;</span>
+      <span class="dev-syntax-glyph glyph-5">// dev.deploy()</span>
+    </div>
+  </div>
+
   <!-- HERO SECTION (SPLIT LAYOUT + PAN-AFRICAN GLOBE NETWORK + REAL PHOTO + ALIGNED STATS) -->
   <header class="hero-section app-card">
     <div class="hero-bg-glow" aria-hidden="true"></div>
@@ -619,13 +668,31 @@
     </div>
 
     <div class="members-grid" *ngIf="!isLoadingMembers; else loadingMembersTpl">
-      <div *ngFor="let member of featuredMembers" class="app-card member-home-card">
+      <div *ngFor="let member of featuredMembers" class="app-card member-home-card" style="position: relative;">
+        <!-- Rank Tag 1er, 2e, 3e -->
+        <div class="member-rank-tag" [ngClass]="{
+          'rank-gold': member.rank === 1,
+          'rank-silver': member.rank === 2,
+          'rank-bronze': member.rank === 3
+        }">
+          <span *ngIf="member.rank === 1">🥇 1er</span>
+          <span *ngIf="member.rank === 2">🥈 2e</span>
+          <span *ngIf="member.rank === 3">🥉 3e</span>
+          <span *ngIf="member.rank > 3">#{{ member.rank }}</span>
+        </div>
+
         <div class="member-card-header">
-          <div class="member-avatar">
-            {{ (member.fullName || member.email).charAt(0).toUpperCase() }}
+          <div class="member-avatar-wrapper" style="position: relative;">
+            <img *ngIf="member.avatarUrl" [src]="member.avatarUrl" [alt]="member.fullName" class="member-avatar-img" />
+            <div *ngIf="!member.avatarUrl" class="member-avatar">
+              {{ getMemberInitials(member.fullName) }}
+            </div>
+            <div class="member-flag-pill" *ngIf="getFlagUrl(member.country)" [title]="member.country">
+              <img [src]="getFlagUrl(member.country)" [alt]="member.country" class="member-flag-img" />
+            </div>
           </div>
           <div class="member-meta">
-            <h4>{{ member.fullName || member.email }}</h4>
+            <h4>{{ member.fullName }}</h4>
             <span class="member-title">{{ member.title || 'Développeur Full-Stack' }}</span>
             <span class="member-country">
               <svg class="icon-svg icon-svg-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor">
@@ -637,23 +704,16 @@
           </div>
         </div>
 
-        <div class="member-skills" *ngIf="member.skills && member.skills.length">
-          <span *ngFor="let sk of member.skills.slice(0, 3)" class="badge badge-gray">{{ sk }}</span>
-        </div>
-
         <div class="member-card-footer">
-          <span class="rep-score">
+          <span class="member-xp-badge">
             <svg class="icon-svg icon-svg-sm" viewBox="0 0 24 24" fill="currentColor">
               <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
             </svg>
-            {{ (member.reputationScore || 5) | number:'1.1-1' }}/5.0
+            {{ member.xpPoints | number }} XP
+            <span class="badge badge-emerald" style="margin-left: 0.35rem; font-size: 0.72rem;">{{ member.levelTitle || 'Senior' }}</span>
           </span>
-          <a [routerLink]="['/profile', member.id]" class="btn btn-outline btn-xs">Voir le Profil</a>
+          <a [routerLink]="['/profile', member.userId || member.profileId]" class="btn btn-outline btn-xs">Voir le Profil</a>
         </div>
-      </div>
-
-      <div *ngIf="featuredMembers.length === 0" class="empty-showcase app-card">
-        <p class="text-muted">Rejoignez le réseau pour apparaître parmi les développeurs d'élite.</p>
       </div>
     </div>
 

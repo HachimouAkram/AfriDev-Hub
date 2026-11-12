@@ -32,6 +32,13 @@ public class TechEventDto {
     private VoteType userVote; // AGREE, DISAGREE, or null
     private LocalDateTime createdAt;
 
+    // Informations entreprise si organisateur entreprise
+    private String companyId;
+    private String companyName;
+    private String companySlug;
+    private String companyLogoUrl;
+    private String companyBadge;
+
     // Champs de recommandation intelligente
     private Double matchPercentage;
     private String suggestionReason;

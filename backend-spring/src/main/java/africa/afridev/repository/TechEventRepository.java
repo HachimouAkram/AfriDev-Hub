@@ -17,4 +17,6 @@ public interface TechEventRepository extends JpaRepository<TechEventEntity, Stri
     List<TechEventEntity> findByType(TechEventType type);
     List<TechEventEntity> findByOrganizerId(String organizerId);
     List<TechEventEntity> findByOrganizerIdOrderByStartDateDesc(String organizerId);
+    List<TechEventEntity> findByCompanyIdOrderByStartDateDesc(String companyId);
+    long countByCompanyId(String companyId);
 }

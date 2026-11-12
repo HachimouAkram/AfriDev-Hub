@@ -30,5 +30,7 @@ public interface ResourceRepository extends JpaRepository<ResourceEntity, String
     );
 
     Page<ResourceEntity> findByAuthorIdOrderByCreatedAtDesc(String authorId, Pageable pageable);
+    Page<ResourceEntity> findByCompanyIdOrderByCreatedAtDesc(String companyId, Pageable pageable);
+    long countByCompanyId(String companyId);
 }
 

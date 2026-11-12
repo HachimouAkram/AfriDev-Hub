@@ -1,12 +1,19 @@
 package africa.afridev.service;
 
 import africa.afridev.dto.event.*;
+import africa.afridev.model.entity.CompanyEntity;
+import africa.afridev.model.entity.CompanyMemberEntity;
 import africa.afridev.model.entity.EventVoteEntity;
 import africa.afridev.model.entity.ProfileEntity;
 import africa.afridev.model.entity.TechEventEntity;
 import africa.afridev.model.entity.UserEntity;
+import africa.afridev.model.enums.CompanyActivityType;
+import africa.afridev.model.enums.CompanyMemberStatus;
+import africa.afridev.model.enums.CompanyXpSourceType;
 import africa.afridev.model.enums.TechEventType;
 import africa.afridev.model.enums.VoteType;
+import africa.afridev.repository.CompanyMemberRepository;
+import africa.afridev.repository.CompanyRepository;
 import africa.afridev.repository.EventVoteRepository;
 import africa.afridev.repository.FollowRepository;
 import africa.afridev.repository.TechEventRepository;
@@ -36,6 +43,10 @@ public class TechEventService {
     private final UserRepository userRepository;
     private final FollowRepository followRepository;
     private final RedisCacheService redisCacheService;
+    private final CompanyRepository companyRepository;
+    private final CompanyMemberRepository companyMemberRepository;
+    private final CompanyXpService companyXpService;
+    private final CompanyService companyService;
 
     @Transactional(readOnly = true)
     public Page<TechEventDto> getEvents(TechEventType type, Pageable pageable, String userEmail) {
@@ -242,10 +253,27 @@ public class TechEventService {
     public TechEventDto createEvent(String userEmail, TechEventCreateRequest request) {
         UserEntity organizer = null;
         String organizerName = "Communauté AfriDev";
+        CompanyEntity company = null;
+
         if (userEmail != null) {
             organizer = userRepository.findByEmail(userEmail).orElse(null);
-            if (organizer != null && organizer.getProfile() != null) {
-                organizerName = organizer.getProfile().getFullName();
+            if (organizer != null) {
+                if (organizer.getProfile() != null) {
+                    organizerName = organizer.getProfile().getFullName();
+                }
+                Optional<CompanyEntity> ownedCompany = companyRepository.findByOwnerId(organizer.getId());
+                if (ownedCompany.isPresent()) {
+                    company = ownedCompany.get();
+                } else {
+                    Optional<CompanyMemberEntity> membership = companyMemberRepository.findFirstByUserIdAndStatusOrderByCreatedAtAsc(
+                            organizer.getId(), CompanyMemberStatus.ACTIVE);
+                    if (membership.isPresent()) {
+                        company = membership.get().getCompany();
+                    }
+                }
+                if (company != null) {
+                    organizerName = company.getName();
+                }
             }
         }
 
@@ -260,6 +288,7 @@ public class TechEventService {
                 .eventUrl(request.getEventUrl())
                 .bannerUrl(request.getBannerUrl())
                 .organizer(organizer)
+                .company(company)
                 .organizerName(organizerName)
                 .tags(request.getTags() != null ? request.getTags() : new java.util.ArrayList<>())
                 .agreeCount(0)
@@ -269,6 +298,14 @@ public class TechEventService {
         TechEventEntity saved = eventRepository.save(event);
         redisCacheService.evictEventsCache();
         log.info("[EVENT] Nouvel événement créé: '{}' par {}", saved.getTitle(), organizerName);
+
+        if (company != null && organizer != null) {
+            companyXpService.awardXp(company, CompanyXpService.XP_EVENT_PUBLISHED,
+                    CompanyXpSourceType.EVENT_PUBLISHED, saved.getId(), "Publication de l'événement : " + saved.getTitle());
+            companyService.logActivity(company, organizer, CompanyActivityType.EVENT_PUBLISHED,
+                    saved.getId(), "event", organizer.getEmail() + " a publié l'événement : " + saved.getTitle());
+        }
+
         return mapToDto(saved, organizer);
     }
 
@@ -345,7 +382,7 @@ public class TechEventService {
                     .orElse(null);
         }
 
-        return TechEventDto.builder()
+        TechEventDto dto = TechEventDto.builder()
                 .id(entity.getId())
                 .title(entity.getTitle())
                 .description(entity.getDescription())
@@ -365,6 +402,21 @@ public class TechEventService {
                 .userVote(userVote)
                 .createdAt(entity.getCreatedAt())
                 .build();
+
+        if (entity.getCompany() != null) {
+            CompanyEntity c = entity.getCompany();
+            dto.setCompanyId(c.getId());
+            dto.setCompanyName(c.getName());
+            dto.setCompanySlug(c.getSlug());
+            dto.setCompanyLogoUrl(c.getLogoUrl());
+            dto.setCompanyBadge(c.getBadge());
+            dto.setOrganizerName(c.getName());
+            if (c.getLogoUrl() != null) {
+                dto.setOrganizerAvatar(c.getLogoUrl());
+            }
+        }
+
+        return dto;
     }
 
     private TechEventDto mapToScoredEventDto(

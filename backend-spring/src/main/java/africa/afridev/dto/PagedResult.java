@@ -52,6 +52,29 @@ public class PagedResult<T> implements Serializable {
                 .build();
     }
 
+    public static <T, R> PagedResult<T> of(Page<R> page, List<T> content) {
+        if (page == null) {
+            return PagedResult.<T>builder()
+                    .content(content != null ? content : Collections.emptyList())
+                    .pageNumber(0)
+                    .pageSize(20)
+                    .totalElements(0)
+                    .totalPages(0)
+                    .isLast(true)
+                    .isFirst(true)
+                    .build();
+        }
+        return PagedResult.<T>builder()
+                .content(content != null ? content : Collections.emptyList())
+                .pageNumber(page.getNumber())
+                .pageSize(page.getSize())
+                .totalElements(page.getTotalElements())
+                .totalPages(page.getTotalPages())
+                .isLast(page.isLast())
+                .isFirst(page.isFirst())
+                .build();
+    }
+
     public Page<T> toPage() {
         return new PageImpl<>(
                 content != null ? content : Collections.emptyList(),

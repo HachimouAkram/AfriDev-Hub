@@ -5,8 +5,10 @@
         <img src="/logo-africa.png" alt="AfriDev Hub Logo" class="auth-brand-logo" />
         <span class="auth-brand-text">AfriDev <span class="accent">Hub</span></span>
       </a>
-      <h2>Créer votre profil AfriDev Hub</h2>
-      <p>Rejoignez la plateforme de réputation certifiée des développeurs africains</p>
+      <h2>{{ step === 1 ? 'Créer votre profil AfriDev Hub' : (role === 'DEVELOPER' ? 'Créer votre profil Développeur' : 'Créer votre compte Recruteur') }}</h2>
+      <p *ngIf="step === 1">Rejoignez l'écosystème tech panafricain certifié</p>
+      <p *ngIf="step === 2 && role === 'DEVELOPER'">Complétez vos compétences techniques pour valoriser vos projets</p>
+      <p *ngIf="step === 2 && role === 'RECRUITER'">Renseignez les détails de votre entreprise pour recruter les meilleurs talents</p>
     </div>
 
     <!-- Stepper Indicator -->
@@ -18,7 +20,7 @@
       <div class="step-line"></div>
       <div class="step-item" [class.active]="step === 2">
         <span class="step-num">2</span>
-        <span class="step-label">Profil & Compétences</span>
+        <span class="step-label">{{ role === 'DEVELOPER' ? 'Profil & Compétences' : 'Entreprise & Rôle' }}</span>
       </div>
     </div>
 
@@ -32,6 +34,52 @@
 
     <!-- STEP 1 FORM -->
     <form *ngIf="step === 1" (ngSubmit)="goToStep2()" class="auth-form">
+      <!-- Role Selection Cards -->
+      <div class="role-selection-group">
+        <label class="role-section-label">Vous vous inscrivez en tant que :</label>
+        <div class="role-cards-grid">
+          <div 
+            class="role-card" 
+            [class.selected]="role === 'DEVELOPER'" 
+            (click)="setRole('DEVELOPER')">
+            <div class="role-card-header">
+              <div class="role-icon-box">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
+                </svg>
+              </div>
+              <div class="role-radio-mark" [class.checked]="role === 'DEVELOPER'">
+                <span class="radio-dot"></span>
+              </div>
+            </div>
+            <div class="role-card-body">
+              <span class="role-title">Développeur / Talent Tech</span>
+              <p class="role-desc">Je code, présente mes projets, gagne de l'XP et accède aux opportunités.</p>
+            </div>
+          </div>
+
+          <div 
+            class="role-card" 
+            [class.selected]="role === 'RECRUITER'" 
+            (click)="setRole('RECRUITER')">
+            <div class="role-card-header">
+              <div class="role-icon-box recruiter-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                </svg>
+              </div>
+              <div class="role-radio-mark" [class.checked]="role === 'RECRUITER'">
+                <span class="radio-dot"></span>
+              </div>
+            </div>
+            <div class="role-card-body">
+              <span class="role-title">Recruteur / Entreprise</span>
+              <p class="role-desc">Je recherche, identifie et recrute les meilleurs talents tech certifiés en Afrique.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <div class="form-grid-2">
         <div class="form-group">
           <label for="fullName">Nom complet / Pseudo</label>
@@ -161,9 +209,12 @@
 
     <!-- STEP 2 FORM -->
     <form *ngIf="step === 2" (ngSubmit)="onSubmitRegister()" class="auth-form">
-      <div class="form-grid-2">
-
-        <!-- ── Country Searchable Dropdown ────────────────────── -->
+      
+      <!-- ══════════════════════════════════════════════════════════ -->
+      <!-- CAS 1: DÉVELOPPEUR                                        -->
+      <!-- ══════════════════════════════════════════════════════════ -->
+      <div *ngIf="role === 'DEVELOPER'" class="form-grid-2">
+        <!-- Country Searchable Dropdown -->
         <div class="form-group">
           <label>Pays de résidence</label>
           <div class="custom-select-wrapper" [class.open]="countryDropdownOpen">
@@ -207,7 +258,7 @@
           </div>
         </div>
 
-        <!-- ── City Searchable Dropdown ───────────────────────── -->
+        <!-- City Searchable Dropdown -->
         <div class="form-group">
           <label>Ville</label>
           <div class="custom-select-wrapper" [class.open]="cityDropdownOpen" [class.disabled]="!country">
@@ -287,6 +338,139 @@
         </div>
       </div>
 
+      <!-- ══════════════════════════════════════════════════════════ -->
+      <!-- CAS 2: RECRUTEUR / ENTREPRISE                             -->
+      <!-- ══════════════════════════════════════════════════════════ -->
+      <div *ngIf="role === 'RECRUITER'" class="form-grid-2">
+        <!-- Nom de l'entreprise ou startup -->
+        <div class="form-group">
+          <label for="companyName">Nom de l'entreprise ou Startup <span class="required-star">*</span></label>
+          <input 
+            type="text" 
+            id="companyName" 
+            [(ngModel)]="companyName" 
+            name="companyName" 
+            placeholder="Ex: AfriTech Solutions, PayDunya, Wave..." 
+            required 
+            class="form-control">
+        </div>
+
+        <!-- Fonction dans l'entreprise -->
+        <div class="form-group">
+          <label for="recruiterTitle">Votre rôle / Fonction <span class="required-star">*</span></label>
+          <input 
+            type="text" 
+            id="recruiterTitle" 
+            [(ngModel)]="title" 
+            name="recruiterTitle" 
+            placeholder="Ex: Tech Recruiter, Head of Talent, CTO, Fondateur..." 
+            required 
+            class="form-control">
+        </div>
+
+        <!-- Pays du siège / bureau -->
+        <div class="form-group">
+          <label>Pays du siège / bureau <span class="required-star">*</span></label>
+          <div class="custom-select-wrapper" [class.open]="countryDropdownOpen">
+            <button
+              type="button"
+              class="custom-select-trigger form-control"
+              (click)="$event.stopPropagation(); openCountryDropdown()">
+              <span [class.placeholder]="!country">{{ country || 'Sélectionner un pays' }}</span>
+              <svg class="select-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+              </svg>
+            </button>
+
+            <div class="custom-dropdown" *ngIf="countryDropdownOpen" (click)="$event.stopPropagation()">
+              <div class="dropdown-search-box">
+                <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
+                </svg>
+                <input
+                  id="country-search-input"
+                  type="text"
+                  [(ngModel)]="countrySearch"
+                  name="countrySearch"
+                  placeholder="Rechercher un pays..."
+                  class="dropdown-search-input">
+              </div>
+              <ul class="dropdown-list">
+                <li
+                  *ngFor="let c of filteredCountries"
+                  class="dropdown-item"
+                  [class.selected]="c === country"
+                  (click)="selectCountry(c)">
+                  <span>{{ c }}</span>
+                  <svg *ngIf="c === country" class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                  </svg>
+                </li>
+                <li *ngIf="filteredCountries.length === 0" class="dropdown-empty">Aucun résultat</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <!-- Ville du siège / bureau -->
+        <div class="form-group">
+          <label>Ville du bureau / siège <span class="required-star">*</span></label>
+          <div class="custom-select-wrapper" [class.open]="cityDropdownOpen" [class.disabled]="!country">
+            <button
+              type="button"
+              class="custom-select-trigger form-control"
+              [disabled]="!country"
+              (click)="$event.stopPropagation(); openCityDropdown()">
+              <span [class.placeholder]="!city">{{ city || (country ? 'Sélectionner une ville' : 'Choisir un pays d\'abord') }}</span>
+              <svg class="select-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+              </svg>
+            </button>
+
+            <div class="custom-dropdown" *ngIf="cityDropdownOpen" (click)="$event.stopPropagation()">
+              <div class="dropdown-search-box">
+                <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
+                </svg>
+                <input
+                  id="city-search-input"
+                  type="text"
+                  [(ngModel)]="citySearch"
+                  name="citySearch"
+                  placeholder="Rechercher une ville..."
+                  class="dropdown-search-input">
+              </div>
+              <ul class="dropdown-list">
+                <li
+                  *ngFor="let c of filteredCities"
+                  class="dropdown-item"
+                  [class.selected]="c === city"
+                  (click)="selectCity(c)">
+                  <span>{{ c }}</span>
+                  <svg *ngIf="c === city" class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                  </svg>
+                </li>
+                <li *ngIf="filteredCities.length === 0" class="dropdown-empty">Aucune ville trouvée</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <!-- Présentation / Bio de l'entreprise -->
+        <div class="form-group col-span-full">
+          <label for="recruiterBio">Présentation de l'entreprise / À propos (optionnel)</label>
+          <textarea 
+            id="recruiterBio" 
+            [(ngModel)]="bio" 
+            name="recruiterBio" 
+            rows="3" 
+            placeholder="Présentez brièvement vos activités, vos projets ou les profils tech que vous recherchez..." 
+            class="form-control"></textarea>
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
       <div class="btn-row">
         <button type="button" (click)="goToStep1()" class="btn btn-outline">
           <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
@@ -298,7 +482,7 @@
           <svg *ngIf="!isLoading" class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
           </svg>
-          <span *ngIf="!isLoading">Créer mon profil</span>
+          <span *ngIf="!isLoading">{{ role === 'DEVELOPER' ? 'Créer mon profil Développeur' : 'Créer mon compte Recruteur' }}</span>
           <span *ngIf="isLoading">Création en cours...</span>
         </button>
       </div>
@@ -317,4 +501,3 @@
     </div>
   </div>
 </div>
-

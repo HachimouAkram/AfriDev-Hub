@@ -38,6 +38,7 @@ public class AuthService {
     private final EmailService emailService;
     private final LoginSessionRepository loginSessionRepository;
     private final RedisCacheService redisCacheService;
+    private final CompanyService companyService;
 
     @Value("${app.google.client-id:}")
     private String googleClientId;
@@ -50,10 +51,12 @@ public class AuthService {
             throw new IllegalArgumentException("Un compte existe déjà avec cet adresse email.");
         }
 
+        Role userRole = request.getRole() != null ? request.getRole() : Role.DEVELOPER;
+
         UserEntity user = UserEntity.builder()
                 .email(request.getEmail())
                 .passwordHash(passwordEncoder.encode(request.getPassword()))
-                .role(Role.DEVELOPER)
+                .role(userRole)
                 .status(UserStatus.ACTIVE)
                 .emailVerified(false)
                 .build();
@@ -64,6 +67,7 @@ public class AuthService {
                 .country(request.getCountry())
                 .city(request.getCity())
                 .title(request.getTitle())
+                .companyName(request.getCompanyName())
                 .bio(request.getBio())
                 .skills(request.getSkills() != null ? request.getSkills() : new ArrayList<>())
                 .availability(Availability.OPEN)
@@ -73,6 +77,23 @@ public class AuthService {
 
         user.setProfile(profile);
         userRepository.save(user);
+
+        // Si le rôle est RECRUTEUR, auto-créer l'entreprise associée
+        if (userRole == Role.RECRUITER) {
+            try {
+                companyService.autoCreateCompanyForRecruiter(
+                        user,
+                        request.getCompanyName(),
+                        request.getCountry(),
+                        request.getCity(),
+                        request.getBio(),
+                        request.getTitle()
+                );
+                log.info("[AUTH] Entreprise auto-créée pour le recruteur {}", user.getEmail());
+            } catch (Exception e) {
+                log.error("[AUTH] Erreur lors de la création automatique de l'entreprise pour {} : {}", user.getEmail(), e.getMessage());
+            }
+        }
 
         // Envoyer l'OTP de vérification automatiquement
         try {

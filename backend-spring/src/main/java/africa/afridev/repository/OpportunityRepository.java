@@ -16,4 +16,8 @@ public interface OpportunityRepository extends JpaRepository<OpportunityEntity, 
     java.util.List<OpportunityEntity> findByTypeAndStatus(OpportunityType type, ContentStatus status);
     java.util.List<OpportunityEntity> findByPublisherIdOrderByCreatedAtDesc(String publisherId);
     long countByPublisherId(String publisherId);
+    Page<OpportunityEntity> findByCompanyIdAndStatusOrderByCreatedAtDesc(String companyId, ContentStatus status, Pageable pageable);
+    java.util.List<OpportunityEntity> findByCompanyIdOrderByCreatedAtDesc(String companyId);
+    long countByCompanyId(String companyId);
+    long countByCompanyIdAndStatus(String companyId, ContentStatus status);
 }

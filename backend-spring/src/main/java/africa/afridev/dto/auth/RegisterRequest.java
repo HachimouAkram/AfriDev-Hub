@@ -1,5 +1,6 @@
 package africa.afridev.dto.auth;
 
+import africa.afridev.model.enums.Role;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
@@ -29,6 +30,10 @@ public class RegisterRequest {
 
     @NotBlank(message = "Le titre professionnel est obligatoire")
     private String title;
+
+    private Role role;
+
+    private String companyName;
 
     private String bio;
 

@@ -20,6 +20,7 @@ public class ProfileDto {
     private String country;
     private String city;
     private String title;
+    private String companyName;
     private String bio;
     private List<String> skills;
     private List<String> languages;

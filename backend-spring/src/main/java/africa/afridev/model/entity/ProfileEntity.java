@@ -44,6 +44,9 @@ public class ProfileEntity {
     @Column(nullable = false)
     private String title;
 
+    @Column(name = "company_name")
+    private String companyName;
+
     @Column(columnDefinition = "TEXT")
     private String bio;
 

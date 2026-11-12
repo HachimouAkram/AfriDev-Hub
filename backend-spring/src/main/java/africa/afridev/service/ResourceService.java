@@ -2,12 +2,19 @@ package africa.afridev.service;
 
 import africa.afridev.dto.resource.ResourceCreateRequest;
 import africa.afridev.dto.resource.ResourceDto;
+import africa.afridev.model.entity.CompanyEntity;
+import africa.afridev.model.entity.CompanyMemberEntity;
 import africa.afridev.model.entity.ResourceEntity;
 import africa.afridev.model.entity.UserEntity;
 import africa.afridev.model.entity.UserResourceProgressEntity;
+import africa.afridev.model.enums.CompanyActivityType;
+import africa.afridev.model.enums.CompanyMemberStatus;
+import africa.afridev.model.enums.CompanyXpSourceType;
 import africa.afridev.model.enums.ResourceType;
 import africa.afridev.model.enums.SkillLevel;
 import africa.afridev.model.enums.XpSourceType;
+import africa.afridev.repository.CompanyMemberRepository;
+import africa.afridev.repository.CompanyRepository;
 import africa.afridev.repository.PaymentRepository;
 import africa.afridev.repository.ResourceRepository;
 import africa.afridev.repository.UserResourceProgressRepository;
@@ -31,6 +38,10 @@ public class ResourceService {
     private final UserRepository userRepository;
     private final PaymentRepository paymentRepository;
     private final XpService xpService;
+    private final CompanyRepository companyRepository;
+    private final CompanyMemberRepository companyMemberRepository;
+    private final CompanyXpService companyXpService;
+    private final CompanyService companyService;
 
     @Transactional(readOnly = true)
     public Page<ResourceDto> search(
@@ -115,6 +126,20 @@ public class ResourceService {
             throw new IllegalArgumentException("Veuillez indiquer un tarif valide en XOF pour une formation payante.");
         }
 
+        CompanyEntity company = null;
+        if (author != null) {
+            java.util.Optional<CompanyEntity> ownedCompany = companyRepository.findByOwnerId(author.getId());
+            if (ownedCompany.isPresent()) {
+                company = ownedCompany.get();
+            } else {
+                java.util.Optional<CompanyMemberEntity> membership = companyMemberRepository.findFirstByUserIdAndStatusOrderByCreatedAtAsc(
+                        author.getId(), CompanyMemberStatus.ACTIVE);
+                if (membership.isPresent()) {
+                    company = membership.get().getCompany();
+                }
+            }
+        }
+
         ResourceEntity resource = ResourceEntity.builder()
                 .title(request.getTitle())
                 .description(request.getDescription())
@@ -132,9 +157,17 @@ public class ResourceService {
                 .durationMinutes(request.getDurationMinutes() != null && request.getDurationMinutes() > 0 ? request.getDurationMinutes() : 30)
                 .xpReward(20)
                 .author(author)
+                .company(company)
                 .build();
 
         ResourceEntity saved = resourceRepository.save(resource);
+
+        if (company != null && author != null) {
+            companyXpService.awardXp(company, CompanyXpService.XP_RESOURCE_PUBLISHED,
+                    CompanyXpSourceType.RESOURCE_PUBLISHED, saved.getId(), "Publication de la formation : " + saved.getTitle());
+            companyService.logActivity(company, author, CompanyActivityType.RESOURCE_PUBLISHED,
+                    saved.getId(), "resource", author.getEmail() + " a publié la ressource : " + saved.getTitle());
+        }
 
         // Attribution automatique de 20 XP à l'auteur pour la publication de la formation
         if (author != null) {
@@ -257,7 +290,7 @@ public class ResourceService {
             }
         }
 
-        return ResourceDto.builder()
+        ResourceDto dto = ResourceDto.builder()
                 .id(r.getId())
                 .title(r.getTitle())
                 .description(r.getDescription())
@@ -281,6 +314,18 @@ public class ResourceService {
                 .isUnlockedByCurrentUser(unlocked)
                 .createdAt(r.getCreatedAt())
                 .build();
+
+        if (r.getCompany() != null) {
+            CompanyEntity c = r.getCompany();
+            dto.setAuthorName(c.getName());
+            dto.setCompanyId(c.getId());
+            dto.setCompanyName(c.getName());
+            dto.setCompanySlug(c.getSlug());
+            dto.setCompanyLogoUrl(c.getLogoUrl());
+            dto.setCompanyBadge(c.getBadge());
+        }
+
+        return dto;
     }
 }
 

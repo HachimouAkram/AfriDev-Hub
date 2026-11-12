@@ -4,6 +4,7 @@ import africa.afridev.model.entity.*;
 import africa.afridev.model.enums.ApplicationStatus;
 import africa.afridev.model.enums.ContentStatus;
 import africa.afridev.model.enums.DeveloperLevel;
+import africa.afridev.model.enums.Role;
 import africa.afridev.model.enums.XpSourceType;
 import africa.afridev.repository.*;
 import lombok.RequiredArgsConstructor;
@@ -43,6 +44,10 @@ public class XpService {
     @Transactional
     public void awardXp(UserEntity user, long points, XpSourceType sourceType, String sourceId, String description) {
         if (user == null || points <= 0) return;
+        if (user.getRole() == Role.RECRUITER) {
+            log.debug("L'utilisateur {} est un RECRUTEUR, l'XP développeur individuel n'est pas attribué", user.getEmail());
+            return;
+        }
 
         // Anti-doublon pour les actions uniques (comme la publication d'un projet spécifique ou complétion de profil)
         if (sourceId != null && (sourceType == XpSourceType.PROJECT_PUBLISHED || sourceType == XpSourceType.PROFILE_COMPLETED || sourceType == XpSourceType.APPLICATION_ACCEPTED)) {
@@ -90,7 +95,7 @@ public class XpService {
      */
     @Transactional
     public void recalculateUserXp(UserEntity user) {
-        if (user == null) return;
+        if (user == null || user.getRole() == Role.RECRUITER) return;
 
         profileRepository.findByUserId(user.getId()).ifPresent(profile -> {
             long totalXp = 0L;

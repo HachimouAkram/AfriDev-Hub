@@ -12,6 +12,9 @@ public interface ApplicationRepository extends JpaRepository<ApplicationEntity, 
     List<ApplicationEntity> findByOpportunityId(String opportunityId);
     List<ApplicationEntity> findByApplicantIdOrderByCreatedAtDesc(String applicantId);
     List<ApplicationEntity> findByOpportunityPublisherIdOrderByCreatedAtDesc(String publisherId);
+    List<ApplicationEntity> findByOpportunityCompanyIdOrderByCreatedAtDesc(String companyId);
+    long countByOpportunityCompanyId(String companyId);
+    long countByOpportunityCompanyIdAndStatus(String companyId, africa.afridev.model.enums.ApplicationStatus status);
     long countByApplicantId(String applicantId);
 
     @org.springframework.data.jpa.repository.Query("SELECT a.opportunity.id FROM ApplicationEntity a WHERE a.applicant.id = :applicantId")

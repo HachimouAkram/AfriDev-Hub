@@ -23,6 +23,7 @@ export class RegisterComponent implements AfterViewInit {
   errorMessage = '';
 
   // Form Model
+  role: 'DEVELOPER' | 'RECRUITER' = 'DEVELOPER';
   email = '';
   password = '';
   confirmPassword = '';
@@ -30,8 +31,18 @@ export class RegisterComponent implements AfterViewInit {
   country = '';
   city = '';
   title = 'Développeur Full-Stack';
+  companyName = '';
   bio = '';
   skillsInput = 'Angular, Spring Boot, PostgreSQL';
+
+  setRole(selectedRole: 'DEVELOPER' | 'RECRUITER'): void {
+    this.role = selectedRole;
+    if (selectedRole === 'RECRUITER' && (!this.title || this.title === 'Développeur Full-Stack')) {
+      this.title = 'Tech Recruiter';
+    } else if (selectedRole === 'DEVELOPER' && (!this.title || this.title === 'Tech Recruiter')) {
+      this.title = 'Développeur Full-Stack';
+    }
+  }
 
   // Password UI state
   showPassword = false;
@@ -214,15 +225,24 @@ export class RegisterComponent implements AfterViewInit {
       return;
     }
 
-    const skills = this.skillsInput.split(',').map(s => s.trim()).filter(s => s.length > 0);
+    if (this.role === 'RECRUITER' && !this.companyName.trim()) {
+      this.errorMessage = 'Veuillez renseigner le nom de votre entreprise ou startup.';
+      return;
+    }
+
+    const skills = this.role === 'DEVELOPER'
+      ? this.skillsInput.split(',').map(s => s.trim()).filter(s => s.length > 0)
+      : [];
 
     const payload = {
+      role: this.role,
       email: this.email,
       password: this.password,
       fullName: this.fullName,
       country: this.country,
       city: this.city,
       title: this.title,
+      companyName: this.role === 'RECRUITER' ? this.companyName.trim() : undefined,
       bio: this.bio,
       skills: skills
     };

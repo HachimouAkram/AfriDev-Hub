@@ -32,6 +32,14 @@ public class OpportunityDto {
     private ContentStatus status;
     private LocalDateTime createdAt;
 
+    // Informations entreprise si publiée au nom d'une entreprise
+    private String companyId;
+    private String companyName;
+    private String companySlug;
+    private String companyLogoUrl;
+    private String companyBadge;
+    private String companyLevel;
+
     // Champs de recommandation et affinité intelligente
     private Double matchPercentage;
     private String suggestionReason;

@@ -5,13 +5,20 @@ import africa.afridev.dto.opportunity.ApplicationDto;
 import africa.afridev.dto.opportunity.OpportunityCreateRequest;
 import africa.afridev.dto.opportunity.OpportunityDto;
 import africa.afridev.model.entity.ApplicationEntity;
+import africa.afridev.model.entity.CompanyEntity;
+import africa.afridev.model.entity.CompanyMemberEntity;
 import africa.afridev.model.entity.OpportunityEntity;
 import africa.afridev.model.entity.UserEntity;
 import africa.afridev.model.enums.ApplicationStatus;
+import africa.afridev.model.enums.CompanyActivityType;
+import africa.afridev.model.enums.CompanyMemberStatus;
+import africa.afridev.model.enums.CompanyXpSourceType;
 import africa.afridev.model.enums.ContentStatus;
 import africa.afridev.model.enums.OpportunityType;
 import africa.afridev.model.entity.ProfileEntity;
 import africa.afridev.repository.ApplicationRepository;
+import africa.afridev.repository.CompanyMemberRepository;
+import africa.afridev.repository.CompanyRepository;
 import africa.afridev.repository.FollowRepository;
 import africa.afridev.repository.OpportunityRepository;
 import africa.afridev.repository.UserRepository;
@@ -41,14 +48,31 @@ public class OpportunityService {
     private final AuthService authService;
     private final EmailService emailService;
     private final RedisCacheService redisCacheService;
+    private final CompanyRepository companyRepository;
+    private final CompanyMemberRepository companyMemberRepository;
+    private final CompanyXpService companyXpService;
+    private final CompanyService companyService;
 
     @Transactional
     public OpportunityDto createOpportunity(String userEmail, OpportunityCreateRequest request) {
         UserEntity publisher = userRepository.findByEmail(userEmail)
                 .orElseThrow(() -> new IllegalArgumentException("Utilisateur non trouvé."));
 
+        CompanyEntity company = null;
+        Optional<CompanyEntity> ownedCompany = companyRepository.findByOwnerId(publisher.getId());
+        if (ownedCompany.isPresent()) {
+            company = ownedCompany.get();
+        } else {
+            Optional<CompanyMemberEntity> membership = companyMemberRepository.findFirstByUserIdAndStatusOrderByCreatedAtAsc(
+                    publisher.getId(), CompanyMemberStatus.ACTIVE);
+            if (membership.isPresent()) {
+                company = membership.get().getCompany();
+            }
+        }
+
         OpportunityEntity opportunity = OpportunityEntity.builder()
                 .publisher(publisher)
+                .company(company)
                 .title(request.getTitle())
                 .description(request.getDescription())
                 .type(request.getType())
@@ -65,6 +89,14 @@ public class OpportunityService {
 
         OpportunityEntity saved = opportunityRepository.save(opportunity);
         redisCacheService.evictOpportunitiesCache();
+
+        if (company != null) {
+            companyXpService.awardXp(company, CompanyXpService.XP_OPPORTUNITY_PUBLISHED,
+                    CompanyXpSourceType.OPPORTUNITY_PUBLISHED, saved.getId(), "Publication de l'offre : " + saved.getTitle());
+            companyService.logActivity(company, publisher, CompanyActivityType.OPPORTUNITY_PUBLISHED,
+                    saved.getId(), "opportunity", publisher.getEmail() + " a publié l'offre : " + saved.getTitle());
+        }
+
         return mapToOpportunityDto(saved);
     }
 
@@ -348,6 +380,13 @@ public class OpportunityService {
             emailService.sendApplicationRejectionEmail(applicantEmail, applicantName, oppTitle, motif);
         } else if (newStatus == ApplicationStatus.ACCEPTED) {
             emailService.sendApplicationAcceptanceEmail(applicantEmail, applicantName, oppTitle, pubName);
+            if (opportunity.getCompany() != null) {
+                UserEntity publisher = opportunity.getPublisher();
+                companyXpService.awardXp(opportunity.getCompany(), CompanyXpService.XP_OPPORTUNITY_FILLED,
+                        CompanyXpSourceType.OPPORTUNITY_FILLED, application.getId(), "Candidat accepté pour l'offre : " + oppTitle);
+                companyService.logActivity(opportunity.getCompany(), publisher, CompanyActivityType.CANDIDATE_ACCEPTED,
+                        applicant.getId(), "developer", "Candidature de " + applicantName + " acceptée pour l'offre : " + oppTitle);
+            }
         }
 
         return mapToApplicationDto(saved);
@@ -442,6 +481,17 @@ public class OpportunityService {
                 .status(opportunity.getStatus())
                 .createdAt(opportunity.getCreatedAt())
                 .build();
+
+        if (opportunity.getCompany() != null) {
+            CompanyEntity c = opportunity.getCompany();
+            dto.setCompanyId(c.getId());
+            dto.setCompanyName(c.getName());
+            dto.setCompanySlug(c.getSlug());
+            dto.setCompanyLogoUrl(c.getLogoUrl());
+            dto.setCompanyBadge(c.getBadge());
+            dto.setCompanyLevel(c.getCompanyLevel());
+        }
+
         return dto;
     }
 

@@ -34,6 +34,11 @@ public class ResourceDto {
     private Integer viewsCount;
     private Integer completionsCount;
     private String authorName;
+    private String companyId;
+    private String companyName;
+    private String companySlug;
+    private String companyLogoUrl;
+    private String companyBadge;
     private Boolean isCompletedByCurrentUser;
     private Boolean isUnlockedByCurrentUser;
     private LocalDateTime createdAt;
