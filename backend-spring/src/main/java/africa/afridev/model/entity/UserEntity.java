@@ -32,7 +32,7 @@ public class UserEntity {
     @Builder.Default
     private Boolean emailVerified = false;
 
-    @Column(name = "two_factor_enabled", columnDefinition = "boolean default false")
+    @Column(name = "two_factor_enabled")
     @Builder.Default
     private Boolean twoFactorEnabled = false;
 

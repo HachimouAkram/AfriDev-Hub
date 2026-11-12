@@ -88,20 +88,20 @@ public class ProfileEntity {
     @Builder.Default
     private Boolean mobileMoneyVerified = false;
 
-    @Column(name = "xp_points", nullable = false, columnDefinition = "BIGINT DEFAULT 0")
+    @Column(name = "xp_points", nullable = false)
     @Builder.Default
     private Long xpPoints = 0L;
 
-    @Column(name = "level_title", nullable = false, columnDefinition = "VARCHAR(255) DEFAULT 'Junior'")
+    @Column(name = "level_title", nullable = false)
     @Builder.Default
     private String levelTitle = "Junior";
 
-    @Column(name = "level_number", nullable = false, columnDefinition = "INTEGER DEFAULT 1")
+    @Column(name = "level_number", nullable = false)
     @Builder.Default
     private Integer levelNumber = 1;
 
     // --- Champs Mentor / Volontariat Tech (Phase 2) ---
-    @Column(name = "is_mentor", nullable = false, columnDefinition = "BOOLEAN DEFAULT FALSE")
+    @Column(name = "is_mentor", nullable = false)
     @Builder.Default
     private Boolean isMentor = false;
 
