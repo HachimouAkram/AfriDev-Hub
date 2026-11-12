@@ -113,6 +113,12 @@ export class DashboardOverviewComponent implements OnInit {
       return;
     }
 
+    // Le Recruteur dispose de son cockpit dédié entreprise
+    if (u.role === 'RECRUITER') {
+      this.router.navigate(['/dashboard/recruiter']);
+      return;
+    }
+
     this.loadGlobalKPIs();
     this.loadCollaborations();
 
