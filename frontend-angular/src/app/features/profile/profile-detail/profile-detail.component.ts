@@ -130,6 +130,31 @@ export class ProfileDetailComponent implements OnInit {
     return role === 'SUPER_ADMIN' || role === 'ADMIN';
   }
 
+  getUserRole(): string {
+    return this.currentUser()?.role || 'DEVELOPER';
+  }
+
+  getSystemRoleBadge(): string {
+    const role = this.getUserRole();
+    switch (role) {
+      case 'SUPER_ADMIN': return '👑 SUPER_ADMIN';
+      case 'ADMIN': return '🛡️ ADMIN';
+      case 'RECRUITER': return '💼 RECRUITER (Recruteur Entreprise)';
+      case 'DEVELOPER': return '💻 DEVELOPER (Développeur)';
+      default: return role;
+    }
+  }
+
+  getSystemRoleClass(): string {
+    const role = this.getUserRole();
+    switch (role) {
+      case 'SUPER_ADMIN': return 'badge-role-superadmin';
+      case 'ADMIN': return 'badge-role-admin';
+      case 'RECRUITER': return 'badge-role-recruiter';
+      default: return 'badge-role-developer';
+    }
+  }
+
   goBack(): void {
     // If there is history, navigate back; else fallback to admin or network
     if (window.history.length > 1) {

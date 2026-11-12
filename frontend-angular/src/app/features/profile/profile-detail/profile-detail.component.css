@@ -7,6 +7,43 @@
   animation: glow-pulse 3s infinite ease-in-out;
 }
 
+.badge-system-role {
+  font-family: monospace;
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 9999px;
+  border: 1px solid transparent;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.badge-role-developer {
+  background: rgba(16, 185, 129, 0.15);
+  color: #10b981;
+  border-color: rgba(16, 185, 129, 0.35);
+}
+
+.badge-role-recruiter {
+  background: rgba(168, 85, 247, 0.15);
+  color: #c084fc;
+  border-color: rgba(168, 85, 247, 0.35);
+}
+
+.badge-role-admin {
+  background: rgba(59, 130, 246, 0.15);
+  color: #60a5fa;
+  border-color: rgba(59, 130, 246, 0.35);
+}
+
+.badge-role-superadmin {
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.25), rgba(239, 68, 68, 0.25));
+  color: #fbbf24;
+  border-color: rgba(245, 158, 11, 0.45);
+}
+
+
 @keyframes glow-pulse {
   0%, 100% { box-shadow: 0 0 8px rgba(245, 158, 11, 0.25); }
   50% { box-shadow: 0 0 16px rgba(245, 158, 11, 0.55); }
@@ -1054,6 +1091,43 @@ body.light-theme .progress-bar {
   box-shadow: 0 0 12px rgba(245, 158, 11, 0.35);
   animation: glow-pulse 3s infinite ease-in-out;
 }
+
+.badge-system-role {
+  font-family: monospace;
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 9999px;
+  border: 1px solid transparent;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.badge-role-developer {
+  background: rgba(16, 185, 129, 0.15);
+  color: #10b981;
+  border-color: rgba(16, 185, 129, 0.35);
+}
+
+.badge-role-recruiter {
+  background: rgba(168, 85, 247, 0.15);
+  color: #c084fc;
+  border-color: rgba(168, 85, 247, 0.35);
+}
+
+.badge-role-admin {
+  background: rgba(59, 130, 246, 0.15);
+  color: #60a5fa;
+  border-color: rgba(59, 130, 246, 0.35);
+}
+
+.badge-role-superadmin {
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.25), rgba(239, 68, 68, 0.25));
+  color: #fbbf24;
+  border-color: rgba(245, 158, 11, 0.45);
+}
+
 
 @keyframes glow-pulse {
   0%, 100% { box-shadow: 0 0 8px rgba(245, 158, 11, 0.25); }

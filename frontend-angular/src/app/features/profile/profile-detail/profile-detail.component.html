@@ -60,6 +60,12 @@
       <div class="header-details">
         <div class="name-badge-row">
           <h1>{{ profile.fullName }}</h1>
+          
+          <!-- Rôle officiel dans la base de données -->
+          <span class="badge badge-system-role" [ngClass]="getSystemRoleClass()">
+            {{ getSystemRoleBadge() }}
+          </span>
+
           <span class="badge badge-super-admin" *ngIf="isSuperAdmin() && isOwnProfile">
             👑 Super Administrateur
           </span>
