@@ -1,50 +1,49 @@
-/* Floating Action Button */
+/* Floating Action Button (Icon-only circular FAB) */
 .ai-fab-btn {
   position: fixed;
   bottom: 2rem;
   right: 2rem;
   z-index: 9999;
+  width: 56px;
+  height: 56px;
   display: flex;
   align-items: center;
-  gap: 0.6rem;
+  justify-content: center;
   background: linear-gradient(135deg, #10B981, #059669);
   color: #FFFFFF;
   border: none;
-  border-radius: 9999px;
-  padding: 0.85rem 1.35rem;
+  border-radius: 50%;
+  padding: 0;
   box-shadow: 0 10px 25px -5px rgba(16, 185, 129, 0.5), 0 8px 10px -6px rgba(16, 185, 129, 0.4);
   cursor: pointer;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  font-family: inherit;
 }
 
 .ai-fab-btn:hover {
-  transform: translateY(-3px) scale(1.03);
-  box-shadow: 0 20px 30px -10px rgba(16, 185, 129, 0.6);
+  transform: translateY(-3px) scale(1.08);
+  box-shadow: 0 16px 30px -8px rgba(16, 185, 129, 0.65);
 }
 
 .ai-fab-btn.active {
   background: #1E293B;
   color: #E2E8F0;
-  padding: 0.85rem 1.15rem;
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
 }
 
 .ai-fab-icon {
-  font-size: 1.4rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   line-height: 1;
 }
 
-.ai-fab-close {
-  font-size: 1.6rem;
-  line-height: 1;
-  font-weight: 300;
-}
-
-.ai-fab-badge {
-  font-size: 0.82rem;
-  font-weight: 600;
-  letter-spacing: 0.02em;
+@media (max-width: 768px) {
+  .ai-fab-btn {
+    bottom: 1.25rem;
+    right: 1.25rem;
+    width: 50px;
+    height: 50px;
+  }
 }
 
 /* Chat Window */
