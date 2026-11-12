@@ -71,6 +71,17 @@ export class ProfileService {
     return this.getFullAvatarUrl(url);
   }
 
+  /**
+   * Retourne l'URL du proxy PDF inline pour ouvrir le CV directement dans le lecteur PDF
+   * natif du navigateur au lieu de déclencher un téléchargement brut (ex: Cloudinary raw file_xxx).
+   */
+  getPdfViewerUrl(url: string | undefined | null): string {
+    if (!url || !url.trim()) return '';
+    const clean = url.trim();
+    const full = this.getFullAvatarUrl(clean);
+    return `/api/v1/uploads/view-pdf?url=${encodeURIComponent(full)}`;
+  }
+
   getFullAvatarUrl(url: string | undefined | null): string {
     if (!url) return '';
     if (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('data:')) {

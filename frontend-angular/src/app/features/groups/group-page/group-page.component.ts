@@ -8,6 +8,7 @@ import {
   GroupMember,
   GroupPost,
   GroupPostCreateRequest,
+  GroupCreateRequest,
   GroupMemberRole,
   GroupMemberStatus
 } from '../../../core/services/community-group.service';
@@ -41,6 +42,13 @@ import { GroupChatComponent } from '../group-chat/group-chat.component';
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
               </svg>
               <span>Supprimer</span>
+            </button>
+
+            <button (click)="switchToAdminTab()" class="btn-cover-pill" title="Modifier les paramètres et informations de la communauté">
+              <svg class="icon-svg icon-svg-xs" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125" />
+              </svg>
+              <span>Paramètres du groupe</span>
             </button>
           </div>
         </div>
@@ -121,7 +129,7 @@ import { GroupChatComponent } from '../group-chat/group-chat.component';
             *ngIf="canManageGroup()"
             class="tab-link"
             [class.active]="activeTab === 'admin'"
-            (click)="activeTab = 'admin'; loadPendingMembers(); loadBannedMembers()">
+            (click)="switchToAdminTab()">
             Administration & Modération
           </button>
         </nav>
@@ -281,8 +289,133 @@ import { GroupChatComponent } from '../group-chat/group-chat.component';
 
       <!-- ONGLET 4 : ADMINISTRATION & MODÉRATION (Tâche 3.10 & 3.12) -->
       <section *ngIf="activeTab === 'admin' && canManageGroup()" class="admin-tab-content">
-        <!-- 1. Demandes d'adhésion en attente -->
+        <!-- 1. Paramètres & Modification de la communauté -->
         <div class="admin-section">
+          <div class="admin-section-header">
+            <h3>Paramètres de la communauté</h3>
+            <span class="subtext">Modifiez les informations, la confidentialité et les règles de votre collectif</span>
+          </div>
+
+          <div class="alert alert-success" *ngIf="adminEditSuccessMessage">{{ adminEditSuccessMessage }}</div>
+          <div class="alert alert-error" *ngIf="adminEditErrorMessage">{{ adminEditErrorMessage }}</div>
+
+          <div class="admin-edit-form">
+            <!-- Nom du groupe -->
+            <div class="form-group">
+              <label for="adm-name">Nom de la communauté *</label>
+              <input
+                id="adm-name"
+                type="text"
+                [(ngModel)]="adminEditForm.name"
+                class="form-control"
+                placeholder="Ex: Dev Tech 269"
+                required
+              />
+            </div>
+
+            <!-- Description -->
+            <div class="form-group">
+              <label for="adm-desc">Description & Mission *</label>
+              <textarea
+                id="adm-desc"
+                rows="4"
+                [(ngModel)]="adminEditForm.description"
+                class="form-control"
+                placeholder="Décrivez les objectifs et les thématiques du groupe..."
+                required>
+              </textarea>
+            </div>
+
+            <!-- Niveau d'accès -->
+            <div class="form-group">
+              <label>Confidentialité & Type d'accès *</label>
+              <div class="access-grid-options">
+                <label class="access-option-label" [class.selected]="adminEditForm.accessType === 'PUBLIC'">
+                  <input type="radio" [(ngModel)]="adminEditForm.accessType" name="admAccess" value="PUBLIC" />
+                  <div>
+                    <strong>Public</strong>
+                    <span>Accessible à tous sans modération</span>
+                  </div>
+                </label>
+                <label class="access-option-label" [class.selected]="adminEditForm.accessType === 'OUVERT'">
+                  <input type="radio" [(ngModel)]="adminEditForm.accessType" name="admAccess" value="OUVERT" />
+                  <div>
+                    <strong>Sur Demande</strong>
+                    <span>Adhésion soumise à votre approbation</span>
+                  </div>
+                </label>
+                <label class="access-option-label" [class.selected]="adminEditForm.accessType === 'PRIVE'">
+                  <input type="radio" [(ngModel)]="adminEditForm.accessType" name="admAccess" value="PRIVE" />
+                  <div>
+                    <strong>Privé</strong>
+                    <span>Uniquement accessible sur invitation</span>
+                  </div>
+                </label>
+              </div>
+            </div>
+
+            <!-- Localisation -->
+            <div class="form-row-2">
+              <div class="form-group">
+                <label for="adm-country">Pays</label>
+                <input
+                  id="adm-country"
+                  type="text"
+                  [(ngModel)]="adminEditForm.country"
+                  class="form-control"
+                  placeholder="Ex: Comores"
+                />
+              </div>
+              <div class="form-group">
+                <label for="adm-city">Ville</label>
+                <input
+                  id="adm-city"
+                  type="text"
+                  [(ngModel)]="adminEditForm.city"
+                  class="form-control"
+                  placeholder="Ex: Moroni"
+                />
+              </div>
+            </div>
+
+            <!-- Tags -->
+            <div class="form-group">
+              <label for="adm-tags">Technologies & Thématiques (séparées par des virgules)</label>
+              <input
+                id="adm-tags"
+                type="text"
+                [(ngModel)]="adminEditTagsInput"
+                class="form-control"
+                placeholder="Ex: Angular, React, Spring Boot, DevOps"
+              />
+            </div>
+
+            <!-- Règles -->
+            <div class="form-group">
+              <label for="adm-rules">Charte & Règles de la communauté</label>
+              <textarea
+                id="adm-rules"
+                rows="3"
+                [(ngModel)]="adminEditForm.rulesMarkdown"
+                class="form-control"
+                placeholder="Règles d'échange, respect, non-divulgation...">
+              </textarea>
+            </div>
+
+            <div class="form-actions-row">
+              <button
+                type="button"
+                class="btn btn-emerald"
+                (click)="submitAdminEditGroup()"
+                [disabled]="!adminEditForm.name.trim() || !adminEditForm.description.trim() || isSubmittingAdminEdit">
+                {{ isSubmittingAdminEdit ? 'Enregistrement...' : 'Enregistrer les modifications' }}
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 2. Demandes d'adhésion en attente -->
+        <div class="admin-section" style="margin-top: 2rem;">
           <h3>Demandes d'adhésion en attente ({{ pendingMembers.length }})</h3>
           <div *ngIf="pendingMembers.length === 0" class="empty-state-mini">
             Aucune demande en attente.
@@ -300,7 +433,7 @@ import { GroupChatComponent } from '../group-chat/group-chat.component';
           </div>
         </div>
 
-        <!-- 2. Membres bloqués du groupe avec motif -->
+        <!-- 3. Membres bloqués du groupe avec motif -->
         <div class="admin-section" style="margin-top: 2rem;">
           <div class="admin-section-header">
             <h3>Membres bloqués ({{ bannedMembers.length }})</h3>
@@ -340,7 +473,83 @@ import { GroupChatComponent } from '../group-chat/group-chat.component';
             </div>
           </div>
         </div>
+
+        <!-- 4. Zone de Danger : Suppression du groupe -->
+        <div class="admin-section danger-zone-section" style="margin-top: 2rem;">
+          <div class="danger-header">
+            <div class="danger-icon-badge">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
+              </svg>
+            </div>
+            <div>
+              <h3>Zone de Danger</h3>
+              <p class="subtext">Supprimer définitivement la communauté et l'ensemble de ses contenus</p>
+            </div>
+          </div>
+
+          <div class="danger-body">
+            <p>
+              Cette action est <strong>irréversible</strong>. Tous les salons de chat, messages, publications et adhésions seront supprimés de manière permanente.
+            </p>
+            <button type="button" class="btn btn-danger btn-icon-text" (click)="openDeleteCommunityModal()">
+              <svg class="icon-svg icon-svg-xs" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
+              </svg>
+              <span>Supprimer la communauté</span>
+            </button>
+          </div>
+        </div>
       </section>
+
+      <!-- MODAL DE CONFIRMATION DE SUPPRESSION DE LA COMMUNAUTÉ -->
+      <div class="modal-overlay" *ngIf="showDeleteCommunityModal" (click)="closeDeleteCommunityModal()">
+        <div class="modal-card modal-delete-card animate-scale-up" (click)="$event.stopPropagation()">
+          <div class="modal-header header-danger">
+            <div class="modal-title-group">
+              <div class="ban-icon-badge">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
+                </svg>
+              </div>
+              <div>
+                <h2>Supprimer définitivement</h2>
+                <p class="modal-sub">Action irréversible</p>
+              </div>
+            </div>
+            <button class="modal-close-btn" (click)="closeDeleteCommunityModal()" title="Fermer">✕</button>
+          </div>
+
+          <div class="modal-body">
+            <div class="alert alert-error" *ngIf="deleteCommunityErrorMessage">{{ deleteCommunityErrorMessage }}</div>
+
+            <p class="delete-warning-text">
+              Êtes-vous absolument certain de vouloir supprimer la communauté <strong>« {{ group.name }} »</strong> ?
+            </p>
+
+            <div class="delete-consequences-box">
+              <p>Cette suppression est définitive et supprimera immédiatement :</p>
+              <ul>
+                <li>Tous les salons de discussion et messages de chat</li>
+                <li>L'ensemble des publications, ressources et annonces</li>
+                <li>Toutes les adhésions des membres</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="modal-footer">
+            <button type="button" class="btn btn-outline" (click)="closeDeleteCommunityModal()" [disabled]="isDeletingCommunity">
+              Annuler
+            </button>
+            <button type="button" class="btn btn-danger btn-icon-text" (click)="confirmDeleteCommunity()" [disabled]="isDeletingCommunity">
+              <svg class="icon-svg icon-svg-xs" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
+              </svg>
+              <span>{{ isDeletingCommunity ? 'Suppression en cours...' : 'Oui, supprimer définitivement' }}</span>
+            </button>
+          </div>
+        </div>
+      </div>
 
       <!-- MODAL DE BLOCAGE DE MEMBRE AVEC MOTIF -->
       <div class="modal-overlay" *ngIf="showBanModal && selectedMemberToBan" (click)="closeBanModal()">
@@ -438,6 +647,29 @@ export class GroupPageComponent implements OnInit {
   isLoadingBannedMembers = false;
   actionSuccessMessage = '';
   actionErrorMessage = '';
+
+  // Paramètres & Modification du groupe
+  adminEditForm: GroupCreateRequest = {
+    name: '',
+    slug: '',
+    description: '',
+    accessType: 'PUBLIC',
+    tags: [],
+    country: '',
+    city: '',
+    rulesMarkdown: '',
+    avatarUrl: '',
+    bannerUrl: ''
+  };
+  adminEditTagsInput = '';
+  isSubmittingAdminEdit = false;
+  adminEditErrorMessage = '';
+  adminEditSuccessMessage = '';
+
+  // Suppression du groupe (Zone de Danger)
+  showDeleteCommunityModal = false;
+  isDeletingCommunity = false;
+  deleteCommunityErrorMessage = '';
 
   // Gestion du blocage de membre
   showBanModal = false;
@@ -765,6 +997,96 @@ export class GroupPageComponent implements OnInit {
     this.groupService.moderateMember(this.group.id, member.user.id, 'BANNED').subscribe({
       next: () => {
         this.pendingMembers = this.pendingMembers.filter(m => m.id !== member.id);
+      }
+    });
+  }
+
+  // --- ADMINISTRATION & MODIFICATION DE LA COMMUNAUTÉ ---
+  switchToAdminTab(): void {
+    this.activeTab = 'admin';
+    this.initAdminEditForm();
+    this.loadPendingMembers();
+    this.loadBannedMembers();
+  }
+
+  initAdminEditForm(): void {
+    if (!this.group) return;
+    this.adminEditForm = {
+      name: this.group.name,
+      slug: this.group.slug,
+      description: this.group.description,
+      accessType: this.group.accessType,
+      tags: this.group.tags ? [...this.group.tags] : [],
+      country: this.group.country || '',
+      city: this.group.city || '',
+      rulesMarkdown: this.group.rulesMarkdown || '',
+      avatarUrl: this.group.avatarUrl,
+      bannerUrl: this.group.bannerUrl
+    };
+    this.adminEditTagsInput = this.group.tags ? this.group.tags.join(', ') : '';
+    this.adminEditErrorMessage = '';
+    this.adminEditSuccessMessage = '';
+  }
+
+  submitAdminEditGroup(): void {
+    if (!this.group) return;
+    if (!this.adminEditForm.name.trim() || !this.adminEditForm.description.trim()) {
+      this.adminEditErrorMessage = 'Le nom et la description sont obligatoires.';
+      return;
+    }
+
+    this.adminEditForm.tags = this.adminEditTagsInput
+      .split(',')
+      .map(t => t.trim().replace(/^#/, ''))
+      .filter(t => t.length > 0);
+
+    this.isSubmittingAdminEdit = true;
+    this.adminEditErrorMessage = '';
+    this.adminEditSuccessMessage = '';
+
+    this.groupService.updateGroup(this.group.id, this.adminEditForm).subscribe({
+      next: (res) => {
+        this.isSubmittingAdminEdit = false;
+        if (res.success && res.data) {
+          this.group = res.data;
+          this.adminEditSuccessMessage = 'Les paramètres de la communauté ont été enregistrés avec succès.';
+          setTimeout(() => { this.adminEditSuccessMessage = ''; }, 4000);
+        } else {
+          this.adminEditErrorMessage = 'Erreur lors de la mise à jour des paramètres.';
+        }
+      },
+      error: (err) => {
+        this.isSubmittingAdminEdit = false;
+        this.adminEditErrorMessage = err.error?.error?.message || err.error?.message || 'Erreur lors de la mise à jour des paramètres.';
+      }
+    });
+  }
+
+  // --- SUPPRESSION DE LA COMMUNAUTÉ (ZONE DE DANGER) ---
+  openDeleteCommunityModal(): void {
+    this.deleteCommunityErrorMessage = '';
+    this.showDeleteCommunityModal = true;
+  }
+
+  closeDeleteCommunityModal(): void {
+    this.showDeleteCommunityModal = false;
+    this.deleteCommunityErrorMessage = '';
+  }
+
+  confirmDeleteCommunity(): void {
+    if (!this.group) return;
+    this.isDeletingCommunity = true;
+    this.deleteCommunityErrorMessage = '';
+
+    this.groupService.deleteGroup(this.group.id).subscribe({
+      next: () => {
+        this.isDeletingCommunity = false;
+        this.showDeleteCommunityModal = false;
+        this.router.navigate(['/dashboard/groupes']);
+      },
+      error: (err) => {
+        this.isDeletingCommunity = false;
+        this.deleteCommunityErrorMessage = err.error?.error?.message || err.error?.message || 'Erreur lors de la suppression de la communauté.';
       }
     });
   }

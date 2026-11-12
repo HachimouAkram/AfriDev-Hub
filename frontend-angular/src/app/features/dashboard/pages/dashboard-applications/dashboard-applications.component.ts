@@ -20,6 +20,11 @@ export class DashboardApplicationsComponent implements OnInit {
     return this.profileService.getFullFileUrl(url);
   }
 
+  /** Retourne l'URL du visualiseur PDF inline */
+  pdfViewerUrl(url: string | undefined | null): string {
+    return this.profileService.getPdfViewerUrl(url);
+  }
+
   mySubmittedApplications = signal<Application[]>([]);
   loading = signal<boolean>(true);
 

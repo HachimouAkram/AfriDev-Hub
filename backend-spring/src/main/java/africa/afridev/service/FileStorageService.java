@@ -74,12 +74,22 @@ public class FileStorageService {
         // 1. Essai d'upload sécurisé vers Cloudinary
         try {
             if (cloudinary != null) {
-                Map<?, ?> uploadResult = cloudinary.uploader().upload(file.getBytes(), ObjectUtils.asMap(
-                        "folder", folder,
-                        "resource_type", resourceType,
-                        "use_filename", true,
-                        "unique_filename", true
-                ));
+                java.util.Map<String, Object> uploadParams = new java.util.HashMap<>();
+                uploadParams.put("folder", folder);
+                uploadParams.put("resource_type", resourceType);
+
+                if ("raw".equals(resourceType)) {
+                    // Pour les documents PDF raw, conserver l'extension .pdf dans le public_id
+                    String rawId = "doc_" + UUID.randomUUID().toString().replace("-", "").substring(0, 16) + "." + fileExtension;
+                    uploadParams.put("public_id", rawId);
+                    uploadParams.put("use_filename", false);
+                    uploadParams.put("unique_filename", false);
+                } else {
+                    uploadParams.put("use_filename", true);
+                    uploadParams.put("unique_filename", true);
+                }
+
+                Map<?, ?> uploadResult = cloudinary.uploader().upload(file.getBytes(), uploadParams);
 
                 String secureUrl = (String) uploadResult.get("secure_url");
                 if (secureUrl != null && !secureUrl.isBlank()) {

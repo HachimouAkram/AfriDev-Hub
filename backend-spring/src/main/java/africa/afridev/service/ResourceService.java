@@ -171,8 +171,7 @@ public class ResourceService {
                 .orElseThrow(() -> new IllegalArgumentException("Ressource introuvable: " + id));
 
         boolean isAuthor = resource.getAuthor() != null && resource.getAuthor().getId().equals(user.getId());
-        boolean isAdmin = user.getRoles() != null && user.getRoles().stream()
-                .anyMatch(r -> "ADMIN".equalsIgnoreCase(r.getName()) || "ROLE_ADMIN".equalsIgnoreCase(r.getName()) || "SUPER_ADMIN".equalsIgnoreCase(r.getName()));
+        boolean isAdmin = user.getRole() == africa.afridev.model.enums.Role.ADMIN;
 
         if (!isAuthor && !isAdmin) {
             throw new org.springframework.security.access.AccessDeniedException("Vous n'êtes pas autorisé à modifier cette ressource.");
@@ -217,8 +216,7 @@ public class ResourceService {
                 .orElseThrow(() -> new IllegalArgumentException("Ressource introuvable: " + id));
 
         boolean isAuthor = resource.getAuthor() != null && resource.getAuthor().getId().equals(user.getId());
-        boolean isAdmin = user.getRoles() != null && user.getRoles().stream()
-                .anyMatch(r -> "ADMIN".equalsIgnoreCase(r.getName()) || "ROLE_ADMIN".equalsIgnoreCase(r.getName()) || "SUPER_ADMIN".equalsIgnoreCase(r.getName()));
+        boolean isAdmin = user.getRole() == africa.afridev.model.enums.Role.ADMIN;
 
         if (!isAuthor && !isAdmin) {
             throw new org.springframework.security.access.AccessDeniedException("Vous n'êtes pas autorisé à supprimer cette ressource.");

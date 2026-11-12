@@ -72,7 +72,7 @@ public class ResourceController {
             @AuthenticationPrincipal UserDetails userDetails
     ) {
         resourceService.deleteResource(id, userDetails.getUsername());
-        return ResponseEntity.ok(ApiResponse.ok("Ressource supprimée avec succès", null));
+        return ResponseEntity.ok(ApiResponse.ok(null));
     }
 
     @PostMapping("/{id}/complete")

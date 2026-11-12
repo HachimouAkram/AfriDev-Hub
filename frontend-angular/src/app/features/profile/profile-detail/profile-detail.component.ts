@@ -156,6 +156,10 @@ export class ProfileDetailComponent implements OnInit {
     return this.profileService.getFullAvatarUrl(url);
   }
 
+  getCvViewerUrl(url: string | undefined | null): string {
+    return this.profileService.getPdfViewerUrl(url);
+  }
+
   /** Safely get cvUrl from profile without 'as any' in template */
   getCvUrl(profile: any): string | null {
     return profile?.cvUrl || null;

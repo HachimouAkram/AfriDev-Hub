@@ -27,6 +27,11 @@ export class DashboardOffersComponent implements OnInit {
     return this.profileService.getFullFileUrl(url);
   }
 
+  /** Retourne l'URL du visualiseur PDF inline */
+  pdfViewerUrl(url: string | undefined | null): string {
+    return this.profileService.getPdfViewerUrl(url);
+  }
+
   user = this.authService.currentUser;
   myPostedOpportunities = signal<Opportunity[]>([]);
   myReceivedApplications = signal<Application[]>([]);
@@ -162,6 +167,12 @@ export class DashboardOffersComponent implements OnInit {
       return profileCv.trim();
     }
     return null;
+  }
+
+  /** Retourne l'URL proxy pour visualiser le CV en PDF direct */
+  candidateCvViewerUrl(app: Application): string {
+    const cv = this.getCandidateCvUrl(app);
+    return this.profileService.getPdfViewerUrl(cv);
   }
 
   // --- CREATE MODAL ---

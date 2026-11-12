@@ -831,3 +831,231 @@
   }
 }
 
+/* SECTION PARAMÈTRES COMMUNAUTÉ */
+.admin-edit-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.15rem;
+  margin-top: 1rem;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.form-group label {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--text-heading, #1e293b);
+}
+
+.form-control {
+  width: 100%;
+  padding: 0.7rem 0.9rem;
+  border-radius: 10px;
+  border: 1px solid var(--border-subtle, #334155);
+  background: var(--bg-surface-card, #0f172a);
+  color: var(--text-heading, #f8fafc);
+  font-size: 0.9rem;
+  font-family: inherit;
+  transition: all 0.2s;
+}
+
+:host-context(body.light-theme) .form-control {
+  background: #ffffff;
+  color: #1e293b;
+  border-color: #cbd5e1;
+}
+
+.form-control:focus {
+  outline: none;
+  border-color: #10b981;
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2);
+}
+
+.form-row-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+@media (max-width: 600px) {
+  .form-row-2 {
+    grid-template-columns: 1fr;
+  }
+}
+
+.access-grid-options {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 0.75rem;
+}
+
+.access-option-label {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  padding: 0.85rem;
+  border: 1px solid var(--border-subtle, #334155);
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.2s;
+  background: var(--bg-surface-card, #0f172a);
+}
+
+:host-context(body.light-theme) .access-option-label {
+  background: #ffffff;
+  border-color: #cbd5e1;
+}
+
+.access-option-label:hover {
+  border-color: #10b981;
+}
+
+.access-option-label.selected {
+  border-color: #10b981;
+  background: rgba(16, 185, 129, 0.08);
+}
+
+.access-option-label strong {
+  display: block;
+  font-size: 0.85rem;
+  color: var(--text-heading, #f8fafc);
+}
+
+:host-context(body.light-theme) .access-option-label strong {
+  color: #1e293b;
+}
+
+.access-option-label span {
+  font-size: 0.75rem;
+  color: var(--text-muted, #94a3b8);
+  line-height: 1.25;
+}
+
+.form-actions-row {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 0.5rem;
+}
+
+/* ZONE DE DANGER */
+.danger-zone-section {
+  border: 1px solid rgba(239, 68, 68, 0.35) !important;
+  background: rgba(239, 68, 68, 0.04) !important;
+  border-radius: 16px;
+  padding: 1.5rem;
+}
+
+.danger-header {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  margin-bottom: 1rem;
+}
+
+.danger-icon-badge {
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  background: rgba(239, 68, 68, 0.15);
+  color: #ef4444;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.danger-icon-badge svg {
+  width: 22px;
+  height: 22px;
+}
+
+.danger-header h3 {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: #ef4444;
+}
+
+.danger-body {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.danger-body p {
+  margin: 0;
+  font-size: 0.875rem;
+  color: var(--text-muted, #94a3b8);
+  max-width: 580px;
+}
+
+.danger-body strong {
+  color: #ef4444;
+}
+
+.btn-danger {
+  background: #ef4444;
+  color: #fff;
+  border: none;
+  font-weight: 700;
+  padding: 0.65rem 1.15rem;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-danger:hover {
+  background: #dc2626;
+  filter: brightness(1.08);
+}
+
+/* MODAL SUPPRESSION */
+.modal-delete-card {
+  max-width: 500px;
+}
+
+.header-danger {
+  border-bottom: 1px solid rgba(239, 68, 68, 0.2);
+}
+
+.delete-warning-text {
+  font-size: 0.95rem;
+  color: var(--text-heading, #f8fafc);
+  line-height: 1.5;
+  margin: 0;
+}
+
+:host-context(body.light-theme) .delete-warning-text {
+  color: #1e293b;
+}
+
+.delete-consequences-box {
+  background: rgba(239, 68, 68, 0.08);
+  border: 1px solid rgba(239, 68, 68, 0.25);
+  border-radius: 10px;
+  padding: 0.9rem 1rem;
+  font-size: 0.825rem;
+  margin-top: 0.75rem;
+}
+
+.delete-consequences-box p {
+  margin: 0 0 0.5rem;
+  font-weight: 700;
+  color: #ef4444;
+}
+
+.delete-consequences-box ul {
+  margin: 0;
+  padding-left: 1.25rem;
+  color: var(--text-muted, #94a3b8);
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+

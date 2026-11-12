@@ -43,6 +43,12 @@ class CommunityGroupServiceTest {
     private GroupPostRepository postRepository;
 
     @Mock
+    private africa.afridev.repository.GroupChannelRepository channelRepository;
+
+    @Mock
+    private africa.afridev.repository.GroupChatMessageRepository chatMessageRepository;
+
+    @Mock
     private UserRepository userRepository;
 
     @Mock

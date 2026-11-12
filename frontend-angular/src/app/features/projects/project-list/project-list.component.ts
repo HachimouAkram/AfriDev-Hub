@@ -10,6 +10,7 @@ import { ProjectCollaborationService, ProjectMember, ProjectTask, ProjectProgres
 import { PaymentService, PaymentProvider, PaymentMethod, PAYMENT_LOGOS } from '../../../core/services/payment.service';
 import { AIService, AIAuditResult } from '../../../core/services/ai.service';
 import { TranslationService } from '../../../core/services/translation.service';
+import { ProfileService } from '../../../core/services/profile.service';
 
 @Component({
   selector: 'app-project-list',
@@ -28,6 +29,7 @@ export class ProjectListComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private paymentService = inject(PaymentService);
   private aiService = inject(AIService);
+  private profileService = inject(ProfileService);
   public translationService = inject(TranslationService);
 
   projects: Project[] = [];
@@ -765,11 +767,7 @@ export class ProjectListComponent implements OnInit {
   }
 
   getCvDisplayUrl(url: string): string {
-    if (!url) return '';
-    if (url.startsWith('http://') || url.startsWith('https://')) {
-      return url;
-    }
-    return '/api/v1' + url;
+    return this.profileService.getPdfViewerUrl(url);
   }
 
   getMediaUrl(url: string | undefined | null): string {

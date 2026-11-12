@@ -162,7 +162,7 @@
         <input type="file" accept="application/pdf" (change)="onCvSelected($event)" style="display: none;">
       </label>
       <!-- View CV link if CV exists -->
-      <a *ngIf="profile.cvUrl" [href]="getAvatarUrl(profile.cvUrl)" target="_blank" class="btn btn-outline btn-sm" title="Consulter mon CV PDF">
+      <a *ngIf="profile.cvUrl" [href]="getCvViewerUrl(profile.cvUrl)" target="_blank" rel="noopener" class="btn btn-outline btn-sm" title="Consulter mon CV PDF">
         <svg class="icon-svg icon-svg-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -214,8 +214,9 @@
         <!-- Consulter CV du membre visité ou badge aucun CV -->
         <a 
           *ngIf="hasCv(profile)"
-          [href]="getAvatarUrl(getCvUrl(profile))" 
+          [href]="getCvViewerUrl(getCvUrl(profile))" 
           target="_blank" 
+          rel="noopener"
           class="btn btn-outline" 
           title="Consulter le CV PDF de ce développeur">
           <svg class="icon-svg icon-svg-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor">
@@ -402,8 +403,9 @@
 
         <!-- CV Download Card -->
         <a *ngIf="hasCv(profile)"
-           [href]="getAvatarUrl(getCvUrl(profile))"
+           [href]="getCvViewerUrl(getCvUrl(profile))"
            target="_blank"
+           rel="noopener"
            class="cv-badge-card">
           <div class="cv-badge-icon">
             <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">

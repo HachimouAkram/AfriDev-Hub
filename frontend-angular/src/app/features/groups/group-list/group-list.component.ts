@@ -2,7 +2,7 @@ import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
-import { CommunityGroupService, Group } from '../../../core/services/community-group.service';
+import { CommunityGroupService, Group, GroupCreateRequest, GroupAccessType } from '../../../core/services/community-group.service';
 import { GroupCardComponent } from '../group-card/group-card.component';
 import { POPULAR_TAGS } from '../../../core/services/help.service';
 
@@ -133,7 +133,9 @@ import { POPULAR_TAGS } from '../../../core/services/help.service';
           <app-group-card
             *ngFor="let g of groups"
             [group]="g"
-            (joinRequested)="onJoinGroup($event)">
+            (joinRequested)="onJoinGroup($event)"
+            (editRequested)="openEditModal($event)"
+            (deleteRequested)="openDeleteModal($event)">
           </app-group-card>
         </div>
 
@@ -144,6 +146,182 @@ import { POPULAR_TAGS } from '../../../core/services/help.service';
           <button class="filter-pill-btn" [disabled]="currentPage >= totalPages - 1" (click)="goToPage(currentPage + 1)">Suivant</button>
         </div>
       </section>
+
+      <!-- MODAL MODIFICATION COMMUNAUTÉ -->
+      <div class="modal-overlay" *ngIf="showEditModal && editingGroup" (click)="closeEditModal()">
+        <div class="modal-card animate-scale-up" (click)="$event.stopPropagation()">
+          <div class="modal-header">
+            <div class="modal-title-group">
+              <div class="modal-icon-badge">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125" />
+                </svg>
+              </div>
+              <div>
+                <h2>Modifier la communauté</h2>
+                <p class="modal-sub">Mettez à jour les paramètres et informations de votre collectif</p>
+              </div>
+            </div>
+            <button class="modal-close-btn" (click)="closeEditModal()" title="Fermer">✕</button>
+          </div>
+
+          <div class="modal-body">
+            <div class="alert alert-error" *ngIf="editErrorMessage">{{ editErrorMessage }}</div>
+
+            <!-- Nom -->
+            <div class="form-group">
+              <label for="edit-name">Nom de la communauté *</label>
+              <input
+                id="edit-name"
+                type="text"
+                [(ngModel)]="editForm.name"
+                class="form-control"
+                placeholder="Ex: Angular Dakar Hub"
+                required
+              />
+            </div>
+
+            <!-- Description -->
+            <div class="form-group">
+              <label for="edit-desc">Description & Mission *</label>
+              <textarea
+                id="edit-desc"
+                rows="4"
+                [(ngModel)]="editForm.description"
+                class="form-control"
+                placeholder="Décrivez les objectifs et les thématiques du groupe..."
+                required>
+              </textarea>
+            </div>
+
+            <!-- Niveau d'accès -->
+            <div class="form-group">
+              <label>Type d'accès & Confidentialité *</label>
+              <div class="access-grid-options">
+                <label class="access-option-label" [class.selected]="editForm.accessType === 'PUBLIC'">
+                  <input type="radio" [(ngModel)]="editForm.accessType" name="editAccess" value="PUBLIC" />
+                  <div>
+                    <strong>Public</strong>
+                    <span>Ouvert à tous sans modération</span>
+                  </div>
+                </label>
+                <label class="access-option-label" [class.selected]="editForm.accessType === 'OUVERT'">
+                  <input type="radio" [(ngModel)]="editForm.accessType" name="editAccess" value="OUVERT" />
+                  <div>
+                    <strong>Sur Demande</strong>
+                    <span>Adhésion soumise à validation</span>
+                  </div>
+                </label>
+                <label class="access-option-label" [class.selected]="editForm.accessType === 'PRIVE'">
+                  <input type="radio" [(ngModel)]="editForm.accessType" name="editAccess" value="PRIVE" />
+                  <div>
+                    <strong>Privé</strong>
+                    <span>Sur invitation uniquement</span>
+                  </div>
+                </label>
+              </div>
+            </div>
+
+            <!-- Localisation -->
+            <div class="form-row-2">
+              <div class="form-group">
+                <label for="edit-country">Pays</label>
+                <input
+                  id="edit-country"
+                  type="text"
+                  [(ngModel)]="editForm.country"
+                  class="form-control"
+                  placeholder="Ex: Comores, Sénégal, Cameroun..."
+                />
+              </div>
+              <div class="form-group">
+                <label for="edit-city">Ville</label>
+                <input
+                  id="edit-city"
+                  type="text"
+                  [(ngModel)]="editForm.city"
+                  class="form-control"
+                  placeholder="Ex: Moroni, Dakar, Douala..."
+                />
+              </div>
+            </div>
+
+            <!-- Tags -->
+            <div class="form-group">
+              <label for="edit-tags">Technologies & Thématiques (séparées par des virgules)</label>
+              <input
+                id="edit-tags"
+                type="text"
+                [(ngModel)]="editTagsInput"
+                class="form-control"
+                placeholder="Ex: Angular, Spring Boot, DevOps, Cloud"
+              />
+            </div>
+
+            <!-- Règles -->
+            <div class="form-group">
+              <label for="edit-rules">Charte & Règles de bonne conduite</label>
+              <textarea
+                id="edit-rules"
+                rows="3"
+                [(ngModel)]="editForm.rulesMarkdown"
+                class="form-control"
+                placeholder="Règles de courtoisie, entraide bienveillante...">
+              </textarea>
+            </div>
+          </div>
+
+          <div class="modal-footer">
+            <button class="btn btn-outline" (click)="closeEditModal()" [disabled]="isSubmittingEdit">Annuler</button>
+            <button class="btn btn-emerald" (click)="submitEditGroup()" [disabled]="!editForm.name.trim() || !editForm.description.trim() || isSubmittingEdit">
+              {{ isSubmittingEdit ? 'Enregistrement...' : 'Enregistrer les modifications' }}
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- MODAL CONFIRMATION SUPPRESSION COMMUNAUTÉ -->
+      <div class="modal-overlay" *ngIf="showDeleteModal && groupToDelete" (click)="closeDeleteModal()">
+        <div class="modal-card modal-delete-card animate-scale-up" (click)="$event.stopPropagation()">
+          <div class="modal-header header-danger">
+            <div class="modal-title-group">
+              <div class="modal-icon-badge badge-danger">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
+                </svg>
+              </div>
+              <div>
+                <h2>Supprimer la communauté</h2>
+                <p class="modal-sub">Action irréversible</p>
+              </div>
+            </div>
+            <button class="modal-close-btn" (click)="closeDeleteModal()" title="Fermer">✕</button>
+          </div>
+
+          <div class="modal-body">
+            <div class="alert alert-error" *ngIf="deleteErrorMessage">{{ deleteErrorMessage }}</div>
+
+            <p class="delete-warning-text">
+              Êtes-vous certain de vouloir supprimer définitivement la communauté <strong>« {{ groupToDelete.name }} »</strong> ?
+            </p>
+            <div class="delete-consequences-box">
+              <p>Cette action irréversible entraînera :</p>
+              <ul>
+                <li>La suppression de tous les salons et messages de chat</li>
+                <li>La suppression de toutes les publications de la communauté</li>
+                <li>Le retrait automatique de l'ensemble des membres</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="modal-footer">
+            <button class="btn btn-outline" (click)="closeDeleteModal()" [disabled]="isDeletingGroup">Annuler</button>
+            <button class="btn btn-danger" (click)="confirmDeleteGroup()" [disabled]="isDeletingGroup">
+              {{ isDeletingGroup ? 'Suppression en cours...' : 'Oui, supprimer définitivement' }}
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
   `,
   styleUrls: ['./group-list.component.css']
@@ -168,6 +346,31 @@ export class GroupListComponent implements OnInit {
   popularTags = ['Angular', 'Spring Boot', 'Python', 'DevOps', 'Mobile', 'Data', 'Web'];
   actionSuccessMessage = '';
   private searchTimer?: any;
+
+  // État Modal d'Édition
+  showEditModal = false;
+  editingGroup: Group | null = null;
+  editForm: GroupCreateRequest = {
+    name: '',
+    slug: '',
+    description: '',
+    accessType: 'PUBLIC',
+    tags: [],
+    country: '',
+    city: '',
+    rulesMarkdown: '',
+    avatarUrl: '',
+    bannerUrl: ''
+  };
+  editTagsInput = '';
+  isSubmittingEdit = false;
+  editErrorMessage = '';
+
+  // État Modal de Suppression
+  showDeleteModal = false;
+  groupToDelete: Group | null = null;
+  isDeletingGroup = false;
+  deleteErrorMessage = '';
 
   ngOnInit(): void {
     this.loadGroups();
@@ -242,6 +445,101 @@ export class GroupListComponent implements OnInit {
           }
           setTimeout(() => { this.actionSuccessMessage = ''; }, 4000);
         }
+      }
+    });
+  }
+
+  // --- ACTIONS D'ÉDITION ---
+  openEditModal(group: Group): void {
+    this.editingGroup = group;
+    this.editForm = {
+      name: group.name,
+      slug: group.slug,
+      description: group.description,
+      accessType: group.accessType,
+      tags: group.tags ? [...group.tags] : [],
+      country: group.country || '',
+      city: group.city || '',
+      rulesMarkdown: group.rulesMarkdown || '',
+      avatarUrl: group.avatarUrl,
+      bannerUrl: group.bannerUrl
+    };
+    this.editTagsInput = group.tags ? group.tags.join(', ') : '';
+    this.editErrorMessage = '';
+    this.showEditModal = true;
+  }
+
+  closeEditModal(): void {
+    this.showEditModal = false;
+    this.editingGroup = null;
+    this.editErrorMessage = '';
+  }
+
+  submitEditGroup(): void {
+    if (!this.editingGroup) return;
+    if (!this.editForm.name.trim() || !this.editForm.description.trim()) {
+      this.editErrorMessage = 'Le nom et la description sont obligatoires.';
+      return;
+    }
+
+    // Traitement des tags
+    this.editForm.tags = this.editTagsInput
+      .split(',')
+      .map(t => t.trim().replace(/^#/, ''))
+      .filter(t => t.length > 0);
+
+    this.isSubmittingEdit = true;
+    this.editErrorMessage = '';
+
+    this.groupService.updateGroup(this.editingGroup.id, this.editForm).subscribe({
+      next: (res) => {
+        this.isSubmittingEdit = false;
+        if (res.success && res.data) {
+          this.actionSuccessMessage = `La communauté "${res.data.name}" a été mise à jour avec succès.`;
+          this.closeEditModal();
+          this.loadGroups();
+          setTimeout(() => { this.actionSuccessMessage = ''; }, 4000);
+        } else {
+          this.editErrorMessage = 'Erreur lors de la mise à jour de la communauté.';
+        }
+      },
+      error: (err) => {
+        this.isSubmittingEdit = false;
+        this.editErrorMessage = err.error?.error?.message || err.error?.message || 'Erreur lors de la mise à jour de la communauté.';
+      }
+    });
+  }
+
+  // --- ACTIONS DE SUPPRESSION ---
+  openDeleteModal(group: Group): void {
+    this.groupToDelete = group;
+    this.deleteErrorMessage = '';
+    this.showDeleteModal = true;
+  }
+
+  closeDeleteModal(): void {
+    this.showDeleteModal = false;
+    this.groupToDelete = null;
+    this.deleteErrorMessage = '';
+  }
+
+  confirmDeleteGroup(): void {
+    if (!this.groupToDelete) return;
+    const deletedGroupName = this.groupToDelete.name;
+    this.isDeletingGroup = true;
+    this.deleteErrorMessage = '';
+
+    this.groupService.deleteGroup(this.groupToDelete.id).subscribe({
+      next: (res) => {
+        this.isDeletingGroup = false;
+        this.actionSuccessMessage = `La communauté "${deletedGroupName}" a été supprimée avec succès.`;
+        this.closeDeleteModal();
+        this.loadGroups();
+        setTimeout(() => { this.actionSuccessMessage = ''; }, 4000);
+      },
+      error: (err) => {
+        this.isDeletingGroup = false;
+        this.deleteErrorMessage = err.error?.error?.message || err.error?.message || 'Erreur lors de la suppression de la communauté.';
       }
     });
   }

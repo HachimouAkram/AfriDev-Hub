@@ -7,6 +7,7 @@ import { ProjectService, Project, ProjectComment, ProjectType, SaleType, SaasPri
 import { AuthService } from '../../../../core/services/auth.service';
 import { FollowService, FollowStats } from '../../../../core/services/follow.service';
 import { ProjectCollaborationService, ProjectMember, ProjectTask, ProjectProgress, TaskStatus, TaskPriority, MemberStatus } from '../../../../core/services/project-collaboration.service';
+import { ProfileService } from '../../../../core/services/profile.service';
 import { compressImage } from '../../../../core/utils/upload-helper';
 
 @Component({
@@ -21,6 +22,7 @@ export class DashboardProjectsComponent implements OnInit {
   public authService = inject(AuthService);
   private followService = inject(FollowService);
   private collaborationService = inject(ProjectCollaborationService);
+  private profileService = inject(ProfileService);
   private sanitizer = inject(DomSanitizer);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
@@ -1124,11 +1126,7 @@ export class DashboardProjectsComponent implements OnInit {
   }
 
   getCvDisplayUrl(url?: string): string {
-    if (!url) return '';
-    if (url.startsWith('http://') || url.startsWith('https://')) {
-      return url;
-    }
-    return '/api/v1' + url;
+    return this.profileService.getPdfViewerUrl(url);
   }
 
   filterCollabTasksByStatus(status: TaskStatus): ProjectTask[] {

@@ -1,11 +1,14 @@
 package africa.afridev.service;
 
 import africa.afridev.dto.group.*;
+import africa.afridev.model.entity.GroupChannelEntity;
 import africa.afridev.model.entity.GroupEntity;
 import africa.afridev.model.entity.GroupMembershipEntity;
 import africa.afridev.model.entity.GroupPostEntity;
 import africa.afridev.model.entity.UserEntity;
 import africa.afridev.model.enums.*;
+import africa.afridev.repository.GroupChannelRepository;
+import africa.afridev.repository.GroupChatMessageRepository;
 import africa.afridev.repository.GroupMembershipRepository;
 import africa.afridev.repository.GroupPostRepository;
 import africa.afridev.repository.GroupRepository;
@@ -30,6 +33,8 @@ public class CommunityGroupService {
     private final GroupRepository groupRepository;
     private final GroupMembershipRepository membershipRepository;
     private final GroupPostRepository postRepository;
+    private final GroupChannelRepository channelRepository;
+    private final GroupChatMessageRepository chatMessageRepository;
     private final UserRepository userRepository;
     private final AuthService authService;
     private final NotificationService notificationService;
@@ -145,11 +150,48 @@ public class CommunityGroupService {
     @Transactional
     public void deleteGroup(String userEmail, String groupId) {
         GroupEntity group = getGroupOrThrow(groupId);
-        if (!group.getOwner().getEmail().equals(userEmail)) {
-            throw new IllegalStateException("Seul le créateur peut supprimer ce groupe.");
+        boolean isOwner = group.getOwner().getEmail().equalsIgnoreCase(userEmail);
+        boolean isGroupAdmin = isUserGroupAdmin(group, userEmail);
+
+        if (!isOwner && !isGroupAdmin) {
+            throw new IllegalStateException("Seul le créateur ou un administrateur peut supprimer ce groupe.");
         }
+
+        // 1. Suppression des messages de canaux et des canaux
+        List<GroupChannelEntity> channels = channelRepository.findByGroupIdOrderByPositionAscCreatedAtAsc(groupId);
+        for (GroupChannelEntity channel : channels) {
+            var messages = chatMessageRepository.findByChannelIdOrderByCreatedAtDesc(channel.getId(), Pageable.unpaged()).getContent();
+            if (!messages.isEmpty()) {
+                chatMessageRepository.deleteAll(messages);
+            }
+        }
+        if (!channels.isEmpty()) {
+            channelRepository.deleteAll(channels);
+        }
+
+        // 2. Suppression des publications du groupe
+        var posts = postRepository.findByGroupIdOrderByIsPinnedDescCreatedAtDesc(groupId, Pageable.unpaged()).getContent();
+        if (!posts.isEmpty()) {
+            postRepository.deleteAll(posts);
+        }
+
+        // 3. Suppression des adhésions (membres actifs, en attente, bannis)
+        var members = membershipRepository.findByGroupIdAndStatusOrderByRoleAscJoinedAtAsc(groupId, GroupMemberStatus.ACTIVE, Pageable.unpaged()).getContent();
+        if (!members.isEmpty()) {
+            membershipRepository.deleteAll(members);
+        }
+        var pending = membershipRepository.findByGroupIdAndStatusOrderByRoleAscJoinedAtAsc(groupId, GroupMemberStatus.PENDING, Pageable.unpaged()).getContent();
+        if (!pending.isEmpty()) {
+            membershipRepository.deleteAll(pending);
+        }
+        var banned = membershipRepository.findByGroupIdAndStatusOrderByRoleAscJoinedAtAsc(groupId, GroupMemberStatus.BANNED, Pageable.unpaged()).getContent();
+        if (!banned.isEmpty()) {
+            membershipRepository.deleteAll(banned);
+        }
+
+        // 4. Suppression définitive du groupe
         groupRepository.delete(group);
-        log.info("[COMMUNITY] Groupe '{}' supprimé par {}", groupId, userEmail);
+        log.info("[COMMUNITY] Groupe '{}' ({}) supprimé par {}", group.getName(), groupId, userEmail);
     }
 
     // ==========================================
