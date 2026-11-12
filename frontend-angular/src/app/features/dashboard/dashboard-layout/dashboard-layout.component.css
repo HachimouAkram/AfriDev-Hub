@@ -39,6 +39,7 @@
   width: 76px;
   min-width: 76px;
   padding: 1.25rem 0.5rem;
+  overflow-x: hidden;
 }
 
 .dashboard-sidebar.collapsed .sidebar-header {
@@ -61,12 +62,30 @@
   display: none !important;
 }
 
+/* Hide all text badges on collapsed sidebar to prevent text overflow & icon overlap */
 .dashboard-sidebar.collapsed .nav-badge {
+  display: none !important;
+}
+
+/* Small notification indicator only for numeric counters (e.g. applications/offers) */
+.dashboard-sidebar.collapsed .nav-badge.nav-badge-count {
+  display: flex !important;
   position: absolute;
   top: 4px;
-  right: 6px;
-  padding: 0.1rem 0.35rem;
-  font-size: 0.65rem;
+  right: 12px;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 4px;
+  font-size: 0.625rem;
+  font-weight: 800;
+  border-radius: 999px;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+}
+
+.dashboard-sidebar.collapsed .sidebar-section-header {
+  display: none !important;
 }
 
 .sidebar-header {
