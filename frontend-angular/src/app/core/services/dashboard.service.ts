@@ -25,3 +25,4 @@ export class DashboardService {
     return this.http.get<ApiResponse<DashboardKpiResponse>>(`${this.apiUrl}/kpis`);
   }
 }
+

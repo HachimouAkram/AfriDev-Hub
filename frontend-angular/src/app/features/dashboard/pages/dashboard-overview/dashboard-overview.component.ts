@@ -152,27 +152,49 @@ export class DashboardOverviewComponent implements OnInit {
           this.totalApplicationsCount.set(kpis.totalApplications);
         }
       },
-      error: (err) => console.warn('Fallback chargement local KPI', err)
+      error: (err) => console.warn('Cache Redis KPI indisponible, fallback requêtes directes :', err)
     });
 
-    // 2. Charger les projets en arrière-plan pour le widget Top Projets
+    // 2. Charger les projets (fallback compteurs + calcul widget Top Projets)
     this.projectService.getMyProjects(0, 50).subscribe({
       next: (res) => {
         if (res?.success && res.data) {
           const projects: Project[] = res.data.content || res.data || [];
+          this.totalProjectsCount.set(res.data.totalElements || projects.length);
           this.calculateTopProjects(projects);
         }
       }
     });
 
-    // 3. Charger les candidatures en arrière-plan pour le graphique chronologique d'activité
+    // 3. Charger les candidatures (fallback compteurs + graphique chronologique d'activité)
     this.opportunityService.getMyApplications().subscribe({
       next: (res) => {
         if (res?.success && res.data) {
+          this.totalApplicationsCount.set(res.data.length);
           this.buildPersonalActivityTimeline(res.data);
         }
       }
     });
+
+    // 4. Charger les opportunités publiées (fallback compteur)
+    this.opportunityService.getMyPostedOpportunities().subscribe({
+      next: (res) => {
+        if (res?.success && res.data) {
+          this.totalOpportunitiesCount.set(res.data.length);
+        }
+      }
+    });
+
+    // 5. Charger les relations réseau (fallback compteur)
+    if (u?.id) {
+      this.followService.getStats(u.id).subscribe({
+        next: (res) => {
+          if (res?.success && res.data) {
+            this.totalRelationsCount.set(res.data.followingCount ?? 0);
+          }
+        }
+      });
+    }
   }
 
   private buildPersonalActivityTimeline(applications: any[]): void {

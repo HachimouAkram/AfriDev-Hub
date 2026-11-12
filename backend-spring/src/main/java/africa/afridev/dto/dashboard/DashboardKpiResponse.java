@@ -23,3 +23,4 @@ public class DashboardKpiResponse implements Serializable {
     private int levelNumber;
     private boolean cached;
 }
+
