@@ -2010,5 +2010,115 @@ body.light-theme .xp-progress-bar-track {
   box-shadow: 0 4px 14px rgba(16, 185, 129, 0.4);
 }
 
+/* ==========================================================================
+   CV In-App PDF Viewer Modal
+   ========================================================================== */
+.modal-pdf-overlay {
+  z-index: 1050;
+  backdrop-filter: blur(8px);
+}
+
+.modal-pdf-card {
+  max-width: 960px !important;
+  width: 95vw !important;
+  height: 88vh !important;
+  max-height: 88vh !important;
+  display: flex !important;
+  flex-direction: column !important;
+  background: var(--bg-surface-card, #111827);
+  border: 1px solid var(--border-light, rgba(255, 255, 255, 0.1));
+  border-radius: 16px;
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.6);
+  overflow: hidden !important;
+}
+
+.modal-title-group {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.pdf-icon-badge {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: rgba(239, 68, 68, 0.15);
+  color: #EF4444;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.pdf-icon-badge svg {
+  width: 20px;
+  height: 20px;
+}
+
+.modal-actions-group {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.modal-pdf-body {
+  flex: 1 1 auto !important;
+  height: 100% !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  position: relative;
+  background: #1e293b;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden !important;
+}
+
+.pdf-loading-state {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  background: var(--bg-surface-card, #111827);
+  color: var(--text-muted, #94a3b8);
+  font-size: 0.95rem;
+  z-index: 10;
+}
+
+.pdf-iframe-viewer {
+  width: 100% !important;
+  height: 100% !important;
+  flex: 1 1 auto !important;
+  border: none !important;
+  background: #525659;
+}
+
+.clickable-cv-card {
+  cursor: pointer;
+  transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.clickable-cv-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(16, 185, 129, 0.4);
+  box-shadow: 0 8px 24px rgba(16, 185, 129, 0.12);
+}
+
+@media (max-width: 768px) {
+  .modal-pdf-card {
+    width: 100% !important;
+    max-width: 100% !important;
+    height: 94dvh !important;
+    max-height: 94dvh !important;
+    border-radius: 16px 16px 0 0 !important;
+  }
+
+  .modal-actions-group span {
+    display: none;
+  }
+}
+
 
 

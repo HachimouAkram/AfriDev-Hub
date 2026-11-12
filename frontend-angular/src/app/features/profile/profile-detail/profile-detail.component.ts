@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Location } from '@angular/common';
 import { Router, ActivatedRoute, RouterLink } from '@angular/router';
+import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { AuthService, Profile, User, LoginSession } from '../../../core/services/auth.service';
 import { ProfileService, GitHubStats } from '../../../core/services/profile.service';
 import { FollowService, FollowStats } from '../../../core/services/follow.service';
@@ -32,6 +33,7 @@ export class ProfileDetailComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private location = inject(Location);
+  private sanitizer = inject(DomSanitizer);
 
   profile: Profile | null = null;
   targetUserId: string | null = null;
@@ -40,6 +42,13 @@ export class ProfileDetailComponent implements OnInit {
   currentUser = this.authService.currentUser;
   isLoggedIn = () => this.authService.isLoggedIn();
   isOwnProfile = false;
+
+  // Modal Visionneuse PDF
+  showPdfModal = false;
+  safeCvUrl: SafeResourceUrl | null = null;
+  currentCvBlobUrl: string | null = null;
+  isLoadingPdf = false;
+  pdfLoadError = false;
 
   // Activities & Reputation
   userProjects: Project[] = [];
@@ -158,6 +167,59 @@ export class ProfileDetailComponent implements OnInit {
 
   getCvViewerUrl(url: string | undefined | null): string {
     return this.profileService.getPdfViewerUrl(url);
+  }
+
+  openCvViewer(rawUrl?: string | null): void {
+    if (!rawUrl) return;
+    const fullUrl = this.profileService.getFullAvatarUrl(rawUrl);
+    this.isLoadingPdf = true;
+    this.pdfLoadError = false;
+    this.showPdfModal = true;
+
+    // Récupérer le blob en forçant application/pdf pour que l'iframe ou le navigateur l'affiche comme PDF
+    fetch(fullUrl)
+      .then(res => {
+        if (!res.ok) throw new Error('Status ' + res.status);
+        return res.blob();
+      })
+      .then(blob => {
+        const pdfBlob = new Blob([blob], { type: 'application/pdf' });
+        if (this.currentCvBlobUrl) {
+          URL.revokeObjectURL(this.currentCvBlobUrl);
+        }
+        this.currentCvBlobUrl = URL.createObjectURL(pdfBlob);
+        this.safeCvUrl = this.sanitizer.bypassSecurityTrustResourceUrl(this.currentCvBlobUrl);
+        this.isLoadingPdf = false;
+      })
+      .catch(err => {
+        console.warn('Erreur chargement PDF blob, fallback URL directe:', err);
+        this.safeCvUrl = this.sanitizer.bypassSecurityTrustResourceUrl(fullUrl);
+        this.isLoadingPdf = false;
+      });
+  }
+
+  closePdfModal(): void {
+    this.showPdfModal = false;
+    this.safeCvUrl = null;
+  }
+
+  openPdfInNewTab(): void {
+    if (this.currentCvBlobUrl) {
+      window.open(this.currentCvBlobUrl, '_blank');
+    } else if (this.profile?.cvUrl) {
+      this.profileService.openPdfInNewTab(this.profile.cvUrl);
+    }
+  }
+
+  downloadCv(): void {
+    const url = this.currentCvBlobUrl || (this.profile?.cvUrl ? this.profileService.getFullAvatarUrl(this.profile.cvUrl) : null);
+    if (!url) return;
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `CV_${this.profile?.fullName?.replace(/\s+/g, '_') || 'Developpeur'}.pdf`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
   }
 
   /** Safely get cvUrl from profile without 'as any' in template */
@@ -720,24 +782,24 @@ export class ProfileDetailComponent implements OnInit {
   }
 
   getXpProgress(xp: number = 0): { percent: number; nextLevelXp: number; remainingXp: number; nextLevelTitle: string } {
-    if (xp >= 3501) {
-      return { percent: 100, nextLevelXp: 3501, remainingXp: 0, nextLevelTitle: 'Leader' };
-    } else if (xp >= 1801) {
-      const min = 1801, max = 3500;
+    if (xp >= 7000) {
+      return { percent: 100, nextLevelXp: 7000, remainingXp: 0, nextLevelTitle: 'Leader' };
+    } else if (xp >= 4000) {
+      const min = 4000, max = 6999;
       const percent = Math.min(100, Math.max(0, Math.round(((xp - min) / (max - min)) * 100)));
-      return { percent, nextLevelXp: 3501, remainingXp: 3501 - xp, nextLevelTitle: 'Leader' };
-    } else if (xp >= 751) {
-      const min = 751, max = 1800;
+      return { percent, nextLevelXp: 7000, remainingXp: 7000 - xp, nextLevelTitle: 'Leader' };
+    } else if (xp >= 2000) {
+      const min = 2000, max = 3999;
       const percent = Math.min(100, Math.max(0, Math.round(((xp - min) / (max - min)) * 100)));
-      return { percent, nextLevelXp: 1801, remainingXp: 1801 - xp, nextLevelTitle: 'Tech' };
-    } else if (xp >= 251) {
-      const min = 251, max = 750;
+      return { percent, nextLevelXp: 4000, remainingXp: 4000 - xp, nextLevelTitle: 'Tech' };
+    } else if (xp >= 500) {
+      const min = 500, max = 1999;
       const percent = Math.min(100, Math.max(0, Math.round(((xp - min) / (max - min)) * 100)));
-      return { percent, nextLevelXp: 751, remainingXp: 751 - xp, nextLevelTitle: 'Expert' };
+      return { percent, nextLevelXp: 2000, remainingXp: 2000 - xp, nextLevelTitle: 'Expert' };
     } else {
-      const max = 250;
+      const max = 499;
       const percent = Math.min(100, Math.max(0, Math.round((xp / max) * 100)));
-      return { percent, nextLevelXp: 251, remainingXp: 251 - xp, nextLevelTitle: 'Senior' };
+      return { percent, nextLevelXp: 500, remainingXp: 500 - xp, nextLevelTitle: 'Senior' };
     }
   }
 

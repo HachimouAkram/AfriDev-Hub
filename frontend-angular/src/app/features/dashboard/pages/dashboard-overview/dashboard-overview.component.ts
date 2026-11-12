@@ -332,24 +332,24 @@ export class DashboardOverviewComponent implements OnInit {
   }
 
   getXpProgress(xp: number = 0): { percent: number; nextLevelXp: number; remainingXp: number; nextLevelTitle: string } {
-    if (xp >= 3501) {
-      return { percent: 100, nextLevelXp: 3501, remainingXp: 0, nextLevelTitle: 'Leader' };
-    } else if (xp >= 1801) {
-      const min = 1801, max = 3500;
+    if (xp >= 7000) {
+      return { percent: 100, nextLevelXp: 7000, remainingXp: 0, nextLevelTitle: 'Leader' };
+    } else if (xp >= 4000) {
+      const min = 4000, max = 6999;
       const percent = Math.min(100, Math.max(0, Math.round(((xp - min) / (max - min)) * 100)));
-      return { percent, nextLevelXp: 3501, remainingXp: 3501 - xp, nextLevelTitle: 'Leader' };
-    } else if (xp >= 751) {
-      const min = 751, max = 1800;
+      return { percent, nextLevelXp: 7000, remainingXp: 7000 - xp, nextLevelTitle: 'Leader' };
+    } else if (xp >= 2000) {
+      const min = 2000, max = 3999;
       const percent = Math.min(100, Math.max(0, Math.round(((xp - min) / (max - min)) * 100)));
-      return { percent, nextLevelXp: 1801, remainingXp: 1801 - xp, nextLevelTitle: 'Tech' };
-    } else if (xp >= 251) {
-      const min = 251, max = 750;
+      return { percent, nextLevelXp: 4000, remainingXp: 4000 - xp, nextLevelTitle: 'Tech' };
+    } else if (xp >= 500) {
+      const min = 500, max = 1999;
       const percent = Math.min(100, Math.max(0, Math.round(((xp - min) / (max - min)) * 100)));
-      return { percent, nextLevelXp: 751, remainingXp: 751 - xp, nextLevelTitle: 'Expert' };
+      return { percent, nextLevelXp: 2000, remainingXp: 2000 - xp, nextLevelTitle: 'Expert' };
     } else {
-      const max = 250;
+      const max = 499;
       const percent = Math.min(100, Math.max(0, Math.round((xp / max) * 100)));
-      return { percent, nextLevelXp: 251, remainingXp: 251 - xp, nextLevelTitle: 'Senior' };
+      return { percent, nextLevelXp: 500, remainingXp: 500 - xp, nextLevelTitle: 'Senior' };
     }
   }
 }

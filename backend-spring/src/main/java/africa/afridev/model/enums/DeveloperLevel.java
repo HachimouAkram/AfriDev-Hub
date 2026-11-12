@@ -4,11 +4,11 @@ import lombok.Getter;
 
 @Getter
 public enum DeveloperLevel {
-    JUNIOR(1, "Junior", 0L, 250L, "🟢"),
-    SENIOR(2, "Senior", 251L, 750L, "🔵"),
-    EXPERT(3, "Expert", 751L, 1800L, "🟣"),
-    TECH(4, "Tech", 1801L, 3500L, "🟠"),
-    LEADER(5, "Leader", 3501L, Long.MAX_VALUE, "👑");
+    JUNIOR(1, "Junior", 0L, 499L, "🟢"),
+    SENIOR(2, "Senior", 500L, 1999L, "🔵"),
+    EXPERT(3, "Expert", 2000L, 3999L, "🟣"),
+    TECH(4, "Tech", 4000L, 6999L, "🟠"),
+    LEADER(5, "Leader", 7000L, Long.MAX_VALUE, "👑");
 
     private final int level;
     private final String title;
@@ -25,10 +25,10 @@ public enum DeveloperLevel {
     }
 
     public static DeveloperLevel fromXp(long xp) {
-        if (xp <= 250L) return JUNIOR;
-        if (xp <= 750L) return SENIOR;
-        if (xp <= 1800L) return EXPERT;
-        if (xp <= 3500L) return TECH;
+        if (xp < 500L) return JUNIOR;
+        if (xp < 2000L) return SENIOR;
+        if (xp < 4000L) return EXPERT;
+        if (xp < 7000L) return TECH;
         return LEADER;
     }
 }

@@ -72,14 +72,35 @@ export class ProfileService {
   }
 
   /**
-   * Retourne l'URL du proxy PDF inline pour ouvrir le CV directement dans le lecteur PDF
-   * natif du navigateur au lieu de déclencher un téléchargement brut (ex: Cloudinary raw file_xxx).
+   * Retourne l'URL complète d'un document ou image téléversée.
    */
   getPdfViewerUrl(url: string | undefined | null): string {
     if (!url || !url.trim()) return '';
-    const clean = url.trim();
-    const full = this.getFullAvatarUrl(clean);
-    return `/api/v1/uploads/view-pdf?url=${encodeURIComponent(full)}`;
+    return this.getFullAvatarUrl(url.trim());
+  }
+
+  /**
+   * Ouvre un document PDF dans un nouvel onglet avec un Blob typé application/pdf
+   * pour forcer l'affichage dans le lecteur PDF natif du navigateur sans téléchargement de fichier brut.
+   */
+  openPdfInNewTab(url: string | undefined | null, defaultFilename = 'CV.pdf'): void {
+    if (!url || !url.trim()) return;
+    const fullUrl = this.getFullAvatarUrl(url.trim());
+
+    fetch(fullUrl)
+      .then(res => {
+        if (!res.ok) throw new Error('Status ' + res.status);
+        return res.blob();
+      })
+      .then(rawBlob => {
+        const pdfBlob = new Blob([rawBlob], { type: 'application/pdf' });
+        const blobUrl = URL.createObjectURL(pdfBlob);
+        window.open(blobUrl, '_blank');
+      })
+      .catch(err => {
+        console.warn('Fallback ouverture directe PDF :', err);
+        window.open(fullUrl, '_blank');
+      });
   }
 
   getFullAvatarUrl(url: string | undefined | null): string {
