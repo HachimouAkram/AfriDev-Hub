@@ -1,35 +1,87 @@
 <div class="resources-page">
-  <!-- Hero Section -->
-  <header class="resources-hero">
-    <div class="hero-content">
-      <div class="hero-badge">
+  <!-- 1. Header Section Card (Même style que Réseau) -->
+  <div class="header-section app-card">
+    <div class="header-text">
+      <div class="header-badge-inline">
         <span class="badge-dot"></span>
         <span>AfriDev Academy 🎓</span>
       </div>
-      <h1 class="hero-title">{{ t('resources.title') }}</h1>
-      <p class="hero-subtitle">{{ t('resources.subtitle') }}</p>
+      <h1>{{ t('resources.title') }}</h1>
+      <p>{{ t('resources.subtitle') }}</p>
+    </div>
 
-      <!-- Language selector chips -->
-      <div class="lang-chips-row">
-        <button class="chip" [class.active]="selectedLang() === 'ALL'" (click)="setFilterLang('ALL')">Toutes les langues</button>
-        <button class="chip" [class.active]="selectedLang() === 'fr'" (click)="setFilterLang('fr')">🇫🇷 Français</button>
-        <button class="chip" [class.active]="selectedLang() === 'en'" (click)="setFilterLang('en')">🇬🇧 English</button>
-        <button class="chip" [class.active]="selectedLang() === 'wo'" (click)="setFilterLang('wo')">🇸🇳 Wolof</button>
-        <button class="chip" [class.active]="selectedLang() === 'sw'" (click)="setFilterLang('sw')">🇹🇿 Kiswahili</button>
+    <!-- Counters & Publish CTA Button -->
+    <div class="header-right-actions">
+      <div class="stats-pills">
+        <div class="stat-pill">
+          <span class="stat-val">{{ resources().length }}</span>
+          <span class="stat-lbl">Formations Disponibles</span>
+        </div>
       </div>
 
-      <!-- Community Publish CTA -->
-      <div class="hero-cta-row">
-        <button type="button" class="hero-publish-btn" (click)="openPublishModal()">
+      <div class="header-cta-buttons">
+        <button type="button" class="btn-primary hero-publish-btn" (click)="openPublishModal()">
           <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
             <path d="M12 5v14M5 12h14"/>
           </svg>
           <span>Publier une vidéo / formation</span>
         </button>
-        <span class="hero-publish-hint">Gratuit ou payant via <strong>SasPay</strong> (Wave, Orange Money, Carte)</span>
       </div>
     </div>
-  </header>
+  </div>
+
+  <!-- 2. Controls Card (Même style que Réseau) -->
+  <div class="controls-card app-card">
+    <!-- Row 1: Language Tabs -->
+    <div class="tabs-group">
+      <button class="tab-btn" [class.active]="selectedLang() === 'ALL'" (click)="setFilterLang('ALL')">
+        Toutes les langues
+      </button>
+      <button class="tab-btn" [class.active]="selectedLang() === 'fr'" (click)="setFilterLang('fr')">
+        🇫🇷 Français
+      </button>
+      <button class="tab-btn" [class.active]="selectedLang() === 'en'" (click)="setFilterLang('en')">
+        🇬🇧 English
+      </button>
+      <button class="tab-btn" [class.active]="selectedLang() === 'wo'" (click)="setFilterLang('wo')">
+        🇸🇳 Wolof
+      </button>
+      <button class="tab-btn" [class.active]="selectedLang() === 'sw'" (click)="setFilterLang('sw')">
+        🇹🇿 Kiswahili
+      </button>
+    </div>
+
+    <!-- Row 2: Technologies Pills -->
+    <div class="sort-bar-row">
+      <span class="sort-label">TECHNOLOGIES :</span>
+      <div class="sort-pills-list">
+        <button class="sort-pill-btn" [class.active]="selectedTech() === 'ALL'" (click)="setFilterTech('ALL')">
+          Toutes les technos
+        </button>
+        <button *ngFor="let tech of techList" class="sort-pill-btn" [class.active]="selectedTech() === tech" (click)="setFilterTech(tech)">
+          {{ tech }}
+        </button>
+      </div>
+    </div>
+
+    <!-- Row 3: Niveau & Filtre Gratuit/Payant -->
+    <div class="filter-controls-row">
+      <div class="select-wrapper">
+        <select class="form-input mini-input" [ngModel]="selectedLevel()" (ngModelChange)="setFilterLevel($event)">
+          <option value="ALL">Tous les niveaux</option>
+          <option value="BEGINNER">{{ t('resources.beginner') }}</option>
+          <option value="INTERMEDIATE">{{ t('resources.intermediate') }}</option>
+          <option value="ADVANCED">{{ t('resources.advanced') }}</option>
+        </select>
+      </div>
+
+      <button class="free-toggle-btn" [class.active]="onlyFree()" (click)="toggleFree()">
+        <span>{{ onlyFree() ? '✓ Uniquement Gratuit' : 'Tous (Gratuit & Payant)' }}</span>
+      </button>
+
+      <span class="hero-publish-hint">Monétisation disponible via <strong>SasPay</strong> (Wave, Orange Money, Carte)</span>
+    </div>
+  </div>
 
   <div class="container main-content">
     <!-- Status Banners (Publication / SasPay Verification) -->
@@ -41,31 +93,6 @@
     <div *ngIf="publishBannerNotice()" class="status-banner banner-success">
       <span>{{ publishBannerNotice() }}</span>
       <button type="button" class="banner-dismiss" (click)="publishBannerNotice.set(null)" aria-label="Fermer">✕</button>
-    </div>
-
-    <!-- Filter bar -->
-    <div class="filter-bar">
-      <!-- Tech filters -->
-      <div class="tech-pills">
-        <button class="tech-pill" [class.active]="selectedTech() === 'ALL'" (click)="setFilterTech('ALL')">Toutes les technos</button>
-        <button *ngFor="let tech of techList" class="tech-pill" [class.active]="selectedTech() === tech" (click)="setFilterTech(tech)">
-          {{ tech }}
-        </button>
-      </div>
-
-      <!-- Level & Paid filters -->
-      <div class="filter-controls">
-        <select class="form-select" [ngModel]="selectedLevel()" (ngModelChange)="setFilterLevel($event)">
-          <option value="ALL">Tous les niveaux</option>
-          <option value="BEGINNER">{{ t('resources.beginner') }}</option>
-          <option value="INTERMEDIATE">{{ t('resources.intermediate') }}</option>
-          <option value="ADVANCED">{{ t('resources.advanced') }}</option>
-        </select>
-
-        <button class="free-toggle-btn" [class.active]="onlyFree()" (click)="toggleFree()">
-          {{ onlyFree() ? '✓ Uniquement Gratuit' : 'Tous (Gratuit & Payant)' }}
-        </button>
-      </div>
     </div>
 
     <!-- Loading Skeleton -->

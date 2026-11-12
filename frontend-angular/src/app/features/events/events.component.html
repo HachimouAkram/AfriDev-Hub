@@ -5,65 +5,74 @@
     <span>{{ successToast }}</span>
   </div>
 
-  <!-- Hero Header -->
-  <header class="events-hero">
-    <div class="hero-badge">
-      <i class="ri-calendar-check-line"></i> Écosystème Tech Panafricain
+  <!-- Header Section Card (Même style que Réseau) -->
+  <div class="header-section app-card">
+    <div class="header-text">
+      <h1>Événements & Meetups Tech</h1>
+      <p>Découvrez et participez aux plus grandes conférences, hackathons et meetups locaux à travers le continent africain. Votez pour soutenir les initiatives tech qui comptent.</p>
     </div>
-    <h1>Événements & Meetups Tech</h1>
-    <p>
-      Découvrez et participez aux plus grandes conférences, hackathons et meetups locaux à travers le continent africain.
-      Votez pour soutenir les initiatives tech qui comptent.
-    </p>
 
-    <div class="hero-actions">
-      <div class="search-box">
-        <i class="ri-search-line search-icon"></i>
+    <!-- Counters Badge & Header Action Buttons -->
+    <div class="header-right-actions">
+      <div class="stats-pills">
+        <div class="stat-pill">
+          <span class="stat-val">{{ totalEvents() || events().length }}</span>
+          <span class="stat-lbl">Événements Actifs</span>
+        </div>
+      </div>
+
+      <div class="header-cta-buttons">
+        <a *ngIf="authService.isLoggedIn()" routerLink="/dashboard/events" class="btn-dashboard-events">
+          <i class="ri-dashboard-line"></i> Mes événements
+        </a>
+        <button (click)="openCreateModal()" class="btn-primary create-btn">
+          <i class="ri-add-circle-line"></i> Proposer un événement
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filter Navigation & Search Bar (Controls Card identique à Réseau) -->
+  <div class="controls-card app-card">
+    <!-- Row 1: Catégories / Tabs -->
+    <div class="tabs-group">
+      <button 
+        *ngFor="let item of eventTypes" 
+        class="tab-btn" 
+        [class.active]="activeFilter === item.key"
+        (click)="setFilter(item.key)">
+        <i [class]="item.icon"></i>
+        <span>{{ item.label }}</span>
+      </button>
+    </div>
+
+    <!-- Row 2: Search Input -->
+    <div class="search-bar-row">
+      <div class="input-with-icon">
+        <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
+        </svg>
         <input 
           type="text" 
           [(ngModel)]="searchQuery" 
-          placeholder="Rechercher par titre, ville, pays ou mot-clé (ex: Python, FinTech, Dakar)..." />
-        <button *ngIf="searchQuery" (click)="searchQuery = ''" class="clear-btn">
-          <i class="ri-close-line"></i>
+          placeholder="Rechercher par titre, ville, pays ou mot-clé (ex: Python, FinTech, Dakar)..." 
+          class="form-input">
+      </div>
+    </div>
+
+    <!-- Row 3: Trier par Pills -->
+    <div class="sort-bar-row">
+      <span class="sort-label">TRIER PAR :</span>
+      <div class="sort-pills-list">
+        <button 
+          *ngFor="let opt of sortOptions" 
+          class="sort-pill-btn" 
+          [class.active]="currentSort === opt.key"
+          (click)="setSort(opt.key)">
+          <i [class]="opt.icon"></i>
+          <span>{{ opt.label }}</span>
         </button>
       </div>
-
-      <a *ngIf="authService.isLoggedIn()" routerLink="/dashboard/events" class="btn-dashboard-events">
-        <i class="ri-dashboard-line"></i> Mes événements
-      </a>
-
-      <button (click)="openCreateModal()" class="btn-primary create-btn">
-        <i class="ri-add-circle-line"></i> Proposer un événement
-      </button>
-    </div>
-  </header>
-
-  <!-- Filter Pills -->
-  <div class="filters-nav">
-    <button 
-      *ngFor="let item of eventTypes" 
-      class="filter-pill" 
-      [class.active]="activeFilter === item.key"
-      (click)="setFilter(item.key)">
-      <i [class]="item.icon"></i>
-      <span>{{ item.label }}</span>
-    </button>
-  </div>
-
-  <!-- Sort / Recommendation Pills -->
-  <div class="sort-pills-bar">
-    <span class="sort-pills-label">
-      <i class="ri-sparkling-fill"></i> Trier & Recommander :
-    </span>
-    <div class="sort-pills">
-      <button 
-        *ngFor="let opt of sortOptions" 
-        class="sort-pill" 
-        [class.active]="currentSort === opt.key"
-        (click)="setSort(opt.key)">
-        <i [class]="opt.icon"></i>
-        <span>{{ opt.label }}</span>
-      </button>
     </div>
   </div>
 

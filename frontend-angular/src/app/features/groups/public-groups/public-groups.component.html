@@ -5,42 +5,74 @@
     <span>{{ successToast }}</span>
   </div>
 
-  <!-- Hero Header Vitrine -->
-  <header class="events-hero">
-    <div class="hero-badge">
-      <i class="ri-team-line"></i> Écosystème & Collectifs Panafricains
+  <!-- Header Section Card (Même style que Réseau) -->
+  <div class="header-section app-card">
+    <div class="header-text">
+      <h1>Communautés & Groupes Tech</h1>
+      <p>Rejoignez des collectifs de développeurs par technologie, pays ou centre d'intérêt à travers toute l'Afrique. Partagez vos savoirs, découvrez des ressources exclusives et collaborez avec vos pairs.</p>
     </div>
-    <h1>Communautés & Groupes Tech</h1>
-    <p>
-      Rejoignez des collectifs de développeurs par technologie, pays ou centre d'intérêt à travers toute l'Afrique.
-      Partagez vos savoirs, découvrez des ressources exclusives et collaborez avec vos pairs.
-    </p>
 
-    <div class="hero-actions">
-      <div class="search-box">
-        <i class="ri-search-line search-icon"></i>
-        <input
-          type="text"
-          [(ngModel)]="searchQuery"
-          (ngModelChange)="onSearchChange()"
-          placeholder="Rechercher une communauté, un pays ou une techno (ex: Angular Dakar, Python, Cloud)..." />
-        <button *ngIf="searchQuery" (click)="clearSearch()" class="clear-btn">
-          <i class="ri-close-line"></i>
-        </button>
+    <!-- Counters Badge & Action Buttons -->
+    <div class="header-right-actions">
+      <div class="stats-pills">
+        <div class="stat-pill">
+          <span class="stat-val">{{ filteredGroups.length }}</span>
+          <span class="stat-lbl">Collectifs Actifs</span>
+        </div>
       </div>
 
-      <a *ngIf="authService.isLoggedIn()" routerLink="/dashboard/groupes" class="btn-dashboard-events">
-        <i class="ri-dashboard-line"></i> Mes communautés ({{ myGroups.length }})
-      </a>
+      <div class="header-cta-buttons">
+        <a *ngIf="authService.isLoggedIn()" routerLink="/dashboard/groupes" class="btn-dashboard-events">
+          <i class="ri-dashboard-line"></i> Mes communautés ({{ myGroups.length }})
+        </a>
 
-      <a
-        [routerLink]="authService.isLoggedIn() ? '/dashboard/groupes/creer' : '/register'"
-        [queryParams]="authService.isLoggedIn() ? null : { returnUrl: '/dashboard/groupes/creer' }"
-        class="btn-primary create-btn">
-        <i class="ri-add-circle-line"></i> Créer une communauté
-      </a>
+        <a
+          [routerLink]="authService.isLoggedIn() ? '/dashboard/groupes/creer' : '/register'"
+          [queryParams]="authService.isLoggedIn() ? null : { returnUrl: '/dashboard/groupes/creer' }"
+          class="btn-primary create-btn">
+          <i class="ri-add-circle-line"></i> Créer une communauté
+        </a>
+      </div>
     </div>
-  </header>
+  </div>
+
+  <!-- Filter Navigation & Search Bar (Controls Card identique à Réseau) -->
+  <div class="controls-card app-card">
+    <!-- Row 1: Catégories / Tabs -->
+    <div class="tabs-group">
+      <button 
+        *ngFor="let cat of categories" 
+        class="tab-btn" 
+        [class.active]="activeCategory === cat.key"
+        (click)="setCategory(cat.key)">
+        <i [class]="cat.icon"></i>
+        <span>{{ cat.label }}</span>
+      </button>
+    </div>
+
+    <!-- Row 2: Search Inputs & Filtre Pays -->
+    <div class="search-bar-row">
+      <div class="input-with-icon">
+        <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
+        </svg>
+        <input 
+          type="text" 
+          [(ngModel)]="searchQuery" 
+          (ngModelChange)="onSearchChange()" 
+          placeholder="Rechercher une communauté, un pays ou une techno (ex: Angular Dakar, Python, Cloud)..." 
+          class="form-input">
+      </div>
+
+      <div class="select-wrapper">
+        <select [(ngModel)]="selectedCountry" (ngModelChange)="setCountry(selectedCountry)" class="form-input mini-input">
+          <option *ngFor="let c of countries" [value]="c">
+            {{ c === 'ALL' ? 'Tous les pays' : c }}
+          </option>
+        </select>
+      </div>
+    </div>
+  </div>
 
   <!-- ========================================================================= -->
   <!-- SECTION 1 : VOS COMMUNAUTÉS (Si connecté et actif)                        -->
@@ -250,36 +282,6 @@
       <div class="total-count-pill" *ngIf="!isLoading">
         <i class="ri-community-line"></i>
         <span><strong>{{ filteredGroups.length }}</strong> communauté(s) disponible(s)</span>
-      </div>
-    </div>
-
-    <!-- Filtres par Domaine / Technologie -->
-    <div class="filters-nav">
-      <button
-        *ngFor="let cat of categories"
-        class="filter-pill"
-        [class.active]="activeCategory === cat.key"
-        (click)="setCategory(cat.key)">
-        <i [class]="cat.icon"></i>
-        <span>{{ cat.label }}</span>
-      </button>
-    </div>
-
-    <!-- Filtre par Pays & Accès -->
-    <div class="sort-pills-bar">
-      <div class="filter-group-inline">
-        <span class="sort-pills-label">
-          <i class="ri-global-line"></i> Filtrer par pays :
-        </span>
-        <div class="sort-pills">
-          <button
-            *ngFor="let c of countries"
-            class="sort-pill"
-            [class.active]="selectedCountry === c"
-            (click)="setCountry(c)">
-            <span>{{ c === 'ALL' ? 'Tous les pays' : c }}</span>
-          </button>
-        </div>
       </div>
     </div>
 
