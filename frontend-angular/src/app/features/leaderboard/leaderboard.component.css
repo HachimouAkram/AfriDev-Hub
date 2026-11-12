@@ -20,7 +20,8 @@
 }
 
 .header-text h1,
-.header-text h2 {
+.header-text h2,
+.header-text-group h2 {
   font-family: var(--font-heading, inherit);
   font-size: 1.35rem;
   font-weight: 800;
@@ -30,7 +31,8 @@
   color: var(--text-heading, #ffffff);
 }
 
-.header-text p {
+.header-text p,
+.header-text-group .subtext {
   font-size: 0.875rem;
   color: var(--text-muted, #64748b);
   margin: 0;

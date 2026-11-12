@@ -449,6 +449,42 @@ h4 {
   color: var(--text-muted) !important;
 }
 
+/* ==========================================================================
+   STANDARD TYPOGRAPHIQUE DASHBOARD (CALIBRÉ STRICTEMENT SUR LA PAGE EVENTS)
+   ========================================================================== */
+.dashboard-body .projects-header-card h2,
+.dashboard-body .header-card h2,
+.dashboard-body .header-section h2,
+.dashboard-body .header-section h1,
+.dashboard-body .section-header-row h2,
+.dashboard-body .header-text-group h2,
+.dashboard-body .header-text h1,
+.dashboard-body .header-text h2,
+.dashboard-body .header-left h2 {
+  font-family: var(--font-heading, inherit) !important;
+  font-size: 1.35rem !important;
+  font-weight: 800 !important;
+  line-height: 1.3 !important;
+  letter-spacing: normal !important;
+  color: var(--text-heading, #ffffff) !important;
+  margin: 0 0 0.25rem !important;
+}
+
+.dashboard-body .subtext,
+.dashboard-body .header-card .subtext,
+.dashboard-body .header-text-group p,
+.dashboard-body .header-text-group .subtext,
+.dashboard-body .header-section p,
+.dashboard-body .header-text p,
+.dashboard-body .section-subtext,
+.dashboard-body .header-left .subtext {
+  font-size: 0.875rem !important;
+  line-height: 1.5 !important;
+  color: var(--text-muted, #64748b) !important;
+  margin: 0 !important;
+  max-width: 650px !important;
+}
+
 .section-big-title,
 .section-header h2 {
   color: var(--text-heading) !important;
