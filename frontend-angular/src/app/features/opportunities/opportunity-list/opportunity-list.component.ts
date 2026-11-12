@@ -6,10 +6,13 @@ import { AuthService } from '../../../core/services/auth.service';
 import { OpportunityService, Opportunity } from '../../../core/services/opportunity.service';
 import { ProfileService } from '../../../core/services/profile.service';
 
+import { RouterLink } from '@angular/router';
+import { CompanyBadgeComponent } from '../../../shared/components/company-badge/company-badge.component';
+
 @Component({
   selector: 'app-opportunity-list',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, RouterLink, CompanyBadgeComponent],
   templateUrl: './opportunity-list.component.html',
   styleUrl: './opportunity-list.component.css'
 })

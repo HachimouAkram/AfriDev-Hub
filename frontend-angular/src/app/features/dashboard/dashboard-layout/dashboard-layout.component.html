@@ -60,8 +60,88 @@
         </a>
       </ng-container>
 
-      <!-- 2. SECTIONS DÉVELOPPEUR & RECRUTEUR (UNIQUEMENT POUR UTILISATEURS NON-ADMIN) -->
-      <ng-container *ngIf="!isAdmin()">
+      <!-- 2. SECTIONS RECRUTEUR (EXCLUSIF QUAND ROLE === 'RECRUITER') -->
+      <ng-container *ngIf="!isAdmin() && isRecruiter()">
+        <div class="sidebar-section-header" *ngIf="!isSidebarCollapsed()">ESPACE ENTREPRISE</div>
+
+        <a routerLink="/dashboard/recruiter" (click)="closeMobileSidebar()" [routerLinkActiveOptions]="{exact: true}" routerLinkActive="active" class="nav-item" [title]="isSidebarCollapsed() ? 'Cockpit Entreprise' : ''">
+          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.75 21h16.5M4.5 3h15M5.25 3v18m13.5-18v18M9 6.75h1.5m-1.5 3h1.5m-1.5 3h1.5m3-6H15m-1.5 3H15m-1.5 3H15M9 21v-3.375c0-.621.504-1.125 1.125-1.125h3.75c.621 0 1.125.504 1.125 1.125V21" />
+          </svg>
+          <span class="nav-label">Cockpit Entreprise</span>
+        </a>
+
+        <a routerLink="/dashboard/recruiter/offers" (click)="closeMobileSidebar()" routerLinkActive="active" class="nav-item" [title]="isSidebarCollapsed() ? 'Offres & Recrutement' : ''">
+          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.25 14.15v4.25c0 1.094-.787 2.036-1.872 2.18-2.087.277-4.216.42-6.378.42s-4.291-.143-6.378-.42c-1.085-.144-1.872-1.086-1.872-2.18v-4.25m16.5 0a2.18 2.18 0 00.75-1.661V8.706c0-1.081-.768-2.015-1.837-2.175a48.114 48.114 0 00-3.413-.387m4.5 8.006c-.194.165-.42.295-.673.38A23.978 23.978 0 0112 15.75c-2.648 0-5.195-.429-7.577-1.22a2.016 2.016 0 01-.673-.38m0 0A2.18 2.18 0 013 12.489V8.706c0-1.081.768-2.015 1.837-2.175a48.111 48.111 0 013.413-.387m7.5 0V4.5a2.25 2.25 0 00-2.25-2.25h-3a2.25 2.25 0 00-2.25 2.25v1.644m6 0a47.4 47.4 0 01-6 0" />
+          </svg>
+          <span class="nav-label">Offres Publiées</span>
+        </a>
+
+        <a routerLink="/dashboard/recruiter/applications" (click)="closeMobileSidebar()" routerLinkActive="active" class="nav-item" [title]="isSidebarCollapsed() ? 'Candidatures reçues' : ''">
+          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
+          </svg>
+          <span class="nav-label">Candidatures</span>
+          <span class="nav-badge nav-badge-count" *ngIf="receivedAppsCount()">{{ receivedAppsCount() }}</span>
+        </a>
+
+        <a routerLink="/dashboard/messages" (click)="closeMobileSidebar()" routerLinkActive="active" class="nav-item" [title]="isSidebarCollapsed() ? 'Messagerie' : ''">
+          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.625 12a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H8.25m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H12m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0h-.375M21 12c0 4.556-4.03 8.25-9 8.25a9.764 9.764 0 01-2.555-.337A5.972 5.972 0 015.41 20.97a.598.598 0 01-.743-.598l.147-1.44a5.962 5.962 0 01-1.814-4.432C3 10.444 7.03 6.75 12 6.75s9 3.694 9 8.25z" />
+          </svg>
+          <span class="nav-label">Messages Talents</span>
+        </a>
+
+        <div class="sidebar-section-header" *ngIf="!isSidebarCollapsed()">ACTIONS & ÉQUIPE</div>
+
+        <a routerLink="/dashboard/recruiter/events" (click)="closeMobileSidebar()" routerLinkActive="active" class="nav-item" [title]="isSidebarCollapsed() ? 'Événements Tech' : ''">
+          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 9v7.5" />
+          </svg>
+          <span class="nav-label">Événements</span>
+          <span class="nav-badge badge-event" *ngIf="!isSidebarCollapsed()">+75 XP</span>
+        </a>
+
+        <a routerLink="/dashboard/recruiter/resources" (click)="closeMobileSidebar()" routerLinkActive="active" class="nav-item" [title]="isSidebarCollapsed() ? 'Formations' : ''">
+          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" />
+          </svg>
+          <span class="nav-label">Formations</span>
+          <span class="nav-badge" style="background: rgba(16, 185, 129, 0.2); color: #10b981;" *ngIf="!isSidebarCollapsed()">+40 XP</span>
+        </a>
+
+        <a routerLink="/dashboard/groupes" (click)="closeMobileSidebar()" routerLinkActive="active" class="nav-item" [title]="isSidebarCollapsed() ? 'Communautés' : ''">
+          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 18.72a9.094 9.094 0 003.741-.479 3 3 0 00-4.682-2.72m.94 3.198l.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0112 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 016 18.719m12 0a5.971 5.971 0 00-.941-3.197m0 0A5.995 5.995 0 0012 12.75a5.995 5.995 0 00-5.058 2.772m0 0a3 3 0 00-4.681 2.72 8.986 8.986 0 003.74.477m.94-3.197a5.971 5.971 0 00-.94 3.197M15 6.75a3 3 0 11-6 0 3 3 0 016 0zm6 3a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0zm-13.5 0a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z" />
+          </svg>
+          <span class="nav-label">Communautés</span>
+        </a>
+
+        <a routerLink="/dashboard/recruiter/team" (click)="closeMobileSidebar()" routerLinkActive="active" class="nav-item" [title]="isSidebarCollapsed() ? 'Équipe Recruteurs' : ''">
+          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z" />
+          </svg>
+          <span class="nav-label">Équipe & Rôles</span>
+        </a>
+
+        <a routerLink="/dashboard/recruiter/activity-log" (click)="closeMobileSidebar()" routerLinkActive="active" class="nav-item" [title]="isSidebarCollapsed() ? 'Journal Activité' : ''">
+          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
+          </svg>
+          <span class="nav-label">Journal Équipe</span>
+        </a>
+
+        <a routerLink="/leaderboard/companies" (click)="closeMobileSidebar()" routerLinkActive="active" class="nav-item" [title]="isSidebarCollapsed() ? 'Classement Entreprises' : ''">
+          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16.5 18.75h-9m9 0a3 3 0 013 3h-15a3 3 0 013-3m9 0v-3.375c0-.621-.504-1.125-1.125-1.125h-.871M7.5 18.75v-3.375c0-.621.504-1.125 1.125-1.125h.872m5.003 0V4.875c0-.621-.504-1.125-1.125-1.125h-2.25c-.621 0-1.125.504-1.125 1.125v9.375m5.003 0H9.497" />
+          </svg>
+          <span class="nav-label">Classement Entreprises</span>
+        </a>
+      </ng-container>
+
+      <!-- 3. SECTIONS DÉVELOPPEUR CLASSIQUE (QUAND ROLE !== 'RECRUITER' ET NON-ADMIN) -->
+      <ng-container *ngIf="!isAdmin() && !isRecruiter()">
         <a routerLink="/dashboard" (click)="closeMobileSidebar()" [routerLinkActiveOptions]="{exact: true}" routerLinkActive="active" class="nav-item" [title]="isSidebarCollapsed() ? 'Tableau de bord' : ''">
           <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" />
@@ -163,12 +243,12 @@
     <div class="sidebar-footer">
       <div class="sidebar-section-header" *ngIf="!isSidebarCollapsed()">ESPACE</div>
 
-      <!-- Profil Utilisateur & Super Admin -->
-      <a [routerLink]="isAdmin() ? '/admin/profile' : '/dashboard/profile'" (click)="closeMobileSidebar()" [class.active]="isAdminProfileActive()" routerLinkActive="active" class="nav-item" [title]="isSidebarCollapsed() ? 'Mon Profil' : ''">
+      <!-- Profil Utilisateur & Super Admin & Recruteur -->
+      <a [routerLink]="isAdmin() ? '/admin/profile' : (isRecruiter() ? '/dashboard/recruiter/profile' : '/dashboard/profile')" (click)="closeMobileSidebar()" [class.active]="isAdminProfileActive()" routerLinkActive="active" class="nav-item" [title]="isSidebarCollapsed() ? 'Mon Profil' : ''">
         <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
         </svg>
-        <span class="nav-label">{{ isSuperAdmin() ? 'Mon Profil (Super Admin)' : (isAdmin() ? 'Mon Profil (Admin)' : 'Mon Profil') }}</span>
+        <span class="nav-label">{{ isSuperAdmin() ? 'Mon Profil (Super Admin)' : (isAdmin() ? 'Mon Profil (Admin)' : (isRecruiter() ? 'Profil Entreprise' : 'Mon Profil')) }}</span>
       </a>
 
       <a routerLink="/" (click)="closeMobileSidebar()" class="nav-item link-site-btn" [title]="isSidebarCollapsed() ? 'Voir le site' : ''">

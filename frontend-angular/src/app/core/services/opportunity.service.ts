@@ -24,6 +24,12 @@ export interface Opportunity {
   matchedStack?: string[];
   isPublisherFollowed?: boolean;
   hasApplied?: boolean;
+  companyId?: string;
+  companyName?: string;
+  companySlug?: string;
+  companyLogoUrl?: string;
+  companyBadge?: string;
+  companyLevel?: string;
 }
 
 export interface Application {

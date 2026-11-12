@@ -1,6 +1,8 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './core/guards/auth.guard';
 import { adminGuard } from './core/guards/admin.guard';
+import { recruiterGuard } from './core/guards/recruiter.guard';
+import { developerGuard } from './core/guards/developer.guard';
 
 export const routes: Routes = [
   {
@@ -42,6 +44,7 @@ export const routes: Routes = [
       },
       {
         path: 'projects',
+        canActivate: [developerGuard],
         loadComponent: () => import('./features/dashboard/pages/dashboard-projects/dashboard-projects.component').then(m => m.DashboardProjectsComponent)
       },
       {
@@ -95,6 +98,45 @@ export const routes: Routes = [
       {
         path: 'groupes/:slug',
         loadComponent: () => import('./features/groups/group-page/group-page.component').then(m => m.GroupPageComponent)
+      },
+      // Espace Cockpit Recruteur
+      {
+        path: 'recruiter',
+        canActivate: [recruiterGuard],
+        children: [
+          {
+            path: '',
+            loadComponent: () => import('./features/dashboard/recruiter/recruiter-overview.component').then(m => m.RecruiterOverviewComponent)
+          },
+          {
+            path: 'offers',
+            loadComponent: () => import('./features/dashboard/recruiter/recruiter-opportunities.component').then(m => m.RecruiterOpportunitiesComponent)
+          },
+          {
+            path: 'applications',
+            loadComponent: () => import('./features/dashboard/recruiter/recruiter-applications.component').then(m => m.RecruiterApplicationsComponent)
+          },
+          {
+            path: 'events',
+            loadComponent: () => import('./features/dashboard/recruiter/recruiter-events.component').then(m => m.RecruiterEventsComponent)
+          },
+          {
+            path: 'resources',
+            loadComponent: () => import('./features/dashboard/recruiter/recruiter-resources.component').then(m => m.RecruiterResourcesComponent)
+          },
+          {
+            path: 'team',
+            loadComponent: () => import('./features/dashboard/recruiter/recruiter-team.component').then(m => m.RecruiterTeamComponent)
+          },
+          {
+            path: 'activity-log',
+            loadComponent: () => import('./features/dashboard/recruiter/recruiter-activity-log.component').then(m => m.RecruiterActivityLogComponent)
+          },
+          {
+            path: 'profile',
+            loadComponent: () => import('./features/dashboard/recruiter/recruiter-company-profile.component').then(m => m.RecruiterCompanyProfileComponent)
+          }
+        ]
       }
     ]
   },
@@ -171,6 +213,24 @@ export const routes: Routes = [
   {
     path: 'leaderboard',
     loadComponent: () => import('./features/leaderboard/leaderboard.component').then(m => m.LeaderboardComponent)
+  },
+  {
+    path: 'leaderboard/companies',
+    loadComponent: () => import('./features/leaderboard/company-leaderboard/company-leaderboard.component').then(m => m.CompanyLeaderboardComponent)
+  },
+  {
+    path: 'classement/entreprises',
+    redirectTo: 'leaderboard/companies',
+    pathMatch: 'full'
+  },
+  {
+    path: 'company/:slug',
+    loadComponent: () => import('./features/companies/company-public-page/company-public-page.component').then(m => m.CompanyPublicPageComponent)
+  },
+  {
+    path: 'entreprise/:slug',
+    redirectTo: 'company/:slug',
+    pathMatch: 'prefix'
   },
   {
     path: 'classement',

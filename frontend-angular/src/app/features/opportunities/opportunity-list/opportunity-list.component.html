@@ -129,21 +129,49 @@
             <span>{{ opt.suggestionReason }}</span>
           </div>
 
-          <!-- Publisher -->
+          <!-- Publisher / Company -->
           <div class="publisher-row">
-            <div class="pub-avatar">
-              {{ (opt.publisher?.profile?.fullName || opt.publisher?.email || 'R').charAt(0).toUpperCase() }}
-            </div>
-            <div class="pub-info">
-              <span class="pub-name">{{ opt.publisher?.profile?.fullName || opt.publisher?.email || 'Recruteur' }}</span>
-              <span class="pub-location">
-                <svg class="icon-svg icon-svg-xs" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" />
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" />
-                </svg>
-                {{ opt.location }}
-              </span>
-            </div>
+            <ng-container *ngIf="opt.companyName; else individualPublisher">
+              <a [routerLink]="['/company', opt.companySlug]" class="company-link-row" (click)="$event.stopPropagation()">
+                <div class="pub-avatar company-avatar" *ngIf="opt.companyLogoUrl; else companyAvatarLetter">
+                  <img [src]="opt.companyLogoUrl" [alt]="opt.companyName" />
+                </div>
+                <ng-template #companyAvatarLetter>
+                  <div class="pub-avatar company-avatar-placeholder">
+                    🏢
+                  </div>
+                </ng-template>
+                <div class="pub-info">
+                  <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
+                    <span class="pub-name font-bold">{{ opt.companyName }}</span>
+                    <app-company-badge *ngIf="opt.companyLevel" [level]="opt.companyLevel"></app-company-badge>
+                  </div>
+                  <span class="pub-location">
+                    <svg class="icon-svg icon-svg-xs" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" />
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" />
+                    </svg>
+                    {{ opt.location }}
+                  </span>
+                </div>
+              </a>
+            </ng-container>
+
+            <ng-template #individualPublisher>
+              <div class="pub-avatar">
+                {{ (opt.publisher?.profile?.fullName || opt.publisher?.email || 'R').charAt(0).toUpperCase() }}
+              </div>
+              <div class="pub-info">
+                <span class="pub-name">{{ opt.publisher?.profile?.fullName || opt.publisher?.email || 'Recruteur' }}</span>
+                <span class="pub-location">
+                  <svg class="icon-svg icon-svg-xs" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" />
+                  </svg>
+                  {{ opt.location }}
+                </span>
+              </div>
+            </ng-template>
           </div>
 
           <p class="opt-desc">{{ opt.description }}</p>

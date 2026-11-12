@@ -180,6 +180,10 @@ export class DashboardLayoutComponent implements OnInit {
     return r === 'SUPER_ADMIN' || r === 'ADMIN';
   }
 
+  isRecruiter(): boolean {
+    return this.user()?.role === 'RECRUITER';
+  }
+
   getPageTitle(): string {
     const url = this.router.url.split('?')[0]; // Ignorer les query parameters pour le matching
 
@@ -190,6 +194,16 @@ export class DashboardLayoutComponent implements OnInit {
     if (url.startsWith('/admin/moderation')) return 'Modération';
     if (url.startsWith('/admin/audit')) return 'Audit';
     if (url.startsWith('/admin/profile')) return this.isSuperAdmin() ? 'Mon Profil Super Administrateur' : 'Mon Profil Administrateur';
+
+    // 2. Cockpit Recruteur
+    if (url.startsWith('/dashboard/recruiter/profile')) return 'Profil Entreprise';
+    if (url.startsWith('/dashboard/recruiter/team')) return 'Équipe Recruteurs';
+    if (url.startsWith('/dashboard/recruiter/activity-log')) return 'Journal d\'Activité Équipe';
+    if (url.startsWith('/dashboard/recruiter/offers')) return 'Offres de l\'Entreprise';
+    if (url.startsWith('/dashboard/recruiter/applications')) return 'Candidatures reçues';
+    if (url.startsWith('/dashboard/recruiter/events')) return 'Événements Tech Entreprise';
+    if (url.startsWith('/dashboard/recruiter/resources')) return 'Formations & Savoirs';
+    if (url === '/dashboard/recruiter' || url === '/dashboard/recruiter/') return 'Cockpit Entreprise';
 
     // 2. Activité & Espaces Dashboard
     if (url.startsWith('/dashboard/applications') || url === '/applications') return 'Candidatures';
