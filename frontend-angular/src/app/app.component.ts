@@ -1328,7 +1328,7 @@ import { Subscription } from 'rxjs';
 
     .theme-toggle-btn {
       background: rgba(255, 255, 255, 0.06);
-      border: 1px solid var(--border-subtle);
+      border: 1px solid rgba(255, 255, 255, 0.14);
       color: var(--text-heading);
       padding: 0.45rem 0.75rem;
       border-radius: 999px;
@@ -1338,15 +1338,24 @@ import { Subscription } from 'rxjs';
       gap: 0.4rem;
       font-size: 0.85rem;
       font-weight: 600;
-      transition: all 0.15s ease;
+      transition: all 0.2s ease;
     }
     .theme-toggle-btn:hover {
-      background: var(--bg-surface-hover);
+      background: rgba(16, 185, 129, 0.12);
       border-color: var(--emerald-500);
       color: var(--emerald-500);
     }
     .theme-toggle-btn.icon-only {
-      padding: 0.45rem 0.65rem;
+      width: 38px;
+      height: 38px;
+      padding: 0;
+      border-radius: 50%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      background: rgba(255, 255, 255, 0.05);
     }
 
     /* Profile Menu Dropdown */
