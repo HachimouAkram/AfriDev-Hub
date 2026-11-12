@@ -31,7 +31,7 @@
   font-family: var(--font-heading, inherit);
   font-size: 1.35rem;
   font-weight: 800;
-  color: var(--text-heading, #1e293b);
+  color: var(--text-heading, #ffffff);
   margin: 0 0 0.25rem;
 }
 

@@ -17,17 +17,19 @@
 }
 
 .header-left h2 {
-  font-size: 1.5rem;
+  font-family: var(--font-heading, inherit);
+  font-size: 1.35rem;
   font-weight: 800;
-  color: var(--text-primary);
-  margin-bottom: 0.35rem;
+  color: var(--text-heading, #ffffff);
+  margin: 0 0 0.25rem;
 }
 
 .header-left .subtext {
-  font-size: 0.9rem;
-  color: var(--text-secondary);
-  max-width: 680px;
+  font-size: 0.875rem;
+  color: var(--text-muted, #64748b);
+  max-width: 650px;
   line-height: 1.5;
+  margin: 0;
 }
 
 .header-actions {

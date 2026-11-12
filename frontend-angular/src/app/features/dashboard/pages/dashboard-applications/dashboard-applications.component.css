@@ -14,15 +14,19 @@
 }
 
 .section-header-row h2 {
-  font-size: 1.4rem;
-  font-weight: 700;
-  color: var(--text-heading);
+  font-family: var(--font-heading, inherit);
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: var(--text-heading, #ffffff);
+  margin: 0 0 0.25rem;
 }
 
 .section-subtext {
   font-size: 0.875rem;
-  color: var(--text-muted);
-  margin-top: 0.2rem;
+  color: var(--text-muted, #64748b);
+  margin: 0;
+  max-width: 650px;
+  line-height: 1.5;
 }
 
 .applications-grid {

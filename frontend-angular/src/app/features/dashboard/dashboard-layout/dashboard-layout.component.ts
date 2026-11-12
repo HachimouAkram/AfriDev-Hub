@@ -181,20 +181,33 @@ export class DashboardLayoutComponent implements OnInit {
   }
 
   getPageTitle(): string {
-    const url = this.router.url;
-    if (url === '/admin' || url === '/admin/' || url.includes('/admin/overview')) return 'Tableau de bord';
-    if (url.includes('/admin/adoption')) return 'Adoption';
-    if (url.includes('/admin/users')) return 'Utilisateurs';
-    if (url.includes('/admin/moderation')) return 'Modération';
-    if (url.includes('/admin/audit')) return 'Audit';
-    if (url.includes('/admin/profile')) return this.isSuperAdmin() ? 'Mon Profil Super Administrateur' : 'Mon Profil Administrateur';
-    if (url.includes('/dashboard/applications')) return 'Mes candidatures';
-    if (url.includes('/dashboard/offers')) return 'Offres & Demandes reçues';
-    if (url.includes('/dashboard/messages')) return 'Messagerie';
-    if (url.includes('/dashboard/projects')) return 'Mes projets vitrine';
-    if (url.includes('/dashboard/evaluations')) return 'Réputation & Évaluations par les Pairs';
-    if (url.includes('/dashboard/leaderboard')) return 'Classement des Développeurs d\'Afrique';
-    if (url.includes('/dashboard/profile')) return this.isSuperAdmin() ? 'Mon Profil Super Administrateur' : (this.isAdmin() ? 'Mon Profil Administrateur' : 'Mon Profil Développeur');
+    const url = this.router.url.split('?')[0]; // Ignorer les query parameters pour le matching
+
+    // 1. Administration Cockpit
+    if (url === '/admin' || url === '/admin/' || url.startsWith('/admin/overview')) return 'Tableau de bord';
+    if (url.startsWith('/admin/adoption')) return 'Adoption';
+    if (url.startsWith('/admin/users')) return 'Utilisateurs';
+    if (url.startsWith('/admin/moderation')) return 'Modération';
+    if (url.startsWith('/admin/audit')) return 'Audit';
+    if (url.startsWith('/admin/profile')) return this.isSuperAdmin() ? 'Mon Profil Super Administrateur' : 'Mon Profil Administrateur';
+
+    // 2. Activité & Espaces Dashboard
+    if (url.startsWith('/dashboard/applications') || url === '/applications') return 'Candidatures';
+    if (url.startsWith('/dashboard/offers') || url === '/offers') return 'Offres & Demandes reçues';
+    if (url.startsWith('/dashboard/messages') || url === '/messages') return 'Messagerie';
+    if (url.startsWith('/dashboard/aide')) return 'Entraide Tech';
+    if (url.startsWith('/dashboard/mentors')) return 'Mentors';
+    if (url.startsWith('/dashboard/groupes')) return 'Communautés';
+    if (url.startsWith('/dashboard/projects')) return 'Projets';
+    if (url.startsWith('/dashboard/resources')) return 'Formations';
+    if (url.startsWith('/dashboard/events')) return 'Événements';
+    if (url.startsWith('/dashboard/evaluations') || url === '/evaluations') return 'Évaluations';
+    if (url.startsWith('/dashboard/leaderboard') || url === '/leaderboard') return 'Classement';
+    if (url.startsWith('/dashboard/profile') || url === '/profile') {
+      return this.isSuperAdmin() ? 'Mon Profil Super Administrateur' : (this.isAdmin() ? 'Mon Profil Administrateur' : 'Mon Profil Développeur');
+    }
+
+    if (url === '/dashboard' || url === '/dashboard/') return 'Tableau de bord';
     return 'Tableau de bord';
   }
 
