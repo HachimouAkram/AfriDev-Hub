@@ -1,0 +1,486 @@
+<div class="dashboard-resources-page animate-fade-in">
+  
+  <!-- Header Card -->
+  <div class="header-card app-card">
+    <div class="header-left">
+      <h2>Mes Ressources & Formations</h2>
+      <p class="subtext">
+        Partagez vos tutoriels, vidéos et cours avec la communauté tech africaine. Vous pouvez monétiser vos formations ou les offrir gratuitement.
+      </p>
+    </div>
+
+    <div class="header-actions">
+      <a routerLink="/resources" class="btn btn-outline btn-icon-text">
+        <svg class="icon-svg icon-svg-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 21a9 9 0 100-18 9 9 0 000 18zM3.6 9h16.8M3.6 15h16.8M12 3a14.25 14.25 0 000 18 14.25 14.25 0 000-18z" />
+        </svg>
+        <span>Catalogue public</span>
+      </a>
+
+      <button (click)="openCreateModal()" class="btn btn-emerald btn-icon-text">
+        <svg class="icon-svg icon-svg-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.5v15m7.5-7.5h-15" />
+        </svg>
+        <span>+ Publier une formation</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Stats Bar -->
+  <div class="stats-grid">
+    <div class="stat-card app-card">
+      <div class="stat-icon stat-icon-blue">
+        <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" />
+        </svg>
+      </div>
+      <div class="stat-details">
+        <span class="stat-number">{{ myResources().length }}</span>
+        <span class="stat-label">Publications actives</span>
+      </div>
+    </div>
+
+    <div class="stat-card app-card">
+      <div class="stat-icon stat-icon-emerald">
+        <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+        </svg>
+      </div>
+      <div class="stat-details">
+        <span class="stat-number">{{ totalViews() }}</span>
+        <span class="stat-label">Vues cumulées (+1 XP / vue)</span>
+      </div>
+    </div>
+
+    <div class="stat-card app-card">
+      <div class="stat-icon stat-icon-purple">
+        <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+      </div>
+      <div class="stat-details">
+        <span class="stat-number">{{ totalCompletions() }}</span>
+        <span class="stat-label">Formations complétées</span>
+      </div>
+    </div>
+
+    <div class="stat-card app-card">
+      <div class="stat-icon stat-icon-amber">
+        <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v12m-3-2.818l.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+      </div>
+      <div class="stat-details">
+        <span class="stat-number">{{ totalPaidCount() }}</span>
+        <span class="stat-label">Monétisées via SasPay</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="loading()" class="sk-stack app-card p-6" aria-busy="true" aria-label="Chargement de vos formations">
+    <div class="sk-row" *ngFor="let i of [1,2,3,4]">
+      <div class="sk-avatar sk-shimmer" style="width: 80px; height: 60px; border-radius: 8px;"></div>
+      <div style="flex: 1; display: flex; flex-direction: column; gap: 0.5rem;">
+        <div class="sk-line sk-shimmer" style="width: 45%;"></div>
+        <div class="sk-line-sm sk-shimmer" style="width: 30%;"></div>
+      </div>
+      <div class="sk-pill sk-shimmer" style="width: 90px;"></div>
+      <div class="sk-pill sk-shimmer" style="width: 80px;"></div>
+    </div>
+  </div>
+
+  <!-- Empty State -->
+  <div *ngIf="!loading() && myResources().length === 0" class="empty-state-card app-card">
+    <div class="empty-icon-circle">
+      <svg class="icon-svg icon-svg-xl" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" />
+      </svg>
+    </div>
+    <h3>Vous n'avez pas encore publié de formation ou ressource</h3>
+    <p class="text-muted">
+      Partagez votre expertise (Spring Boot, Angular, Mobile Money, DevOps...) avec d'autres développeurs africains et gagnez 20 XP dès la publication !
+    </p>
+    <button (click)="openCreateModal()" class="btn btn-emerald btn-lg">
+      <svg class="icon-svg icon-svg-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.5v15m7.5-7.5h-15" />
+      </svg>
+      Publier ma première formation
+    </button>
+  </div>
+
+  <!-- Resources Grid -->
+  <div *ngIf="!loading() && myResources().length > 0" class="resources-grid">
+    <div *ngFor="let item of myResources()" class="resource-card app-card">
+      <!-- Media Header -->
+      <div class="card-media">
+        <img [src]="getThumbnail(item)" [alt]="item.title" class="media-thumb" loading="lazy" />
+        
+        <span class="type-pill">{{ getTypeLabel(item.type) }}</span>
+
+        <span class="price-pill" [class.paid]="item.isPaid">
+          {{ item.isPaid ? (item.price + ' ' + (item.currency || 'XOF')) : 'Gratuit' }}
+        </span>
+
+        <!-- Play Overlay if video -->
+        <button 
+          *ngIf="item.youtubeUrl" 
+          (click)="openVideoPreview(item)" 
+          class="play-overlay-btn" 
+          title="Prévisualiser la vidéo">
+          <svg class="icon-svg" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M8 5v14l11-7z" />
+          </svg>
+        </button>
+      </div>
+
+      <!-- Card Body -->
+      <div class="card-content">
+        <div class="card-badges">
+          <span class="badge" [ngClass]="getLevelBadge(item.level).class">
+            {{ getLevelBadge(item.level).label }}
+          </span>
+          <span class="meta-item">
+            <svg class="icon-svg icon-svg-xs" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            {{ item.durationMinutes || 30 }} min
+          </span>
+          <span class="meta-item" *ngIf="item.language">
+            <i class="ri-translate"></i> {{ item.language.toUpperCase() }}
+          </span>
+        </div>
+
+        <h3 class="card-title" [title]="item.title">{{ item.title }}</h3>
+        <p class="card-desc">{{ item.description }}</p>
+
+        <!-- Tech tags -->
+        <div class="card-techs" *ngIf="item.technology">
+          <span *ngFor="let t of item.technology.split(',')" class="tech-tag">
+            #{{ t.trim() }}
+          </span>
+        </div>
+
+        <!-- Metrics -->
+        <div class="card-metrics">
+          <span title="Nombre de vues">
+            <svg class="icon-svg icon-svg-xs" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
+            </svg>
+            {{ item.viewsCount || 0 }} vues
+          </span>
+          <span title="Apprenants ayant terminé">
+            <svg class="icon-svg icon-svg-xs" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            {{ item.completionsCount || 0 }} complétions
+          </span>
+          <span *ngIf="item.pdfUrl" class="text-emerald" title="Support PDF inclus">
+            <i class="ri-file-pdf-line"></i> PDF
+          </span>
+        </div>
+      </div>
+
+      <!-- Card Actions Footer -->
+      <div class="card-actions">
+        <a [routerLink]="['/resources']" [queryParams]="{ resId: item.id }" class="btn btn-outline btn-sm btn-action">
+          <svg class="icon-svg icon-svg-xs" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" />
+          </svg>
+          <span>Voir</span>
+        </a>
+
+        <button (click)="openEditModal(item)" class="btn btn-outline btn-sm btn-action" title="Modifier cette formation">
+          <svg class="icon-svg icon-svg-xs" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125" />
+          </svg>
+          <span>Modifier</span>
+        </button>
+
+        <button (click)="openDeleteModal(item)" class="btn btn-outline btn-sm btn-delete" title="Supprimer définitivement">
+          <svg class="icon-svg icon-svg-xs" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
+          </svg>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== MODAL DE CRÉATION / MODIFICATION ==================== -->
+  <div class="modal-overlay" *ngIf="showModal" (click)="closeModal()">
+    <div class="app-card modal-card modal-card-wide animate-pop" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <div class="header-titles">
+          <h3>{{ isEditMode ? 'Modifier la Formation' : 'Publier une Vidéo ou Formation' }}</h3>
+          <p class="text-xs text-muted">
+            Partagez votre savoir gratuitement ou vendez votre contenu aux développeurs via SasPay.
+          </p>
+        </div>
+        <button (click)="closeModal()" class="close-btn">&times;</button>
+      </div>
+
+      <div class="modal-body">
+        <!-- Error box -->
+        <div *ngIf="formError()" class="error-box">
+          <i class="ri-error-warning-line"></i> {{ formError() }}
+        </div>
+
+        <div class="form-grid-2">
+          <!-- Titre -->
+          <div class="form-group col-span-full">
+            <label class="form-label">Titre de la vidéo / formation *</label>
+            <input 
+              type="text" 
+              [(ngModel)]="form.title" 
+              placeholder="Ex: Maîtriser Spring Boot & SasPay de zéro à la production" 
+              class="form-input">
+          </div>
+
+          <!-- Type de contenu -->
+          <div class="form-group">
+            <label class="form-label">Type de contenu *</label>
+            <select [(ngModel)]="form.type" class="form-input">
+              <option value="COURSE">🎓 Formation complète</option>
+              <option value="VIDEO">🎥 Vidéo pratique</option>
+              <option value="TUTORIAL">🛠️ Tutoriel pas à pas</option>
+              <option value="ARTICLE">📝 Article technique</option>
+              <option value="TECH_CHEATSHEET">📋 Antisèche / Cheat Sheet</option>
+            </select>
+          </div>
+
+          <!-- Niveau -->
+          <div class="form-group">
+            <label class="form-label">Niveau cible *</label>
+            <select [(ngModel)]="form.level" class="form-input">
+              <option value="BEGINNER">Débutant</option>
+              <option value="INTERMEDIATE">Intermédiaire</option>
+              <option value="ADVANCED">Avancé / Expert</option>
+            </select>
+          </div>
+
+          <!-- Langue -->
+          <div class="form-group">
+            <label class="form-label">Langue d'enseignement *</label>
+            <select [(ngModel)]="form.language" class="form-input">
+              <option value="fr">FR Français</option>
+              <option value="en">EN Anglais</option>
+              <option value="wo">WO Wolof</option>
+              <option value="sw">SW Swahili</option>
+            </select>
+          </div>
+
+          <!-- Durée estimée -->
+          <div class="form-group">
+            <label class="form-label">Durée estimée (minutes)</label>
+            <input 
+              type="number" 
+              [(ngModel)]="form.durationMinutes" 
+              min="5" 
+              max="1200" 
+              placeholder="30" 
+              class="form-input">
+          </div>
+        </div>
+
+        <!-- Technologies multi-tags -->
+        <div class="form-group mt-3">
+          <label class="form-label">Technologies abordées *</label>
+          <div class="chips-input-container">
+            <span *ngFor="let tag of techTags()" class="tech-chip">
+              #{{ tag }}
+              <button type="button" (click)="removeTechTag(tag)" class="btn-remove-chip">&times;</button>
+            </span>
+            <input 
+              type="text" 
+              [(ngModel)]="techInput" 
+              (keydown.enter)="$event.preventDefault(); addTechTag()"
+              (keydown.comma)="$event.preventDefault(); addTechTag()"
+              placeholder="Ex: Angular, Spring Boot, Docker (Entrée ou virgule pour ajouter)..." 
+              class="chip-inline-input">
+          </div>
+
+          <!-- Suggestions rapides -->
+          <div class="quick-chips-row">
+            <span class="quick-label">Suggestions :</span>
+            <button 
+              *ngFor="let s of quickSuggestions" 
+              type="button" 
+              (click)="addTechTag(s)" 
+              class="btn-quick-chip">
+              + {{ s }}
+            </button>
+          </div>
+        </div>
+
+        <!-- Source Vidéo -->
+        <div class="form-group mt-4">
+          <label class="form-label">Source Vidéo</label>
+          
+          <div class="toggle-pills-row">
+            <button 
+              type="button" 
+              (click)="videoSourceMode.set('URL')" 
+              class="toggle-pill" 
+              [class.active]="videoSourceMode() === 'URL'">
+              <i class="ri-youtube-line"></i> Lien YouTube / Vidéo externe
+            </button>
+            <button 
+              type="button" 
+              (click)="videoSourceMode.set('UPLOAD')" 
+              class="toggle-pill" 
+              [class.active]="videoSourceMode() === 'UPLOAD'">
+              <i class="ri-upload-cloud-line"></i> Téléverser un fichier MP4 / WebM
+            </button>
+          </div>
+
+          <div *ngIf="videoSourceMode() === 'URL'" class="mt-2">
+            <input 
+              type="text" 
+              [(ngModel)]="form.youtubeUrl" 
+              placeholder="Ex: https://www.youtube.com/watch?v=..." 
+              class="form-input">
+          </div>
+
+          <div *ngIf="videoSourceMode() === 'UPLOAD'" class="mt-2">
+            <label class="upload-dropzone" [class.uploading]="isUploadingVideo()">
+              <input type="file" accept="video/mp4,video/webm,video/quicktime" (change)="onVideoFileSelected($event)" style="display: none;">
+              <svg class="icon-svg icon-svg-md" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
+              </svg>
+              <span *ngIf="!isUploadingVideo() && !uploadedVideoFileName()">Cliquez pour choisir un fichier vidéo (.mp4, .webm - max 50 Mo)</span>
+              <span *ngIf="isUploadingVideo()">Téléversement en cours...</span>
+              <span *ngIf="!isUploadingVideo() && uploadedVideoFileName()" class="text-emerald font-semibold">
+                ✓ Vidéo chargée : {{ uploadedVideoFileName() }}
+              </span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Miniature & PDF Document -->
+        <div class="form-grid-2 mt-4">
+          <div class="form-group">
+            <label class="form-label">Image de couverture / Miniature</label>
+            <label class="file-pick-btn" [class.uploading]="isUploadingThumb()">
+              <input type="file" accept="image/*" (change)="onThumbFileSelected($event)" style="display: none;">
+              <svg class="icon-svg icon-svg-xs" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
+              </svg>
+              <span *ngIf="!uploadedThumbFileName()">Choisir une image</span>
+              <span *ngIf="uploadedThumbFileName()" class="text-emerald">✓ {{ uploadedThumbFileName() }}</span>
+            </label>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Support PDF associé (Optionnel)</label>
+            <label class="file-pick-btn" [class.uploading]="isUploadingPdf()">
+              <input type="file" accept="application/pdf" (change)="onPdfFileSelected($event)" style="display: none;">
+              <svg class="icon-svg icon-svg-xs" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
+              </svg>
+              <span *ngIf="!uploadedPdfFileName()">Joindre un PDF</span>
+              <span *ngIf="uploadedPdfFileName()" class="text-emerald">✓ {{ uploadedPdfFileName() }}</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Tarification / Monétisation SasPay -->
+        <div class="pricing-box mt-4">
+          <label class="custom-checkbox-label">
+            <input type="checkbox" [(ngModel)]="form.isPaid">
+            <span><strong>Vendre cette formation</strong> (Monétisation via SasPay - Wave, Orange Money, M-Pesa, MTN)</span>
+          </label>
+
+          <div *ngIf="form.isPaid" class="pricing-inputs-row mt-3">
+            <div class="form-group">
+              <label class="form-label">Tarif d'accès *</label>
+              <div class="currency-input-wrap">
+                <input 
+                  type="number" 
+                  [(ngModel)]="form.price" 
+                  min="500" 
+                  step="500" 
+                  placeholder="Ex: 5000" 
+                  class="form-input">
+                <span class="currency-tag">XOF</span>
+              </div>
+              <small class="field-hint">Le produit de vos ventes vous sera versé directement par SasPay.</small>
+            </div>
+          </div>
+        </div>
+
+        <!-- Description -->
+        <div class="form-group mt-4">
+          <label class="form-label">Description détaillée *</label>
+          <textarea 
+            [(ngModel)]="form.description" 
+            rows="4" 
+            placeholder="Expliquez ce que les développeurs vont apprendre, les prérequis et le résultat concret..." 
+            class="form-textarea"></textarea>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button (click)="closeModal()" class="btn btn-outline" [disabled]="isSubmitting()">Annuler</button>
+        <button (click)="submitForm()" [disabled]="isSubmitting()" class="btn btn-emerald">
+          <span *ngIf="!isSubmitting()">{{ isEditMode ? 'Enregistrer les modifications' : 'Publier la formation' }}</span>
+          <span *ngIf="isSubmitting()">Enregistrement en cours...</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== MODAL DE CONFIRMATION DE SUPPRESSION ==================== -->
+  <div class="modal-overlay" *ngIf="showDeleteModal && resourceToDelete" (click)="closeDeleteModal()">
+    <div class="app-card modal-card delete-card animate-pop" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3 class="danger-title">Supprimer la formation ?</h3>
+        <button (click)="closeDeleteModal()" class="close-btn">&times;</button>
+      </div>
+
+      <div class="modal-body">
+        <p>
+          Êtes-vous sûr de vouloir supprimer définitivement la ressource <strong>« {{ resourceToDelete.title }} »</strong> ?
+        </p>
+        <p class="text-sm text-muted">
+          Cette action est irréversible. Les développeurs n'auront plus accès à cette vidéo/formation dans leur tableau de bord.
+        </p>
+      </div>
+
+      <div class="modal-footer">
+        <button (click)="closeDeleteModal()" class="btn btn-outline" [disabled]="isDeleting()">Annuler</button>
+        <button (click)="confirmDelete()" [disabled]="isDeleting()" class="btn btn-danger">
+          <span *ngIf="!isDeleting()">Supprimer définitivement</span>
+          <span *ngIf="isDeleting()">Suppression...</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== MODAL APERÇU VIDÉO ==================== -->
+  <div class="modal-overlay" *ngIf="activeVideoResource" (click)="closeVideoPreview()">
+    <div class="video-preview-modal-content animate-pop" (click)="$event.stopPropagation()">
+      <div class="video-preview-header">
+        <h4>{{ activeVideoResource.title }}</h4>
+        <button (click)="closeVideoPreview()" class="close-btn">&times;</button>
+      </div>
+      <div class="video-player-wrap">
+        <iframe 
+          *ngIf="safeYoutubeUrl" 
+          [src]="safeYoutubeUrl" 
+          frameborder="0" 
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+          allowfullscreen>
+        </iframe>
+        <video 
+          *ngIf="!safeYoutubeUrl && activeVideoResource.youtubeUrl" 
+          [src]="resolveMedia(activeVideoResource.youtubeUrl)" 
+          controls 
+          autoplay>
+        </video>
+      </div>
+    </div>
+  </div>
+
+</div>
+

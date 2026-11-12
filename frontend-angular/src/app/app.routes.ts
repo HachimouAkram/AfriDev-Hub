@@ -45,6 +45,10 @@ export const routes: Routes = [
         loadComponent: () => import('./features/dashboard/pages/dashboard-projects/dashboard-projects.component').then(m => m.DashboardProjectsComponent)
       },
       {
+        path: 'resources',
+        loadComponent: () => import('./features/dashboard/pages/dashboard-resources/dashboard-resources.component').then(m => m.DashboardResourcesComponent)
+      },
+      {
         path: 'evaluations',
         loadComponent: () => import('./features/evaluations/evaluation-list/evaluation-list.component').then(m => m.EvaluationListComponent)
       },

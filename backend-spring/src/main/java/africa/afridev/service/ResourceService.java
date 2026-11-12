@@ -154,6 +154,80 @@ public class ResourceService {
         return mapToDto(saved, author);
     }
 
+    @Transactional(readOnly = true)
+    public Page<ResourceDto> getMyResources(String currentUserEmail, Pageable pageable) {
+        UserEntity user = userRepository.findByEmail(currentUserEmail)
+                .orElseThrow(() -> new IllegalArgumentException("Utilisateur non trouvé: " + currentUserEmail));
+        return resourceRepository.findByAuthorIdOrderByCreatedAtDesc(user.getId(), pageable)
+                .map(r -> mapToDto(r, user));
+    }
+
+    @Transactional
+    public ResourceDto updateResource(String id, String currentUserEmail, ResourceCreateRequest request) {
+        UserEntity user = userRepository.findByEmail(currentUserEmail)
+                .orElseThrow(() -> new IllegalArgumentException("Utilisateur non trouvé"));
+
+        ResourceEntity resource = resourceRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Ressource introuvable: " + id));
+
+        boolean isAuthor = resource.getAuthor() != null && resource.getAuthor().getId().equals(user.getId());
+        boolean isAdmin = user.getRoles() != null && user.getRoles().stream()
+                .anyMatch(r -> "ADMIN".equalsIgnoreCase(r.getName()) || "ROLE_ADMIN".equalsIgnoreCase(r.getName()) || "SUPER_ADMIN".equalsIgnoreCase(r.getName()));
+
+        if (!isAuthor && !isAdmin) {
+            throw new org.springframework.security.access.AccessDeniedException("Vous n'êtes pas autorisé à modifier cette ressource.");
+        }
+
+        boolean paid = Boolean.TRUE.equals(request.getIsPaid());
+        if (paid && (request.getPrice() == null || request.getPrice().signum() <= 0)) {
+            throw new IllegalArgumentException("Veuillez indiquer un tarif valide en XOF pour une formation payante.");
+        }
+
+        resource.setTitle(request.getTitle());
+        resource.setDescription(request.getDescription());
+        resource.setType(request.getType());
+        resource.setLevel(request.getLevel());
+        resource.setTechnology(request.getTechnology());
+        if (request.getLanguage() != null && !request.getLanguage().isBlank()) {
+            resource.setLanguage(request.getLanguage());
+        }
+        resource.setYoutubeUrl(request.getYoutubeUrl());
+        resource.setThumbnailUrl(request.getThumbnailUrl());
+        resource.setContentMarkdown(request.getContentMarkdown());
+        resource.setPdfUrl(request.getPdfUrl());
+        resource.setIsPaid(paid);
+        resource.setPrice(paid ? request.getPrice() : java.math.BigDecimal.ZERO);
+        if (request.getCurrency() != null && !request.getCurrency().isBlank()) {
+            resource.setCurrency(request.getCurrency());
+        }
+        if (request.getDurationMinutes() != null && request.getDurationMinutes() > 0) {
+            resource.setDurationMinutes(request.getDurationMinutes());
+        }
+
+        ResourceEntity saved = resourceRepository.save(resource);
+        return mapToDto(saved, user);
+    }
+
+    @Transactional
+    public void deleteResource(String id, String currentUserEmail) {
+        UserEntity user = userRepository.findByEmail(currentUserEmail)
+                .orElseThrow(() -> new IllegalArgumentException("Utilisateur non trouvé"));
+
+        ResourceEntity resource = resourceRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Ressource introuvable: " + id));
+
+        boolean isAuthor = resource.getAuthor() != null && resource.getAuthor().getId().equals(user.getId());
+        boolean isAdmin = user.getRoles() != null && user.getRoles().stream()
+                .anyMatch(r -> "ADMIN".equalsIgnoreCase(r.getName()) || "ROLE_ADMIN".equalsIgnoreCase(r.getName()) || "SUPER_ADMIN".equalsIgnoreCase(r.getName()));
+
+        if (!isAuthor && !isAdmin) {
+            throw new org.springframework.security.access.AccessDeniedException("Vous n'êtes pas autorisé à supprimer cette ressource.");
+        }
+
+        resourceRepository.delete(resource);
+        log.info("Ressource supprimée id={} par user={}", id, currentUserEmail);
+    }
+
     private ResourceDto mapToDto(ResourceEntity r, UserEntity currentUser) {
         boolean completed = false;
         boolean unlocked = !Boolean.TRUE.equals(r.getIsPaid());

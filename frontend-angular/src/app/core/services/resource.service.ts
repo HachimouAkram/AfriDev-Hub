@@ -109,6 +109,33 @@ export class ResourceService {
       })
     );
   }
+
+  getMyResources(page: number = 0, size: number = 50): Observable<any> {
+    const params = new HttpParams()
+      .set('page', page.toString())
+      .set('size', size.toString());
+    return this.http.get<ApiResponse<any>>(`${this.baseUrl}/my`, { params }).pipe(
+      map(res => res.data)
+    );
+  }
+
+  updateResource(id: string, req: ResourceCreatePayload): Observable<ResourceItem> {
+    return this.http.put<ApiResponse<ResourceItem>>(`${this.baseUrl}/${id}`, req).pipe(
+      map(res => {
+        this.clearCache();
+        return res.data;
+      })
+    );
+  }
+
+  deleteResource(id: string): Observable<any> {
+    return this.http.delete<ApiResponse<any>>(`${this.baseUrl}/${id}`).pipe(
+      map(res => {
+        this.clearCache();
+        return res.data;
+      })
+    );
+  }
 }
 
 export interface ResourceCreatePayload {

@@ -28,5 +28,7 @@ public interface ResourceRepository extends JpaRepository<ResourceEntity, String
             @Param("isPaid") Boolean isPaid,
             Pageable pageable
     );
+
+    Page<ResourceEntity> findByAuthorIdOrderByCreatedAtDesc(String authorId, Pageable pageable);
 }
 

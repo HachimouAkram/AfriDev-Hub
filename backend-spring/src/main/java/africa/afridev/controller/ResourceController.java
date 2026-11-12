@@ -37,6 +37,15 @@ public class ResourceController {
         return ResponseEntity.ok(ApiResponse.ok(page));
     }
 
+    @GetMapping("/my")
+    public ResponseEntity<ApiResponse<Page<ResourceDto>>> getMyResources(
+            @AuthenticationPrincipal UserDetails userDetails,
+            Pageable pageable
+    ) {
+        Page<ResourceDto> page = resourceService.getMyResources(userDetails.getUsername(), pageable);
+        return ResponseEntity.ok(ApiResponse.ok(page));
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<ResourceDto>> getResource(
             @PathVariable String id,
@@ -45,6 +54,25 @@ public class ResourceController {
         String email = userDetails != null ? userDetails.getUsername() : null;
         ResourceDto dto = resourceService.getById(id, email);
         return ResponseEntity.ok(ApiResponse.ok(dto));
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<ApiResponse<ResourceDto>> updateResource(
+            @PathVariable String id,
+            @AuthenticationPrincipal UserDetails userDetails,
+            @Valid @RequestBody ResourceCreateRequest request
+    ) {
+        ResourceDto dto = resourceService.updateResource(id, userDetails.getUsername(), request);
+        return ResponseEntity.ok(ApiResponse.ok(dto));
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<ApiResponse<Void>> deleteResource(
+            @PathVariable String id,
+            @AuthenticationPrincipal UserDetails userDetails
+    ) {
+        resourceService.deleteResource(id, userDetails.getUsername());
+        return ResponseEntity.ok(ApiResponse.ok("Ressource supprimée avec succès", null));
     }
 
     @PostMapping("/{id}/complete")
