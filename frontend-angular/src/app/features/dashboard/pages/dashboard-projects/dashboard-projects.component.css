@@ -875,6 +875,62 @@
   .form-row-3 {
     grid-template-columns: 1fr;
   }
+
+  /* Anti-Clipping & Sticky Actions for Projects Modals on Mobile */
+  .modal-overlay {
+    padding: 0 0 env(safe-area-inset-bottom, 0px) !important;
+    align-items: flex-end !important;
+  }
+
+  .modal-card,
+  .modal-card-large,
+  .detail-modal,
+  .task-detail-modal,
+  .reject-task-modal,
+  .delete-modal {
+    width: 100% !important;
+    max-width: 100% !important;
+    max-height: 92dvh !important;
+    max-height: calc(100dvh - 1rem) !important;
+    margin: 0 !important;
+    border-bottom-left-radius: 0 !important;
+    border-bottom-right-radius: 0 !important;
+    display: flex !important;
+    flex-direction: column !important;
+  }
+
+  .modal-header {
+    padding: 0.85rem 1rem !important;
+    flex-shrink: 0 !important;
+  }
+
+  .modal-body {
+    padding: 1rem !important;
+    flex: 1 1 auto !important;
+    min-height: 0 !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+  }
+
+  .modal-footer {
+    padding: 0.75rem 1rem calc(0.75rem + env(safe-area-inset-bottom, 0px)) !important;
+    flex-shrink: 0 !important;
+    position: sticky !important;
+    bottom: 0 !important;
+    z-index: 50 !important;
+    background: var(--bg-surface-card) !important;
+    border-top: 1px solid var(--border-subtle) !important;
+    display: flex !important;
+    gap: 0.5rem !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+  }
+
+  .modal-footer .btn {
+    flex: 1 1 0 !important;
+    min-height: 44px !important;
+    justify-content: center !important;
+  }
 }
 
 /* ========================================================= */

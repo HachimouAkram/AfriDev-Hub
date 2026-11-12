@@ -73,6 +73,20 @@ export class DashboardOffersComponent implements OnInit {
   reportSuccessMessage = '';
   reportErrorMessage = '';
 
+  // Cancel Acceptance Modal State
+  showCancelAcceptanceModal = false;
+  cancelTargetApplication: Application | null = null;
+  cancelReasonCategory = 'DESISTEMENT_CANDIDAT';
+  cancelReasonDetails = '';
+  isSubmittingCancel = false;
+  cancelErrorMessage = '';
+
+  // Reject Modal State
+  showRejectModal = false;
+  rejectTargetApplication: Application | null = null;
+  rejectReason = '';
+  isSubmittingReject = false;
+
   ngOnInit(): void {
     this.loadMyPostedData();
   }
@@ -240,11 +254,109 @@ export class DashboardOffersComponent implements OnInit {
 
   // --- APPLICATION STATUS ACTIONS ---
   onUpdateStatus(app: Application, newStatus: 'ACCEPTED' | 'REJECTED'): void {
+    if (newStatus === 'REJECTED') {
+      this.openRejectModal(app);
+      return;
+    }
+
     this.opportunityService.updateApplicationStatus(app.id, newStatus).subscribe({
       next: (res) => {
         if (res.success) {
           app.status = newStatus;
+          this.loadMyPostedData();
         }
+      }
+    });
+  }
+
+  // --- MODAL ANNULATION D'ACCEPTATION ---
+  openCancelAcceptanceModal(app: Application): void {
+    this.cancelTargetApplication = app;
+    this.cancelReasonCategory = 'DESISTEMENT_CANDIDAT';
+    this.cancelReasonDetails = '';
+    this.cancelErrorMessage = '';
+    this.showCancelAcceptanceModal = true;
+  }
+
+  closeCancelAcceptanceModal(): void {
+    this.showCancelAcceptanceModal = false;
+    this.cancelTargetApplication = null;
+    this.cancelReasonDetails = '';
+    this.cancelErrorMessage = '';
+  }
+
+  submitCancelAcceptance(): void {
+    if (!this.cancelTargetApplication) return;
+
+    let fullReason = '';
+    if (this.cancelReasonCategory === 'DESISTEMENT_CANDIDAT') {
+      fullReason = 'Désistement à la demande du candidat';
+    } else if (this.cancelReasonCategory === 'MESENTENTE_TERMES') {
+      fullReason = 'Mésentente ou manque de compréhension sur les termes de la mission';
+    } else if (this.cancelReasonCategory === 'INDISPONIBILITE') {
+      fullReason = 'Indisponibilité du candidat pour le démarrage';
+    } else {
+      fullReason = 'Autre motif d\'annulation';
+    }
+
+    if (this.cancelReasonDetails.trim()) {
+      fullReason += ` : ${this.cancelReasonDetails.trim()}`;
+    }
+
+    this.isSubmittingCancel = true;
+    this.cancelErrorMessage = '';
+    this.opportunityService.updateApplicationStatus(this.cancelTargetApplication.id, 'REJECTED', fullReason).subscribe({
+      next: (res) => {
+        this.isSubmittingCancel = false;
+        if (res.success) {
+          if (this.cancelTargetApplication) {
+            this.cancelTargetApplication.status = 'REJECTED';
+            this.cancelTargetApplication.rejectionReason = fullReason;
+          }
+          this.closeCancelAcceptanceModal();
+          this.loadMyPostedData();
+        } else {
+          this.cancelErrorMessage = res.error?.message || 'Impossible d\'annuler l\'acceptation.';
+        }
+      },
+      error: (err) => {
+        this.isSubmittingCancel = false;
+        this.cancelErrorMessage = err?.error?.message || 'Une erreur est survenue lors de l\'annulation.';
+      }
+    });
+  }
+
+  // --- MODAL REFUS AVEC MOTIF ---
+  openRejectModal(app: Application): void {
+    this.rejectTargetApplication = app;
+    this.rejectReason = 'Profil non retenu pour cette opportunité';
+    this.showRejectModal = true;
+  }
+
+  closeRejectModal(): void {
+    this.showRejectModal = false;
+    this.rejectTargetApplication = null;
+    this.rejectReason = '';
+  }
+
+  submitReject(): void {
+    if (!this.rejectTargetApplication) return;
+    this.isSubmittingReject = true;
+    const reason = this.rejectReason.trim() || 'Profil non retenu pour cette opportunité.';
+    this.opportunityService.updateApplicationStatus(this.rejectTargetApplication.id, 'REJECTED', reason).subscribe({
+      next: (res) => {
+        this.isSubmittingReject = false;
+        if (res.success) {
+          if (this.rejectTargetApplication) {
+            this.rejectTargetApplication.status = 'REJECTED';
+            this.rejectTargetApplication.rejectionReason = reason;
+          }
+          this.closeRejectModal();
+          this.loadMyPostedData();
+        }
+      },
+      error: () => {
+        this.isSubmittingReject = false;
       }
     });
   }

@@ -317,7 +317,13 @@
 .candidate-name-row {
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
   gap: 0.5rem;
+}
+
+.candidate-name-row .badge {
+  white-space: nowrap !important;
+  flex-shrink: 0 !important;
 }
 
 .candidate-name {
@@ -895,4 +901,103 @@
   flex-wrap: wrap;
   gap: 0.5rem;
   margin-top: 0.5rem;
+}
+
+/* ────────── Cancel Acceptance & Definitive Decision Styles ────────── */
+.btn-cancel-acceptance {
+  background: rgba(239, 68, 68, 0.12);
+  color: #ef4444;
+  border: 1px solid rgba(239, 68, 68, 0.35);
+  font-weight: 600;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.btn-cancel-acceptance:hover {
+  background: #ef4444;
+  color: #ffffff;
+  border-color: #ef4444;
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+}
+
+.status-definitive-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  padding: 0.35rem 0.65rem;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px dashed var(--border-subtle);
+  border-radius: 8px;
+}
+
+.rejection-reason-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.725rem;
+  color: #f87171;
+  background: rgba(239, 68, 68, 0.1);
+  padding: 0.2rem 0.5rem;
+  border-radius: 6px;
+  max-width: 240px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.modal-info-context {
+  background: var(--bg-surface-hover);
+  border: 1px solid var(--border-subtle);
+  border-radius: 12px;
+  padding: 0.85rem 1rem;
+  margin-bottom: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  font-size: 0.85rem;
+  color: var(--text-heading);
+}
+
+.cancel-reasons-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+  margin-top: 0.5rem;
+}
+
+.reason-radio-label {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  border-radius: 10px;
+  background: var(--bg-surface-hover);
+  border: 1px solid var(--border-subtle);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.reason-radio-label:hover {
+  border-color: var(--emerald-500);
+}
+
+.reason-radio-label input[type="radio"] {
+  accent-color: var(--emerald-500);
+  margin-top: 0.2rem;
+}
+
+.reason-radio-text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.reason-radio-text strong {
+  font-size: 0.875rem;
+  color: var(--text-heading);
 }

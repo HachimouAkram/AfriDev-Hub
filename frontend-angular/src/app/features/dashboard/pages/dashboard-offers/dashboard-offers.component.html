@@ -246,22 +246,41 @@
           }">
             {{ app.status === 'ACCEPTED' ? 'Acceptée' : (app.status === 'REJECTED' ? 'Refusée' : 'En attente') }}
           </span>
+          <span class="rejection-reason-chip" *ngIf="app.status === 'REJECTED' && app.rejectionReason" [title]="app.rejectionReason">
+            <i class="ri-information-line"></i> {{ app.rejectionReason }}
+          </span>
         </div>
 
         <div class="action-buttons">
-          <button 
-            (click)="onUpdateStatus(app, 'ACCEPTED')" 
-            [disabled]="app.status === 'ACCEPTED'"
-            class="btn btn-emerald btn-sm">
-            Accepter
-          </button>
+          <!-- 1. En attente : Accepter ou Refuser -->
+          <ng-container *ngIf="app.status === 'PENDING'">
+            <button 
+              (click)="onUpdateStatus(app, 'ACCEPTED')" 
+              class="btn btn-emerald btn-sm">
+              <i class="ri-check-line"></i> Accepter
+            </button>
 
-          <button 
-            (click)="onUpdateStatus(app, 'REJECTED')" 
-            [disabled]="app.status === 'REJECTED'"
-            class="btn btn-outline btn-sm">
-            Refuser
-          </button>
+            <button 
+              (click)="openRejectModal(app)" 
+              class="btn btn-outline btn-sm">
+              <i class="ri-close-line"></i> Refuser
+            </button>
+          </ng-container>
+
+          <!-- 2. Déjà acceptée : pas de Refuser direct, mais option Annuler avec motif -->
+          <ng-container *ngIf="app.status === 'ACCEPTED'">
+            <button 
+              (click)="openCancelAcceptanceModal(app)" 
+              class="btn btn-cancel-acceptance btn-sm"
+              title="Annuler l'acceptation avec motif (désistement du candidat ou mésentente)">
+              <i class="ri-arrow-go-back-line"></i> Annuler l'acceptation
+            </button>
+          </ng-container>
+
+          <!-- 3. Déjà refusée : pas de boutons contradictoires -->
+          <span *ngIf="app.status === 'REJECTED'" class="status-definitive-tag">
+            <i class="ri-checkbox-circle-line"></i> Décision prise
+          </span>
 
           <button (click)="openChatModal(app.applicant)" class="btn btn-emerald btn-sm">
             <svg class="icon-svg icon-svg-xs" viewBox="0 0 24 24" fill="none" stroke="currentColor">
@@ -385,8 +404,17 @@
               </div>
 
               <div class="cand-actions">
-                <button (click)="onUpdateStatus(app, 'ACCEPTED')" [disabled]="app.status === 'ACCEPTED'" class="btn btn-emerald btn-xs">Accepter</button>
-                <button (click)="onUpdateStatus(app, 'REJECTED')" [disabled]="app.status === 'REJECTED'" class="btn btn-outline btn-xs">Refuser</button>
+                <ng-container *ngIf="app.status === 'PENDING'">
+                  <button (click)="onUpdateStatus(app, 'ACCEPTED')" class="btn btn-emerald btn-xs">Accepter</button>
+                  <button (click)="openRejectModal(app)" class="btn btn-outline btn-xs">Refuser</button>
+                </ng-container>
+
+                <ng-container *ngIf="app.status === 'ACCEPTED'">
+                  <button (click)="openCancelAcceptanceModal(app)" class="btn btn-cancel-acceptance btn-xs">Annuler l'acceptation</button>
+                </ng-container>
+
+                <span *ngIf="app.status === 'REJECTED'" class="status-definitive-tag">Décision prise</span>
+
                 <button (click)="openChatModal(app.applicant)" class="btn btn-emerald btn-xs"><i class="ri-chat-1-line"></i> Discuter</button>
                 <button (click)="openReportModal(app)" class="btn btn-outline btn-xs btn-report"><i class="ri-alert-line"></i> Signaler</button>
               </div>
@@ -588,6 +616,121 @@
         <button (click)="submitReport()" [disabled]="isSubmittingReport || !reportReason.trim()" class="btn btn-emerald">
           <span *ngIf="!isSubmittingReport">Envoyer le Signalement</span>
           <span *ngIf="isSubmittingReport">Envoi...</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 6. CANCEL ACCEPTANCE WITH MOTIF MODAL -->
+  <div class="modal-overlay" *ngIf="showCancelAcceptanceModal" (click)="closeCancelAcceptanceModal()">
+    <div class="app-card modal-card" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <div class="header-titles">
+          <h3>Annuler l'acceptation de la candidature</h3>
+          <p class="text-xs text-muted">Cette action libère la place dans le quota de votre offre et informe le candidat.</p>
+        </div>
+        <button (click)="closeCancelAcceptanceModal()" class="close-btn">&times;</button>
+      </div>
+
+      <div class="modal-body" *ngIf="cancelTargetApplication as target">
+        <div class="modal-info-context">
+          <div>Candidat : <strong>{{ target.applicant?.profile?.fullName || target.applicant?.email }}</strong></div>
+          <div>Offre concernée : <strong>{{ target.opportunityTitle }}</strong></div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label font-bold">Sélectionnez le motif d'annulation *</label>
+          <div class="cancel-reasons-list">
+            <label class="reason-radio-label">
+              <input type="radio" name="cancelReasonCat" value="DESISTEMENT_CANDIDAT" [(ngModel)]="cancelReasonCategory">
+              <div class="reason-radio-text">
+                <strong>À la demande du candidat (désistement)</strong>
+                <span class="text-xs text-muted">Le candidat a demandé à retirer sa candidature ou a décliné l'offre.</span>
+              </div>
+            </label>
+
+            <label class="reason-radio-label">
+              <input type="radio" name="cancelReasonCat" value="MESENTENTE_TERMES" [(ngModel)]="cancelReasonCategory">
+              <div class="reason-radio-text">
+                <strong>Mésentente ou manque de compréhension</strong>
+                <span class="text-xs text-muted">Désaccord sur le périmètre, le budget, la disponibilité ou les conditions.</span>
+              </div>
+            </label>
+
+            <label class="reason-radio-label">
+              <input type="radio" name="cancelReasonCat" value="INDISPONIBILITE" [(ngModel)]="cancelReasonCategory">
+              <div class="reason-radio-text">
+                <strong>Indisponibilité du candidat</strong>
+                <span class="text-xs text-muted">Le candidat ne peut pas démarrer dans les délais convenus.</span>
+              </div>
+            </label>
+
+            <label class="reason-radio-label">
+              <input type="radio" name="cancelReasonCat" value="AUTRE" [(ngModel)]="cancelReasonCategory">
+              <div class="reason-radio-text">
+                <strong>Autre motif</strong>
+                <span class="text-xs text-muted">Précisez la situation dans le champ ci-dessous.</span>
+              </div>
+            </label>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="cancelDetails" class="form-label">Détails ou précisions complémentaires (optionnel)</label>
+          <textarea 
+            id="cancelDetails" 
+            [(ngModel)]="cancelReasonDetails" 
+            rows="3" 
+            placeholder="Ex : Le candidat nous a notifié par message qu'il avait accepté une autre opportunité..." 
+            class="form-textarea"></textarea>
+        </div>
+
+        <div *ngIf="cancelErrorMessage" class="error-box">{{ cancelErrorMessage }}</div>
+      </div>
+
+      <div class="modal-footer">
+        <button (click)="closeCancelAcceptanceModal()" class="btn btn-outline" [disabled]="isSubmittingCancel">Fermer</button>
+        <button (click)="submitCancelAcceptance()" [disabled]="isSubmittingCancel" class="btn btn-danger">
+          <span *ngIf="!isSubmittingCancel"><i class="ri-close-circle-line"></i> Confirmer l'annulation</span>
+          <span *ngIf="isSubmittingCancel">Annulation en cours...</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 7. REJECT CONFIRMATION MODAL -->
+  <div class="modal-overlay" *ngIf="showRejectModal" (click)="closeRejectModal()">
+    <div class="app-card modal-card" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <div class="header-titles">
+          <h3>Refuser la candidature</h3>
+          <p class="text-xs text-muted">Indiquez au candidat la raison principale pour préserver une expérience bienveillante.</p>
+        </div>
+        <button (click)="closeRejectModal()" class="close-btn">&times;</button>
+      </div>
+
+      <div class="modal-body" *ngIf="rejectTargetApplication as target">
+        <div class="modal-info-context">
+          <div>Candidat : <strong>{{ target.applicant?.profile?.fullName || target.applicant?.email }}</strong></div>
+          <div>Offre : <strong>{{ target.opportunityTitle }}</strong></div>
+        </div>
+
+        <div class="form-group">
+          <label for="rejectMotif" class="form-label">Motif du refus</label>
+          <input 
+            id="rejectMotif"
+            type="text" 
+            [(ngModel)]="rejectReason" 
+            placeholder="Ex: Profil ne correspondant pas aux compétences requises, quota atteint..." 
+            class="form-input">
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button (click)="closeRejectModal()" class="btn btn-outline" [disabled]="isSubmittingReject">Annuler</button>
+        <button (click)="submitReject()" [disabled]="isSubmittingReject" class="btn btn-outline btn-sm text-danger" style="border-color: #ef4444; color: #ef4444;">
+          <span *ngIf="!isSubmittingReject"><i class="ri-close-line"></i> Confirmer le refus</span>
+          <span *ngIf="isSubmittingReject">Traitement...</span>
         </button>
       </div>
     </div>
