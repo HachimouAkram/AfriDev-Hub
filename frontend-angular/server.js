@@ -25,7 +25,7 @@ const MIME_TYPES = {
   '.eot': 'application/vnd.ms-fontobject'
 };
 
-const server = http.createServer((req, res) => {
+const requestHandler = (req, res) => {
   // Support des probes Kubernetes (GET et HEAD sur /health, /healthz, /)
   if (req.url === '/health' || req.url === '/healthz' || (req.method === 'HEAD' && req.url === '/')) {
     res.writeHead(200, { 'Content-Type': 'text/plain' });
@@ -96,11 +96,30 @@ const server = http.createServer((req, res) => {
       });
     }
   });
-});
+};
 
-server.listen(PORT, HOST, () => {
-  console.log(`===================================================`);
-  console.log(`🌍 AfriDev Hub Frontend démarré sur http://${HOST}:${PORT}`);
-  console.log(`📁 Fichiers servis depuis : ${DIST_DIR}`);
-  console.log(`===================================================`);
-});
+function startServer(portToTry) {
+  const srv = http.createServer(requestHandler);
+
+  srv.on('error', (err) => {
+    // Sous Windows, le port 8080 est fréquemment réservé par Hyper-V / WinNAT (EACCES)
+    // En l'absence de variable PORT explicite, basculer proprement sur un port libre (3000)
+    if ((err.code === 'EACCES' || err.code === 'EADDRINUSE') && !process.env.PORT && portToTry !== 3000) {
+      console.warn(`⚠️ Port ${portToTry} inaccessible sur cette machine (${err.code}).`);
+      console.warn(`👉 Bascule automatique sur le port 3000 (http://localhost:3000)...`);
+      startServer(3000);
+    } else {
+      console.error(`❌ Erreur au démarrage du serveur :`, err.message);
+      process.exit(1);
+    }
+  });
+
+  srv.listen(portToTry, HOST, () => {
+    console.log(`===================================================`);
+    console.log(`🌍 AfriDev Hub démarré avec succès sur http://${HOST}:${portToTry}`);
+    console.log(`📁 Fichiers servis depuis : ${DIST_DIR}`);
+    console.log(`===================================================`);
+  });
+}
+
+startServer(PORT);
