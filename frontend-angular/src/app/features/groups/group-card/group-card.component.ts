@@ -1,7 +1,8 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { Component, Input, Output, EventEmitter, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { Group } from '../../../core/services/community-group.service';
+import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
   selector: 'app-group-card',
@@ -12,9 +13,17 @@ import { Group } from '../../../core/services/community-group.service';
       <!-- Bannière -->
       <div class="card-banner" [style.background-image]="group.bannerUrl ? 'url(' + group.bannerUrl + ')' : null">
         <div class="banner-overlay"></div>
-        <span class="badge-access" [class]="'access-' + group.accessType.toLowerCase()">
-          {{ getAccessLabel(group.accessType) }}
-        </span>
+        <div class="banner-badges">
+          <span class="badge-role-owner" *ngIf="isOwner()">
+            👑 Fondateur
+          </span>
+          <span class="badge-role-member" *ngIf="!isOwner() && group.isMember">
+            ✓ Membre
+          </span>
+          <span class="badge-access" [class]="'access-' + group.accessType.toLowerCase()">
+            {{ getAccessLabel(group.accessType) }}
+          </span>
+        </div>
       </div>
 
       <!-- Avatar & Titres -->
@@ -106,13 +115,23 @@ import { Group } from '../../../core/services/community-group.service';
   styleUrls: ['./group-card.component.css']
 })
 export class GroupCardComponent {
+  private authService = inject(AuthService);
+
   @Input() group!: Group;
   @Output() joinRequested = new EventEmitter<Group>();
   @Output() editRequested = new EventEmitter<Group>();
   @Output() deleteRequested = new EventEmitter<Group>();
 
+  isOwner(): boolean {
+    const current = this.authService.currentUser();
+    if (!current) return false;
+    return this.group.userRole === 'OWNER' ||
+           this.group.owner?.id === current.id ||
+           this.group.owner?.email === current.email;
+  }
+
   canManage(): boolean {
-    return this.group.userRole === 'OWNER' || this.group.userRole === 'ADMIN';
+    return this.isOwner() || this.group.userRole === 'ADMIN';
   }
 
   onEdit(event: Event): void {

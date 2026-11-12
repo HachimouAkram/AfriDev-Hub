@@ -33,5 +33,9 @@ public class GroupDto {
     private Boolean isMember;
     private GroupMemberRole userRole;
     private Boolean isPending;
+
+    // Recommandation IA & Affinité
+    private String suggestionReason;
+    private Double matchPercentage;
 }
 

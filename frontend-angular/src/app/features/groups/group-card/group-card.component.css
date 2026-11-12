@@ -25,6 +25,37 @@
   justify-content: flex-end;
 }
 
+.banner-badges {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  flex-wrap: wrap;
+}
+
+.badge-role-owner {
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 0.2rem 0.65rem;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);
+  color: #FFFFFF;
+  box-shadow: 0 2px 8px rgba(245, 158, 11, 0.4);
+  letter-spacing: 0.02em;
+}
+
+.badge-role-member {
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 0.2rem 0.65rem;
+  border-radius: 999px;
+  background: rgba(16, 185, 129, 0.9);
+  color: #FFFFFF;
+  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
+  letter-spacing: 0.02em;
+}
+
 .banner-overlay {
   position: absolute;
   top: 0;

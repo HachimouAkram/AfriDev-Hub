@@ -29,6 +29,8 @@ export interface Group {
   isMember?: boolean;
   userRole?: GroupMemberRole;
   isPending?: boolean;
+  suggestionReason?: string;
+  matchPercentage?: number;
 }
 
 export interface GroupMember {

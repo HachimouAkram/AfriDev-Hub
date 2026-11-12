@@ -452,6 +452,8 @@ public class CommunityGroupService {
         Boolean isMember = false;
         Boolean isPending = false;
         GroupMemberRole role = null;
+        String suggestionReason = null;
+        Double matchPercentage = null;
 
         if (currentUserEmail != null) {
             UserEntity user = userRepository.findByEmail(currentUserEmail).orElse(null);
@@ -462,7 +464,57 @@ public class CommunityGroupService {
                     isPending = m.get().getStatus() == GroupMemberStatus.PENDING;
                     role = m.get().getRole();
                 }
+
+                // Calcul de la recommandation si l'utilisateur n'est pas encore membre
+                if (!Boolean.TRUE.equals(isMember)) {
+                    List<String> userSkills = (user.getProfile() != null && user.getProfile().getSkills() != null)
+                            ? user.getProfile().getSkills() : List.of();
+                    String userCountry = (user.getProfile() != null && user.getProfile().getCountry() != null)
+                            ? user.getProfile().getCountry() : "";
+
+                    List<String> matchedTags = new ArrayList<>();
+                    if (group.getTags() != null) {
+                        for (String tag : group.getTags()) {
+                            for (String skill : userSkills) {
+                                if (tag.equalsIgnoreCase(skill) || tag.toLowerCase().contains(skill.toLowerCase()) || skill.toLowerCase().contains(tag.toLowerCase())) {
+                                    matchedTags.add(tag);
+                                    break;
+                                }
+                            }
+                        }
+                    }
+
+                    boolean sameCountry = group.getCountry() != null && !group.getCountry().isBlank()
+                            && group.getCountry().equalsIgnoreCase(userCountry);
+
+                    double score = 45.0;
+                    if (!matchedTags.isEmpty()) score += Math.min(35.0, matchedTags.size() * 15.0);
+                    if (sameCountry) score += 15.0;
+                    int members = group.getMemberCount() != null ? group.getMemberCount() : 0;
+                    score += Math.min(10.0, members * 2.0);
+                    matchPercentage = Math.min(99.0, Math.max(50.0, (double) Math.round(score)));
+
+                    if (sameCountry && !matchedTags.isEmpty()) {
+                        suggestionReason = "Collectif au " + group.getCountry() + " • Spécialisé en " + String.join(", ", matchedTags);
+                    } else if (!matchedTags.isEmpty()) {
+                        suggestionReason = "Correspond à vos technologies (" + String.join(", ", matchedTags) + ")";
+                    } else if (sameCountry) {
+                        suggestionReason = "Communauté active au " + group.getCountry();
+                    } else if (members >= 3) {
+                        suggestionReason = "Communauté très dynamique (" + members + " membres)";
+                    } else {
+                        suggestionReason = "Collectif tech recommandé";
+                    }
+                }
             }
+        } else {
+            int members = group.getMemberCount() != null ? group.getMemberCount() : 0;
+            if (members >= 3) {
+                suggestionReason = "Communauté dynamique (" + members + " membres)";
+            } else {
+                suggestionReason = "Collectif panafricain";
+            }
+            matchPercentage = 70.0;
         }
 
         return GroupDto.builder()
@@ -485,6 +537,8 @@ public class CommunityGroupService {
                 .isMember(isMember)
                 .isPending(isPending)
                 .userRole(role)
+                .suggestionReason(suggestionReason)
+                .matchPercentage(matchPercentage)
                 .build();
     }
 

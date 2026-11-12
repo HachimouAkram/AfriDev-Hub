@@ -563,3 +563,24 @@
 .btn-danger:hover {
   background: #dc2626;
 }
+
+.empty-btns-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 1rem;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.btn-outline {
+  background: transparent;
+  border: 1px solid var(--border-subtle, rgba(255, 255, 255, 0.15));
+  color: var(--text-heading, #ffffff);
+}
+
+.btn-outline:hover {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: var(--emerald-500, #10b981);
+  color: var(--emerald-500, #10b981);
+}
