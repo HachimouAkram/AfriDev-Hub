@@ -229,6 +229,7 @@ export class ResourceListComponent implements OnInit {
         r.isCompletedByCurrentUser = true;
         r.completionsCount++;
         this.publishBannerNotice.set(`Félicitations ! Vous avez complété avec succès « ${r.title} » !`);
+        this.authService.refreshCurrentUser().subscribe({ error: () => {} });
       }
     });
   }
@@ -590,6 +591,7 @@ export class ResourceListComponent implements OnInit {
         this.publishBannerNotice.set(
           `🎉 « ${created.title} » est en ligne (+20 XP reçus) !`
         );
+        this.authService.refreshCurrentUser().subscribe({ error: () => {} });
         this.publishTechTags.set(['Node.js']);
         this.techInput = '';
         this.selectedType.set('ALL');

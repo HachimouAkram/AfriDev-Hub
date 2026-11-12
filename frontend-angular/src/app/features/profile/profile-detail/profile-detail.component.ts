@@ -97,6 +97,14 @@ export class ProfileDetailComponent implements OnInit {
         this.profile = this.currentUser()!.profile;
         this.targetUserId = this.currentUser()!.id;
         this.isOwnProfile = true;
+        this.authService.refreshCurrentUser().subscribe({
+          next: (res) => {
+            if (res?.success && res.data?.profile) {
+              this.profile = res.data.profile;
+            }
+          },
+          error: () => {}
+        });
         this.parseGithubStats();
         this.loadFollowStats(this.targetUserId);
         this.loadActivities(this.targetUserId);

@@ -98,6 +98,10 @@ export class DashboardOverviewComponent implements OnInit {
   activePeriodFilter = signal<'ALL' | 'MONTH' | 'WEEK'>('MONTH');
 
   ngOnInit(): void {
+    if (this.authService.isLoggedIn()) {
+      this.authService.refreshCurrentUser().subscribe({ error: () => {} });
+    }
+
     const u = this.user();
     if (!u) return;
 

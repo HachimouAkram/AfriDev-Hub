@@ -51,6 +51,9 @@ export class LeaderboardComponent implements OnInit {
           this.data.set(res.data);
           this.leaderboardService.saveCache(query, res.data);
           this.isCached.set(!!res.data.fromCache);
+          if (this.authService.isLoggedIn()) {
+            this.authService.refreshCurrentUser().subscribe({ error: () => {} });
+          }
         } else if (!cached) {
           this.errorMessage.set(res.error?.message || 'Impossible de charger le classement.');
         }

@@ -1,6 +1,6 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, tap } from 'rxjs';
+import { Observable, tap, of } from 'rxjs';
 
 export interface Profile {
   id: string;
@@ -97,6 +97,54 @@ export class AuthService {
 
   currentUser = signal<User | null>(this.getStoredUser());
   token = signal<string | null>(localStorage.getItem('afridev_token'));
+
+  constructor() {
+    if (this.isLoggedIn()) {
+      this.refreshCurrentUser().subscribe({ error: () => {} });
+    }
+
+    // Synchronisation en arrière-plan au focus de la fenêtre (ex: retour d'un autre onglet)
+    if (typeof window !== 'undefined') {
+      window.addEventListener('focus', () => {
+        if (this.isLoggedIn()) {
+          this.refreshCurrentUser().subscribe({ error: () => {} });
+        }
+      });
+    }
+  }
+
+  /**
+   * Rafraîchit les informations de l'utilisateur connecté (profil, XP points, statut, niveau)
+   * depuis le serveur et met à jour le Signal currentUser et le localStorage en temps réel.
+   */
+  refreshCurrentUser(): Observable<ApiResponse<User>> {
+    if (!this.isLoggedIn()) {
+      return of({ success: false, data: null as any });
+    }
+    return this.http.get<ApiResponse<User>>(`${this.apiUrl}/me`).pipe(
+      tap(res => {
+        if (res.success && res.data) {
+          const updatedUser = res.data;
+          localStorage.setItem('afridev_user', JSON.stringify(updatedUser));
+          this.currentUser.set(updatedUser);
+        }
+      })
+    );
+  }
+
+  /**
+   * Met à jour immédiatement et de manière réactive l'XP de l'utilisateur connecté
+   */
+  updateXp(points: number): void {
+    const user = this.currentUser();
+    if (user && user.profile) {
+      const currentXp = user.profile.xpPoints || 0;
+      user.profile.xpPoints = currentXp + points;
+      localStorage.setItem('afridev_user', JSON.stringify(user));
+      this.currentUser.set({ ...user });
+    }
+    this.refreshCurrentUser().subscribe({ error: () => {} });
+  }
 
   getDeviceId(): string {
     let id = localStorage.getItem('afridev_device_id');

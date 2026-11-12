@@ -41,6 +41,9 @@ export class DashboardLayoutComponent implements OnInit {
   receivedAppsCount = signal<number>(0);
 
   ngOnInit(): void {
+    if (this.authService.isLoggedIn()) {
+      this.authService.refreshCurrentUser().subscribe({ error: () => {} });
+    }
     this.loadCounts();
     this.loadNotifications();
   }
@@ -93,6 +96,9 @@ export class DashboardLayoutComponent implements OnInit {
     this.isLangMenuOpen = false;
     this.isNotifMenuOpen = false;
     this.isProfileMenuOpen = !this.isProfileMenuOpen;
+    if (this.isProfileMenuOpen && this.authService.isLoggedIn()) {
+      this.authService.refreshCurrentUser().subscribe({ error: () => {} });
+    }
   }
 
   closeProfileMenu(): void {
