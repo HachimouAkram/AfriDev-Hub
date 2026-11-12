@@ -28,6 +28,7 @@ export const routes: Routes = [
     children: [
       {
         path: '',
+        canActivate: [developerGuard],
         loadComponent: () => import('./features/dashboard/pages/dashboard-overview/dashboard-overview.component').then(m => m.DashboardOverviewComponent)
       },
       {
@@ -61,6 +62,7 @@ export const routes: Routes = [
       },
       {
         path: 'profile',
+        canActivate: [developerGuard],
         loadComponent: () => import('./features/profile/profile-detail/profile-detail.component').then(m => m.ProfileDetailComponent)
       },
       {
