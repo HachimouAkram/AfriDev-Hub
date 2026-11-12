@@ -64,16 +64,6 @@ import { AuthService } from '../../../core/services/auth.service';
                 <span>Message privé</span>
               </button>
 
-              <!-- Changement de statut par l'auteur (Tâche 1.10) -->
-              <div class="status-modifier" *ngIf="post.isAuthor">
-                <label>Statut :</label>
-                <select [ngModel]="post.status" (ngModelChange)="onStatusChange($event)">
-                  <option value="OUVERTE">Ouverte</option>
-                  <option value="EN_COURS">En cours</option>
-                  <option value="RESOLUE">Résolue</option>
-                </select>
-              </div>
-
               <!-- Suppression par l'auteur -->
               <button
                 *ngIf="post.isAuthor"
@@ -308,18 +298,6 @@ export class HelpPostDetailComponent implements OnInit {
         queryParams: { targetUser: this.post.author.id, subject: 'Aide: ' + this.post.title }
       });
     }
-  }
-
-  onStatusChange(newStatus: HelpPostStatus): void {
-    if (!this.post) return;
-    this.helpService.updateStatus(this.post.id, newStatus).subscribe({
-      next: (res) => {
-        if (res.success && res.data) {
-          this.post!.status = res.data.status;
-          this.post!.resolvedAt = res.data.resolvedAt;
-        }
-      }
-    });
   }
 
   deletePost(): void {
