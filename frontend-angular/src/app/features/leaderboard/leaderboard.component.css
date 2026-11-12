@@ -1,11 +1,11 @@
 .leaderboard-page {
+  max-width: 1400px;
   width: 100%;
-  max-width: 100%;
-  margin: 0;
-  padding: 0;
+  margin: 0 auto;
+  padding: clamp(1rem, 3vw, 2.5rem) clamp(1rem, 2.5vw, 1.5rem);
   display: flex;
   flex-direction: column;
-  gap: 1.25rem;
+  gap: 2rem;
   box-sizing: border-box;
 }
 
@@ -15,29 +15,48 @@
   justify-content: space-between;
   align-items: center;
   flex-wrap: wrap;
-  gap: 1.25rem;
-  padding: 1.25rem 1.5rem;
+  gap: 1.5rem;
+  padding: 2rem;
+  border-radius: 16px;
+  background: var(--bg-surface-card);
+  border: 1px solid var(--border-subtle);
+}
+
+body.light-theme .header-section {
+  background: #FFFFFF;
+  border-color: #E2E8F0;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.04);
 }
 
 .header-text h1,
 .header-text h2,
 .header-text-group h2 {
   font-family: var(--font-heading, inherit);
-  font-size: 1.35rem;
-  font-weight: 800;
-  margin: 0 0 0.25rem;
-  letter-spacing: normal;
-  line-height: 1.3;
+  font-size: var(--page-title-size, 1.35rem);
+  font-weight: var(--page-title-weight, 800);
+  margin: 0 0 0.35rem;
+  letter-spacing: var(--page-title-letter-spacing, -0.025em);
+  line-height: var(--page-title-line-height, 1.25);
   color: var(--text-heading, #ffffff);
+}
+
+body.light-theme .header-text h1,
+body.light-theme .header-text-group h2 {
+  color: #0F172A;
 }
 
 .header-text p,
 .header-text-group .subtext {
-  font-size: 0.875rem;
-  color: var(--text-muted, #64748b);
+  font-size: var(--page-subtitle-size, 0.95rem);
+  line-height: var(--page-subtitle-line-height, 1.6);
+  color: var(--text-muted, #94A3B8);
   margin: 0;
-  max-width: 650px;
-  line-height: 1.5;
+  max-width: 760px;
+}
+
+body.light-theme .header-text p,
+body.light-theme .header-text-group .subtext {
+  color: #64748B;
 }
 
 .stats-pills {
@@ -82,7 +101,23 @@ body.light-theme .stat-pill {
   border-color: rgba(0, 0, 0, 0.08);
 }
 
-/* 2. Search Section */
+/* 2. Controls & Search Section (Style unifié Réseau) */
+.controls-card {
+  padding: 1.25rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  border-radius: 16px;
+  background: var(--bg-surface-card);
+  border: 1px solid var(--border-subtle);
+}
+
+body.light-theme .controls-card {
+  background: #FFFFFF;
+  border-color: #E2E8F0;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.04);
+}
+
 .search-section {
   width: 100%;
 }

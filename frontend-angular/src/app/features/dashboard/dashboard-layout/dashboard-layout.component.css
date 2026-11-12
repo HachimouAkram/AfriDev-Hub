@@ -1025,8 +1025,8 @@ body.light-theme .dashboard-body::-webkit-scrollbar-thumb:hover {
 ::ng-deep .dashboard-body .evaluations-container,
 ::ng-deep .dashboard-body .leaderboard-page {
   padding: 0 !important;
-  margin: 0 !important;
-  max-width: 100% !important;
+  margin: 0 auto !important;
+  max-width: 1400px !important;
   width: 100% !important;
 }
 
