@@ -53,15 +53,15 @@ public class CompanyEntity {
     @JoinColumn(name = "owner_id", nullable = false, unique = true)
     private UserEntity owner;
 
-    @Column(name = "company_xp", nullable = false, columnDefinition = "BIGINT DEFAULT 0")
+    @Column(name = "company_xp", nullable = false)
     @Builder.Default
     private Long companyXp = 0L;
 
-    @Column(name = "company_level", nullable = false, columnDefinition = "VARCHAR(50) DEFAULT 'Startup'")
+    @Column(name = "company_level", nullable = false, length = 50)
     @Builder.Default
     private String companyLevel = "Startup";
 
-    @Column(name = "level_number", nullable = false, columnDefinition = "INTEGER DEFAULT 1")
+    @Column(name = "level_number", nullable = false)
     @Builder.Default
     private Integer levelNumber = 1;
 
