@@ -139,6 +139,8 @@ export class LoginComponent implements AfterViewInit, OnDestroy {
     const role = user?.role || this.authService.currentUser()?.role;
     if (role === 'SUPER_ADMIN' || role === 'ADMIN') {
       this.router.navigate(['/admin']);
+    } else if (role === 'RECRUITER') {
+      this.router.navigate(['/dashboard/recruiter']);
     } else {
       this.router.navigate(['/dashboard']);
     }

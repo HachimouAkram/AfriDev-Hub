@@ -190,7 +190,14 @@ export class VerifyOtpComponent implements OnInit {
         if (res.success) {
           this.successMessage = 'Email vérifié avec succès ! Redirection…';
           setTimeout(() => {
-            this.router.navigate(['/dashboard']);
+            const role = res.data?.user?.role || this.authService.currentUser()?.role;
+            if (role === 'SUPER_ADMIN' || role === 'ADMIN') {
+              this.router.navigate(['/admin']);
+            } else if (role === 'RECRUITER') {
+              this.router.navigate(['/dashboard/recruiter']);
+            } else {
+              this.router.navigate(['/dashboard']);
+            }
           }, 800);
         }
       },
