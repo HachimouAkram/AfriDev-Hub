@@ -187,6 +187,18 @@
   border-bottom: 1px solid var(--border-subtle);
   vertical-align: middle;
   color: var(--text-heading);
+  white-space: nowrap;
+}
+
+.projects-table td.col-title {
+  white-space: normal;
+}
+
+.projects-table .badge {
+  white-space: nowrap !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  word-break: normal !important;
 }
 
 .projects-table tbody tr {
@@ -370,6 +382,70 @@
   border: 1px solid rgba(168, 85, 247, 0.2);
   font-weight: 600;
   white-space: nowrap !important;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.collab-pricing-pill {
+  font-size: 0.75rem;
+  padding: 0.2rem 0.5rem;
+  border-radius: 6px;
+  background: rgba(20, 184, 166, 0.1);
+  color: #2DD4BF;
+  border: 1px solid rgba(20, 184, 166, 0.25);
+  font-weight: 600;
+  white-space: nowrap !important;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.portfolio-pricing-pill {
+  font-size: 0.75rem;
+  padding: 0.2rem 0.5rem;
+  border-radius: 6px;
+  background: rgba(59, 130, 246, 0.1);
+  color: #60A5FA;
+  border: 1px solid rgba(59, 130, 246, 0.25);
+  font-weight: 600;
+  white-space: nowrap !important;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.opensource-pricing-pill {
+  font-size: 0.75rem;
+  padding: 0.2rem 0.5rem;
+  border-radius: 6px;
+  background: rgba(16, 185, 129, 0.1);
+  color: #34D399;
+  border: 1px solid rgba(16, 185, 129, 0.25);
+  font-weight: 600;
+  white-space: nowrap !important;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.enterprise-pricing-pill {
+  font-size: 0.75rem;
+  padding: 0.2rem 0.5rem;
+  border-radius: 6px;
+  background: rgba(148, 163, 184, 0.1);
+  color: #94A3B8;
+  border: 1px solid rgba(148, 163, 184, 0.25);
+  font-weight: 600;
+  white-space: nowrap !important;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.default-pricing-pill {
+  font-size: 0.75rem;
+  color: var(--text-muted);
 }
 
 /* Recognition Pill */
@@ -738,6 +814,20 @@
   border-color: rgba(16, 185, 129, 0.25);
 }
 .emerald-box .type-box-title { color: var(--emerald-400); }
+
+.teal-box {
+  background: rgba(20, 184, 166, 0.06);
+  border-color: rgba(20, 184, 166, 0.25);
+}
+.teal-box .type-box-title { color: #2DD4BF; }
+
+.collab-action-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+}
 
 .amber-box {
   background: rgba(245, 158, 11, 0.06);

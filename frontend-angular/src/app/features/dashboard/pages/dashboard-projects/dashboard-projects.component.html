@@ -165,9 +165,21 @@
                 <span class="price-highlight">{{ proj.price | number }} {{ proj.currency || 'XOF' }}</span>
               </div>
               <div *ngIf="proj.projectType === 'SAAS'">
-                <span class="saas-pricing-pill">{{ proj.saasPricingType || 'Freemium' }}</span>
+                <span class="saas-pricing-pill">{{ getSaasPricingLabel(proj.saasPricingType) }}</span>
               </div>
-              <div *ngIf="proj.projectType !== 'FOR_SALE' && proj.projectType !== 'SAAS'">
+              <div *ngIf="proj.projectType === 'COLLABORATIVE'">
+                <span class="collab-pricing-pill"><i class="ri-team-line"></i> Équipe ({{ proj.maxMembers ? proj.maxMembers + ' pl.' : 'Ouvert' }})</span>
+              </div>
+              <div *ngIf="proj.projectType === 'PORTFOLIO'">
+                <span class="portfolio-pricing-pill"><i class="ri-window-line"></i> Vitrine perso</span>
+              </div>
+              <div *ngIf="proj.projectType === 'OPEN_SOURCE'">
+                <span class="opensource-pricing-pill"><i class="ri-git-repository-line"></i> Libre ({{ proj.licenseType || 'MIT' }})</span>
+              </div>
+              <div *ngIf="proj.projectType === 'ENTERPRISE'">
+                <span class="enterprise-pricing-pill"><i class="ri-shield-check-line"></i> Client (NDA)</span>
+              </div>
+              <div *ngIf="!proj.projectType">
                 <span class="text-xs text-muted font-mono">—</span>
               </div>
             </td>
@@ -1059,7 +1071,10 @@
                 <span>Modalité & Prix de Vente</span>
               </div>
               <p class="price-value">{{ selectedProject.price | number }} {{ selectedProject.currency || 'XOF' }}</p>
-              <p class="text-xs text-muted">Type de cession : <strong>{{ selectedProject.saleType || 'Code source complet' }}</strong></p>
+              <p class="text-xs text-muted">Type de cession : <strong>{{ getSaleTypeLabel(selectedProject.saleType) }}</strong></p>
+              <p class="text-xs text-muted margin-top-xs" *ngIf="isProjectOwner(selectedProject) && selectedProject.payoutPhoneNumber">
+                Reversement vendeur : <strong>{{ selectedProject.payoutPhoneNumber }}</strong> ({{ selectedProject.payoutOperator || 'Mobile Money' }})
+              </p>
             </div>
             <button 
               *ngIf="selectedProject.author?.id !== authService.currentUser()?.id"
@@ -1083,7 +1098,7 @@
                 </svg>
                 <span>Produit SaaS & Accès</span>
               </div>
-              <span class="saas-pricing-pill margin-top-xs">{{ selectedProject.saasPricingType || 'FREEMIUM' }}</span>
+              <span class="saas-pricing-pill margin-top-xs">{{ getSaasPricingLabel(selectedProject.saasPricingType) }}</span>
               
               <!-- Demo Account Info Box -->
               <div *ngIf="selectedProject.demoAccountInfo" class="demo-credentials-box margin-top-xs">
@@ -1103,7 +1118,49 @@
           </div>
         </div>
 
-        <!-- 3. TYPE ENTERPRISE -->
+        <!-- 3. TYPE COLLABORATIVE -->
+        <div *ngIf="selectedProject.projectType === 'COLLABORATIVE'" class="detail-section collab-info-card teal-box">
+          <div class="collab-action-row">
+            <div>
+              <div class="type-box-title">
+                <svg class="icon-svg icon-svg-xs" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 18.72a9.094 9.094 0 003.741-.479 3 3 0 00-4.682-2.72m.94 3.198l.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0112 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 016 18.719m12 0a5.971 5.971 0 00-.941-3.197m0 0A5.995 5.995 0 0012 12.75a5.995 5.995 0 00-5.058 2.772m0 0a3 3 0 00-4.681 2.72 8.986 8.986 0 003.74.477m.999-3.199a5.971 5.971 0 00-.94 3.197M15 6.75a3 3 0 11-6 0 3 3 0 016 0zm6 3a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0zm-13.5 0a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z" />
+                </svg>
+                <span>Projet Collaboratif & Recrutement d'Équipe</span>
+              </div>
+              <p class="margin-top-xs text-sm">
+                <strong>Places d'équipe :</strong> {{ selectedProject.maxMembers ? selectedProject.maxMembers + ' membres maximum' : 'Recrutement ouvert sans quota strict' }}
+              </p>
+              <p class="text-xs text-muted margin-top-xs">
+                Espace collaboratif avec tableau Kanban, gestion des tâches et suivi des contributions des membres.
+              </p>
+            </div>
+            <button 
+              *ngIf="isProjectOwner(selectedProject)"
+              (click)="openCollabModal(selectedProject); closeDetailModal()" 
+              class="btn btn-emerald btn-sm">
+              <svg class="icon-svg icon-svg-xs" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.75 6A2.25 2.25 0 016 3.75h2.25A2.25 2.25 0 0110.5 6v2.25a2.25 2.25 0 01-2.25 2.25H6a2.25 2.25 0 01-2.25-2.25V6zM3.75 15.75A2.25 2.25 0 016 13.5h2.25a2.25 2.25 0 012.25 2.25V18a2.25 2.25 0 01-2.25 2.25H6A2.25 2.25 0 013.75 18v-2.25zM13.5 6a2.25 2.25 0 012.25-2.25H18A2.25 2.25 0 0120.25 6v2.25A2.25 2.25 0 0118 10.5h-2.25a2.25 2.25 0 01-2.25-2.25V6zM13.5 15.75a2.25 2.25 0 012.25-2.25H18a2.25 2.25 0 012.25 2.25V18A2.25 2.25 0 0118 20.25h-2.25A2.25 2.25 0 0113.5 18v-2.25z" />
+              </svg>
+              <span>Espace Équipe & Tâches</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- 4. TYPE PORTFOLIO -->
+        <div *ngIf="selectedProject.projectType === 'PORTFOLIO'" class="detail-section portfolio-info-card blue-box">
+          <div class="type-box-title">
+            <svg class="icon-svg icon-svg-xs" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 21a9.004 9.004 0 008.716-6.747M12 21a9.004 9.004 0 01-8.716-6.747M12 21c2.485 0 4.5-4.03 4.5-9S14.485 3 12 3m0 18c-2.485 0-4.5-4.03-4.5-9S9.515 3 12 3m0 0a8.997 8.997 0 017.843 4.582M12 3a8.997 8.997 0 00-7.843 4.582m15.686 0A11.953 11.953 0 0112 10.5c-2.998 0-5.74-1.1-7.843-2.918m15.686 0A8.959 8.959 0 0121 12c0 .778-.099 1.533-.284 2.253m0 0A17.919 17.919 0 0112 16.5c-3.162 0-6.133-.815-8.716-2.247m0 0A9.015 9.015 0 013 12c0-1.605.42-3.113 1.157-4.418" />
+            </svg>
+            <span>Vitrine & Démonstration Technique</span>
+          </div>
+          <p class="text-sm margin-top-xs">
+            Projet vitrine créé pour démontrer l'expertise, les compétences techniques et l'expérience du développeur.
+          </p>
+        </div>
+
+        <!-- 5. TYPE ENTERPRISE -->
         <div *ngIf="selectedProject.companyName" class="detail-section enterprise-info-card slate-box">
           <div class="type-box-title">
             <svg class="icon-svg icon-svg-xs" viewBox="0 0 24 24" fill="none" stroke="currentColor">
@@ -1118,7 +1175,7 @@
           </p>
         </div>
 
-        <!-- 4. TYPE OPEN SOURCE -->
+        <!-- 6. TYPE OPEN SOURCE -->
         <div *ngIf="selectedProject.projectType === 'OPEN_SOURCE'" class="detail-section emerald-box">
           <div class="type-box-title">
             <svg class="icon-svg icon-svg-xs" viewBox="0 0 24 24" fill="none" stroke="currentColor">

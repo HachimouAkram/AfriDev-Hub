@@ -72,11 +72,12 @@ export class ProfileService {
   }
 
   /**
-   * Retourne l'URL complète d'un document ou image téléversée.
+   * Retourne l'URL proxy pour prévisualiser un PDF en ligne sans téléchargement forcé
    */
   getPdfViewerUrl(url: string | undefined | null): string {
     if (!url || !url.trim()) return '';
-    return this.getFullAvatarUrl(url.trim());
+    const full = this.getFullAvatarUrl(url.trim());
+    return `/api/v1/uploads/view-pdf?url=${encodeURIComponent(full)}`;
   }
 
   /**
@@ -85,9 +86,9 @@ export class ProfileService {
    */
   openPdfInNewTab(url: string | undefined | null, defaultFilename = 'CV.pdf'): void {
     if (!url || !url.trim()) return;
-    const fullUrl = this.getFullAvatarUrl(url.trim());
+    const proxyUrl = this.getPdfViewerUrl(url);
 
-    fetch(fullUrl)
+    fetch(proxyUrl)
       .then(res => {
         if (!res.ok) throw new Error('Status ' + res.status);
         return res.blob();
@@ -98,8 +99,8 @@ export class ProfileService {
         window.open(blobUrl, '_blank');
       })
       .catch(err => {
-        console.warn('Fallback ouverture directe PDF :', err);
-        window.open(fullUrl, '_blank');
+        console.warn('Fallback ouverture proxy PDF direct :', err);
+        window.open(proxyUrl, '_blank');
       });
   }
 

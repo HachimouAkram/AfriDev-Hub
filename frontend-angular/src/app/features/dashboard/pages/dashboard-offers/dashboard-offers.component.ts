@@ -1,6 +1,6 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterLink } from '@angular/router';
+import { RouterLink, ActivatedRoute } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { AuthService, User } from '../../../../core/services/auth.service';
@@ -23,6 +23,7 @@ export class DashboardOffersComponent implements OnInit {
   private messageService = inject(MessageService);
   private profileService = inject(ProfileService);
   private sanitizer = inject(DomSanitizer);
+  private route = inject(ActivatedRoute);
 
   /** Résout les URLs relatives des fichiers téléversés (CV, lettre PDF) */
   fileUrl(url: string | undefined | null): string {
@@ -41,15 +42,15 @@ export class DashboardOffersComponent implements OnInit {
 
   openPdfViewer(rawUrl?: string | null, filename = 'Document.pdf', title = 'Curriculum Vitae', subtitle = 'Document du candidat'): void {
     if (!rawUrl) return;
-    const fullUrl = this.profileService.getFullAvatarUrl(rawUrl);
-    this.currentRawPdfUrl = fullUrl;
+    const proxyUrl = this.profileService.getPdfViewerUrl(rawUrl);
+    this.currentRawPdfUrl = proxyUrl;
     this.currentPdfFilename = filename;
     this.currentPdfTitle = title;
     this.currentPdfSubtitle = subtitle;
     this.isLoadingPdf = true;
     this.showPdfModal = true;
 
-    fetch(fullUrl)
+    fetch(proxyUrl)
       .then(res => {
         if (!res.ok) throw new Error('Status ' + res.status);
         return res.blob();
@@ -64,8 +65,8 @@ export class DashboardOffersComponent implements OnInit {
         this.isLoadingPdf = false;
       })
       .catch(err => {
-        console.warn('Erreur fetch PDF blob, fallback URL directe:', err);
-        this.safeCvUrl = this.sanitizer.bypassSecurityTrustResourceUrl(fullUrl);
+        console.warn('Erreur fetch PDF blob, fallback URL proxy directe:', err);
+        this.safeCvUrl = this.sanitizer.bypassSecurityTrustResourceUrl(proxyUrl);
         this.isLoadingPdf = false;
       });
   }
@@ -180,6 +181,11 @@ export class DashboardOffersComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadMyPostedData();
+    this.route.queryParams.subscribe(params => {
+      if (params['action'] === 'create') {
+        this.openCreateModal();
+      }
+    });
   }
 
   loadMyPostedData(): void {

@@ -78,6 +78,18 @@
   border-bottom: 1px solid var(--border-subtle);
   vertical-align: middle;
   color: var(--text-heading);
+  white-space: nowrap;
+}
+
+.offers-table td.col-offer-info {
+  white-space: normal;
+}
+
+.offers-table .badge {
+  white-space: nowrap !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  word-break: normal !important;
 }
 
 .offers-table tbody tr {

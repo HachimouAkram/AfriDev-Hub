@@ -584,6 +584,16 @@ export class DashboardProjectsComponent implements OnInit {
     this.authorFollowStats = null;
     this.loadComments(project.id);
 
+    // Charger les informations complètes et fraîches du projet depuis le serveur
+    this.projectService.getProjectById(project.id, true).subscribe({
+      next: (res) => {
+        if (res?.success && res.data) {
+          this.selectedProject = { ...this.selectedProject, ...res.data };
+        }
+      },
+      error: (err) => console.warn('Impossible de rafraîchir les détails du projet :', err)
+    });
+
     const authorUserId = project.author?.id;
     const currentUserId = this.authService.currentUser()?.id;
 
@@ -803,6 +813,32 @@ export class DashboardProjectsComponent implements OnInit {
         return { label: 'Entreprise (NDA)', class: 'badge-slate' };
       default:
         return { label: 'Open Source', class: 'badge-emerald' };
+    }
+  }
+
+  getSaleTypeLabel(type?: string | SaleType): string {
+    switch (type) {
+      case 'FULL_SOURCE_CODE':
+        return 'Code source complet (Cession intégrale)';
+      case 'LICENSED':
+        return 'Licence d\'exploitation commerciale';
+      case 'EXCLUSIVE_CESSION':
+        return 'Cession exclusive de propriété';
+      default:
+        return type || 'Code source complet';
+    }
+  }
+
+  getSaasPricingLabel(type?: string | SaasPricingType): string {
+    switch (type) {
+      case 'FREE':
+        return '100% Gratuit';
+      case 'FREEMIUM':
+        return 'Freemium';
+      case 'PAID_SUBSCRIPTION':
+        return 'Abonnement Payant';
+      default:
+        return type || 'Freemium';
     }
   }
 

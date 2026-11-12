@@ -82,6 +82,11 @@ public class FileUploadController {
 
         String decodedUrl = targetUrl.trim();
         try {
+            // Décodage au cas où l'URL a été encodée plusieurs fois (ex: %3A%2F%2F)
+            if (decodedUrl.contains("%3A") || decodedUrl.contains("%2F")) {
+                decodedUrl = java.net.URLDecoder.decode(decodedUrl, java.nio.charset.StandardCharsets.UTF_8);
+            }
+
             byte[] pdfBytes;
 
             if (decodedUrl.startsWith("http://") || decodedUrl.startsWith("https://")) {
@@ -89,12 +94,12 @@ public class FileUploadController {
                 java.net.URI uri = java.net.URI.create(decodedUrl);
                 java.net.http.HttpClient client = java.net.http.HttpClient.newBuilder()
                         .followRedirects(java.net.http.HttpClient.Redirect.ALWAYS)
-                        .connectTimeout(java.time.Duration.ofSeconds(10))
+                        .connectTimeout(java.time.Duration.ofSeconds(12))
                         .build();
 
                 java.net.http.HttpRequest request = java.net.http.HttpRequest.newBuilder()
                         .uri(uri)
-                        .timeout(java.time.Duration.ofSeconds(20))
+                        .timeout(java.time.Duration.ofSeconds(25))
                         .GET()
                         .build();
 
@@ -107,7 +112,11 @@ public class FileUploadController {
             } else {
                 // Stockage local
                 String filename = decodedUrl;
-                if (filename.contains("/")) {
+                if (filename.startsWith("/api/v1/uploads/files/")) {
+                    filename = filename.replace("/api/v1/uploads/files/", "");
+                } else if (filename.startsWith("/uploads/files/")) {
+                    filename = filename.replace("/uploads/files/", "");
+                } else if (filename.contains("/")) {
                     filename = filename.substring(filename.lastIndexOf('/') + 1);
                 }
                 Resource resource = fileStorageService.loadFileAsResource(filename);
@@ -116,8 +125,9 @@ public class FileUploadController {
 
             return ResponseEntity.ok()
                     .contentType(MediaType.APPLICATION_PDF)
-                    .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"cv.pdf\"")
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"document.pdf\"")
                     .header(HttpHeaders.CACHE_CONTROL, "public, max-age=86400")
+                    .header("X-Frame-Options", "SAMEORIGIN")
                     .body(pdfBytes);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();

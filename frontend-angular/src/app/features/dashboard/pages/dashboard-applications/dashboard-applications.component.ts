@@ -53,15 +53,15 @@ export class DashboardApplicationsComponent implements OnInit {
 
   openPdfViewer(rawUrl?: string | null, filename = 'Document.pdf', title = 'Curriculum Vitae', subtitle = 'Document PDF officiel'): void {
     if (!rawUrl) return;
-    const fullUrl = this.profileService.getFullAvatarUrl(rawUrl);
-    this.currentRawPdfUrl = fullUrl;
+    const proxyUrl = this.profileService.getPdfViewerUrl(rawUrl);
+    this.currentRawPdfUrl = proxyUrl;
     this.currentPdfFilename = filename;
     this.currentPdfTitle = title;
     this.currentPdfSubtitle = subtitle;
     this.isLoadingPdf = true;
     this.showPdfModal = true;
 
-    fetch(fullUrl)
+    fetch(proxyUrl)
       .then(res => {
         if (!res.ok) throw new Error('Status ' + res.status);
         return res.blob();
@@ -76,8 +76,8 @@ export class DashboardApplicationsComponent implements OnInit {
         this.isLoadingPdf = false;
       })
       .catch(err => {
-        console.warn('Erreur fetch PDF blob, fallback URL directe:', err);
-        this.safeCvUrl = this.sanitizer.bypassSecurityTrustResourceUrl(fullUrl);
+        console.warn('Erreur fetch PDF blob, fallback URL proxy directe:', err);
+        this.safeCvUrl = this.sanitizer.bypassSecurityTrustResourceUrl(proxyUrl);
         this.isLoadingPdf = false;
       });
   }
