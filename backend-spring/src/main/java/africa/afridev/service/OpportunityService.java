@@ -230,11 +230,16 @@ public class OpportunityService {
             throw new IllegalArgumentException("Veuillez écrire ou téléverser (PDF) une lettre de motivation.");
         }
 
+        String effectiveCv = request.getCvUrl();
+        if ((effectiveCv == null || effectiveCv.isBlank()) && applicant.getProfile() != null) {
+            effectiveCv = applicant.getProfile().getCvUrl();
+        }
+
         ApplicationEntity application = ApplicationEntity.builder()
                 .opportunity(opportunity)
                 .applicant(applicant)
                 .message(hasText ? request.getMessage() : "Lettre de motivation jointe en PDF.")
-                .cvUrl(request.getCvUrl())
+                .cvUrl(effectiveCv)
                 .coverLetterUrl(hasPdf ? request.getCoverLetterUrl() : null)
                 .status(ApplicationStatus.PENDING)
                 .build();
@@ -567,6 +572,13 @@ public class OpportunityService {
                 ? publisher.getProfile().getFullName()
                 : (publisher != null ? publisher.getEmail() : "Émetteur");
 
+        String effectiveCv = application.getCvUrl();
+        if ((effectiveCv == null || effectiveCv.isBlank())
+                && application.getApplicant() != null
+                && application.getApplicant().getProfile() != null) {
+            effectiveCv = application.getApplicant().getProfile().getCvUrl();
+        }
+
         return ApplicationDto.builder()
                 .id(application.getId())
                 .opportunityId(opp != null ? opp.getId() : null)
@@ -578,7 +590,7 @@ public class OpportunityService {
                 .publisherName(pubName)
                 .applicant(authService.mapToUserDto(application.getApplicant()))
                 .message(application.getMessage())
-                .cvUrl(application.getCvUrl())
+                .cvUrl(effectiveCv)
                 .coverLetterUrl(application.getCoverLetterUrl())
                 .status(application.getStatus())
                 .rejectionReason(application.getRejectionReason())

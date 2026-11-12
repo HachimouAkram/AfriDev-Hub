@@ -15,12 +15,12 @@
         <span>Voir les offres sur le site</span>
       </a>
 
-      <a routerLink="/opportunities" class="btn btn-emerald btn-icon-text">
+      <button (click)="openCreateModal()" class="btn btn-emerald btn-icon-text">
         <svg class="icon-svg icon-svg-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.5v15m7.5-7.5h-15" />
         </svg>
         <span>+ Publier une offre</span>
-      </a>
+      </button>
     </div>
   </div>
 
@@ -176,7 +176,7 @@
       <div class="empty-icon"><i class="ri-megaphone-line"></i></div>
       <h4>Aucune offre publiée pour le moment</h4>
       <p class="text-muted">Publiez une offre d'emploi ou de projet pour commencer à recevoir des candidatures qualifiées.</p>
-      <a routerLink="/opportunities" class="btn btn-emerald btn-sm">Publier ma première offre</a>
+      <button (click)="openCreateModal()" class="btn btn-emerald btn-sm">Publier ma première offre</button>
     </div>
   </div>
 
@@ -220,19 +220,25 @@
           <p>« {{ app.message }} »</p>
         </div>
 
-        <div class="candidate-links" *ngIf="app.cvUrl || app.coverLetterUrl">
+        <div class="candidate-links">
           <a *ngIf="app.coverLetterUrl" [href]="fileUrl(app.coverLetterUrl)" target="_blank" rel="noopener" class="btn btn-emerald btn-sm">
             <svg class="icon-svg icon-svg-xs" viewBox="0 0 24 24" fill="none" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75" />
             </svg>
             Lettre de motivation (PDF)
           </a>
-          <a *ngIf="app.cvUrl" [href]="fileUrl(app.cvUrl)" target="_blank" rel="noopener" class="btn btn-outline btn-sm">
+          <a *ngIf="getCandidateCvUrl(app)" [href]="fileUrl(getCandidateCvUrl(app))" target="_blank" rel="noopener" class="btn btn-outline btn-sm">
             <svg class="icon-svg icon-svg-xs" viewBox="0 0 24 24" fill="none" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
             </svg>
             Consulter le CV / Portfolio
           </a>
+          <span *ngIf="!getCandidateCvUrl(app)" class="no-cv-badge">
+            <svg class="icon-svg icon-svg-xs" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
+            </svg>
+            Aucun CV renseigné
+          </span>
         </div>
       </div>
 
@@ -397,9 +403,10 @@
 
               <div class="cand-body">
                 <p class="cand-msg" *ngIf="!app.coverLetterUrl">« {{ app.message }} »</p>
-                <div class="cand-cv" *ngIf="app.cvUrl || app.coverLetterUrl">
+                <div class="cand-cv">
                   <a *ngIf="app.coverLetterUrl" [href]="fileUrl(app.coverLetterUrl)" target="_blank" rel="noopener" class="btn btn-emerald btn-xs"><i class="ri-mail-line"></i> Lettre de motivation (PDF)</a>
-                  <a *ngIf="app.cvUrl" [href]="fileUrl(app.cvUrl)" target="_blank" rel="noopener" class="btn btn-outline btn-xs"><i class="ri-file-text-line"></i> Consulter CV</a>
+                  <a *ngIf="getCandidateCvUrl(app)" [href]="fileUrl(getCandidateCvUrl(app))" target="_blank" rel="noopener" class="btn btn-outline btn-xs"><i class="ri-file-text-line"></i> Consulter CV</a>
+                  <span *ngIf="!getCandidateCvUrl(app)" class="no-cv-badge"><i class="ri-file-warning-line"></i> Aucun CV renseigné</span>
                 </div>
               </div>
 
@@ -430,6 +437,98 @@
 
       <div class="modal-footer">
         <button (click)="closeDetailModal()" class="btn btn-outline">Fermer</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 0. MODAL DE CRÉATION D'UNE OFFRE -->
+  <div class="modal-overlay" *ngIf="showCreateModal" (click)="closeCreateModal()">
+    <div class="app-card modal-card" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>Publier une Opportunité</h3>
+        <button (click)="closeCreateModal()" class="close-btn">&times;</button>
+      </div>
+
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label">Titre de l'offre *</label>
+          <input type="text" [(ngModel)]="offerForm.title" placeholder="Ex: Lead Développeur Full-Stack" class="form-input">
+        </div>
+
+        <div class="form-row-2">
+          <div class="form-group">
+            <label class="form-label">Type d'opportunité *</label>
+            <select [(ngModel)]="offerForm.type" class="form-input">
+              <option value="JOB">Emploi (Job)</option>
+              <option value="FREELANCE">Freelance / Mission</option>
+              <option value="INTERNSHIP">Stage</option>
+              <option value="COLLABORATION">Collaboration Open Source</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Nombre de personnes cherchées (Quota) *</label>
+            <input type="number" [(ngModel)]="offerForm.maxApplicants" min="1" max="100" class="form-input">
+            <small class="field-hint">Dès que ce quota de candidats est accepté, l'offre passera en clôturée.</small>
+          </div>
+        </div>
+
+        <!-- Si Stage : Choix Rémunéré ou Non -->
+        <div class="form-row-2" *ngIf="offerForm.type === 'INTERNSHIP'">
+          <div class="form-group">
+            <label class="form-label">Rémunération du Stage *</label>
+            <div class="radio-pill-group">
+              <label class="radio-pill" [class.selected]="offerForm.isPaid">
+                <input type="radio" [value]="true" [(ngModel)]="offerForm.isPaid" name="createIsPaid">
+                <span>Stage Rémunéré</span>
+              </label>
+              <label class="radio-pill" [class.selected]="!offerForm.isPaid">
+                <input type="radio" [value]="false" [(ngModel)]="offerForm.isPaid" name="createIsPaid">
+                <span>Non rémunéré</span>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-row-2">
+          <!-- Montant : Affiché uniquement si rémunéré ou pas un stage -->
+          <div class="form-group" *ngIf="offerForm.type !== 'INTERNSHIP' || offerForm.isPaid">
+            <label class="form-label">Budget / Rémunération</label>
+            <input type="text" [(ngModel)]="offerForm.budget" placeholder="Ex: 500 000 FCFA / mois, 500$, ..." class="form-input">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Localisation (Ville, Pays) *</label>
+            <input type="text" [(ngModel)]="offerForm.location" placeholder="Ex: Dakar, Sénégal / Abidjan, Côte d'Ivoire" class="form-input">
+          </div>
+        </div>
+
+        <div class="form-group checkbox-align">
+          <label class="custom-checkbox-label">
+            <input type="checkbox" [(ngModel)]="offerForm.isRemote">
+            <span>Poste ouvert en Télétravail (Full Remote)</span>
+          </label>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Technologies (séparées par une virgule)</label>
+          <input type="text" [(ngModel)]="offerForm.stackInput" placeholder="Ex: React, Node.js, Spring Boot, PostgreSQL" class="form-input">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Description détaillée *</label>
+          <textarea [(ngModel)]="offerForm.description" rows="5" placeholder="Présentez la mission, les responsabilités et les compétences clés attendues..." class="form-textarea"></textarea>
+        </div>
+
+        <div *ngIf="createErrorMessage" class="error-box">{{ createErrorMessage }}</div>
+      </div>
+
+      <div class="modal-footer">
+        <button (click)="closeCreateModal()" class="btn btn-outline" [disabled]="isSubmittingCreate">Annuler</button>
+        <button (click)="onSubmitCreate()" [disabled]="isSubmittingCreate" class="btn btn-emerald">
+          <span *ngIf="!isSubmittingCreate">Publier l'offre</span>
+          <span *ngIf="isSubmittingCreate">Publication en cours...</span>
+        </button>
       </div>
     </div>
   </div>

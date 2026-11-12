@@ -1194,6 +1194,36 @@ body.light-theme .progress-bar {
   color: var(--emerald-500, #10B981);
 }
 
+.cv-badge-card-empty {
+  background: rgba(148, 163, 184, 0.05);
+  border: 1px dashed rgba(148, 163, 184, 0.3);
+  cursor: default;
+}
+
+.cv-badge-card-empty:hover {
+  background: rgba(148, 163, 184, 0.08);
+  transform: none;
+}
+
+.cv-icon-empty {
+  background: rgba(148, 163, 184, 0.15);
+  color: var(--text-muted);
+}
+
+.cv-upload-inline-link {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--emerald-500, #10B981);
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.no-cv-profile-btn {
+  opacity: 0.65;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
 /* ==========================================================================
    SECURITY TAB & LOGIN SESSIONS STYLES
    ========================================================================== */

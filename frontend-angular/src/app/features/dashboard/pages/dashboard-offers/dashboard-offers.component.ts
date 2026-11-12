@@ -32,6 +32,11 @@ export class DashboardOffersComponent implements OnInit {
   myReceivedApplications = signal<Application[]>([]);
   loading = signal<boolean>(true);
 
+  // Create Modal State
+  showCreateModal = false;
+  isSubmittingCreate = false;
+  createErrorMessage = '';
+
   // Detail Modal State
   showDetailModal = false;
   selectedOpportunity: Opportunity | null = null;
@@ -145,6 +150,85 @@ export class DashboardOffersComponent implements OnInit {
     this.showDetailModal = false;
     this.selectedOpportunity = null;
     this.opportunityApplicants = [];
+  }
+
+  /** Récupère l'URL du CV soit depuis la candidature soit depuis le profil du candidat */
+  getCandidateCvUrl(app: Application): string | null {
+    if (app.cvUrl && app.cvUrl.trim().length > 0) {
+      return app.cvUrl.trim();
+    }
+    const profileCv = (app.applicant as any)?.profile?.cvUrl;
+    if (profileCv && typeof profileCv === 'string' && profileCv.trim().length > 0) {
+      return profileCv.trim();
+    }
+    return null;
+  }
+
+  // --- CREATE MODAL ---
+  openCreateModal(): void {
+    this.offerForm = {
+      title: '',
+      description: '',
+      type: 'JOB',
+      location: '',
+      isRemote: false,
+      budget: '',
+      stackInput: '',
+      maxApplicants: 1,
+      isPaid: true
+    };
+    this.createErrorMessage = '';
+    this.isSubmittingCreate = false;
+    this.showCreateModal = true;
+  }
+
+  closeCreateModal(): void {
+    this.showCreateModal = false;
+    this.createErrorMessage = '';
+  }
+
+  onSubmitCreate(): void {
+    if (!this.offerForm.title.trim() || !this.offerForm.description.trim() || !this.offerForm.location.trim()) {
+      this.createErrorMessage = 'Veuillez remplir tous les champs obligatoires (*).';
+      return;
+    }
+
+    const stack = this.offerForm.stackInput
+      ? this.offerForm.stackInput.split(',').map(s => s.trim()).filter(s => s.length > 0)
+      : [];
+
+    const finalBudget = (this.offerForm.type === 'INTERNSHIP' && !this.offerForm.isPaid)
+      ? 'Non rémunéré (Convention)'
+      : this.offerForm.budget.trim();
+
+    const payload = {
+      title: this.offerForm.title.trim(),
+      description: this.offerForm.description.trim(),
+      type: this.offerForm.type,
+      location: this.offerForm.location.trim(),
+      isRemote: this.offerForm.isRemote,
+      budget: finalBudget,
+      stack: stack,
+      maxApplicants: this.offerForm.maxApplicants > 0 ? this.offerForm.maxApplicants : 1,
+      isPaid: this.offerForm.type === 'INTERNSHIP' ? this.offerForm.isPaid : true
+    };
+
+    this.isSubmittingCreate = true;
+    this.createErrorMessage = '';
+
+    this.opportunityService.createOpportunity(payload).subscribe({
+      next: (res) => {
+        this.isSubmittingCreate = false;
+        if (res.success) {
+          this.closeCreateModal();
+          this.loadMyPostedData();
+        }
+      },
+      error: (err) => {
+        this.isSubmittingCreate = false;
+        this.createErrorMessage = err.error?.message || err.error?.error?.message || 'Erreur lors de la publication de l\'offre.';
+      }
+    });
   }
 
   // --- EDIT MODAL ---
