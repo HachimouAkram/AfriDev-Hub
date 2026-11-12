@@ -42,8 +42,8 @@ public class ResourceEntity {
     @Column(name = "skill_level", nullable = false, length = 32)
     private SkillLevel level;
 
-    @Column(nullable = false, length = 64)
-    private String technology; // e.g. "Spring Boot", "Angular", "Python", "Intelligence Artificielle"
+    @Column(nullable = false, length = 255)
+    private String technology; // e.g. "Spring Boot, Angular, TypeScript"
 
     @Column(nullable = false, length = 10)
     @Builder.Default

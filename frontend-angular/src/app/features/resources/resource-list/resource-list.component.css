@@ -941,3 +941,118 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* Multi-tech Tag Selector */
+.tech-tags-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-light);
+  border-radius: 10px;
+  padding: 0.65rem 0.75rem;
+}
+
+.tech-chips-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  min-height: 28px;
+}
+
+.tech-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.25rem 0.65rem;
+  background: rgba(16, 185, 129, 0.15);
+  border: 1px solid rgba(16, 185, 129, 0.35);
+  border-radius: 999px;
+  color: var(--emerald-400, #34d399);
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+
+:host-context(body.light-theme) .tech-chip,
+:host-context(.light-theme) .tech-chip {
+  color: var(--emerald-600, #059669);
+  background: rgba(16, 185, 129, 0.12);
+}
+
+.tech-chip-remove {
+  background: none;
+  border: none;
+  color: inherit;
+  font-size: 1.15rem;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0.75;
+  transition: opacity 0.15s ease;
+}
+
+.tech-chip-remove:hover {
+  opacity: 1;
+}
+
+.tech-input-row {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.tech-input-field {
+  flex: 1;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 0.4rem 0.2rem !important;
+  font-size: 0.88rem;
+  color: var(--text-heading) !important;
+}
+
+.tech-input-field:focus {
+  outline: none !important;
+}
+
+.tech-suggestions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem;
+  margin-top: 0.45rem;
+}
+
+.suggestion-label {
+  font-size: 0.76rem;
+  color: var(--text-muted);
+  font-weight: 600;
+  margin-right: 0.2rem;
+}
+
+.tech-sug-pill {
+  padding: 0.22rem 0.6rem;
+  border-radius: 999px;
+  border: 1px solid var(--border-light);
+  background: var(--bg-surface);
+  color: var(--text-muted);
+  font-size: 0.78rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.tech-sug-pill:hover {
+  border-color: var(--emerald-500);
+  color: var(--text-heading);
+}
+
+.tech-sug-pill.active {
+  background: var(--emerald-500);
+  border-color: var(--emerald-500);
+  color: #ffffff;
+  font-weight: 600;
+}

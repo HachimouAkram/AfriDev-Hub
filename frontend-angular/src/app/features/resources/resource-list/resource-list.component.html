@@ -110,7 +110,7 @@
             class="thumbnail-img" />
           <div class="card-badges-top">
             <span class="badge badge-type">{{ getTypeLabel(item.type) }}</span>
-            <span class="badge badge-tech">{{ item.technology }}</span>
+            <span class="badge badge-tech" *ngFor="let tech of getTechTags(item.technology)">{{ tech }}</span>
             <span class="badge" [ngClass]="item.level === 'ADVANCED' ? 'badge-purple' : (item.level === 'INTERMEDIATE' ? 'badge-blue' : 'badge-emerald')">
               {{ item.level }}
             </span>
@@ -124,7 +124,6 @@
         <div class="card-body">
           <div class="card-meta">
             <span class="meta-item">⏱️ {{ item.durationMinutes }} min</span>
-            <span class="meta-item xp-badge">+{{ item.xpReward }} XP</span>
             <span class="meta-item">👥 {{ item.completionsCount }} certifiés</span>
           </div>
           <h3 class="card-title">{{ item.title }}</h3>
@@ -161,7 +160,6 @@
         <div>
           <h3>{{ selectedResource()?.title }}</h3>
           <div class="player-badges-row">
-            <span class="badge badge-emerald">+{{ selectedResource()?.xpReward }} XP à la fin</span>
             <span class="author-inline" *ngIf="selectedResource()?.authorName">Par {{ selectedResource()?.authorName }}</span>
           </div>
         </div>
@@ -188,7 +186,7 @@
             📄 Télécharger le support PDF
           </a>
           <button class="btn btn-emerald" *ngIf="!selectedResource()?.isCompletedByCurrentUser" (click)="markCompleted(selectedResource()!)">
-            ✓ Marquer comme terminé et gagner mes XP
+            ✓ Marquer comme terminé
           </button>
           <span class="completed-tag" *ngIf="selectedResource()?.isCompletedByCurrentUser">
             ✓ Cours terminé avec succès !
@@ -235,16 +233,45 @@
           <textarea [(ngModel)]="publishForm.description" rows="3" placeholder="Expliquez ce que les développeurs vont apprendre, les prérequis et le résultat concret..." class="form-input form-textarea"></textarea>
         </div>
 
-        <div class="publish-grid-3">
-          <div class="form-group">
-            <label>Technologie *</label>
-            <select [(ngModel)]="publishForm.technology" class="form-input">
-              <option *ngFor="let tech of publishTechOptions" [value]="tech">{{ tech }}</option>
-            </select>
+        <!-- Technologies multi-tags -->
+        <div class="form-group">
+          <label>Technologies abordées * (Saisie libre & multi-technologies)</label>
+          <div class="tech-tags-wrapper">
+            <div class="tech-chips-list" *ngIf="publishTechTags().length > 0">
+              <span class="tech-chip" *ngFor="let tag of publishTechTags()">
+                {{ tag }}
+                <button type="button" class="tech-chip-remove" (click)="removeTechTag(tag)" aria-label="Supprimer">×</button>
+              </span>
+            </div>
+            <div class="tech-input-row">
+              <input
+                type="text"
+                [(ngModel)]="techInput"
+                (keydown.enter)="$event.preventDefault(); addTechTag()"
+                placeholder="Tapez une technologie (ex: Angular, Spring Boot, Docker...) et validez"
+                class="form-input tech-input-field"
+              />
+              <button type="button" class="btn btn-outline btn-sm" (click)="addTechTag()">+ Ajouter</button>
+            </div>
           </div>
 
+          <div class="tech-suggestions">
+            <span class="suggestion-label">Suggestions rapides :</span>
+            <button
+              type="button"
+              *ngFor="let sug of availableTechSuggestions"
+              class="tech-sug-pill"
+              [class.active]="publishTechTags().includes(sug)"
+              (click)="toggleSuggestedTech(sug)"
+            >
+              {{ publishTechTags().includes(sug) ? '✓ ' + sug : '+ ' + sug }}
+            </button>
+          </div>
+        </div>
+
+        <div class="publish-grid-2">
           <div class="form-group">
-            <label>Niveau *</label>
+            <label>Niveau requis *</label>
             <select [(ngModel)]="publishForm.level" class="form-input">
               <option value="BEGINNER">Débutant</option>
               <option value="INTERMEDIATE">Intermédiaire</option>
@@ -261,11 +288,6 @@
               <option value="sw">🇹🇿 Kiswahili</option>
             </select>
           </div>
-        </div>
-
-        <div class="form-group" *ngIf="publishForm.technology === 'Autre'">
-          <label>Nom de la technologie *</label>
-          <input type="text" [(ngModel)]="customTech" placeholder="Ex: Flutter, Rust, Laravel, Go..." class="form-input" />
         </div>
 
         <!-- Video source selector -->
@@ -317,18 +339,6 @@
               <span *ngIf="!isUploadingPdf() && uploadedPdfFileName()">✓ {{ uploadedPdfFileName() }}</span>
               <span *ngIf="!isUploadingPdf() && !uploadedPdfFileName()">📄 Joindre un PDF</span>
             </label>
-          </div>
-        </div>
-
-        <!-- Duration & XP -->
-        <div class="publish-grid-2">
-          <div class="form-group">
-            <label>Durée estimée (minutes)</label>
-            <input type="number" [(ngModel)]="publishForm.durationMinutes" min="1" max="1200" class="form-input" />
-          </div>
-          <div class="form-group">
-            <label>Récompense XP (10 - 500)</label>
-            <input type="number" [(ngModel)]="publishForm.xpReward" min="10" max="500" class="form-input" />
           </div>
         </div>
 

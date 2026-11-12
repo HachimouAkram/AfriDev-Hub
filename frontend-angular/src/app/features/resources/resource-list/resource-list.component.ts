@@ -92,8 +92,24 @@ export class ResourceListComponent implements OnInit {
   uploadedPdfFileName = signal<string>('');
   publishForm: PublishResourceForm = this.createEmptyPublishForm();
   customTech = '';
+  publishTechTags = signal<string[]>(['Node.js']);
+  techInput = '';
 
-  techList = ['Spring Boot', 'Angular', 'Python', 'Intelligence Artificielle', 'Fintech'];
+  techList = ['Spring Boot', 'Angular', 'React', 'Node.js', 'Python', 'Docker', 'Flutter', 'Intelligence Artificielle', 'Fintech'];
+  readonly availableTechSuggestions = [
+    'Node.js',
+    'Angular',
+    'Spring Boot',
+    'Python',
+    'React',
+    'TypeScript',
+    'Docker',
+    'Flutter',
+    'Java',
+    'PostgreSQL',
+    'IA & LLM',
+    'DevOps'
+  ];
   readonly publishTechOptions = [
     'Spring Boot',
     'Angular',
@@ -212,7 +228,7 @@ export class ResourceListComponent implements OnInit {
       next: () => {
         r.isCompletedByCurrentUser = true;
         r.completionsCount++;
-        this.publishBannerNotice.set(`Félicitations ! Vous avez complété « ${r.title} » et gagné +${r.xpReward} XP !`);
+        this.publishBannerNotice.set(`Félicitations ! Vous avez complété avec succès « ${r.title} » !`);
       }
     });
   }
@@ -320,6 +336,8 @@ export class ResourceListComponent implements OnInit {
 
     this.publishForm = this.createEmptyPublishForm();
     this.customTech = '';
+    this.publishTechTags.set(['Node.js']);
+    this.techInput = '';
     this.publishError.set(null);
     this.videoSourceMode.set('UPLOAD');
     this.uploadedVideoFileName.set('');
@@ -327,6 +345,44 @@ export class ResourceListComponent implements OnInit {
     this.uploadedPdfFileName.set('');
     this.videoUploadProgress.set(0);
     this.isPublishModalOpen.set(true);
+  }
+
+  addTechTag(customTag?: string): void {
+    const raw = (customTag !== undefined ? customTag : this.techInput).trim();
+    if (!raw) return;
+
+    // Support comma-separated batch adding (e.g. "Angular, Node.js")
+    const parts = raw.split(',').map(p => p.trim()).filter(Boolean);
+    const current = [...this.publishTechTags()];
+
+    for (const tag of parts) {
+      if (!current.some(t => t.toLowerCase() === tag.toLowerCase())) {
+        current.push(tag);
+      }
+    }
+
+    this.publishTechTags.set(current);
+    if (customTag === undefined) {
+      this.techInput = '';
+    }
+  }
+
+  removeTechTag(tagToRemove: string): void {
+    this.publishTechTags.set(this.publishTechTags().filter(t => t !== tagToRemove));
+  }
+
+  toggleSuggestedTech(tag: string): void {
+    const current = this.publishTechTags();
+    if (current.some(t => t.toLowerCase() === tag.toLowerCase())) {
+      this.publishTechTags.set(current.filter(t => t.toLowerCase() !== tag.toLowerCase()));
+    } else {
+      this.publishTechTags.set([...current, tag]);
+    }
+  }
+
+  getTechTags(tech?: string | null): string[] {
+    if (!tech) return [];
+    return tech.split(',').map(s => s.trim()).filter(Boolean);
   }
 
   closePublishModal(): void {
@@ -473,11 +529,13 @@ export class ResourceListComponent implements OnInit {
       return;
     }
 
+    if (this.techInput.trim()) {
+      this.addTechTag();
+    }
+
     const title = this.publishForm.title.trim();
     const description = this.publishForm.description.trim();
-    const resolvedTech = this.publishForm.technology === 'Autre'
-      ? this.customTech.trim()
-      : this.publishForm.technology.trim();
+    const selectedTags = this.publishTechTags();
 
     if (title.length < 5) {
       this.publishError.set('Le titre doit contenir au moins 5 caractères.');
@@ -489,10 +547,12 @@ export class ResourceListComponent implements OnInit {
       return;
     }
 
-    if (!resolvedTech) {
-      this.publishError.set('Veuillez préciser la technologie concernée.');
+    if (selectedTags.length === 0) {
+      this.publishError.set('Veuillez renseigner au moins une technologie.');
       return;
     }
+
+    const resolvedTech = selectedTags.join(', ');
 
     if (this.publishForm.type === 'VIDEO' && !this.publishForm.youtubeUrl.trim()) {
       this.publishError.set('Veuillez importer une vidéo ou renseigner un lien vidéo (YouTube, Vimeo ou MP4).');
@@ -518,8 +578,8 @@ export class ResourceListComponent implements OnInit {
       isPaid: this.publishForm.isPaid,
       price: this.publishForm.isPaid ? Math.round(this.publishForm.price) : 0,
       currency: this.publishForm.currency || 'XOF',
-      durationMinutes: Math.max(1, Number(this.publishForm.durationMinutes) || 15),
-      xpReward: Math.max(10, Math.min(500, Number(this.publishForm.xpReward) || 50))
+      durationMinutes: 30,
+      xpReward: 20
     };
 
     this.isSubmittingPublish.set(true);
@@ -528,8 +588,10 @@ export class ResourceListComponent implements OnInit {
         this.isSubmittingPublish.set(false);
         this.isPublishModalOpen.set(false);
         this.publishBannerNotice.set(
-          `🎉 « ${created.title} » est en ligne (${created.isPaid ? created.price + ' ' + created.currency + ' · SasPay' : 'Gratuit'}) !`
+          `🎉 « ${created.title} » est en ligne (+20 XP reçus) !`
         );
+        this.publishTechTags.set(['Node.js']);
+        this.techInput = '';
         this.selectedType.set('ALL');
         this.selectedLevel.set('ALL');
         this.selectedTech.set('ALL');
@@ -550,7 +612,7 @@ export class ResourceListComponent implements OnInit {
       description: '',
       type: 'VIDEO',
       level: 'BEGINNER',
-      technology: 'Angular',
+      technology: 'Node.js',
       language: 'fr',
       youtubeUrl: '',
       thumbnailUrl: '',
@@ -559,8 +621,8 @@ export class ResourceListComponent implements OnInit {
       isPaid: false,
       price: 5000,
       currency: 'XOF',
-      durationMinutes: 25,
-      xpReward: 50
+      durationMinutes: 30,
+      xpReward: 20
     };
   }
 

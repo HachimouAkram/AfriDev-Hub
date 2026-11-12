@@ -55,6 +55,24 @@ public class ResourceService {
         resource.setViewsCount(resource.getViewsCount() + 1);
         resourceRepository.save(resource);
 
+        // Attribution automatique de 1 XP à l'auteur lors d'une vue par un autre utilisateur
+        if (resource.getAuthor() != null) {
+            boolean isAuthorSelf = currentUserEmail != null && currentUserEmail.equalsIgnoreCase(resource.getAuthor().getEmail());
+            if (!isAuthorSelf) {
+                try {
+                    xpService.awardXp(
+                            resource.getAuthor(),
+                            1,
+                            XpSourceType.PROJECT_VIEW,
+                            resource.getId(),
+                            "Vue sur votre ressource : " + resource.getTitle()
+                    );
+                } catch (Exception e) {
+                    log.warn("Erreur lors de l'attribution de l'XP de vue : {}", e.getMessage());
+                }
+            }
+        }
+
         UserEntity user = currentUserEmail != null ? userRepository.findByEmail(currentUserEmail).orElse(null) : null;
         return mapToDto(resource, user);
     }
@@ -111,12 +129,28 @@ public class ResourceService {
                 .isPaid(paid)
                 .price(paid ? request.getPrice() : java.math.BigDecimal.ZERO)
                 .currency(request.getCurrency() != null && !request.getCurrency().isBlank() ? request.getCurrency() : "XOF")
-                .durationMinutes(request.getDurationMinutes())
-                .xpReward(request.getXpReward() != null ? request.getXpReward() : 50)
+                .durationMinutes(request.getDurationMinutes() != null && request.getDurationMinutes() > 0 ? request.getDurationMinutes() : 30)
+                .xpReward(20)
                 .author(author)
                 .build();
 
         ResourceEntity saved = resourceRepository.save(resource);
+
+        // Attribution automatique de 20 XP à l'auteur pour la publication de la formation
+        if (author != null) {
+            try {
+                xpService.awardXp(
+                        author,
+                        20,
+                        XpSourceType.PROJECT_PUBLISHED,
+                        saved.getId(),
+                        "Publication de formation / ressource (20 XP) : " + saved.getTitle()
+                );
+            } catch (Exception e) {
+                log.warn("Erreur lors de l'attribution des 20 XP de création de ressource : {}", e.getMessage());
+            }
+        }
+
         return mapToDto(saved, author);
     }
 
