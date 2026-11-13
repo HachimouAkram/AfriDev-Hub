@@ -134,33 +134,263 @@
     </div>
   </section>
 
-  <!-- 3. Visual Analytics Suite (Graphiques en Cercle, Bâtons et Performance) -->
+  <!-- 3. Visual Analytics Suite (Courbes Spline Lisses, Bâtons Groupés et Donut) -->
+  
+  <!-- A. Grand Graphique Multi-Courbes Spline avec Tooltip Flottant et Filtres Temporels (Inspiré des captures BI) -->
+  <section class="spline-chart-section app-card">
+    <div class="spline-chart-header">
+      <div class="spline-title-wrap">
+        <div class="chart-badge-pill">
+          <span class="pulse-dot"></span>
+          <span>Courbes de Tendance Multi-Séries</span>
+        </div>
+        <h3 class="chart-main-title">Flux d'Activité & Croissance Panafricaine</h3>
+        <p class="chart-main-desc">Progression croisée des Talents enregistrés, Entreprises partenaires et Projets validés.</p>
+      </div>
+
+      <!-- Sélecteur de Période (Daily / Weekly / Monthly comme dans les captures) -->
+      <div class="time-range-group">
+        <button (click)="setTimeRange('7D')" [class.active]="timeRange() === '7D'" class="time-btn">7 Jours</button>
+        <button (click)="setTimeRange('30D')" [class.active]="timeRange() === '30D'" class="time-btn">30 Jours</button>
+        <button (click)="setTimeRange('12M')" [class.active]="timeRange() === '12M'" class="time-btn">12 Mois</button>
+      </div>
+    </div>
+
+    <!-- Mini-Ruban d'Indicateurs Synthétiques (comme Image 3 & 6) -->
+    <div class="mini-metrics-ribbon">
+      <div class="mini-metric-item">
+        <div class="mini-icon-circle bg-indigo-subtle">
+          <span class="series-dot dot-indigo"></span>
+        </div>
+        <div class="mini-metric-texts">
+          <span class="mini-lbl">Talents Inscrits</span>
+          <div class="mini-val-row">
+            <strong class="mini-val">{{ stats()?.totalUsers || 11 }}</strong>
+            <span class="mini-trend positive">+27%</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="mini-metric-item">
+        <div class="mini-icon-circle bg-cyan-subtle">
+          <span class="series-dot dot-cyan"></span>
+        </div>
+        <div class="mini-metric-texts">
+          <span class="mini-lbl">Entreprises Partenaires</span>
+          <div class="mini-val-row">
+            <strong class="mini-val">{{ stats()?.totalCompanies || 4 }}</strong>
+            <span class="mini-trend positive">+25%</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="mini-metric-item">
+        <div class="mini-icon-circle bg-amber-subtle">
+          <span class="series-dot dot-amber"></span>
+        </div>
+        <div class="mini-metric-texts">
+          <span class="mini-lbl">Projets Certifiés</span>
+          <div class="mini-val-row">
+            <strong class="mini-val">{{ stats()?.totalProjects || 9 }}</strong>
+            <span class="mini-trend positive">+15%</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="mini-metric-item">
+        <div class="mini-icon-circle bg-purple-subtle">
+          <span class="series-dot dot-purple"></span>
+        </div>
+        <div class="mini-metric-texts">
+          <span class="mini-lbl">Offres Ouvertes</span>
+          <div class="mini-val-row">
+            <strong class="mini-val">{{ stats()?.activeOpportunities || 3 }}</strong>
+            <span class="mini-trend positive">+40%</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SVG Multi-Curve Spline Canvas -->
+    <div class="spline-svg-container" (mouseleave)="setHoveredMonth(null)">
+      <svg class="spline-svg" viewBox="0 0 540 180" preserveAspectRatio="none">
+        <defs>
+          <!-- Dégradés d'aire translucides -->
+          <linearGradient id="gradTalents" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#6366F1" stop-opacity="0.32" />
+            <stop offset="100%" stop-color="#6366F1" stop-opacity="0.0" />
+          </linearGradient>
+          <linearGradient id="gradCompanies" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#06B6D4" stop-opacity="0.25" />
+            <stop offset="100%" stop-color="#06B6D4" stop-opacity="0.0" />
+          </linearGradient>
+          <linearGradient id="gradProjects" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#F59E0B" stop-opacity="0.22" />
+            <stop offset="100%" stop-color="#F59E0B" stop-opacity="0.0" />
+          </linearGradient>
+        </defs>
+
+        <!-- Lignes horizontales en tirets de repère (Grille discrète) -->
+        <line x1="30" y1="35" x2="520" y2="35" stroke="rgba(255,255,255,0.06)" stroke-dasharray="4,4" />
+        <line x1="30" y1="75" x2="520" y2="75" stroke="rgba(255,255,255,0.06)" stroke-dasharray="4,4" />
+        <line x1="30" y1="115" x2="520" y2="115" stroke="rgba(255,255,255,0.06)" stroke-dasharray="4,4" />
+        <line x1="30" y1="155" x2="520" y2="155" stroke="rgba(255,255,255,0.1)" />
+
+        <!-- Remplissages d'aire des 3 courbes -->
+        <path [attr.d]="getSplineAreaPath('talents')" fill="url(#gradTalents)" />
+        <path [attr.d]="getSplineAreaPath('companies')" fill="url(#gradCompanies)" />
+        <path [attr.d]="getSplineAreaPath('projects')" fill="url(#gradProjects)" />
+
+        <!-- 3 Lignes de courbes Spline lissées -->
+        <path [attr.d]="getSplinePath('talents')" fill="none" stroke="#6366F1" stroke-width="2.5" stroke-linecap="round" />
+        <path [attr.d]="getSplinePath('companies')" fill="none" stroke="#06B6D4" stroke-width="2" stroke-linecap="round" />
+        <path [attr.d]="getSplinePath('projects')" fill="none" stroke="#F59E0B" stroke-width="2" stroke-linecap="round" />
+
+        <!-- Curseur vertical au survol -->
+        <line 
+          *ngIf="hoveredMonthIndex() !== null" 
+          [attr.x1]="multiSeriesData[hoveredMonthIndex()!].x" 
+          y1="20" 
+          [attr.x2]="multiSeriesData[hoveredMonthIndex()!].x" 
+          y2="155" 
+          stroke="rgba(255, 255, 255, 0.4)" 
+          stroke-dasharray="3,3" />
+
+        <!-- Points et cercles interactifs pour chaque mois -->
+        <g *ngFor="let pt of multiSeriesData; let i = index" (mouseenter)="setHoveredMonth(i)" style="cursor: pointer;">
+          <!-- Zone de capture élargie pour la souris -->
+          <rect [attr.x]="pt.x - 25" y="10" width="50" height="155" fill="transparent" />
+
+          <!-- Anneaux des 3 séries -->
+          <circle [attr.cx]="pt.x" [attr.cy]="pt.yTalents" r="3.5" fill="#1E293B" stroke="#6366F1" stroke-width="2.5" />
+          <circle [attr.cx]="pt.x" [attr.cy]="pt.yCompanies" r="3" fill="#1E293B" stroke="#06B6D4" stroke-width="2" />
+          <circle [attr.cx]="pt.x" [attr.cy]="pt.yProjects" r="3" fill="#1E293B" stroke="#F59E0B" stroke-width="2" />
+
+          <!-- Anneau amplifié au survol -->
+          <circle 
+            *ngIf="hoveredMonthIndex() === i" 
+            [attr.cx]="pt.x" 
+            [attr.cy]="pt.yTalents" 
+            r="6" 
+            fill="#6366F1" 
+            stroke="#FFFFFF" 
+            stroke-width="2" />
+        </g>
+      </svg>
+
+      <!-- Infobulle Flottante Analytique Moderne (comme les captures 3, 4, 6) -->
+      <div 
+        *ngIf="hoveredMonthIndex() !== null" 
+        class="floating-chart-tooltip animate-fade-in"
+        [style.left.%]="(multiSeriesData[hoveredMonthIndex()!].x / 540) * 100">
+        <div class="tooltip-header">
+          <span class="tooltip-month">{{ multiSeriesData[hoveredMonthIndex()!].month }} 2026</span>
+          <span class="tooltip-tag">Activité</span>
+        </div>
+        <div class="tooltip-row">
+          <span class="tooltip-dot dot-indigo"></span>
+          <span class="tooltip-name">Talents :</span>
+          <strong class="tooltip-val">{{ multiSeriesData[hoveredMonthIndex()!].talents }}</strong>
+        </div>
+        <div class="tooltip-row">
+          <span class="tooltip-dot dot-cyan"></span>
+          <span class="tooltip-name">Entreprises :</span>
+          <strong class="tooltip-val">{{ multiSeriesData[hoveredMonthIndex()!].companies }}</strong>
+        </div>
+        <div class="tooltip-row">
+          <span class="tooltip-dot dot-amber"></span>
+          <span class="tooltip-name">Projets :</span>
+          <strong class="tooltip-val">{{ multiSeriesData[hoveredMonthIndex()!].projects }}</strong>
+        </div>
+      </div>
+    </div>
+
+    <!-- Légende en bas de la courbe -->
+    <div class="spline-chart-footer">
+      <div class="spline-legend-item">
+        <span class="legend-color-pill bg-indigo"></span>
+        <span>Talents Développeurs</span>
+      </div>
+      <div class="spline-legend-item">
+        <span class="legend-color-pill bg-cyan"></span>
+        <span>Entreprises & Partenaires</span>
+      </div>
+      <div class="spline-legend-item">
+        <span class="legend-color-pill bg-amber"></span>
+        <span>Projets & Déploiements</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- B. Ligne Analytique : Bâtons Groupés Comparatifs + Donut Chart Écosystème -->
   <section class="analytics-row">
-    <!-- Chart 1: Donut Chart SVG (Graphique en Cercle / Anneau Analytique) -->
+    <!-- Chart 1 : Bâtons Groupés avec Valeurs au Sommet (Inspiré des captures 1 & 4) -->
+    <div class="chart-card app-card">
+      <div class="chart-header">
+        <div>
+          <h3>Volume Comparatif par Période</h3>
+          <p class="chart-desc">Développeurs certifiés vs Entreprises & Offres créées.</p>
+        </div>
+        <div class="grouped-legend-chips">
+          <span class="chip-legend"><span class="chip-dot dot-pink"></span> Talents</span>
+          <span class="chip-legend"><span class="chip-dot dot-slate"></span> Entreprises</span>
+        </div>
+      </div>
+
+      <!-- Graphique Bâtons Groupés avec Chiffres sur les Barres -->
+      <div class="grouped-bars-container">
+        <!-- Grille de fond graduée -->
+        <div class="grid-backdrop">
+          <div class="grid-step"><span>12</span></div>
+          <div class="grid-step"><span>8</span></div>
+          <div class="grid-step"><span>4</span></div>
+          <div class="grid-step"><span>0</span></div>
+        </div>
+
+        <!-- Colonnes groupées -->
+        <div class="bars-columns-wrap">
+          <div class="bar-pair-group" *ngFor="let g of groupedBars">
+            <div class="bars-pair">
+              <!-- Barre 1: Talents (Rose / Magenta avec chiffre au-dessus comme capture 1) -->
+              <div class="bar-single bar-pink" [style.height.%]="g.heightPct1" [title]="g.month + ' - Talents: ' + g.val1">
+                <span class="bar-value-top">{{ g.val1 }}</span>
+              </div>
+              <!-- Barre 2: Entreprises (Bleu gris avec chiffre au-dessus comme capture 1) -->
+              <div class="bar-single bar-slate" [style.height.%]="g.heightPct2" [title]="g.month + ' - Entreprises: ' + g.val2">
+                <span class="bar-value-top">{{ g.val2 }}</span>
+              </div>
+            </div>
+            <span class="bar-group-month">{{ g.month }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Chart 2: Donut Chart SVG avec Total au Centre (Inspiré de la capture 1) -->
     <div class="chart-card app-card donut-chart-card">
       <div class="chart-header">
         <div>
-          <h3>Répartition en Cercle de l'Écosystème</h3>
-          <p class="chart-desc">Poids relatif des 6 piliers majeurs de la plateforme panafricaine.</p>
+          <h3>Répartition en Anneau de l'Écosystème</h3>
+          <p class="chart-desc">Part relative des 6 composantes majeures.</p>
         </div>
-        <span class="chart-tag bg-emerald-subtle">Vision 360°</span>
+        <span class="chart-tag bg-emerald-subtle">Total: {{ totalEcosystemVolume }}</span>
       </div>
 
       <div class="donut-chart-container">
         <!-- SVG Donut Chart -->
         <div class="donut-svg-wrap">
-          <svg class="donut-svg" viewBox="0 0 200 200" width="180" height="180">
+          <svg class="donut-svg" viewBox="0 0 200 200" width="170" height="170">
             <!-- Cercle de fond -->
-            <circle cx="100" cy="100" r="70" class="donut-track" fill="transparent" stroke="rgba(255, 255, 255, 0.06)" stroke-width="20" />
+            <circle cx="100" cy="100" r="68" class="donut-track" fill="transparent" stroke="rgba(255, 255, 255, 0.06)" stroke-width="22" />
             <!-- Segments colorés -->
             <circle 
               *ngFor="let seg of donutSegments" 
               cx="100" 
               cy="100" 
-              r="70" 
+              r="68" 
               fill="transparent" 
               [attr.stroke]="seg.color" 
-              stroke-width="20" 
+              stroke-width="22" 
               [attr.stroke-dasharray]="seg.dashArray" 
               [attr.stroke-dashoffset]="seg.dashOffset"
               stroke-linecap="round"
@@ -169,12 +399,12 @@
             </circle>
           </svg>
           <div class="donut-center-label">
+            <span class="donut-center-sub">Total</span>
             <span class="donut-center-val">{{ totalEcosystemVolume }}</span>
-            <span class="donut-center-sub">Éléments</span>
           </div>
         </div>
 
-        <!-- Légende Analytique -->
+        <!-- Légende Analytique Compacte avec Callouts -->
         <div class="donut-legend-list">
           <div class="donut-legend-item" *ngFor="let seg of donutSegments">
             <div class="legend-dot" [style.background-color]="seg.color"></div>
@@ -185,46 +415,6 @@
             </div>
           </div>
         </div>
-      </div>
-    </div>
-
-    <!-- Chart 2: Graphique en Bâtons d'Évolution (Bar Chart Analytique) -->
-    <div class="chart-card app-card">
-      <div class="chart-header">
-        <div>
-          <h3>Dynamique en Bâtons Mensuelle</h3>
-          <p class="chart-desc">Volume des talents et projets déployés (Mai - Octobre 2026).</p>
-        </div>
-        <span class="chart-tag bg-cyan-subtle">+36% Global</span>
-      </div>
-
-      <!-- CSS/SVG Bâtons Bar Chart -->
-      <div class="bar-chart-container">
-        <div class="chart-grid-lines">
-          <div class="grid-line"><span>100</span></div>
-          <div class="grid-line"><span>75</span></div>
-          <div class="grid-line"><span>50</span></div>
-          <div class="grid-line"><span>25</span></div>
-          <div class="grid-line"><span>0</span></div>
-        </div>
-
-        <div class="chart-bars-wrap">
-          <div class="bar-col" *ngFor="let item of monthlyActivity">
-            <div class="bar-track">
-              <div class="bar-fill" [style.height.%]="item.percentage" [title]="item.month + ' : ' + item.users + ' utilisateurs, ' + item.projects + ' projets'">
-                <div class="bar-glow"></div>
-                <span class="bar-val-bubble">{{ item.users }}</span>
-              </div>
-            </div>
-            <span class="bar-label">{{ item.month }}</span>
-          </div>
-        </div>
-      </div>
-
-      <div class="chart-legend">
-        <div class="legend-item"><span class="dot emerald"></span> Talents actifs</div>
-        <div class="legend-item"><span class="dot blue"></span> Projets déployés</div>
-        <div class="legend-item"><span class="dot purple"></span> Revues techniques</div>
       </div>
     </div>
 
@@ -245,7 +435,7 @@
             <div class="dist-info">
               <span class="dist-country-name">{{ c.country }}</span>
               <span class="dist-count">
-                {{ c.developerCount }} dev(s) &bull; {{ c.companyCount || 0 }} entreprise(s) &bull; {{ c.opportunityCount || 0 }} offre(s)
+                {{ c.developerCount }} dev(s) &bull; {{ c.companyCount || 0 }} ent. &bull; {{ c.opportunityCount || 0 }} offre(s)
               </span>
             </div>
           </div>

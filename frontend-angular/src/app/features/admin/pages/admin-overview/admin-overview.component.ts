@@ -12,6 +12,25 @@ export interface MonthlyActivityData {
   percentage: number;
 }
 
+export interface MultiSeriesDataPoint {
+  month: string;
+  talents: number;
+  companies: number;
+  projects: number;
+  x: number;
+  yTalents: number;
+  yCompanies: number;
+  yProjects: number;
+}
+
+export interface GroupedBarItem {
+  month: string;
+  val1: number;       // Talents / Développeurs
+  val2: number;       // Entreprises & Opportunités
+  heightPct1: number; // % hauteur barre 1
+  heightPct2: number; // % hauteur barre 2
+}
+
 export interface SystemServiceStatus {
   name: string;
   type: string;
@@ -64,7 +83,31 @@ export class AdminOverviewComponent implements OnInit {
   adoptionSummary = signal<PlatformAdoptionSummary | null>(null);
   recentAuditLogs = signal<AuditLog[]>([]);
 
-  // Graphique d'activité mensuelle
+  // Filtre temporel interactif pour les graphiques
+  timeRange = signal<'7D' | '30D' | '12M'>('30D');
+  hoveredMonthIndex = signal<number | null>(4); // Point sélectionné par défaut (Septembre)
+
+  // Données Multi-Séries pour la courbe Spline continue
+  multiSeriesData: MultiSeriesDataPoint[] = [
+    { month: 'Mai', talents: 3, companies: 1, projects: 2, x: 45, yTalents: 118, yCompanies: 139, yProjects: 128 },
+    { month: 'Juin', talents: 5, companies: 2, projects: 4, x: 138, yTalents: 96, yCompanies: 128, yProjects: 107 },
+    { month: 'Juil', talents: 4, companies: 2, projects: 3, x: 231, yTalents: 107, yCompanies: 128, yProjects: 118 },
+    { month: 'Août', talents: 8, companies: 3, projects: 6, x: 324, yTalents: 63, yCompanies: 118, yProjects: 85 },
+    { month: 'Sept', talents: 10, companies: 4, projects: 8, x: 417, yTalents: 42, yCompanies: 107, yProjects: 63 },
+    { month: 'Oct', talents: 11, companies: 4, projects: 9, x: 500, yTalents: 31, yCompanies: 107, yProjects: 52 }
+  ];
+
+  // Bâtons Groupés Comparatifs (Talents vs Écosystème Entreprises)
+  groupedBars: GroupedBarItem[] = [
+    { month: 'Mai', val1: 3, val2: 2, heightPct1: 27, heightPct2: 18 },
+    { month: 'Juin', val1: 5, val2: 4, heightPct1: 45, heightPct2: 36 },
+    { month: 'Juil', val1: 4, val2: 3, heightPct1: 36, heightPct2: 27 },
+    { month: 'Août', val1: 8, val2: 5, heightPct1: 72, heightPct2: 45 },
+    { month: 'Sept', val1: 10, val2: 7, heightPct1: 90, heightPct2: 63 },
+    { month: 'Oct', val1: 11, val2: 8, heightPct1: 100, heightPct2: 72 }
+  ];
+
+  // Graphique d'activité mensuelle standard
   monthlyActivity: MonthlyActivityData[] = [
     { month: 'Mai', users: 3, projects: 2, evaluations: 1, percentage: 30 },
     { month: 'Juin', users: 5, projects: 4, evaluations: 3, percentage: 50 },
@@ -81,6 +124,56 @@ export class AdminOverviewComponent implements OnInit {
     { name: 'Redis Sentinel', type: 'Cache L2 & Sessions Distribuées', status: 'ONLINE', latency: '1ms', icon: 'bolt' },
     { name: 'FastAPI AI Engine', type: 'Algorithme Scoring & Profiling', status: 'ONLINE', latency: '12ms', icon: 'cpu' }
   ];
+
+  setTimeRange(range: '7D' | '30D' | '12M'): void {
+    this.timeRange.set(range);
+  }
+
+  setHoveredMonth(index: number | null): void {
+    this.hoveredMonthIndex.set(index);
+  }
+
+  // Algorithme de génération de courbe Spline (Bézier cubique lissé)
+  getSplinePath(seriesKey: 'talents' | 'companies' | 'projects'): string {
+    const pts = this.multiSeriesData.map(d => ({
+      x: d.x,
+      y: seriesKey === 'talents' ? d.yTalents : (seriesKey === 'companies' ? d.yCompanies : d.yProjects)
+    }));
+    return this.buildBezierSpline(pts);
+  }
+
+  // Remplissage d'aire fermée sous la courbe Spline
+  getSplineAreaPath(seriesKey: 'talents' | 'companies' | 'projects'): string {
+    const pts = this.multiSeriesData.map(d => ({
+      x: d.x,
+      y: seriesKey === 'talents' ? d.yTalents : (seriesKey === 'companies' ? d.yCompanies : d.yProjects)
+    }));
+    if (pts.length < 2) return '';
+    const curve = this.buildBezierSpline(pts);
+    const first = pts[0];
+    const last = pts[pts.length - 1];
+    return `${curve} L ${last.x},160 L ${first.x},160 Z`;
+  }
+
+  private buildBezierSpline(pts: { x: number; y: number }[]): string {
+    if (pts.length === 0) return '';
+    if (pts.length === 1) return `M ${pts[0].x},${pts[0].y}`;
+    let d = `M ${pts[0].x},${pts[0].y}`;
+    for (let i = 0; i < pts.length - 1; i++) {
+      const p0 = pts[i === 0 ? i : i - 1];
+      const p1 = pts[i];
+      const p2 = pts[i + 1];
+      const p3 = pts[i + 2 < pts.length ? i + 2 : i + 1];
+
+      const cp1x = p1.x + (p2.x - p0.x) / 5.5;
+      const cp1y = p1.y + (p2.y - p0.y) / 5.5;
+      const cp2x = p2.x - (p3.x - p1.x) / 5.5;
+      const cp2y = p2.y - (p3.y - p1.y) / 5.5;
+
+      d += ` C ${cp1x.toFixed(1)},${cp1y.toFixed(1)} ${cp2x.toFixed(1)},${cp2y.toFixed(1)} ${p2.x.toFixed(1)},${p2.y.toFixed(1)}`;
+    }
+    return d;
+  }
 
   ngOnInit(): void {
     this.loadOverviewData();
