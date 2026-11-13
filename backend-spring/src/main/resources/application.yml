@@ -34,10 +34,10 @@ spring:
         dialect: org.hibernate.dialect.PostgreSQLDialect
   data:
     redis:
-      host: ${REDIS_HOST:redis-dbaas-redis-afridev-redis-afridev-redis.systalinkdatabases.com}
-      port: ${REDIS_PORT:33042}
-      username: ${REDIS_USER:afridev_redis_u}
-      password: ${REDIS_PASSWORD:HVLXG0EL-b90WWeWtvVVCWY0}
+      host: ${REDIS_HOST:127.0.0.1}
+      port: ${REDIS_PORT:6379}
+      username: ${REDIS_USER:}
+      password: ${REDIS_PASSWORD:}
   servlet:
     multipart:
       max-file-size: 50MB

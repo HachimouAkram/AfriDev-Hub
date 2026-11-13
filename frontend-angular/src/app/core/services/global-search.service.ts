@@ -4,7 +4,7 @@ import { NetworkService, UserNetwork } from './network.service';
 import { OpportunityService, Opportunity } from './opportunity.service';
 import { TechEventService, TechEvent } from './tech-event.service';
 import { CompanyService, Company } from './company.service';
-import { Observable, combineLatest, map, of, catchError } from 'rxjs';
+import { Observable, combineLatest, map, of, catchError, shareReplay } from 'rxjs';
 
 export interface SearchResultProject {
   id: string;
@@ -70,6 +70,15 @@ export interface GlobalSearchResults {
   totalMatches: number;
 }
 
+interface CachedSearchDataset {
+  rawProjects: Project[];
+  rawUsers: UserNetwork[];
+  rawOpps: Opportunity[];
+  rawEvents: TechEvent[];
+  rawCompanies: Company[];
+  timestamp: number;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -80,15 +89,171 @@ export class GlobalSearchService {
   private techEventService = inject(TechEventService);
   private companyService = inject(CompanyService);
 
-  private cachedData: {
-    rawProjects: Project[];
-    rawUsers: UserNetwork[];
-    rawOpps: Opportunity[];
-    rawEvents: TechEvent[];
-    rawCompanies: Company[];
-    timestamp: number;
-  } | null = null;
-  private readonly CACHE_TTL_MS = 60000;
+  private cachedData: CachedSearchDataset | null = null;
+  private readonly CACHE_TTL_MS = 600000; // 10 minutes pour un cache ultra-performant
+  private readonly STORAGE_KEY = 'afridev_search_cache_v2';
+  private inFlightLoad$: Observable<CachedSearchDataset> | null = null;
+
+  constructor() {
+    this.hydrateFromStorage();
+  }
+
+  private hydrateFromStorage(): void {
+    if (typeof window === 'undefined') return;
+    try {
+      const raw = sessionStorage.getItem(this.STORAGE_KEY) || localStorage.getItem(this.STORAGE_KEY);
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (parsed && parsed.timestamp && (Date.now() - parsed.timestamp < this.CACHE_TTL_MS)) {
+          this.cachedData = parsed;
+        }
+      }
+    } catch {
+      // Ignore les erreurs de quota ou parsing
+    }
+  }
+
+  private saveToStorage(data: CachedSearchDataset): void {
+    if (typeof window === 'undefined') return;
+    try {
+      const json = JSON.stringify(data);
+      sessionStorage.setItem(this.STORAGE_KEY, json);
+    } catch {
+      // Ignore les erreurs de quota
+    }
+  }
+
+  hasCachedData(): boolean {
+    return !!(this.cachedData && (Date.now() - this.cachedData.timestamp < this.CACHE_TTL_MS));
+  }
+
+  /**
+   * Préchauffe en arrière-plan le jeu de données pour rendre la frappe 100% instantanée (0 ms).
+   * Partage une seule requête en vol (in-flight request) pour ne jamais spammer le serveur.
+   */
+  prefetch(): Observable<boolean> {
+    if (this.hasCachedData()) {
+      return of(true);
+    }
+    return this.loadDataset().pipe(
+      map(() => true),
+      catchError(() => of(false))
+    );
+  }
+
+  private loadDataset(): Observable<CachedSearchDataset> {
+    if (this.hasCachedData() && this.cachedData) {
+      return of(this.cachedData);
+    }
+    if (this.inFlightLoad$) {
+      return this.inFlightLoad$;
+    }
+
+    this.inFlightLoad$ = combineLatest([
+      this.projectService.getProjects(0, 30).pipe(catchError(() => of({ data: { content: [] } }))),
+      this.networkService.getNetworkUsers({ size: 30 }).pipe(catchError(() => of({ data: { content: [] } }))),
+      this.opportunityService.getOpportunities(undefined, 0, 30).pipe(catchError(() => of({ data: { content: [] } }))),
+      this.techEventService.getEvents(undefined, 0, 30).pipe(catchError(() => of({ data: { content: [] } }))),
+      this.companyService.getCompanies(0, 30).pipe(catchError(() => of({ data: { content: [] } })))
+    ]).pipe(
+      map(([projectsRes, usersRes, oppsRes, eventsRes, companiesRes]) => {
+        const rawProjects: Project[] = projectsRes?.data?.content || projectsRes?.data || [];
+        const rawUsers: UserNetwork[] = usersRes?.data?.content || usersRes?.data || [];
+        const rawOpps: Opportunity[] = oppsRes?.data?.content || oppsRes?.data || [];
+        const rawEvents: TechEvent[] = eventsRes?.data?.content || eventsRes?.data || [];
+        const rawCompanies: Company[] = companiesRes?.data?.content || companiesRes?.data || [];
+
+        const dataset: CachedSearchDataset = {
+          rawProjects,
+          rawUsers,
+          rawOpps,
+          rawEvents,
+          rawCompanies,
+          timestamp: Date.now()
+        };
+
+        this.cachedData = dataset;
+        this.saveToStorage(dataset);
+        this.inFlightLoad$ = null;
+        return dataset;
+      }),
+      catchError(err => {
+        this.inFlightLoad$ = null;
+        throw err;
+      }),
+      shareReplay(1)
+    );
+
+    return this.inFlightLoad$;
+  }
+
+  private emptyResult(query: string): GlobalSearchResults {
+    return {
+      query,
+      suggestedCorrection: null,
+      projects: [],
+      developers: [],
+      opportunities: [],
+      events: [],
+      companies: [],
+      technologies: [],
+      totalMatches: 0
+    };
+  }
+
+  /**
+   * Filtrage direct et synchrone en mémoire (temps d'exécution < 1ms, 0ms de réseau).
+   */
+  searchSync(rawQuery: string): GlobalSearchResults | null {
+    if (!this.cachedData) return null;
+    const trimmed = rawQuery ? rawQuery.trim() : '';
+    if (!trimmed || trimmed.length < 1) {
+      return this.emptyResult('');
+    }
+
+    const normQuery = this.normalizeText(trimmed);
+    const terms = normQuery.split(/\s+/).filter(t => t.length > 0);
+
+    return this.filterResults(
+      rawQuery,
+      trimmed,
+      terms,
+      this.cachedData.rawProjects,
+      this.cachedData.rawUsers,
+      this.cachedData.rawOpps,
+      this.cachedData.rawEvents,
+      this.cachedData.rawCompanies
+    );
+  }
+
+  search(rawQuery: string): Observable<GlobalSearchResults> {
+    const sync = this.searchSync(rawQuery);
+    if (sync) {
+      return of(sync);
+    }
+
+    const trimmed = rawQuery ? rawQuery.trim() : '';
+    if (!trimmed || trimmed.length < 1) {
+      return of(this.emptyResult(''));
+    }
+
+    return this.loadDataset().pipe(
+      map(dataset => {
+        const normQuery = this.normalizeText(trimmed);
+        const terms = normQuery.split(/\s+/).filter(t => t.length > 0);
+        return this.filterResults(
+          rawQuery,
+          trimmed,
+          terms,
+          dataset.rawProjects,
+          dataset.rawUsers,
+          dataset.rawOpps,
+          dataset.rawEvents,
+          dataset.rawCompanies
+        );
+      })
+    );
+  }
 
   private normalizeText(text: string | null | undefined): string {
     if (!text) return '';
@@ -174,68 +339,6 @@ export class GlobalSearchService {
 
       return false;
     });
-  }
-
-  search(rawQuery: string): Observable<GlobalSearchResults> {
-    const trimmed = rawQuery ? rawQuery.trim() : '';
-    if (!trimmed || trimmed.length < 1) {
-      return of({
-        query: '',
-        suggestedCorrection: null,
-        projects: [],
-        developers: [],
-        opportunities: [],
-        events: [],
-        companies: [],
-        technologies: [],
-        totalMatches: 0
-      });
-    }
-
-    const normQuery = this.normalizeText(trimmed);
-    const terms = normQuery.split(/\s+/).filter(t => t.length > 0);
-
-    // Fast-path: use cached data if fresh (instant response ~1ms)
-    if (this.cachedData && (Date.now() - this.cachedData.timestamp < this.CACHE_TTL_MS)) {
-      const results = this.filterResults(
-        rawQuery,
-        trimmed,
-        terms,
-        this.cachedData.rawProjects,
-        this.cachedData.rawUsers,
-        this.cachedData.rawOpps,
-        this.cachedData.rawEvents,
-        this.cachedData.rawCompanies
-      );
-      return of(results);
-    }
-
-    return combineLatest([
-      this.projectService.getProjects(0, 50).pipe(catchError(() => of({ data: { content: [] } }))),
-      this.networkService.getNetworkUsers({ size: 50 }).pipe(catchError(() => of({ data: { content: [] } }))),
-      this.opportunityService.getOpportunities(undefined, 0, 50).pipe(catchError(() => of({ data: { content: [] } }))),
-      this.techEventService.getEvents(undefined, 0, 50).pipe(catchError(() => of({ data: { content: [] } }))),
-      this.companyService.getCompanies(0, 50).pipe(catchError(() => of({ data: { content: [] } })))
-    ]).pipe(
-      map(([projectsRes, usersRes, oppsRes, eventsRes, companiesRes]) => {
-        const rawProjects: Project[] = projectsRes?.data?.content || projectsRes?.data || [];
-        const rawUsers: UserNetwork[] = usersRes?.data?.content || usersRes?.data || [];
-        const rawOpps: Opportunity[] = oppsRes?.data?.content || oppsRes?.data || [];
-        const rawEvents: TechEvent[] = eventsRes?.data?.content || eventsRes?.data || [];
-        const rawCompanies: Company[] = companiesRes?.data?.content || companiesRes?.data || [];
-
-        this.cachedData = {
-          rawProjects,
-          rawUsers,
-          rawOpps,
-          rawEvents,
-          rawCompanies,
-          timestamp: Date.now()
-        };
-
-        return this.filterResults(rawQuery, trimmed, terms, rawProjects, rawUsers, rawOpps, rawEvents, rawCompanies);
-      })
-    );
   }
 
   private filterResults(

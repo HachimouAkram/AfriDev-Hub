@@ -2067,6 +2067,13 @@ export class AppComponent implements OnInit, OnDestroy {
         window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
       }
     });
+
+    // 2. Préchauffage en arrière-plan du moteur de recherche pour rendre la frappe 100% instantanée (0ms)
+    if (typeof window !== 'undefined') {
+      setTimeout(() => {
+        this.globalSearchService.prefetch().subscribe();
+      }, 300);
+    }
   }
 
   resolveMediaUrl(url?: string | null): string {
@@ -2094,6 +2101,18 @@ export class AppComponent implements OnInit, OnDestroy {
     }
 
     this.isSearchOpen = true;
+
+    // FAST-PATH INSTANTANÉ (0 ms): Si le cache est prêt, filtrage synchrone immédiat sous les doigts
+    if (this.globalSearchService.hasCachedData()) {
+      const instant = this.globalSearchService.searchSync(val);
+      if (instant) {
+        this.searchResults = instant;
+        this.isSearching = false;
+        return;
+      }
+    }
+
+    // SLOW-PATH (uniquement si le cache n'a pas encore fini de préchauffer)
     this.isSearching = true;
     this.searchTimer = setTimeout(() => {
       this.searchSub = this.globalSearchService.search(val).subscribe({
@@ -2105,10 +2124,13 @@ export class AppComponent implements OnInit, OnDestroy {
           this.isSearching = false;
         }
       });
-    }, 220);
+    }, 120);
   }
 
   onSearchFocus(): void {
+    // Déclencher le préchauffage dès le focus sur le champ de recherche
+    this.globalSearchService.prefetch().subscribe();
+
     if (this.searchQuery && this.searchQuery.trim().length > 0) {
       this.isSearchOpen = true;
       if (!this.searchResults) {
