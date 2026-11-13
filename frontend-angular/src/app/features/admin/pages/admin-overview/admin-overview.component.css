@@ -851,98 +851,324 @@
   border: 1px dashed rgba(255, 255, 255, 0.08);
 }
 
-/* 4. Matrice Panoramique Synthétique 360° */
-.activity-matrix-section {
+/* 3. Donut Chart SVG (Graphique en Cercle / Anneau Analytique) */
+.donut-chart-card {
+  display: flex;
+  flex-direction: column;
+}
+
+.donut-chart-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  gap: 1.5rem;
+  margin-top: 1rem;
+  flex-wrap: wrap;
+}
+
+.donut-svg-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.donut-svg {
+  transform: rotate(-90deg);
+  overflow: visible;
+}
+
+.donut-segment {
+  transition: stroke-dasharray 0.6s cubic-bezier(0.4, 0, 0.2, 1), stroke-dashoffset 0.6s ease;
+  cursor: pointer;
+}
+
+.donut-segment:hover {
+  stroke-width: 24;
+  filter: drop-shadow(0 0 8px currentColor);
+}
+
+.donut-center-label {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.donut-center-val {
+  font-size: 1.85rem;
+  font-weight: 900;
+  color: var(--text-heading, #F8FAFC);
+  line-height: 1;
+}
+
+.donut-center-sub {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-muted, #94A3B8);
+  margin-top: 0.2rem;
+}
+
+.donut-legend-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+  flex: 1;
+  min-width: 200px;
+}
+
+.donut-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.35rem 0.65rem;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.legend-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+  flex-shrink: 0;
+}
+
+.legend-text-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  font-size: 0.82rem;
+}
+
+.legend-name {
+  color: var(--text-heading, #F8FAFC);
+  font-weight: 600;
+}
+
+.legend-count {
+  color: #F8FAFC;
+  font-weight: 800;
+}
+
+.legend-pct {
+  color: var(--text-muted, #94A3B8);
+  font-size: 0.75rem;
+  font-weight: 600;
+  min-width: 42px;
+  text-align: right;
+}
+
+.bg-cyan-subtle {
+  background: rgba(6, 182, 212, 0.12);
+  color: #06B6D4;
+}
+
+/* 4. Jauges Circulaires de Santé (Mini Radial Charts) */
+.radial-gauges-section {
   padding: 1.35rem;
   border-radius: var(--radius-lg, 14px);
   background: var(--bg-surface-card, #0F172A);
   border: 1px solid var(--border-light, rgba(255, 255, 255, 0.08));
 }
 
-.matrix-header {
+.gauges-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 1.15rem;
+  margin-bottom: 1.25rem;
 }
 
-.matrix-header h3 {
+.gauges-header h3 {
   font-size: 1.15rem;
   font-weight: 800;
   color: var(--text-heading, #F8FAFC);
   margin: 0 0 0.2rem 0;
 }
 
-.matrix-desc {
+.gauges-desc {
   font-size: 0.82rem;
   color: var(--text-muted, #94A3B8);
   margin: 0;
 }
 
-.matrix-table {
-  width: 100%;
+.gauges-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1.15rem;
 }
 
-.pillar-cell {
+.gauge-card {
   display: flex;
   align-items: center;
-  gap: 0.65rem;
+  gap: 1rem;
+  padding: 1rem;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
 }
 
-.pillar-icon {
-  font-size: 1.15rem;
+.gauge-circle-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
 }
 
-.pillar-title {
+.gauge-svg {
+  transform: rotate(-90deg);
+}
+
+.gauge-val {
+  position: absolute;
   font-size: 0.88rem;
+  font-weight: 800;
+  color: #F8FAFC;
+}
+
+.gauge-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.gauge-info strong {
+  font-size: 0.86rem;
   font-weight: 700;
   color: var(--text-heading, #F8FAFC);
 }
 
-.volume-num {
-  font-size: 1.05rem;
-  font-weight: 800;
-  color: #10B981;
+.gauge-info span {
+  font-size: 0.74rem;
+  color: var(--text-muted, #94A3B8);
+  margin-top: 0.15rem;
 }
 
-.secondary-info {
+/* 5. Grille Analytique des 6 Piliers (100% Cartes KPI Analyste, Sans Tableau) */
+.analyst-pillars-section {
+  padding: 1.35rem;
+  border-radius: var(--radius-lg, 14px);
+  background: var(--bg-surface-card, #0F172A);
+  border: 1px solid var(--border-light, rgba(255, 255, 255, 0.08));
+}
+
+.pillars-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.15rem;
+  margin-top: 1.15rem;
+}
+
+.pillar-analyst-card {
+  padding: 1.25rem;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: var(--radius-lg, 14px);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 1rem;
+  transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.pillar-analyst-card:hover {
+  transform: translateY(-3px);
+  border-color: rgba(16, 185, 129, 0.3);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.2);
+}
+
+.card-top-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.pillar-icon-box {
+  width: 42px;
+  height: 42px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pillar-icon-box.badge-emerald { background: rgba(16, 185, 129, 0.15); color: #10B981; }
+.pillar-icon-box.badge-cyan { background: rgba(6, 182, 212, 0.15); color: #06B6D4; }
+.pillar-icon-box.badge-purple { background: rgba(168, 85, 247, 0.15); color: #A855F7; }
+.pillar-icon-box.badge-amber { background: rgba(245, 158, 11, 0.15); color: #F59E0B; }
+.pillar-icon-box.badge-indigo { background: rgba(99, 102, 241, 0.15); color: #818CF8; }
+.pillar-icon-box.badge-blue { background: rgba(59, 130, 246, 0.15); color: #3B82F6; }
+
+.pillar-label {
   font-size: 0.8rem;
   color: var(--text-muted, #94A3B8);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
 }
 
-.trend-badge {
-  display: inline-block;
-  padding: 0.2rem 0.55rem;
-  border-radius: 6px;
-  font-size: 0.75rem;
-  font-weight: 700;
-  background: rgba(16, 185, 129, 0.12);
-  color: #10B981;
+.pillar-count-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin: 0.35rem 0 0.65rem 0;
 }
 
-.status-chip {
+.pillar-count {
+  font-size: 1.85rem;
+  font-weight: 900;
+  color: var(--text-heading, #F8FAFC);
+  line-height: 1;
+}
+
+.pillar-bar-track {
+  width: 100%;
+  height: 6px;
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 999px;
+  overflow: hidden;
+  margin-bottom: 0.65rem;
+}
+
+.pillar-bar-fill {
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #10B981, #06B6D4);
+  transition: width 0.4s ease;
+}
+
+.pillar-desc {
+  font-size: 0.78rem;
+  color: var(--text-muted, #94A3B8);
+  line-height: 1.45;
+  margin: 0;
+}
+
+.card-footer {
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  padding-top: 0.75rem;
+}
+
+.card-action-link {
   display: inline-flex;
   align-items: center;
-  gap: 0.35rem;
-  padding: 0.25rem 0.65rem;
-  border-radius: 999px;
-  font-size: 0.75rem;
+  gap: 0.45rem;
+  font-size: 0.8rem;
   font-weight: 700;
-  background: rgba(16, 185, 129, 0.1);
+  color: #10B981;
+  text-decoration: none;
+  transition: gap 0.2s ease, color 0.2s ease;
+}
+
+.card-action-link:hover {
+  gap: 0.75rem;
   color: #34D399;
 }
 
-.status-chip .dot {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: #10B981;
-}
-
-.btn-xs {
-  padding: 0.25rem 0.65rem;
-  font-size: 0.75rem;
-  border-radius: 6px;
-}
 
 

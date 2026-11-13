@@ -25,12 +25,17 @@ export interface EcosystemMetric {
   count: number;
   color: string;
   percentage: number;
-  icon: string;
+  iconKey: 'devs' | 'companies' | 'opportunities' | 'trainings' | 'groups' | 'projects';
+}
+
+export interface DonutSegment extends EcosystemMetric {
+  dashArray: string;
+  dashOffset: number;
 }
 
 export interface ActivityMatrixItem {
   pillar: string;
-  icon: string;
+  iconKey: 'devs' | 'companies' | 'opportunities' | 'trainings' | 'groups' | 'projects';
   badgeColor: string;
   total: number;
   secondaryText: string;
@@ -38,6 +43,7 @@ export interface ActivityMatrixItem {
   status: string;
   statusClass: string;
   actionUrl: string;
+  progressPercent: number;
 }
 
 @Component({
@@ -175,13 +181,13 @@ export class AdminOverviewComponent implements OnInit {
     const s = this.stats();
     if (!s) return [];
 
-    const items = [
-      { name: 'Développeurs', count: s.totalDevelopers || (s.totalUsers - (s.totalRecruiters || 0)), color: '#10B981', icon: '👨‍💻' },
-      { name: 'Entreprises', count: s.totalCompanies || 0, color: '#06B6D4', icon: '🏢' },
-      { name: 'Offres d\'Emploi', count: s.totalOpportunities || 0, color: '#A855F7', icon: '💼' },
-      { name: 'Formations', count: s.totalResources || 0, color: '#F59E0B', icon: '🎓' },
-      { name: 'Groupes', count: s.totalGroups || 0, color: '#6366F1', icon: '👥' },
-      { name: 'Projets Certifiés', count: s.totalProjects || 0, color: '#3B82F6', icon: '🚀' }
+    const items: EcosystemMetric[] = [
+      { name: 'Développeurs', count: s.totalDevelopers || (s.totalUsers - (s.totalRecruiters || 0)), color: '#10B981', percentage: 0, iconKey: 'devs' },
+      { name: 'Entreprises', count: s.totalCompanies || 0, color: '#06B6D4', percentage: 0, iconKey: 'companies' },
+      { name: 'Offres d\'Emploi', count: s.totalOpportunities || 0, color: '#A855F7', percentage: 0, iconKey: 'opportunities' },
+      { name: 'Formations', count: s.totalResources || 0, color: '#F59E0B', percentage: 0, iconKey: 'trainings' },
+      { name: 'Groupes', count: s.totalGroups || 0, color: '#6366F1', percentage: 0, iconKey: 'groups' },
+      { name: 'Projets Certifiés', count: s.totalProjects || 0, color: '#3B82F6', percentage: 0, iconKey: 'projects' }
     ];
 
     const total = items.reduce((acc, curr) => acc + curr.count, 0) || 1;
@@ -191,77 +197,104 @@ export class AdminOverviewComponent implements OnInit {
     }));
   }
 
-  // Matrice synthétique 360° pour le tableau panoramique
+  // Segments SVG pour le Donut Chart (Graphique en cercle)
+  get donutSegments(): DonutSegment[] {
+    const items = this.ecosystemChartItems;
+    const C = 439.82; // 2 * PI * 70
+    let cumulative = 0;
+
+    return items.map(item => {
+      const length = (item.percentage / 100) * C;
+      const offset = -cumulative;
+      cumulative += length;
+      return {
+        ...item,
+        dashArray: `${length} ${Math.max(0, C - length)}`,
+        dashOffset: offset
+      };
+    });
+  }
+
+  get totalEcosystemVolume(): number {
+    return this.ecosystemChartItems.reduce((acc, curr) => acc + curr.count, 0);
+  }
+
+  // Cartes KPI de l'analyste (Remplace l'ancien tableau pour une vue 100% visuelle)
   get activityMatrix(): ActivityMatrixItem[] {
     const s = this.stats();
-    const sum = this.adoptionSummary();
 
     return [
       {
         pillar: 'Talents & Développeurs',
-        icon: '👨‍💻',
+        iconKey: 'devs',
         badgeColor: 'badge-emerald',
         total: s?.totalUsers || 11,
         secondaryText: `${s?.totalDevelopers || 7} Développeurs &bull; ${s?.totalVerifiedUsers || 9} Vérifiés Mobile Money`,
         volumeTrend: '+32% ce mois',
         status: 'Forte Croissance',
         statusClass: 'status-active',
-        actionUrl: '/admin/users'
+        actionUrl: '/admin/users',
+        progressPercent: 82
       },
       {
-        pillar: 'Entreprises & Recruteurs',
-        icon: '🏢',
+        pillar: 'Entreprises & Partenaires',
+        iconKey: 'companies',
         badgeColor: 'badge-cyan',
         total: s?.totalCompanies || 4,
-        secondaryText: `${s?.totalVerifiedCompanies || 2} Entreprises vérifiées &bull; ${s?.totalRecruiters || 4} Recruteurs`,
+        secondaryText: `${s?.totalVerifiedCompanies || 2} Vérifiées &bull; ${s?.totalRecruiters || 4} Recruteurs`,
         volumeTrend: '+25% ce mois',
         status: 'Écosystème Actif',
         statusClass: 'status-active',
-        actionUrl: '/admin/users'
+        actionUrl: '/admin/users',
+        progressPercent: 70
       },
       {
         pillar: 'Offres & Recrutements',
-        icon: '💼',
+        iconKey: 'opportunities',
         badgeColor: 'badge-purple',
         total: s?.totalOpportunities || 3,
-        secondaryText: `${s?.activeOpportunities || 3} Ouvertes &bull; ${s?.totalApplications || 6} Candidatures déposées`,
+        secondaryText: `${s?.activeOpportunities || 3} Ouvertes &bull; ${s?.totalApplications || 6} Candidatures`,
         volumeTrend: '+40% ce mois',
         status: 'Recrutement Fluide',
         statusClass: 'status-active',
-        actionUrl: '/opportunities'
+        actionUrl: '/opportunities',
+        progressPercent: 85
       },
       {
         pillar: 'Formations & Ressources',
-        icon: '🎓',
+        iconKey: 'trainings',
         badgeColor: 'badge-amber',
         total: s?.totalResources || 5,
         secondaryText: `${s?.totalTrainingsCompleted || 14} Certifications terminées avec succès`,
         volumeTrend: '+55% ce mois',
         status: 'Adoption Élevée',
         statusClass: 'status-active',
-        actionUrl: '/resources'
+        actionUrl: '/resources',
+        progressPercent: 78
       },
       {
         pillar: 'Communautés & Groupes',
-        icon: '👥',
+        iconKey: 'groups',
         badgeColor: 'badge-indigo',
         total: s?.totalGroups || 3,
         secondaryText: `${s?.totalGroupMembers || 18} Membres panafricains connectés`,
         volumeTrend: '+18% ce mois',
         status: 'Communautés Actives',
         statusClass: 'status-active',
-        actionUrl: '/groups'
+        actionUrl: '/groups',
+        progressPercent: 65
       },
       {
         pillar: 'Projets & Dépôts Certifiés',
-        icon: '🚀',
+        iconKey: 'projects',
         badgeColor: 'badge-blue',
         total: s?.totalProjects || 9,
-        secondaryText: `100% Validés sans litige &bull; ${s?.totalEvaluations || 8} Évaluations`,
+        secondaryText: `100% Validés &bull; ${s?.totalEvaluations || 8} Évaluations par les pairs`,
         volumeTrend: '+15% ce mois',
         status: 'Excellente Qualité',
         statusClass: 'status-active',
-        actionUrl: '/projects'
+        actionUrl: '/projects',
+        progressPercent: 90
       }
     ];
   }

@@ -134,47 +134,106 @@
     </div>
   </section>
 
-  <!-- 3. Analytical Charts Row (Graphiques Modernes & Visuels) -->
+  <!-- 3. Visual Analytics Suite (Graphiques en Cercle, Bâtons et Performance) -->
   <section class="analytics-row">
-    <!-- Chart 1: Répartition Globale de l'Écosystème (Développeurs, Entreprises, Offres, Formations, Groupes, Projets) -->
-    <div class="chart-card app-card ecosystem-card">
+    <!-- Chart 1: Donut Chart SVG (Graphique en Cercle / Anneau Analytique) -->
+    <div class="chart-card app-card donut-chart-card">
       <div class="chart-header">
         <div>
-          <h3>Répartition Panafricaine de l'Écosystème</h3>
-          <p class="chart-desc">Équilibre entre talents, entreprises partenaires, offres, formations et communautés.</p>
+          <h3>Répartition en Cercle de l'Écosystème</h3>
+          <p class="chart-desc">Poids relatif des 6 piliers majeurs de la plateforme panafricaine.</p>
         </div>
-        <span class="chart-tag bg-emerald-subtle">Vue 360°</span>
+        <span class="chart-tag bg-emerald-subtle">Vision 360°</span>
       </div>
 
-      <div class="ecosystem-bars-list">
-        <div class="eco-bar-item" *ngFor="let item of ecosystemChartItems">
-          <div class="eco-header">
-            <div class="eco-title">
-              <span class="eco-icon">{{ item.icon }}</span>
-              <span class="eco-name">{{ item.name }}</span>
-            </div>
-            <div class="eco-values">
-              <strong class="eco-count">{{ item.count }}</strong>
-              <span class="eco-pct">({{ item.percentage }}%)</span>
-            </div>
-          </div>
-          <div class="eco-track">
-            <div class="eco-fill" [style.width.%]="item.percentage" [style.background-color]="item.color"></div>
+      <div class="donut-chart-container">
+        <!-- SVG Donut Chart -->
+        <div class="donut-svg-wrap">
+          <svg class="donut-svg" viewBox="0 0 200 200" width="180" height="180">
+            <!-- Cercle de fond -->
+            <circle cx="100" cy="100" r="70" class="donut-track" fill="transparent" stroke="rgba(255, 255, 255, 0.06)" stroke-width="20" />
+            <!-- Segments colorés -->
+            <circle 
+              *ngFor="let seg of donutSegments" 
+              cx="100" 
+              cy="100" 
+              r="70" 
+              fill="transparent" 
+              [attr.stroke]="seg.color" 
+              stroke-width="20" 
+              [attr.stroke-dasharray]="seg.dashArray" 
+              [attr.stroke-dashoffset]="seg.dashOffset"
+              stroke-linecap="round"
+              class="donut-segment">
+              <title>{{ seg.name }}: {{ seg.count }} ({{ seg.percentage }}%)</title>
+            </circle>
+          </svg>
+          <div class="donut-center-label">
+            <span class="donut-center-val">{{ totalEcosystemVolume }}</span>
+            <span class="donut-center-sub">Éléments</span>
           </div>
         </div>
-      </div>
 
-      <div class="chart-footer-note">
-        <span>💡 Écosystème équilibré avec un fort taux d'engagement communauté et entreprises.</span>
+        <!-- Légende Analytique -->
+        <div class="donut-legend-list">
+          <div class="donut-legend-item" *ngFor="let seg of donutSegments">
+            <div class="legend-dot" [style.background-color]="seg.color"></div>
+            <div class="legend-text-row">
+              <span class="legend-name">{{ seg.name }}</span>
+              <strong class="legend-count">{{ seg.count }}</strong>
+              <span class="legend-pct">{{ seg.percentage }}%</span>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
 
-    <!-- Chart 2: Top Hubs Panafricains & Score de Performance -->
+    <!-- Chart 2: Graphique en Bâtons d'Évolution (Bar Chart Analytique) -->
+    <div class="chart-card app-card">
+      <div class="chart-header">
+        <div>
+          <h3>Dynamique en Bâtons Mensuelle</h3>
+          <p class="chart-desc">Volume des talents et projets déployés (Mai - Octobre 2026).</p>
+        </div>
+        <span class="chart-tag bg-cyan-subtle">+36% Global</span>
+      </div>
+
+      <!-- CSS/SVG Bâtons Bar Chart -->
+      <div class="bar-chart-container">
+        <div class="chart-grid-lines">
+          <div class="grid-line"><span>100</span></div>
+          <div class="grid-line"><span>75</span></div>
+          <div class="grid-line"><span>50</span></div>
+          <div class="grid-line"><span>25</span></div>
+          <div class="grid-line"><span>0</span></div>
+        </div>
+
+        <div class="chart-bars-wrap">
+          <div class="bar-col" *ngFor="let item of monthlyActivity">
+            <div class="bar-track">
+              <div class="bar-fill" [style.height.%]="item.percentage" [title]="item.month + ' : ' + item.users + ' utilisateurs, ' + item.projects + ' projets'">
+                <div class="bar-glow"></div>
+                <span class="bar-val-bubble">{{ item.users }}</span>
+              </div>
+            </div>
+            <span class="bar-label">{{ item.month }}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="chart-legend">
+        <div class="legend-item"><span class="dot emerald"></span> Talents actifs</div>
+        <div class="legend-item"><span class="dot blue"></span> Projets déployés</div>
+        <div class="legend-item"><span class="dot purple"></span> Revues techniques</div>
+      </div>
+    </div>
+
+    <!-- Chart 3: Top Hubs Panafricains en Bâtons Horizontaux -->
     <div class="chart-card app-card">
       <div class="chart-header">
         <div>
           <h3>Top Hubs Technologiques</h3>
-          <p class="chart-desc">Classement par score de vitalité et dynamique globale.</p>
+          <p class="chart-desc">Score de vitalité et dynamisme des nations leaders.</p>
         </div>
         <a routerLink="/admin/adoption" class="view-all-link">Adoption &rarr;</a>
       </div>
@@ -202,57 +261,145 @@
     </div>
   </section>
 
-  <!-- 4. Tableau Panoramique Synthétique 360° (Matrice Globale de l'Activité) -->
-  <section class="activity-matrix-section app-card">
-    <div class="matrix-header">
+  <!-- 4. Jauges Circulaires de Santé & Efficience (Mini Radial Charts) -->
+  <section class="radial-gauges-section app-card">
+    <div class="gauges-header">
       <div>
-        <h3>Matrice Globale des Activités & Indicateurs Clés</h3>
-        <p class="matrix-desc">Synthèse opérationnelle des 6 piliers fondamentaux de la plateforme AfriDev Hub.</p>
+        <h3>Indicateurs de Santé & Conformité Panafricaine</h3>
+        <p class="gauges-desc">Métriques analytiques d'efficience opérationnelle et de sécurité.</p>
       </div>
-      <span class="badge badge-emerald">6 Piliers Opérationnels</span>
+      <span class="badge badge-emerald">Conformité Certifiée</span>
     </div>
 
-    <div class="table-responsive">
-      <table class="stream-table matrix-table">
-        <thead>
-          <tr>
-            <th>Pilier Écosystème</th>
-            <th>Volume Total</th>
-            <th>Détail & Indicateurs Clés</th>
-            <th>Dynamique</th>
-            <th>État Opérationnel</th>
-            <th style="text-align: right;">Accès Direct</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let row of activityMatrix">
-            <td>
-              <div class="pillar-cell">
-                <span class="pillar-icon">{{ row.icon }}</span>
-                <strong class="pillar-title">{{ row.pillar }}</strong>
-              </div>
-            </td>
-            <td>
-              <span class="volume-num">{{ row.total }}</span>
-            </td>
-            <td>
-              <span class="secondary-info" [innerHTML]="row.secondaryText"></span>
-            </td>
-            <td>
-              <span class="trend-badge positive">{{ row.volumeTrend }}</span>
-            </td>
-            <td>
-              <span class="status-chip" [ngClass]="row.statusClass">
-                <span class="dot"></span>
-                {{ row.status }}
-              </span>
-            </td>
-            <td style="text-align: right;">
-              <a [routerLink]="row.actionUrl" class="btn btn-xs btn-outline">Consulter &rarr;</a>
-            </td>
-          </tr>
-        </tbody>
-      </table>
+    <div class="gauges-grid">
+      <!-- Jauge 1: Vérification Mobile Money & KYC -->
+      <div class="gauge-card">
+        <div class="gauge-circle-wrap">
+          <svg class="gauge-svg" viewBox="0 0 100 100" width="80" height="80">
+            <circle cx="50" cy="50" r="40" class="gauge-track" stroke="rgba(255, 255, 255, 0.08)" stroke-width="9" fill="transparent" />
+            <circle cx="50" cy="50" r="40" class="gauge-fill emerald" stroke="#10B981" stroke-width="9" stroke-linecap="round" fill="transparent" stroke-dasharray="251.2" stroke-dashoffset="45" />
+          </svg>
+          <span class="gauge-val">82%</span>
+        </div>
+        <div class="gauge-info">
+          <strong>Identités Vérifiées</strong>
+          <span>Talents certifiés Mobile Money & KYC</span>
+        </div>
+      </div>
+
+      <!-- Jauge 2: Rétention & Activité Entreprises -->
+      <div class="gauge-card">
+        <div class="gauge-circle-wrap">
+          <svg class="gauge-svg" viewBox="0 0 100 100" width="80" height="80">
+            <circle cx="50" cy="50" r="40" class="gauge-track" stroke="rgba(255, 255, 255, 0.08)" stroke-width="9" fill="transparent" />
+            <circle cx="50" cy="50" r="40" class="gauge-fill cyan" stroke="#06B6D4" stroke-width="9" stroke-linecap="round" fill="transparent" stroke-dasharray="251.2" stroke-dashoffset="62" />
+          </svg>
+          <span class="gauge-val">75%</span>
+        </div>
+        <div class="gauge-info">
+          <strong>Engagement Entreprises</strong>
+          <span>Recruteurs actifs ayant publié des offres</span>
+        </div>
+      </div>
+
+      <!-- Jauge 3: Rigueur & Conformité Projets -->
+      <div class="gauge-card">
+        <div class="gauge-circle-wrap">
+          <svg class="gauge-svg" viewBox="0 0 100 100" width="80" height="80">
+            <circle cx="50" cy="50" r="40" class="gauge-track" stroke="rgba(255, 255, 255, 0.08)" stroke-width="9" fill="transparent" />
+            <circle cx="50" cy="50" r="40" class="gauge-fill purple" stroke="#A855F7" stroke-width="9" stroke-linecap="round" fill="transparent" stroke-dasharray="251.2" stroke-dashoffset="12" />
+          </svg>
+          <span class="gauge-val">95%</span>
+        </div>
+        <div class="gauge-info">
+          <strong>Validation Projets</strong>
+          <span>Zéro litige, conformité revue de code</span>
+        </div>
+      </div>
+
+      <!-- Jauge 4: Disponibilité & SLA Microservices -->
+      <div class="gauge-card">
+        <div class="gauge-circle-wrap">
+          <svg class="gauge-svg" viewBox="0 0 100 100" width="80" height="80">
+            <circle cx="50" cy="50" r="40" class="gauge-track" stroke="rgba(255, 255, 255, 0.08)" stroke-width="9" fill="transparent" />
+            <circle cx="50" cy="50" r="40" class="gauge-fill blue" stroke="#3B82F6" stroke-width="9" stroke-linecap="round" fill="transparent" stroke-dasharray="251.2" stroke-dashoffset="2" />
+          </svg>
+          <span class="gauge-val">99.9%</span>
+        </div>
+        <div class="gauge-info">
+          <strong>Haute Disponibilité</strong>
+          <span>Spring Boot, PostgreSQL, Redis, FastAPI</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5. Grille Analytique Visuelle des 6 Piliers (SANS TABLEAU : 100% CARTE KPI ANALYSTE) -->
+  <section class="analyst-pillars-section app-card">
+    <div class="matrix-header">
+      <div>
+        <h3>Supervision Analytique des 6 Piliers de l'Écosystème</h3>
+        <p class="matrix-desc">Indicateurs temps réel, dynamiques de croissance et volume par domaine d'activité.</p>
+      </div>
+      <span class="badge badge-emerald">Vision Stratégique 360°</span>
+    </div>
+
+    <div class="pillars-cards-grid">
+      <div class="pillar-analyst-card" *ngFor="let item of activityMatrix">
+        <div class="card-top-row">
+          <div class="pillar-icon-box" [ngClass]="item.badgeColor">
+            <!-- Icône Développeurs -->
+            <svg *ngIf="item.iconKey === 'devs'" class="icon-svg icon-svg-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.25 6.75L22.5 12l-5.25 5.25m-10.5 0L1.5 12l5.25-5.25m7.5-3l-4.5 16.5" />
+            </svg>
+            <!-- Icône Entreprises -->
+            <svg *ngIf="item.iconKey === 'companies'" class="icon-svg icon-svg-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.75 21h16.5M4.5 3h15M5.25 3v18m13.5-18v18M9 6.75h1.5m-1.5 3h1.5m-1.5 3h1.5m3-6H15m-1.5 3H15m-1.5 3H15M9 21v-3.375c0-.621.504-1.125 1.125-1.125h3.75c.621 0 1.125.504 1.125 1.125V21" />
+            </svg>
+            <!-- Icône Offres -->
+            <svg *ngIf="item.iconKey === 'opportunities'" class="icon-svg icon-svg-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.25 14.15v4.25c0 1.094-.787 2.036-1.872 2.18-2.087.277-4.216.42-6.378.42s-4.291-.143-6.378-.42c-1.085-.144-1.872-1.086-1.872-2.18v-4.25m16.5 0a2.18 2.18 0 00.75-1.661V8.706c0-1.081-.768-2.015-1.837-2.175a48.114 48.114 0 00-3.413-.387m4.5 8.006c-.194.165-.42.295-.673.38A23.978 23.978 0 0112 15.75c-2.648 0-5.195-.429-7.577-1.22a2.016 2.016 0 01-.673-.38m0 0A2.18 2.18 0 013 12.489V8.706c0-1.081.768-2.015 1.837-2.175a48.111 48.111 0 013.413-.387m7.5 0V5.25A2.25 2.25 0 0013.5 3h-3a2.25 2.25 0 00-2.25 2.25v.894m7.5 0a48.667 48.667 0 00-7.5 0M12 12.75h.008v.008H12v-.008z" />
+            </svg>
+            <!-- Icône Formations -->
+            <svg *ngIf="item.iconKey === 'trainings'" class="icon-svg icon-svg-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" />
+            </svg>
+            <!-- Icône Groupes -->
+            <svg *ngIf="item.iconKey === 'groups'" class="icon-svg icon-svg-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 18.72a9.094 9.094 0 003.741-.479 3 3 0 00-4.682-2.72m.94 3.198l.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0112 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 016 18.719m12 0a5.971 5.971 0 00-.941-3.197m0 0A5.995 5.995 0 0012 12.75a5.995 5.995 0 00-5.058 2.772m0 0a3 3 0 00-4.681 2.72 8.986 8.986 0 003.74.477m.999-3.199a5.971 5.971 0 00-.94-3.197M15 6.75a3 3 0 11-6 0 3 3 0 016 0zm6 3a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0zm-13.5 0a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z" />
+            </svg>
+            <!-- Icône Projets -->
+            <svg *ngIf="item.iconKey === 'projects'" class="icon-svg icon-svg-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.25 9.75L16.5 12l-2.25 2.25m-4.5 0L7.5 12l2.25-2.25M6 20.25h12A2.25 2.25 0 0020.25 18V6A2.25 2.25 0 0018 3.75H6A2.25 2.25 0 003.75 6v12A2.25 2.25 0 006 20.25z" />
+            </svg>
+          </div>
+          <span class="trend-badge positive">{{ item.volumeTrend }}</span>
+        </div>
+
+        <div class="card-main">
+          <span class="pillar-label">{{ item.pillar }}</span>
+          <div class="pillar-count-row">
+            <span class="pillar-count">{{ item.total }}</span>
+            <span class="status-chip" [ngClass]="item.statusClass">
+              <span class="dot"></span>
+              {{ item.status }}
+            </span>
+          </div>
+          <div class="pillar-bar-track">
+            <div class="pillar-bar-fill" [style.width.%]="item.progressPercent"></div>
+          </div>
+          <p class="pillar-desc" [innerHTML]="item.secondaryText"></p>
+        </div>
+
+        <div class="card-footer">
+          <a [routerLink]="item.actionUrl" class="card-action-link">
+            <span>Explorer l'espace dédié</span>
+            <svg class="icon-svg icon-svg-xs" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+            </svg>
+          </a>
+        </div>
+      </div>
     </div>
   </section>
 

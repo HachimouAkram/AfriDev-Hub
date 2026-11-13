@@ -204,10 +204,22 @@
   white-space: nowrap;
 }
 
+.rank-svg-trophy {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+}
+
+.icon-svg-xxs {
+  width: 13px;
+  height: 13px;
+  flex-shrink: 0;
+}
+
 .pill-badge {
   display: inline-flex;
   align-items: center;
-  gap: 0.3rem;
+  gap: 0.35rem;
   padding: 0.2rem 0.55rem;
   border-radius: 6px;
   font-size: 0.78rem;
