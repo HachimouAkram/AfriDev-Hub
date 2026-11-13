@@ -1,18 +1,18 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { DashboardApplicationsComponent } from '../pages/dashboard-applications/dashboard-applications.component';
+import { DashboardOffersComponent } from '../pages/dashboard-offers/dashboard-offers.component';
 
 @Component({
   selector: 'app-recruiter-applications',
   standalone: true,
-  imports: [CommonModule, DashboardApplicationsComponent],
+  imports: [CommonModule, DashboardOffersComponent],
   template: `
     <div class="recruiter-subpage-wrapper">
       <div class="page-notice">
         <span class="notice-badge">Recrutement</span>
         <p>Gérez les candidatures reçues pour votre entreprise et suivez vos recrutements en cours.</p>
       </div>
-      <app-dashboard-applications></app-dashboard-applications>
+      <app-dashboard-offers viewMode="applications"></app-dashboard-offers>
     </div>
   `,
   styles: [`

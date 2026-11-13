@@ -378,18 +378,45 @@
 /* ── Empty State ──────────────────────────────────────────── */
 .empty-box {
   text-align: center;
-  padding: 3rem 1.5rem;
+  padding: 3.5rem 1.5rem;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 1rem;
+  gap: 0.5rem;
   color: var(--text-muted);
 }
 
-.empty-box svg {
-  width: 56px;
-  height: 56px;
-  opacity: 0.3;
+.empty-icon-circle {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: rgba(16, 185, 129, 0.1);
+  border: 1px solid rgba(16, 185, 129, 0.25);
+  color: #10b981;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 0.75rem;
+}
+
+.empty-icon-circle svg {
+  width: 34px;
+  height: 34px;
+}
+
+.empty-box h3 {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--text-heading, #f8fafc);
+  margin: 0 0 0.25rem;
+}
+
+.empty-box p {
+  max-width: 520px;
+  font-size: 0.9rem;
+  color: var(--text-muted, #94a3b8);
+  line-height: 1.5;
+  margin: 0 0 1.25rem;
 }
 
 /* ── Modal Visionneuse PDF ────────────────────────────── */

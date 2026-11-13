@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, inject, Input, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink, ActivatedRoute } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -113,10 +113,28 @@ export class DashboardOffersComponent implements OnInit {
     }
   }
 
+  @Input() viewMode: 'all' | 'offers' | 'applications' = 'all';
+
   user = this.authService.currentUser;
   myPostedOpportunities = signal<Opportunity[]>([]);
   myReceivedApplications = signal<Application[]>([]);
   loading = signal<boolean>(true);
+
+  activeOffersCount(): number {
+    return this.myPostedOpportunities().filter(o => o.status === 'PUBLISHED').length;
+  }
+
+  pendingApplicationsCount(): number {
+    return this.myReceivedApplications().filter(a => a.status === 'PENDING' || a.status === 'REVIEWED').length;
+  }
+
+  acceptedApplicationsCount(): number {
+    return this.myReceivedApplications().filter(a => a.status === 'ACCEPTED').length;
+  }
+
+  rejectedApplicationsCount(): number {
+    return this.myReceivedApplications().filter(a => a.status === 'REJECTED').length;
+  }
 
   // Create Modal State
   showCreateModal = false;
