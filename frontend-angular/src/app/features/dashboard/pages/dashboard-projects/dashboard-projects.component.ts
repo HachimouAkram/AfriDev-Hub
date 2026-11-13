@@ -124,6 +124,30 @@ export class DashboardProjectsComponent implements OnInit {
     maxMembers: null as number | null
   };
 
+  readonly quickStackSuggestions = [
+    'Spring Boot',
+    'Angular',
+    'React',
+    'Node.js',
+    'Python',
+    'Docker',
+    'PostgreSQL',
+    'Flutter',
+    'Tailwind',
+    'IA / LLM'
+  ];
+
+  addStackSuggestion(tech: string): void {
+    const current = (this.projectForm.stackInput || '')
+      .split(',')
+      .map(s => s.trim())
+      .filter(s => s.length > 0);
+    if (!current.some(t => t.toLowerCase() === tech.toLowerCase())) {
+      current.push(tech);
+      this.projectForm.stackInput = current.join(', ');
+    }
+  }
+
   isSubmitting = false;
   isUploadingMedia = false;
   formErrorMessage = '';

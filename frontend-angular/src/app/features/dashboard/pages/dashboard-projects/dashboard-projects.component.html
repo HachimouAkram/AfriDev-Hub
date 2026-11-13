@@ -299,13 +299,13 @@
 
   <!-- 1. MODAL DE CRÉATION DE PROJET (MULTI-TYPES & SÉCURISÉ) -->
   <div class="modal-overlay" *ngIf="showCreateModal" (click)="closeCreateModal()">
-    <div class="app-card modal-card modal-card-large" (click)="$event.stopPropagation()">
+    <div class="app-card modal-card modal-card-large animate-pop" (click)="$event.stopPropagation()">
       <div class="modal-header">
-        <div>
+        <div class="header-titles">
           <h3>Publier une Nouvelle Réalisation</h3>
-          <p class="text-xs text-muted">Sélectionnez la catégorie du projet pour activer les champs appropriés.</p>
+          <p class="subtitle">Sélectionnez la catégorie du projet pour activer les champs appropriés.</p>
         </div>
-        <button (click)="closeCreateModal()" class="close-btn">&times;</button>
+        <button type="button" (click)="closeCreateModal()" class="btn-close" aria-label="Fermer">✕</button>
       </div>
 
       <div class="modal-body">
@@ -321,85 +321,91 @@
           </div>
         </div>
 
-        <!-- Tab selector for Project Type -->
+        <!-- Tab selector for Project Type (6 catégories harmonisées) -->
         <div class="project-type-tabs">
           <button 
+            type="button"
             (click)="selectProjectType('OPEN_SOURCE')"
-            class="type-tab-btn"
+            class="type-tab-btn type-open-source"
             [class.active]="projectForm.projectType === 'OPEN_SOURCE'">
-            <svg class="tab-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.25 6.75L22.5 12l-5.25 5.25m-10.5 0L1.5 12l5.25-5.25m7.5-3l-4.5 16.5" />
-            </svg>
-            <div class="tab-text">
-              <span class="tab-label">Open Source</span>
-              <span class="tab-desc">Code source public avec licence libre</span>
+            <div class="tab-icon-wrap">
+              <svg class="tab-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.25 6.75L22.5 12l-5.25 5.25m-10.5 0L1.5 12l5.25-5.25m7.5-3l-4.5 16.5" />
+              </svg>
             </div>
+            <span class="tab-label">Open Source</span>
+            <span class="tab-desc">Code public & libre</span>
           </button>
 
           <button 
+            type="button"
             (click)="selectProjectType('COLLABORATIVE')"
-            class="type-tab-btn"
+            class="type-tab-btn type-collaborative"
             [class.active]="projectForm.projectType === 'COLLABORATIVE'">
-            <svg class="tab-svg text-teal" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 18.72a9.094 9.094 0 003.741-.479 3 3 0 00-4.682-2.72m.94 3.198l.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0112 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 016 18.719m12 0a5.971 5.971 0 00-.941-3.197m0 0A5.995 5.995 0 0012 12.75a5.995 5.995 0 00-5.058 2.772m0 0a3 3 0 00-4.681 2.72 8.986 8.986 0 003.74.477m.999-3.199a5.971 5.971 0 00-.94 3.197M15 6.75a3 3 0 11-6 0 3 3 0 016 0zm6 3a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0zm-13.5 0a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z" />
-            </svg>
-            <div class="tab-text">
-              <span class="tab-label">Collaboratif</span>
-              <span class="tab-desc">Idée de projet, recrutement & Kanban</span>
+            <div class="tab-icon-wrap">
+              <svg class="tab-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 18.72a9.094 9.094 0 003.741-.479 3 3 0 00-4.682-2.72m.94 3.198l.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0112 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 016 18.719m12 0a5.971 5.971 0 00-.941-3.197m0 0A5.995 5.995 0 0012 12.75a5.995 5.995 0 00-5.058 2.772m0 0a3 3 0 00-4.681 2.72 8.986 8.986 0 003.74.477m.999-3.199a5.971 5.971 0 00-.94 3.197M15 6.75a3 3 0 11-6 0 3 3 0 016 0zm6 3a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0zm-13.5 0a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z" />
+              </svg>
             </div>
+            <span class="tab-label">Collaboratif</span>
+            <span class="tab-desc">Équipe & Kanban</span>
           </button>
 
           <button 
+            type="button"
             (click)="selectProjectType('FOR_SALE')"
-            class="type-tab-btn"
+            class="type-tab-btn type-for-sale"
             [class.active]="projectForm.projectType === 'FOR_SALE'">
-            <svg class="tab-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.568 3H5.25A2.25 2.25 0 003 5.25v4.318c0 .597.237 1.17.659 1.591l9.581 9.581c.699.699 1.78.872 2.607.33a18.095 18.095 0 005.223-5.223c.542-.827.369-1.908-.33-2.607L11.16 3.66A2.25 2.25 0 009.568 3z" />
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 6h.008v.008H6V6z" />
-            </svg>
-            <div class="tab-text">
-              <span class="tab-label">En Vente</span>
-              <span class="tab-desc">Projet prêt à céder avec prix</span>
+            <div class="tab-icon-wrap">
+              <svg class="tab-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.568 3H5.25A2.25 2.25 0 003 5.25v4.318c0 .597.237 1.17.659 1.591l9.581 9.581c.699.699 1.78.872 2.607.33a18.095 18.095 0 005.223-5.223c.542-.827.369-1.908-.33-2.607L11.16 3.66A2.25 2.25 0 009.568 3z" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 6h.008v.008H6V6z" />
+              </svg>
             </div>
+            <span class="tab-label">En Vente</span>
+            <span class="tab-desc">Cession & Prix</span>
           </button>
 
           <button 
+            type="button"
             (click)="selectProjectType('SAAS')"
-            class="type-tab-btn"
+            class="type-tab-btn type-saas"
             [class.active]="projectForm.projectType === 'SAAS'">
-            <svg class="tab-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.59 14.37a6 6 0 01-5.84 7.38v-4.8m5.84-2.58a14.98 14.98 0 006.16-12.12A14.98 14.98 0 009.631 8.41m5.96 5.96a14.926 14.926 0 01-5.841 2.58m-.119-8.54a6 6 0 00-7.381 5.84h4.8m2.581-5.84a14.927 14.927 0 00-2.58 5.841m8.541-5.96a14.927 14.927 0 00-5.841 2.58m0 0a5.972 5.972 0 00-2.3-1.815m2.3 1.815a5.97 5.97 0 011.815 2.3m-1.815-2.3L9 9m6 6l-1.5-1.5" />
-            </svg>
-            <div class="tab-text">
-              <span class="tab-label">SaaS</span>
-              <span class="tab-desc">Produit en ligne en mode service</span>
+            <div class="tab-icon-wrap">
+              <svg class="tab-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.59 14.37a6 6 0 01-5.84 7.38v-4.8m5.84-2.58a14.98 14.98 0 006.16-12.12A14.98 14.98 0 009.631 8.41m5.96 5.96a14.926 14.926 0 01-5.841 2.58m-.119-8.54a6 6 0 00-7.381 5.84h4.8m2.581-5.84a14.927 14.927 0 00-2.58 5.841m8.541-5.96a14.927 14.927 0 00-5.841 2.58m0 0a5.972 5.972 0 00-2.3-1.815m2.3 1.815a5.97 5.97 0 011.815 2.3m-1.815-2.3L9 9m6 6l-1.5-1.5" />
+              </svg>
             </div>
+            <span class="tab-label">SaaS</span>
+            <span class="tab-desc">Service web</span>
           </button>
 
           <button 
+            type="button"
             (click)="selectProjectType('PORTFOLIO')"
-            class="type-tab-btn"
+            class="type-tab-btn type-portfolio"
             [class.active]="projectForm.projectType === 'PORTFOLIO'">
-            <svg class="tab-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.25 14.15v4.25c0 1.094-.787 2.036-1.872 2.18-2.087.277-4.216.42-6.378.42s-4.291-.143-6.378-.42c-1.085-.144-1.872-1.086-1.872-2.18v-4.25m16.5 0a2.18 2.18 0 00.75-1.661V8.706c0-1.081-.768-2.015-1.837-2.175a48.114 48.114 0 00-3.413-.387M3.75 14.15a2.18 2.18 0 01-.75-1.661V8.706c0-1.081.768-2.015 1.837-2.175a48.111 48.111 0 013.413-.387m4.5 8.006h4.5m-4.5 0A2.25 2.25 0 019 12v-1.5A2.25 2.25 0 0111.25 8.25h1.5A2.25 2.25 0 0115 10.5V12a2.25 2.25 0 01-2.25 2.25m-4.5 0h4.5" />
-            </svg>
-            <div class="tab-text">
-              <span class="tab-label">Portfolio</span>
-              <span class="tab-desc">Site vitrine personnel</span>
+            <div class="tab-icon-wrap">
+              <svg class="tab-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.25 14.15v4.25c0 1.094-.787 2.036-1.872 2.18-2.087.277-4.216.42-6.378.42s-4.291-.143-6.378-.42c-1.085-.144-1.872-1.086-1.872-2.18v-4.25m16.5 0a2.18 2.18 0 00.75-1.661V8.706c0-1.081-.768-2.015-1.837-2.175a48.114 48.114 0 00-3.413-.387M3.75 14.15a2.18 2.18 0 01-.75-1.661V8.706c0-1.081.768-2.015 1.837-2.175a48.111 48.111 0 013.413-.387m4.5 8.006h4.5m-4.5 0A2.25 2.25 0 019 12v-1.5A2.25 2.25 0 0111.25 8.25h1.5A2.25 2.25 0 0115 10.5V12a2.25 2.25 0 01-2.25 2.25m-4.5 0h4.5" />
+              </svg>
             </div>
+            <span class="tab-label">Portfolio</span>
+            <span class="tab-desc">Site vitrine</span>
           </button>
 
           <button 
+            type="button"
             (click)="selectProjectType('ENTERPRISE')"
-            class="type-tab-btn"
+            class="type-tab-btn type-enterprise"
             [class.active]="projectForm.projectType === 'ENTERPRISE'">
-            <svg class="tab-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.25 21h19.5m-18-18v18m10.5-18v18m6-13.5V21M6.75 6.75h.008v.008H6.75V6.75zm0 3.75h.008v.008H6.75V10.5zm0 3.75h.008v.008H6.75v-.008zm0 3.75h.008v.008H6.75v-.008zm6-11.25h.008v.008h-.008V6.75zm0 3.75h.008v.008h-.008V10.5zm0 3.75h.008v.008h-.008v-.008zm0 3.75h.008v.008h-.008v-.008z" />
-            </svg>
-            <div class="tab-text">
-              <span class="tab-label">Entreprise</span>
-              <span class="tab-desc">Réalisation sous contrat NDA</span>
+            <div class="tab-icon-wrap">
+              <svg class="tab-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.25 21h19.5m-18-18v18m10.5-18v18m6-13.5V21M6.75 6.75h.008v.008H6.75V6.75zm0 3.75h.008v.008H6.75V10.5zm0 3.75h.008v.008H6.75v-.008zm0 3.75h.008v.008H6.75v-.008zm6-11.25h.008v.008h-.008V6.75zm0 3.75h.008v.008h-.008V10.5zm0 3.75h.008v.008h-.008v-.008zm0 3.75h.008v.008h-.008v-.008z" />
+              </svg>
             </div>
+            <span class="tab-label">Entreprise</span>
+            <span class="tab-desc">Client & NDA</span>
           </button>
         </div>
 
@@ -411,7 +417,7 @@
 
         <div class="form-group">
           <label class="form-label">Description / Pitch <span class="required-star">*</span></label>
-          <textarea [(ngModel)]="projectForm.description" rows="4" placeholder="Présentez les objectifs, l'architecture et les fonctionnalités clés..." class="form-textarea"></textarea>
+          <textarea [(ngModel)]="projectForm.description" rows="3" placeholder="Présentez les objectifs, l'architecture et les fonctionnalités clés..." class="form-textarea"></textarea>
         </div>
 
         <div class="form-group">
@@ -419,8 +425,22 @@
             Technologies / Stack Technique requise
             <span class="required-star" *ngIf="projectForm.projectType === 'COLLABORATIVE'">*</span>
           </label>
-          <input type="text" [(ngModel)]="projectForm.stackInput" placeholder="Spring Boot, Angular, PostgreSQL, Docker" class="form-input">
-          <span class="text-xs text-muted" *ngIf="projectForm.projectType === 'COLLABORATIVE'">Spécifiez les technologies indispensables recherchées chez vos futurs équipiers.</span>
+          <input type="text" [(ngModel)]="projectForm.stackInput" placeholder="Ex: Spring Boot, Angular, PostgreSQL, Docker" class="form-input">
+          
+          <!-- Suggestions rapides de technologies -->
+          <div class="tech-quick-suggestions">
+            <span class="suggestion-tag">Suggestions :</span>
+            <button 
+              type="button" 
+              *ngFor="let tech of quickStackSuggestions" 
+              (click)="addStackSuggestion(tech)" 
+              class="tech-sug-btn">
+              + {{ tech }}
+            </button>
+          </div>
+          <span class="text-xs text-muted" *ngIf="projectForm.projectType === 'COLLABORATIVE'">
+            Spécifiez les technologies indispensables recherchées chez vos futurs équipiers.
+          </span>
         </div>
 
         <!-- DYNAMIC FIELDS PER PROJECT TYPE -->
@@ -663,13 +683,13 @@
 
   <!-- 2. MODAL DE MODIFICATION DE PROJET -->
   <div class="modal-overlay" *ngIf="showEditModal" (click)="closeEditModal()">
-    <div class="app-card modal-card modal-card-large" (click)="$event.stopPropagation()">
+    <div class="app-card modal-card modal-card-large animate-pop" (click)="$event.stopPropagation()">
       <div class="modal-header">
-        <div>
+        <div class="header-titles">
           <h3>Modifier le Projet</h3>
-          <p class="text-xs text-muted">Mettez à jour les informations, liens ou fichiers de votre projet.</p>
+          <p class="subtitle">Mettez à jour les informations, liens ou fichiers de votre réalisation.</p>
         </div>
-        <button (click)="closeEditModal()" class="close-btn">&times;</button>
+        <button type="button" (click)="closeEditModal()" class="btn-close" aria-label="Fermer">✕</button>
       </div>
 
       <div class="modal-body">
@@ -688,76 +708,88 @@
         <!-- Tab selector for Project Type -->
         <div class="project-type-tabs">
           <button 
+            type="button"
             (click)="selectProjectType('OPEN_SOURCE')"
-            class="type-tab-btn"
+            class="type-tab-btn type-open-source"
             [class.active]="projectForm.projectType === 'OPEN_SOURCE'">
-            <svg class="tab-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.25 6.75L22.5 12l-5.25 5.25m-10.5 0L1.5 12l5.25-5.25m7.5-3l-4.5 16.5" />
-            </svg>
-            <div class="tab-text">
-              <span class="tab-label">Open Source</span>
+            <div class="tab-icon-wrap">
+              <svg class="tab-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.25 6.75L22.5 12l-5.25 5.25m-10.5 0L1.5 12l5.25-5.25m7.5-3l-4.5 16.5" />
+              </svg>
             </div>
+            <span class="tab-label">Open Source</span>
+            <span class="tab-desc">Code public & libre</span>
           </button>
 
           <button 
+            type="button"
             (click)="selectProjectType('COLLABORATIVE')"
-            class="type-tab-btn"
+            class="type-tab-btn type-collaborative"
             [class.active]="projectForm.projectType === 'COLLABORATIVE'">
-            <svg class="tab-svg text-teal" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 18.72a9.094 9.094 0 003.741-.479 3 3 0 00-4.682-2.72m.94 3.198l.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0112 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 016 18.719m12 0a5.971 5.971 0 00-.941-3.197m0 0A5.995 5.995 0 0012 12.75a5.995 5.995 0 00-5.058 2.772m0 0a3 3 0 00-4.681 2.72 8.986 8.986 0 003.74.477m.999-3.199a5.971 5.971 0 00-.94 3.197M15 6.75a3 3 0 11-6 0 3 3 0 016 0zm6 3a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0zm-13.5 0a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z" />
-            </svg>
-            <div class="tab-text">
-              <span class="tab-label">Collaboratif</span>
+            <div class="tab-icon-wrap">
+              <svg class="tab-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 18.72a9.094 9.094 0 003.741-.479 3 3 0 00-4.682-2.72m.94 3.198l.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0112 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 016 18.719m12 0a5.971 5.971 0 00-.941-3.197m0 0A5.995 5.995 0 0012 12.75a5.995 5.995 0 00-5.058 2.772m0 0a3 3 0 00-4.681 2.72 8.986 8.986 0 003.74.477m.999-3.199a5.971 5.971 0 00-.94 3.197M15 6.75a3 3 0 11-6 0 3 3 0 016 0zm6 3a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0zm-13.5 0a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z" />
+              </svg>
             </div>
+            <span class="tab-label">Collaboratif</span>
+            <span class="tab-desc">Équipe & Kanban</span>
           </button>
 
           <button 
+            type="button"
             (click)="selectProjectType('FOR_SALE')"
-            class="type-tab-btn"
+            class="type-tab-btn type-for-sale"
             [class.active]="projectForm.projectType === 'FOR_SALE'">
-            <svg class="tab-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.568 3H5.25A2.25 2.25 0 003 5.25v4.318c0 .597.237 1.17.659 1.591l9.581 9.581c.699.699 1.78.872 2.607.33a18.095 18.095 0 005.223-5.223c.542-.827.369-1.908-.33-2.607L11.16 3.66A2.25 2.25 0 009.568 3z" />
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 6h.008v.008H6V6z" />
-            </svg>
-            <div class="tab-text">
-              <span class="tab-label">En Vente</span>
+            <div class="tab-icon-wrap">
+              <svg class="tab-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.568 3H5.25A2.25 2.25 0 003 5.25v4.318c0 .597.237 1.17.659 1.591l9.581 9.581c.699.699 1.78.872 2.607.33a18.095 18.095 0 005.223-5.223c.542-.827.369-1.908-.33-2.607L11.16 3.66A2.25 2.25 0 009.568 3z" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 6h.008v.008H6V6z" />
+              </svg>
             </div>
+            <span class="tab-label">En Vente</span>
+            <span class="tab-desc">Cession & Prix</span>
           </button>
 
           <button 
+            type="button"
             (click)="selectProjectType('SAAS')"
-            class="type-tab-btn"
+            class="type-tab-btn type-saas"
             [class.active]="projectForm.projectType === 'SAAS'">
-            <svg class="tab-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.59 14.37a6 6 0 01-5.84 7.38v-4.8m5.84-2.58a14.98 14.98 0 006.16-12.12A14.98 14.98 0 009.631 8.41m5.96 5.96a14.926 14.926 0 01-5.841 2.58m-.119-8.54a6 6 0 00-7.381 5.84h4.8m2.581-5.84a14.927 14.927 0 00-2.58 5.841m8.541-5.96a14.927 14.927 0 00-5.841 2.58m0 0a5.972 5.972 0 00-2.3-1.815m2.3 1.815a5.97 5.97 0 011.815 2.3m-1.815-2.3L9 9m6 6l-1.5-1.5" />
-            </svg>
-            <div class="tab-text">
-              <span class="tab-label">SaaS</span>
+            <div class="tab-icon-wrap">
+              <svg class="tab-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.59 14.37a6 6 0 01-5.84 7.38v-4.8m5.84-2.58a14.98 14.98 0 006.16-12.12A14.98 14.98 0 009.631 8.41m5.96 5.96a14.926 14.926 0 01-5.841 2.58m-.119-8.54a6 6 0 00-7.381 5.84h4.8m2.581-5.84a14.927 14.927 0 00-2.58 5.841m8.541-5.96a14.927 14.927 0 00-5.841 2.58m0 0a5.972 5.972 0 00-2.3-1.815m2.3 1.815a5.97 5.97 0 011.815 2.3m-1.815-2.3L9 9m6 6l-1.5-1.5" />
+              </svg>
             </div>
+            <span class="tab-label">SaaS</span>
+            <span class="tab-desc">Service web</span>
           </button>
 
           <button 
+            type="button"
             (click)="selectProjectType('PORTFOLIO')"
-            class="type-tab-btn"
+            class="type-tab-btn type-portfolio"
             [class.active]="projectForm.projectType === 'PORTFOLIO'">
-            <svg class="tab-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.25 14.15v4.25c0 1.094-.787 2.036-1.872 2.18-2.087.277-4.216.42-6.378.42s-4.291-.143-6.378-.42c-1.085-.144-1.872-1.086-1.872-2.18v-4.25m16.5 0a2.18 2.18 0 00.75-1.661V8.706c0-1.081-.768-2.015-1.837-2.175a48.114 48.114 0 00-3.413-.387M3.75 14.15a2.18 2.18 0 01-.75-1.661V8.706c0-1.081.768-2.015 1.837-2.175a48.111 48.111 0 013.413-.387m4.5 8.006h4.5m-4.5 0A2.25 2.25 0 019 12v-1.5A2.25 2.25 0 0111.25 8.25h1.5A2.25 2.25 0 0115 10.5V12a2.25 2.25 0 01-2.25 2.25m-4.5 0h4.5" />
-            </svg>
-            <div class="tab-text">
-              <span class="tab-label">Portfolio</span>
+            <div class="tab-icon-wrap">
+              <svg class="tab-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.25 14.15v4.25c0 1.094-.787 2.036-1.872 2.18-2.087.277-4.216.42-6.378.42s-4.291-.143-6.378-.42c-1.085-.144-1.872-1.086-1.872-2.18v-4.25m16.5 0a2.18 2.18 0 00.75-1.661V8.706c0-1.081-.768-2.015-1.837-2.175a48.114 48.114 0 00-3.413-.387M3.75 14.15a2.18 2.18 0 01-.75-1.661V8.706c0-1.081.768-2.015 1.837-2.175a48.111 48.111 0 013.413-.387m4.5 8.006h4.5m-4.5 0A2.25 2.25 0 019 12v-1.5A2.25 2.25 0 0111.25 8.25h1.5A2.25 2.25 0 0115 10.5V12a2.25 2.25 0 01-2.25 2.25m-4.5 0h4.5" />
+              </svg>
             </div>
+            <span class="tab-label">Portfolio</span>
+            <span class="tab-desc">Site vitrine</span>
           </button>
 
           <button 
+            type="button"
             (click)="selectProjectType('ENTERPRISE')"
-            class="type-tab-btn"
+            class="type-tab-btn type-enterprise"
             [class.active]="projectForm.projectType === 'ENTERPRISE'">
-            <svg class="tab-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.25 21h19.5m-18-18v18m10.5-18v18m6-13.5V21M6.75 6.75h.008v.008H6.75V6.75zm0 3.75h.008v.008H6.75V10.5zm0 3.75h.008v.008H6.75v-.008zm0 3.75h.008v.008H6.75v-.008zm6-11.25h.008v.008h-.008V6.75zm0 3.75h.008v.008h-.008V10.5zm0 3.75h.008v.008h-.008v-.008zm0 3.75h.008v.008h-.008v-.008z" />
-            </svg>
-            <div class="tab-text">
-              <span class="tab-label">Entreprise</span>
+            <div class="tab-icon-wrap">
+              <svg class="tab-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.25 21h19.5m-18-18v18m10.5-18v18m6-13.5V21M6.75 6.75h.008v.008H6.75V6.75zm0 3.75h.008v.008H6.75V10.5zm0 3.75h.008v.008H6.75v-.008zm0 3.75h.008v.008H6.75v-.008zm6-11.25h.008v.008h-.008V6.75zm0 3.75h.008v.008h-.008V10.5zm0 3.75h.008v.008h-.008v-.008zm0 3.75h.008v.008h-.008v-.008z" />
+              </svg>
             </div>
+            <span class="tab-label">Entreprise</span>
+            <span class="tab-desc">Client & NDA</span>
           </button>
         </div>
 
@@ -769,7 +801,7 @@
 
         <div class="form-group">
           <label class="form-label">Description / Pitch <span class="required-star">*</span></label>
-          <textarea [(ngModel)]="projectForm.description" rows="4" class="form-textarea"></textarea>
+          <textarea [(ngModel)]="projectForm.description" rows="3" class="form-textarea"></textarea>
         </div>
 
         <div class="form-group">
@@ -778,6 +810,18 @@
             <span class="required-star" *ngIf="projectForm.projectType === 'COLLABORATIVE'">*</span>
           </label>
           <input type="text" [(ngModel)]="projectForm.stackInput" class="form-input">
+          
+          <!-- Suggestions rapides de technologies -->
+          <div class="tech-quick-suggestions">
+            <span class="suggestion-tag">Suggestions :</span>
+            <button 
+              type="button" 
+              *ngFor="let tech of quickStackSuggestions" 
+              (click)="addStackSuggestion(tech)" 
+              class="tech-sug-btn">
+              + {{ tech }}
+            </button>
+          </div>
         </div>
 
         <!-- DYNAMIC FIELDS PER TYPE -->
