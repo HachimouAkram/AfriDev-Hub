@@ -51,4 +51,5 @@ public class AdminStatsDto {
     private Map<String, Long> companiesByCountry;
     private Map<String, Long> ecosystemDistribution;
     private List<Map<String, Object>> topCountriesPerformance;
+    private List<Map<String, Object>> monthlyTrends;
 }

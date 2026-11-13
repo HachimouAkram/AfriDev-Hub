@@ -27,6 +27,7 @@ export interface AdminStats {
   companiesByCountry?: { [key: string]: number };
   ecosystemDistribution?: { [key: string]: number };
   topCountriesPerformance?: Array<{ country: string; users: number; companies: number }>;
+  monthlyTrends?: Array<{ month: string; talents: number; companies: number; projects: number; opportunities: number }>;
 }
 
 export interface CountryAdoptionStats {

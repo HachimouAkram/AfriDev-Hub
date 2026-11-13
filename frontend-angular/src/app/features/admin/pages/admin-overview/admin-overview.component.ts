@@ -179,6 +179,43 @@ export class AdminOverviewComponent implements OnInit {
     this.loadOverviewData();
   }
 
+  // Met à jour dynamiquement les tracés SVG (Spline et Bâtons) à partir de la base de données
+  updateDynamicCharts(trends: Array<{ month: string; talents: number; companies: number; projects: number; opportunities: number }>): void {
+    if (!trends || trends.length === 0) return;
+
+    const maxVal = Math.max(
+      1,
+      ...trends.map(t => Math.max(t.talents, t.companies, t.projects, t.opportunities))
+    );
+    const scaleMax = Math.max(10, Math.ceil(maxVal * 1.2));
+    const xCoords = [45, 138, 231, 324, 417, 500];
+
+    this.multiSeriesData = trends.map((t, idx) => {
+      const x = xCoords[idx] || (45 + idx * 90);
+      const yTalents = Math.round(155 - (t.talents / scaleMax) * 125);
+      const yCompanies = Math.round(155 - (t.companies / scaleMax) * 125);
+      const yProjects = Math.round(155 - (t.projects / scaleMax) * 125);
+      return {
+        month: t.month,
+        talents: t.talents,
+        companies: t.companies,
+        projects: t.projects,
+        x,
+        yTalents,
+        yCompanies,
+        yProjects
+      };
+    });
+
+    this.groupedBars = trends.map(t => ({
+      month: t.month,
+      val1: t.talents,
+      val2: (t.companies + t.opportunities),
+      heightPct1: Math.max(8, Math.min(100, Math.round((t.talents / scaleMax) * 100))),
+      heightPct2: Math.max(8, Math.min(100, Math.round(((t.companies + t.opportunities) / scaleMax) * 100)))
+    }));
+  }
+
   loadOverviewData(): void {
     this.isLoading.set(true);
 
@@ -187,6 +224,9 @@ export class AdminOverviewComponent implements OnInit {
       next: (res) => {
         if (res.success && res.data) {
           this.stats.set(res.data);
+          if (res.data.monthlyTrends && res.data.monthlyTrends.length > 0) {
+            this.updateDynamicCharts(res.data.monthlyTrends);
+          }
         }
       },
       error: () => {

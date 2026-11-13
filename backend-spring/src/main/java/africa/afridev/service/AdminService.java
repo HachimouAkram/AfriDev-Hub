@@ -22,6 +22,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.time.YearMonth;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -145,6 +147,43 @@ public class AdminService {
                 })
                 .collect(Collectors.toList());
 
+        // 6 Derniers mois d'historique glissant calculés dynamiquement depuis la base de données
+        YearMonth currentYm = YearMonth.now();
+        DateTimeFormatter monthFmt = DateTimeFormatter.ofPattern("MMM", Locale.FRENCH);
+        List<UserEntity> allUsersList = userRepository.findAll();
+        List<ProjectEntity> allProjectsList = projectRepository.findAll();
+
+        List<Map<String, Object>> monthlyTrends = new ArrayList<>();
+        for (int i = 5; i >= 0; i--) {
+            YearMonth targetYm = currentYm.minusMonths(i);
+            String rawMonth = targetYm.format(monthFmt);
+            String monthName = rawMonth.substring(0, 1).toUpperCase(Locale.FRENCH) + rawMonth.substring(1).replace(".", "");
+
+            long talentsMonth = allUsersList.stream()
+                    .filter(u -> u.getCreatedAt() != null && YearMonth.from(u.getCreatedAt()).equals(targetYm))
+                    .count();
+
+            long companiesMonth = allCompanies.stream()
+                    .filter(c -> c.getCreatedAt() != null && YearMonth.from(c.getCreatedAt()).equals(targetYm))
+                    .count();
+
+            long projectsMonth = allProjectsList.stream()
+                    .filter(p -> p.getCreatedAt() != null && YearMonth.from(p.getCreatedAt()).equals(targetYm))
+                    .count();
+
+            long opportunitiesMonth = allOpportunities.stream()
+                    .filter(o -> o.getCreatedAt() != null && YearMonth.from(o.getCreatedAt()).equals(targetYm))
+                    .count();
+
+            Map<String, Object> point = new LinkedHashMap<>();
+            point.put("month", monthName);
+            point.put("talents", talentsMonth);
+            point.put("companies", companiesMonth);
+            point.put("projects", projectsMonth);
+            point.put("opportunities", opportunitiesMonth);
+            monthlyTrends.add(point);
+        }
+
         return AdminStatsDto.builder()
                 .totalUsers(totalUsers)
                 .totalProfiles(totalProfiles)
@@ -169,6 +208,7 @@ public class AdminService {
                 .companiesByCountry(companiesByCountry)
                 .ecosystemDistribution(ecosystemDistribution)
                 .topCountriesPerformance(topCountriesPerformance)
+                .monthlyTrends(monthlyTrends)
                 .build();
     }
 
