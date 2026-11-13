@@ -917,7 +917,7 @@ flowchart LR
     A --> D["Test & Build Angular (Node 22)"]
     B --> E["Déploiement FastAPI (webhook)"]
     C --> F["Déploiement Spring Boot (webhook Systalink)"]
-    D --> G["Frontend : Vercel (auto via Git)"]
+    D --> G["Déploiement Frontend (webhook / Docker)"]
     E --> H["Synthèse du pipeline"]
     F --> H
     G --> H
@@ -925,7 +925,7 @@ flowchart LR
 
 Les déploiements ne s'exécutent que sur `main` / `master` hors pull request. Les rapports Surefire sont publiés en artefacts (7 jours).
 
-**Secrets GitHub optionnels** : `SYSTALINK_SPRING_WEBHOOK` (ou `SPRING_DEPLOY_WEBHOOK`), `FASTAPI_DEPLOY_WEBHOOK`, `GH_API_TOKEN`.
+**Secrets GitHub optionnels** : `SYSTALINK_FRONTEND_WEBHOOK`, `SYSTALINK_SPRING_WEBHOOK`, `FASTAPI_DEPLOY_WEBHOOK`, `GH_API_TOKEN`.
 
 ---
 
@@ -933,7 +933,7 @@ Les déploiements ne s'exécutent que sur `main` / `master` hors pull request. L
 
 | Composant | Cible | Méthode |
 | :--- | :--- | :--- |
-| **Frontend Angular** | Vercel / conteneur Node | Build automatique depuis Git, ou image [Dockerfile](Dockerfile) (Node 20, `server.js`, port `8080`) |
+| **Frontend Angular** | Conteneur Node / Systalink / VPS | Image [Dockerfile](Dockerfile) (Node 20 Alpine, `server.js` reverse-proxy, port `8080`) |
 | **Backend Spring Boot** | Systalink / VPS Docker | Webhook déclenché par la CI, `mvn package` puis `java -jar` |
 | **Microservice FastAPI** | Render / Koyeb / Systalink | Webhook `FASTAPI_DEPLOY_WEBHOOK`, `uvicorn app.main:app --host 0.0.0.0 --port 8000` |
 | **PostgreSQL / Redis** | Services managés (DBaaS) | Variables `DB_*` / `REDIS_*` |

@@ -173,11 +173,42 @@ jobs:
           fi
 
   # ========================================================
-  # 6. RÉCAPITULATIF CI/CD DU PIPELINE
+  # 6. DEPLOY FRONTEND ANGULAR (Systalink / Docker Webhook)
+  # ========================================================
+  deploy-frontend:
+    name: 🚀 Déploiement Frontend Angular
+    needs: [test-angular]
+    runs-on: ubuntu-latest
+    if: (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master') && github.event_name != 'pull_request'
+    steps:
+      - name: Déclencher le webhook de déploiement Frontend Angular
+        env:
+          FRONTEND_WEBHOOK: ${{ secrets.SYSTALINK_FRONTEND_WEBHOOK || secrets.FRONTEND_DEPLOY_WEBHOOK }}
+        run: |
+          echo "=========================================================="
+          echo "DÉPLOIEMENT DU FRONTEND ANGULAR"
+          echo "=========================================================="
+          if [ -n "$FRONTEND_WEBHOOK" ]; then
+            echo "URL Webhook Frontend détectée. Envoi de la requête..."
+            HTTP_STATUS=$(curl -s -o response.txt -w "%{http_code}" -X POST "$FRONTEND_WEBHOOK")
+            echo "Code retour HTTP: $HTTP_STATUS"
+            cat response.txt
+            if [ "$HTTP_STATUS" -ge 200 ] && [ "$HTTP_STATUS" -lt 300 ]; then
+              echo "✅ Déploiement Frontend déclenché avec succès !"
+            else
+              echo "⚠️ Avertissement: Le webhook Frontend a répondu avec le statut $HTTP_STATUS."
+            fi
+          else
+            echo "ℹ️ Note: Aucun secret 'SYSTALINK_FRONTEND_WEBHOOK' configuré."
+            echo "Si le conteneur Frontend est configuré en auto-déploiement sur Git, il se met à jour à chaque push."
+          fi
+
+  # ========================================================
+  # 7. RÉCAPITULATIF CI/CD DU PIPELINE
   # ========================================================
   pipeline-summary:
     name: 📋 Synthèse du Déploiement Automatisé
-    needs: [test-fastapi, test-spring, test-angular, deploy-spring, deploy-fastapi]
+    needs: [test-fastapi, test-spring, test-angular, deploy-spring, deploy-fastapi, deploy-frontend]
     runs-on: ubuntu-latest
     if: always()
     steps:
@@ -187,7 +218,7 @@ jobs:
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "| Service | Statut Tests | Déploiement Automatique |" >> $GITHUB_STEP_SUMMARY
           echo "| :--- | :---: | :---: |" >> $GITHUB_STEP_SUMMARY
-          echo "| **Frontend Angular** | ✅ Passé | 🌐 Vercel (Auto via Git) |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Frontend Angular** | ✅ Passé | 🐳 Plateforme / Conteneur Docker |" >> $GITHUB_STEP_SUMMARY
           echo "| **Backend Spring Boot** | ✅ Passé | 🐳 Systalink Platform |" >> $GITHUB_STEP_SUMMARY
           echo "| **Analytics FastAPI** | ✅ Passé | 🐍 Microservice |" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY

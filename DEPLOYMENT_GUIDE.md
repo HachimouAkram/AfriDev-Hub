@@ -20,20 +20,25 @@ Ce guide explique comment fonctionne la chaîne d'intégration et de déploiemen
          ┌──────────────────┼──────────────────┐
          ▼                  ▼                  ▼
   ┌──────────────┐   ┌──────────────┐   ┌──────────────┐
-  │   Vercel     │   │  Systalink   │   │  FastAPI     │
-  │  (Frontend)  │   │(Spring Boot) │   │ (Microserv.) │
+  │   Frontend   │   │  Systalink   │   │  FastAPI     │
+  │(Docker/Node) │   │(Spring Boot) │   │ (Microserv.) │
   │ Auto-déployé │   │ Auto-déployé │   │ Auto-déployé │
-  │  via GitHub  │   │  via Webhook │   │  via Webhook │
+  │  via Webhook │   │  via Webhook │   │  via Webhook │
   └──────────────┘   └──────────────┘   └──────────────┘
 ```
 
 ---
 
-## 1. 🅰️ Frontend Angular (Vercel) — 100% Automatique
+## 1. 🅰️ Frontend Angular (Conteneur Docker / Node) — Déploiement Automatique
 
-- **Hébergement :** [Vercel](https://vercel.com)
-- **Fonctionnement :** Dès qu'un commit est poussé sur la branche `main`, Vercel détecte automatiquement le changement, compile le projet Angular et le met en ligne sans aucune intervention manuelle.
-- **URL de production :** `https://afridev-hub.vercel.app`
+- **Hébergement :** Conteneur Docker (Node 20 Alpine + Angular dist + `server.js` reverse-proxy)
+- **Fonctionnement :**
+  - Utilise le [Dockerfile](Dockerfile) multi-stage à la racine du projet.
+  - Le serveur Node `server.js` sert les fichiers compilés d'Angular et relaie de manière transparente les requêtes `/api/v1` vers le backend Spring Boot via la variable d'environnement `BACKEND_URL`.
+- **URL de production :** `https://afridevhub.economestore.com` (ou votre nom de domaine configuré)
+- **Déclenchement automatique :**
+  - Via auto-déploiement Git sur votre hébergeur (Systalink, VPS Docker, etc.).
+  - Ou via webhook dans GitHub Actions avec le secret `SYSTALINK_FRONTEND_WEBHOOK`.
 
 ---
 
@@ -88,6 +93,7 @@ Pour tirer parti de 100% de l'automatisation dans `.github/workflows/ci-tests.ym
 
 | Nom du Secret | Rôle | Obligatoire ? |
 | :--- | :--- | :---: |
+| `SYSTALINK_FRONTEND_WEBHOOK` | Déclenche le redéploiement du conteneur Frontend (Docker / Node) après validation des tests | Optionnel si auto-deploy Git est actif |
 | `SYSTALINK_SPRING_WEBHOOK` | Déclenche le redéploiement de Spring Boot sur Systalink après validation des tests | Optionnel si auto-deploy Git est actif |
 | `FASTAPI_DEPLOY_WEBHOOK` | Déclenche le redéploiement du conteneur FastAPI | Optionnel |
 | `GH_API_TOKEN` | Token GitHub perso pour éviter le rate-limit des tests d'API GitHub | Recommandé |
