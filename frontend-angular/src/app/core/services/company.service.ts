@@ -82,10 +82,11 @@ export interface CompanyLeaderboardItem {
   sector?: string;
   companyXp: number;
   companyLevel: string;
+  levelNumber?: number;
   badge?: string;
   verified: boolean;
   activeOpportunitiesCount: number;
-  membersCount: number;
+  membersCount?: number;
   rank: number;
 }
 

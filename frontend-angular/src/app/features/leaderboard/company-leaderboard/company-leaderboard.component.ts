@@ -2,50 +2,116 @@ import { Component, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
-import { CompanyService, CompanyLeaderboardItem } from '../../../core/services/company.service';
+import { CompanyService, CompanyLeaderboardItem, CompanyLeaderboardResponse } from '../../../core/services/company.service';
+import { LeaderboardService } from '../../../core/services/leaderboard.service';
+import { AuthService } from '../../../core/services/auth.service';
 import { CompanyBadgeComponent } from '../../../shared/components/company-badge/company-badge.component';
 
 @Component({
   selector: 'app-company-leaderboard',
   standalone: true,
   imports: [CommonModule, FormsModule, RouterLink, CompanyBadgeComponent],
+  styleUrls: ['../leaderboard.component.css'],
+  styles: [`
+    .controls-filter-row {
+      display: flex;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+      align-items: center;
+      width: 100%;
+    }
+    .sector-select {
+      padding: 0.85rem 1.25rem;
+      background: var(--bg-surface-card);
+      border: 1.5px solid var(--border-subtle);
+      border-radius: 14px;
+      color: var(--text-heading);
+      font-size: 0.9rem;
+      font-weight: 600;
+      min-width: 190px;
+      outline: none;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .sector-select:focus {
+      border-color: var(--emerald-500);
+      box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.15);
+    }
+    .badge-opportunities {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
+      background: rgba(16, 185, 129, 0.14);
+      color: #10b981;
+      padding: 0.2rem 0.65rem;
+      border-radius: 9999px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      border: 1px solid rgba(16, 185, 129, 0.3);
+    }
+    @media (max-width: 768px) {
+      .sector-select {
+        width: 100%;
+      }
+    }
+  `],
   template: `
-    <div class="leaderboard-page-wrapper">
-      <!-- Hero Header -->
-      <div class="leaderboard-header">
-        <div class="header-content">
-          <div class="badge-tag">🏆 CLASSEMENT OFFICIEL AFRIQUE</div>
-          <h1 class="page-title">Top Entreprises & Recruteurs Tech</h1>
-          <p class="page-subtitle">
+    <div class="leaderboard-page">
+      <!-- 1. Header Section (Identique au Classement des Développeurs) -->
+      <header class="header-section app-card">
+        <div class="header-text">
+          <div style="display:inline-flex;gap:6px;background:rgba(30,41,59,0.7);padding:4px;border-radius:9999px;border:1px solid rgba(255,255,255,0.1);margin-bottom:0.75rem;">
+            <a routerLink="/leaderboard" style="color:#94a3b8;font-size:0.8rem;font-weight:600;padding:6px 14px;text-decoration:none;border-radius:9999px;">
+              👨‍💻 Développeurs
+            </a>
+            <span style="background:#10b981;color:#064e3b;font-weight:700;font-size:0.8rem;padding:6px 14px;border-radius:9999px;">
+              🏢 Entreprises
+            </span>
+          </div>
+          <h1>Classement des Entreprises & Recruteurs Tech</h1>
+          <p>
             Découvrez les entreprises les plus actives qui forment, recrutent et dynamisent l'écosystème numérique africain.
           </p>
+        </div>
 
-          <!-- Tab Switcher between Developers and Companies -->
-          <div class="tab-switcher">
-            <a routerLink="/leaderboard" class="tab-btn">
-              👨‍💻 Classement Développeurs
-            </a>
-            <a routerLink="/leaderboard/companies" class="tab-btn active">
-              🏢 Classement Entreprises
-            </a>
+        <!-- Stats Pills -->
+        <div class="stats-pills">
+          <div class="stat-pill">
+            <span class="stat-val">{{ totalCompanies() }}</span>
+            <span class="stat-lbl">Entreprises classées</span>
+          </div>
+          <div class="stat-pill">
+            <span class="stat-val">5 Paliers</span>
+            <span class="stat-lbl">Startup à Élite Afrique</span>
+          </div>
+          <div class="stat-pill highlight">
+            <span class="stat-val">100%</span>
+            <span class="stat-lbl">Impact & Recrutement</span>
           </div>
         </div>
-      </div>
+      </header>
 
-      <!-- Filters Row -->
-      <div class="filters-container">
-        <div class="search-box">
-          <input
-            type="text"
-            [(ngModel)]="searchQuery"
-            (ngModelChange)="onSearchChange()"
-            placeholder="Rechercher une entreprise, pays, secteur..."
-            class="search-input"
-          />
-        </div>
+      <!-- 2. Controls & Search Card (Identique au Classement Développeurs) -->
+      <section class="controls-card app-card">
+        <form (submit)="onSearch(); $event.preventDefault()" class="search-bar-form">
+          <div class="search-input-wrapper">
+            <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
+            </svg>
+            <input
+              type="text"
+              [(ngModel)]="searchQuery"
+              name="query"
+              placeholder="Rechercher une entreprise par nom, pays ou secteur..."
+              class="search-input"
+            />
+            <button *ngIf="searchQuery" type="button" (click)="clearSearch()" class="clear-btn" aria-label="Effacer">
+              ✕
+            </button>
+          </div>
 
-        <div class="select-group">
-          <select [(ngModel)]="selectedSector" (change)="loadLeaderboard()" class="filter-select">
+          <select [(ngModel)]="selectedSector" name="sector" (change)="loadLeaderboard()" class="sector-select">
             <option value="">Tous les secteurs</option>
             <option value="FinTech">FinTech</option>
             <option value="HealthTech">HealthTech</option>
@@ -54,482 +120,367 @@ import { CompanyBadgeComponent } from '../../../shared/components/company-badge/
             <option value="AgriTech">AgriTech</option>
             <option value="SaaS">SaaS & Cloud</option>
           </select>
+
+          <button type="submit" class="search-submit-btn" aria-label="Lancer la recherche">
+            <svg class="search-btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
+            </svg>
+            <span>Rechercher</span>
+          </button>
+        </form>
+      </section>
+
+      <!-- Loading Skeleton -->
+      <div class="sk-stack" style="width: 100%; margin: 1rem 0;" *ngIf="isLoading()" aria-busy="true" aria-label="Chargement du classement">
+        <div class="sk-grid" style="grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));">
+          <div class="sk-card" *ngFor="let i of [1,2,3]">
+            <div class="sk-meta-row">
+              <div class="sk-avatar sk-avatar-round sk-shimmer"></div>
+              <div style="flex: 1; display: flex; flex-direction: column; gap: 0.4rem;">
+                <div class="sk-line sk-shimmer" style="width: 68%;"></div>
+                <div class="sk-line-sm sk-shimmer" style="width: 45%;"></div>
+              </div>
+            </div>
+            <div class="sk-line-lg sk-shimmer" style="width: 42%;"></div>
+          </div>
+        </div>
+        <div class="sk-row" *ngFor="let r of [1,2,3,4,5]">
+          <div class="sk-pill sk-shimmer" style="width: 36px;"></div>
+          <div class="sk-avatar sk-avatar-round sk-shimmer"></div>
+          <div style="flex: 1; display: flex; flex-direction: column; gap: 0.4rem;">
+            <div class="sk-line sk-shimmer" style="width: 44%;"></div>
+            <div class="sk-line-sm sk-shimmer" style="width: 30%;"></div>
+          </div>
+          <div class="sk-pill sk-shimmer" style="width: 80px;"></div>
         </div>
       </div>
 
-      <!-- Podium Top 3 -->
-      <div class="podium-section" *ngIf="podium().length >= 3 && !isLoading()">
-        <!-- 2ème Place -->
-        <div class="podium-card rank-2" *ngIf="podium()[1] as second">
-          <div class="medal-circle">🥈 2e</div>
-          <div class="company-logo-circle">
-            <img *ngIf="second.logoUrl; else l2" [src]="second.logoUrl" [alt]="second.name" />
-            <ng-template #l2>🏢</ng-template>
-          </div>
-          <h3 class="podium-name">
-            <a [routerLink]="['/company', second.slug]">{{ second.name }}</a>
-          </h3>
-          <app-company-badge [level]="second.companyLevel"></app-company-badge>
-          <div class="podium-xp">{{ second.companyXp }} XP</div>
-          <span class="podium-loc" *ngIf="second.country">📍 {{ second.country }}</span>
-        </div>
-
-        <!-- 1ère Place -->
-        <div class="podium-card rank-1" *ngIf="podium()[0] as first">
-          <div class="crown-icon">👑</div>
-          <div class="medal-circle gold">🥇 1er</div>
-          <div class="company-logo-circle large">
-            <img *ngIf="first.logoUrl; else l1" [src]="first.logoUrl" [alt]="first.name" />
-            <ng-template #l1>🏢</ng-template>
-          </div>
-          <h3 class="podium-name">
-            <a [routerLink]="['/company', first.slug]">{{ first.name }}</a>
-          </h3>
-          <app-company-badge [level]="first.companyLevel"></app-company-badge>
-          <div class="podium-xp highlight">{{ first.companyXp }} XP</div>
-          <span class="podium-loc" *ngIf="first.country">📍 {{ first.country }}</span>
-        </div>
-
-        <!-- 3ème Place -->
-        <div class="podium-card rank-3" *ngIf="podium()[2] as third">
-          <div class="medal-circle">🥉 3e</div>
-          <div class="company-logo-circle">
-            <img *ngIf="third.logoUrl; else l3" [src]="third.logoUrl" [alt]="third.name" />
-            <ng-template #l3>🏢</ng-template>
-          </div>
-          <h3 class="podium-name">
-            <a [routerLink]="['/company', third.slug]">{{ third.name }}</a>
-          </h3>
-          <app-company-badge [level]="third.companyLevel"></app-company-badge>
-          <div class="podium-xp">{{ third.companyXp }} XP</div>
-          <span class="podium-loc" *ngIf="third.country">📍 {{ third.country }}</span>
-        </div>
+      <!-- Error State -->
+      <div class="alert alert-error" *ngIf="errorMessage() && !isLoading()">
+        {{ errorMessage() }}
+        <button (click)="loadLeaderboard()" class="btn btn-sm btn-outline">Réessayer</button>
       </div>
 
-      <!-- Full Table List -->
-      <div class="table-card">
-        <div class="table-responsive" *ngIf="!isLoading(); else loadingTpl">
-          <table class="leaderboard-table" *ngIf="companies().length > 0; else emptyTpl">
-            <thead>
-              <tr>
-                <th style="width: 70px;">Rang</th>
-                <th>Entreprise</th>
-                <th>Niveau</th>
-                <th>Localisation</th>
-                <th>Offres actives</th>
-                <th style="text-align: right;">Points XP</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr *ngFor="let item of companies()" [class.top-tier]="item.rank <= 3">
-                <td class="rank-cell">
-                  <span class="rank-number" [ngClass]="'rank-' + item.rank">
-                    {{ item.rank }}
-                  </span>
-                </td>
-                <td class="company-cell">
-                  <a [routerLink]="['/company', item.slug]" class="company-link">
-                    <div class="comp-avatar">
-                      <img *ngIf="item.logoUrl; else compAvatarLet" [src]="item.logoUrl" [alt]="item.name" />
-                      <ng-template #compAvatarLet>🏢</ng-template>
+      <main class="leaderboard-main" *ngIf="!isLoading()">
+
+        <!-- Realtime Sync Indicator -->
+        <div class="cache-sync-indicator">
+          <div class="cache-badge">
+            <span class="pulse-indicator"></span>
+            <span class="cache-label">
+              ⚡ <strong>Classement Entreprises en direct</strong> • Données synchronisées
+            </span>
+          </div>
+        </div>
+
+        <!-- 3. Current User's Company Position Banner (If Logged In & Has Company) -->
+        <section class="current-user-card" *ngIf="myCompany() as mc">
+          <div class="cur-card-left">
+            <div class="cur-avatar-wrap">
+              <img *ngIf="mc.logoUrl" [src]="mc.logoUrl" [alt]="mc.name" class="cur-avatar" />
+              <div *ngIf="!mc.logoUrl" class="cur-avatar-fallback">
+                {{ getInitials(mc.name) }}
+              </div>
+              <span class="cur-level-badge" [title]="mc.companyLevel">{{ getLevelBadge(mc.levelNumber, mc.companyLevel) }}</span>
+            </div>
+            <div class="cur-details">
+              <div class="cur-meta-row">
+                <span class="cur-tag">POSITION DE VOTRE ENTREPRISE</span>
+                <span class="cur-country" *ngIf="mc.country">
+                  <img *ngIf="getFlagUrl(mc.country)" [src]="getFlagUrl(mc.country)" class="inline-flag-img" [alt]="mc.country" />
+                  <span>{{ mc.city ? mc.city + ', ' : '' }}{{ mc.country }}</span>
+                </span>
+              </div>
+              <h2 class="cur-name">{{ mc.name }}</h2>
+              <p class="cur-title">{{ mc.sector || 'Entreprise Tech & Recrutement' }}</p>
+            </div>
+          </div>
+
+          <div class="cur-card-right">
+            <div class="cur-rank-box">
+              <span class="rank-label">Rang</span>
+              <span class="rank-number">#{{ mc.rank }}</span>
+            </div>
+            <div class="cur-xp-box">
+              <span class="xp-label">Total XP</span>
+              <span class="xp-number">{{ mc.companyXp | number }} XP</span>
+              <span class="level-pill" [style.color]="getLevelColor(mc.levelNumber, mc.companyLevel)">
+                {{ getLevelBadge(mc.levelNumber, mc.companyLevel) }} {{ mc.companyLevel || 'Startup' }}
+              </span>
+            </div>
+          </div>
+        </section>
+
+        <!-- 4. Top 5 Podium Section -->
+        <section class="podium-section" *ngIf="podium().length > 0">
+          <div class="section-header">
+            <h2 class="section-title">
+              <svg class="section-title-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round"
+                  d="M16.5 18.75h-9m9 0a3 3 0 013 3h-15a3 3 0 013-3m9 0v-3.375c0-.621-.504-1.125-1.125-1.125h-.871M7.5 18.75v-3.375c0-.621.504-1.125 1.125-1.125h.872m5.003 0H9.497m5.003 0A6.75 6.75 0 0018 7.5c0-1.875-.75-3.625-2.025-4.875A1.125 1.125 0 0015 2.25H9c-.435 0-.83.25-1.025.625A6.75 6.75 0 006 7.5c0 3.728 3.022 6.75 6.75 6.75h.75z" />
+              </svg>
+              Le Podium Panafricain des Entreprises (Top {{ podium().length }})
+            </h2>
+            <p class="section-desc">Les entreprises les plus engagées dans le recrutement, la formation et l'innovation en Afrique.</p>
+          </div>
+
+          <div class="podium-grid">
+            <div *ngFor="let comp of podium()" class="podium-card"
+              [class.podium-gold]="comp.rank === 1"
+              [class.podium-silver]="comp.rank === 2"
+              [class.podium-bronze]="comp.rank === 3"
+              [class.is-current-user]="myCompany()?.id === comp.id">
+              <div class="podium-rank-tag">
+                <span *ngIf="comp.rank === 1">1er</span>
+                <span *ngIf="comp.rank === 2">2e</span>
+                <span *ngIf="comp.rank === 3">3e</span>
+                <span *ngIf="comp.rank > 3">{{ comp.rank }}e</span>
+              </div>
+
+              <span *ngIf="myCompany()?.id === comp.id" class="you-badge">VOTRE ENTREPRISE</span>
+
+              <div class="podium-avatar-wrapper">
+                <img *ngIf="comp.logoUrl" [src]="comp.logoUrl" [alt]="comp.name" class="podium-avatar" />
+                <div *ngIf="!comp.logoUrl" class="podium-avatar-fallback">
+                  {{ getInitials(comp.name) }}
+                </div>
+                <div class="podium-flag-pill" *ngIf="getFlagUrl(comp.country)" [title]="comp.country">
+                  <img [src]="getFlagUrl(comp.country)" [alt]="comp.country" class="podium-flag-img" />
+                </div>
+              </div>
+
+              <h3 class="podium-name">
+                <a [routerLink]="['/company', comp.slug]" class="name-link">
+                  {{ comp.name }}
+                </a>
+              </h3>
+              <p class="podium-title">{{ comp.sector || 'Tech & Innovation' }}</p>
+              <div class="podium-country-tag" *ngIf="comp.country">
+                <img *ngIf="getFlagUrl(comp.country)" [src]="getFlagUrl(comp.country)" class="mini-flag" [alt]="comp.country" />
+                <span>{{ comp.city ? comp.city + ', ' : '' }}{{ comp.country }}</span>
+              </div>
+
+              <div class="podium-stats">
+                <div class="podium-xp">
+                  <span class="xp-val">{{ comp.companyXp | number }}</span>
+                  <span class="xp-unit">XP</span>
+                </div>
+                <span class="podium-level-pill" [style.borderColor]="getLevelColor(comp.levelNumber, comp.companyLevel)">
+                  {{ getLevelBadge(comp.levelNumber, comp.companyLevel) }} {{ comp.companyLevel || 'Startup' }}
+                </span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- 5. Classement Complet des Entreprises -->
+        <section class="neighborhood-section">
+          <div class="neighborhood-divider">
+            <span class="dots">••••••</span>
+            <span class="divider-title">
+              <span *ngIf="!searchQuery && !selectedSector">Classement Général des Entreprises</span>
+              <span *ngIf="searchQuery || selectedSector">Résultats filtrés ({{ companies().length }})</span>
+            </span>
+            <span class="dots">••••••</span>
+          </div>
+
+          <div class="neighborhood-table-wrap" *ngIf="companies().length > 0; else emptyTpl">
+            <table class="leaderboard-table">
+              <thead>
+                <tr>
+                  <th class="col-rank">Rang</th>
+                  <th class="col-dev">Entreprise</th>
+                  <th class="col-country">Localisation</th>
+                  <th class="col-level">Palier</th>
+                  <th>Offres actives</th>
+                  <th class="col-xp">Points XP</th>
+                  <th class="col-action">Fiche</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let row of companies()" class="table-row"
+                  [class.highlight-row]="myCompany()?.id === row.id">
+                  <td class="col-rank">
+                    <span class="rank-circle" [ngClass]="getRankBadgeClass(row.rank)">
+                      {{ row.rank }}
+                    </span>
+                  </td>
+                  <td class="col-dev">
+                    <div class="dev-cell">
+                      <div class="dev-avatar-sm">
+                        <img *ngIf="row.logoUrl" [src]="row.logoUrl" [alt]="row.name" />
+                        <div *ngIf="!row.logoUrl" class="avatar-fallback-sm">
+                          {{ getInitials(row.name) }}
+                        </div>
+                      </div>
+                      <div class="dev-info-col">
+                        <div class="dev-name-wrap">
+                          <span class="dev-name">{{ row.name }}</span>
+                          <span *ngIf="row.verified" title="Entreprise vérifiée">✅</span>
+                          <span *ngIf="myCompany()?.id === row.id" class="badge-you">VOUS</span>
+                        </div>
+                        <span class="dev-title-sm">{{ row.sector || 'Tech & Recrutement' }}</span>
+                      </div>
                     </div>
-                    <div class="comp-text">
-                      <span class="comp-title">{{ item.name }}</span>
-                      <span class="comp-sector" *ngIf="item.sector">{{ item.sector }}</span>
-                    </div>
-                  </a>
-                </td>
-                <td>
-                  <app-company-badge [level]="item.companyLevel"></app-company-badge>
-                </td>
-                <td class="loc-cell">
-                  <span *ngIf="item.city || item.country">
-                    {{ item.city }}{{ item.city && item.country ? ', ' : '' }}{{ item.country }}
-                  </span>
-                  <span *ngIf="!item.city && !item.country" class="text-muted">—</span>
-                </td>
-                <td>
-                  <span class="badge-opportunities" *ngIf="item.activeOpportunitiesCount > 0">
-                    {{ item.activeOpportunitiesCount }} opportunité(s)
-                  </span>
-                  <span class="text-muted" *ngIf="!item.activeOpportunitiesCount">—</span>
-                </td>
-                <td class="xp-cell">
-                  <strong>{{ item.companyXp }}</strong> XP
-                </td>
-              </tr>
-            </tbody>
-          </table>
+                  </td>
+                  <td class="col-country">
+                    <span class="country-pill" *ngIf="row.country || row.city">
+                      <img *ngIf="getFlagUrl(row.country)" [src]="getFlagUrl(row.country)" class="inline-flag-img" [alt]="row.country" />
+                      <span class="country-name">{{ row.city ? row.city + ', ' : '' }}{{ row.country }}</span>
+                    </span>
+                    <span *ngIf="!row.country && !row.city" style="color: var(--text-muted);">—</span>
+                  </td>
+                  <td class="col-level">
+                    <app-company-badge [level]="row.companyLevel"></app-company-badge>
+                  </td>
+                  <td>
+                    <span class="badge-opportunities" *ngIf="row.activeOpportunitiesCount > 0">
+                      💼 {{ row.activeOpportunitiesCount }} offre(s)
+                    </span>
+                    <span *ngIf="!row.activeOpportunitiesCount" style="color: var(--text-muted); font-size: 0.8rem;">—</span>
+                  </td>
+                  <td class="col-xp">
+                    <span class="xp-amount">{{ row.companyXp | number }}</span>
+                    <span class="xp-text">XP</span>
+                  </td>
+                  <td class="col-action">
+                    <a [routerLink]="['/company', row.slug]" class="btn-profile-link">
+                      Voir →
+                    </a>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
 
           <ng-template #emptyTpl>
-            <div class="empty-state">
-              <p>Aucune entreprise trouvée avec ces critères.</p>
+            <div class="neighborhood-table-wrap" style="padding: 3rem 1.5rem; text-align: center; color: var(--text-muted);">
+              <p style="font-size: 1rem; font-weight: 600; margin-bottom: 0.5rem;">Aucune entreprise trouvée avec ces critères.</p>
+              <button *ngIf="searchQuery || selectedSector" (click)="clearSearch()" class="btn-profile-link" style="cursor: pointer; background: transparent;">
+                Réinitialiser les filtres
+              </button>
             </div>
           </ng-template>
-        </div>
 
-        <ng-template #loadingTpl>
-          <div class="loading-state">
-            <div class="spinner"></div>
-            <p>Chargement du classement...</p>
+          <!-- Guest CTA Banner -->
+          <div class="guest-cta-banner" *ngIf="!authService.isLoggedIn()">
+            <div class="cta-text">
+              <h3>Vous recrutez des talents tech en Afrique ?</h3>
+              <p>Créez votre compte Recruteur, publiez vos offres et gagnez des points XP pour hisser votre entreprise au sommet.</p>
+            </div>
+            <div class="cta-buttons">
+              <a routerLink="/register" class="btn btn-primary">Inscrire mon Entreprise</a>
+              <a routerLink="/login" class="btn btn-outline">Se Connecter</a>
+            </div>
           </div>
-        </ng-template>
-      </div>
+        </section>
+
+        <!-- 7. XP Rules & Level Guide (Spécifique aux Entreprises) -->
+        <section class="rules-guide-section">
+          <div class="guide-header">
+            <h3 class="guide-title">Comment fonctionne le calcul des points XP Entreprise ?</h3>
+            <p class="guide-subtitle">Le barème valorise l'engagement réel auprès des développeurs africains.</p>
+          </div>
+
+          <div class="rules-grid">
+            <div class="rule-card">
+              <div class="rule-icon icon-project">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round"
+                    d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                </svg>
+              </div>
+              <div class="rule-info">
+                <h4>Profil Entreprise Complété</h4>
+                <p>Créez et renseignez la fiche officielle de votre entreprise.</p>
+                <span class="rule-xp">+50 XP</span>
+              </div>
+            </div>
+
+            <div class="rule-card">
+              <div class="rule-icon icon-job">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round"
+                    d="M20.25 14.15v4.25c0 1.094-.787 2.036-1.872 2.18-2.087.277-4.216.42-6.378.42s-4.291-.143-6.378-.42c-1.085-.144-1.872-1.086-1.872-2.18v-4.25m16.5 0a2.18 2.18 0 00.75-1.661V8.706c0-1.081-.768-2.015-1.837-2.175a48.114 48.114 0 00-3.413-.387m4.5 8.006c-.194.165-.42.295-.673.38A23.978 23.978 0 0112 15.75c-2.648 0-5.195-.429-7.577-1.22a2.016 2.016 0 01-.673-.38m0 0A2.18 2.18 0 013 12.489V8.706c0-1.081.768-2.015 1.837-2.175a48.111 48.111 0 013.413-.387m7.5 0V5.25A2.25 2.25 0 0013.5 3h-3a2.25 2.25 0 00-2.25 2.25v.894m7.5 0a48.667 48.667 0 00-7.5 0M12 12.75h.008v.008H12v-.008z" />
+                </svg>
+              </div>
+              <div class="rule-info">
+                <h4>Offre d'Emploi / Stage Publiée</h4>
+                <p>Publiez une opportunité ouverte aux développeurs de la plateforme.</p>
+                <span class="rule-xp">+30 XP</span>
+              </div>
+            </div>
+
+            <div class="rule-card">
+              <div class="rule-icon icon-eval">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round"
+                    d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" />
+                </svg>
+              </div>
+              <div class="rule-info">
+                <h4>Événement ou Formation</h4>
+                <p>Organisez un événement tech (+40 XP) ou partagez une ressource (+35 XP).</p>
+                <span class="rule-xp">+40 XP</span>
+              </div>
+            </div>
+
+            <div class="rule-card">
+              <div class="rule-icon icon-support">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round"
+                    d="M9 12.75L11.25 15 15 9.75M21 12c0 1.268-.63 2.39-1.593 3.068a3.745 3.745 0 01-1.043 3.296 3.745 3.745 0 01-3.296 1.043A3.745 3.745 0 0112 21c-1.268 0-2.39-.63-3.068-1.593a3.746 3.746 0 01-3.296-1.043 3.745 3.745 0 01-1.043-3.296A3.745 3.745 0 013 12c0-1.268.63-2.39 1.593-3.068a3.745 3.745 0 011.043-3.296 3.746 3.746 0 013.296-1.043A3.746 3.746 0 0112 3c1.268 0 2.39.63 3.068 1.593a3.746 3.746 0 013.296 1.043 3.746 3.746 0 011.043 3.296A3.745 3.745 0 0121 12z" />
+                </svg>
+              </div>
+              <div class="rule-info">
+                <h4>Recrutement Confirmé</h4>
+                <p>Recrutez un talent via AfriDev Hub et validez son embauche.</p>
+                <span class="rule-xp">+100 XP</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Levels Recap -->
+          <div class="levels-recap-bar">
+            <div class="level-chip">
+              <span class="lvl-label"><span class="lvl-dot lvl-junior"></span>🌱 Startup</span>
+              <small>0 - 499 XP</small>
+            </div>
+            <div class="level-chip">
+              <span class="lvl-label"><span class="lvl-dot lvl-senior"></span>🏢 Reconnue</span>
+              <small>500 - 1 999 XP</small>
+            </div>
+            <div class="level-chip">
+              <span class="lvl-label"><span class="lvl-dot lvl-expert"></span>✅ Certifiée</span>
+              <small>2 000 - 4 999 XP</small>
+            </div>
+            <div class="level-chip">
+              <span class="lvl-label"><span class="lvl-dot lvl-tech"></span>🤝 Partenaire</span>
+              <small>5 000 - 9 999 XP</small>
+            </div>
+            <div class="level-chip">
+              <span class="lvl-label"><span class="lvl-dot lvl-leader"></span>👑 Élite Afrique</span>
+              <small>10 000+ XP</small>
+            </div>
+          </div>
+        </section>
+
+      </main>
     </div>
-  `,
-  styles: [`
-    .leaderboard-page-wrapper {
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 2rem 1.5rem 4rem 1.5rem;
-      color: var(--text-primary, #f8fafc);
-    }
-
-    .leaderboard-header {
-      text-align: center;
-      margin-bottom: 2.5rem;
-    }
-
-    .badge-tag {
-      display: inline-block;
-      padding: 4px 12px;
-      border-radius: 9999px;
-      background: rgba(16, 185, 129, 0.15);
-      color: #10b981;
-      font-weight: 700;
-      font-size: 0.78rem;
-      letter-spacing: 0.05em;
-      margin-bottom: 0.75rem;
-    }
-
-    .page-title {
-      font-size: 2.4rem;
-      font-weight: 800;
-      margin: 0 0 0.5rem 0;
-      background: linear-gradient(135deg, #fff, #94a3b8);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-    }
-
-    .page-subtitle {
-      color: #94a3b8;
-      font-size: 1.05rem;
-      max-width: 650px;
-      margin: 0 auto 1.5rem auto;
-    }
-
-    .tab-switcher {
-      display: inline-flex;
-      background: rgba(30, 41, 59, 0.8);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      border-radius: 9999px;
-      padding: 4px;
-      gap: 4px;
-    }
-
-    .tab-btn {
-      padding: 8px 18px;
-      border-radius: 9999px;
-      font-size: 0.88rem;
-      font-weight: 600;
-      color: #94a3b8;
-      text-decoration: none;
-      transition: all 0.2s;
-    }
-
-    .tab-btn.active {
-      background: #10b981;
-      color: #064e3b;
-      font-weight: 700;
-    }
-
-    /* Filters */
-    .filters-container {
-      display: flex;
-      gap: 1rem;
-      margin-bottom: 2rem;
-      flex-wrap: wrap;
-    }
-
-    .search-box {
-      flex: 1;
-      min-width: 260px;
-    }
-
-    .search-input, .filter-select {
-      width: 100%;
-      padding: 0.75rem 1rem;
-      border-radius: 12px;
-      background: rgba(30, 41, 59, 0.7);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      color: #f8fafc;
-      font-size: 0.9rem;
-      outline: none;
-      box-sizing: border-box;
-    }
-
-    .search-input:focus, .filter-select:focus {
-      border-color: #10b981;
-    }
-
-    /* Podium */
-    .podium-section {
-      display: grid;
-      grid-template-columns: 1fr 1.15fr 1fr;
-      align-items: flex-end;
-      gap: 1.5rem;
-      margin-bottom: 3rem;
-    }
-
-    @media (max-width: 768px) {
-      .podium-section {
-        grid-template-columns: 1fr;
-      }
-    }
-
-    .podium-card {
-      background: var(--card-bg, rgba(30, 41, 59, 0.7));
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      border-radius: 20px;
-      padding: 2rem 1.5rem;
-      text-align: center;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      position: relative;
-    }
-
-    .podium-card.rank-1 {
-      background: linear-gradient(135deg, rgba(245, 158, 11, 0.12), rgba(15, 23, 42, 0.9));
-      border-color: rgba(245, 158, 11, 0.4);
-      padding-top: 2.5rem;
-      transform: translateY(-10px);
-    }
-
-    .crown-icon {
-      position: absolute;
-      top: -24px;
-      font-size: 2.2rem;
-    }
-
-    .medal-circle {
-      font-size: 0.85rem;
-      font-weight: 700;
-      padding: 4px 12px;
-      border-radius: 9999px;
-      background: rgba(255, 255, 255, 0.08);
-      margin-bottom: 1rem;
-    }
-
-    .medal-circle.gold {
-      background: rgba(245, 158, 11, 0.25);
-      color: #f59e0b;
-    }
-
-    .company-logo-circle {
-      width: 70px;
-      height: 70px;
-      border-radius: 16px;
-      background: #0f172a;
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 2rem;
-      overflow: hidden;
-      margin-bottom: 1rem;
-    }
-
-    .company-logo-circle.large {
-      width: 90px;
-      height: 90px;
-      border-color: #f59e0b;
-    }
-
-    .company-logo-circle img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
-
-    .podium-name a {
-      color: #f8fafc;
-      text-decoration: none;
-      font-size: 1.15rem;
-      font-weight: 700;
-    }
-
-    .podium-xp {
-      font-size: 1.3rem;
-      font-weight: 800;
-      color: #94a3b8;
-      margin: 0.75rem 0 0.25rem 0;
-    }
-
-    .podium-xp.highlight {
-      color: #10b981;
-      font-size: 1.5rem;
-    }
-
-    .podium-loc {
-      font-size: 0.8rem;
-      color: #64748b;
-    }
-
-    /* Table */
-    .table-card {
-      background: var(--card-bg, rgba(30, 41, 59, 0.7));
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      border-radius: 16px;
-      overflow: hidden;
-    }
-
-    .table-responsive {
-      overflow-x: auto;
-    }
-
-    .leaderboard-table {
-      width: 100%;
-      border-collapse: collapse;
-      text-align: left;
-      font-size: 0.9rem;
-    }
-
-    .leaderboard-table th {
-      padding: 1rem 1.25rem;
-      background: rgba(15, 23, 42, 0.6);
-      color: #94a3b8;
-      font-weight: 600;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-      font-size: 0.8rem;
-      text-transform: uppercase;
-      letter-spacing: 0.04em;
-    }
-
-    .leaderboard-table td {
-      padding: 1.1rem 1.25rem;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-      vertical-align: middle;
-    }
-
-    .leaderboard-table tr:hover td {
-      background: rgba(255, 255, 255, 0.02);
-    }
-
-    .rank-cell {
-      font-weight: 700;
-    }
-
-    .rank-number {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      width: 32px;
-      height: 32px;
-      border-radius: 8px;
-      background: rgba(255, 255, 255, 0.05);
-      color: #94a3b8;
-    }
-
-    .rank-number.rank-1 { background: rgba(245, 158, 11, 0.2); color: #f59e0b; font-weight: 800; }
-    .rank-number.rank-2 { background: rgba(148, 163, 184, 0.2); color: #cbd5e1; }
-    .rank-number.rank-3 { background: rgba(180, 83, 9, 0.2); color: #d97706; }
-
-    .company-cell {
-      min-width: 200px;
-    }
-
-    .company-link {
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-      text-decoration: none;
-      color: inherit;
-    }
-
-    .comp-avatar {
-      width: 42px;
-      height: 42px;
-      border-radius: 10px;
-      background: #0f172a;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      overflow: hidden;
-      flex-shrink: 0;
-    }
-
-    .comp-avatar img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
-
-    .comp-text {
-      display: flex;
-      flex-direction: column;
-    }
-
-    .comp-title {
-      font-weight: 700;
-      color: #f8fafc;
-    }
-
-    .comp-sector {
-      font-size: 0.75rem;
-      color: #94a3b8;
-    }
-
-    .badge-opportunities {
-      background: rgba(16, 185, 129, 0.15);
-      color: #10b981;
-      padding: 3px 8px;
-      border-radius: 9999px;
-      font-size: 0.75rem;
-      font-weight: 600;
-    }
-
-    .xp-cell {
-      text-align: right;
-      color: #94a3b8;
-    }
-
-    .xp-cell strong {
-      color: #10b981;
-      font-size: 1.05rem;
-    }
-
-    .text-muted {
-      color: #64748b;
-    }
-
-    .loading-state, .empty-state {
-      text-align: center;
-      padding: 3rem 1rem;
-      color: #94a3b8;
-    }
-
-    .spinner {
-      width: 32px;
-      height: 32px;
-      border: 3px solid rgba(16, 185, 129, 0.2);
-      border-top-color: #10b981;
-      border-radius: 50%;
-      animation: spin 0.8s linear infinite;
-      margin: 0 auto 1rem auto;
-    }
-
-    @keyframes spin {
-      to { transform: rotate(360deg); }
-    }
-  `]
+  `
 })
 export class CompanyLeaderboardComponent implements OnInit {
   private companyService = inject(CompanyService);
+  private leaderboardService = inject(LeaderboardService);
+  public authService = inject(AuthService);
 
   companies = signal<CompanyLeaderboardItem[]>([]);
   podium = signal<CompanyLeaderboardItem[]>([]);
+  myCompany = signal<CompanyLeaderboardItem | null>(null);
+  totalCompanies = signal<number>(0);
   isLoading = signal<boolean>(true);
+  errorMessage = signal<string | null>(null);
 
   searchQuery = '';
   selectedSector = '';
@@ -538,34 +489,85 @@ export class CompanyLeaderboardComponent implements OnInit {
     this.loadLeaderboard();
   }
 
-  onSearchChange(): void {
+  onSearch(): void {
+    this.loadLeaderboard();
+  }
+
+  clearSearch(): void {
+    this.searchQuery = '';
+    this.selectedSector = '';
     this.loadLeaderboard();
   }
 
   loadLeaderboard(): void {
     this.isLoading.set(true);
-    this.companyService.getCompanyLeaderboard(0, 50, undefined, this.selectedSector || undefined, this.searchQuery.trim() || undefined).subscribe({
+    this.errorMessage.set(null);
+    this.companyService.getCompanyLeaderboard(
+      0,
+      50,
+      undefined,
+      this.selectedSector || undefined,
+      this.searchQuery.trim() || undefined
+    ).subscribe({
       next: (res) => {
         if (res.success && res.data) {
           const list = res.data.topCompanies ?? [];
           this.companies.set(list);
-          if (!this.searchQuery && !this.selectedSector && list.length >= 3) {
-            this.podium.set(list.slice(0, 3));
+          this.myCompany.set(res.data.myCompany ?? null);
+          this.totalCompanies.set(res.data.totalCompanies ?? list.length);
+          if (!this.searchQuery && !this.selectedSector && list.length > 0) {
+            this.podium.set(list.slice(0, 5));
           } else {
             this.podium.set([]);
           }
         } else {
           this.companies.set([]);
           this.podium.set([]);
+          this.errorMessage.set('Impossible de charger le classement des entreprises.');
         }
         this.isLoading.set(false);
       },
       error: () => {
         this.companies.set([]);
         this.podium.set([]);
+        this.errorMessage.set('Erreur de connexion au serveur de classement.');
         this.isLoading.set(false);
       }
     });
   }
-}
 
+  getFlagUrl(country?: string): string | null {
+    return this.leaderboardService.getCountryFlagUrl(country);
+  }
+
+  getInitials(name?: string): string {
+    if (!name) return 'E';
+    return name.split(' ').map(n => n.charAt(0)).slice(0, 2).join('').toUpperCase();
+  }
+
+  getLevelColor(levelNumber?: number, levelName?: string): string {
+    const lvl = levelName?.toUpperCase() || '';
+    if (levelNumber === 5 || lvl.includes('ELITE')) return '#f59e0b';
+    if (levelNumber === 4 || lvl.includes('PARTENAIRE')) return '#f97316';
+    if (levelNumber === 3 || lvl.includes('CERTIF')) return '#a855f7';
+    if (levelNumber === 2 || lvl.includes('RECONNUE')) return '#3b82f6';
+    return '#10b981';
+  }
+
+  getLevelBadge(levelNumber?: number, levelName?: string): string {
+    const lvl = levelName?.toUpperCase() || '';
+    if (levelNumber === 5 || lvl.includes('ELITE')) return '👑';
+    if (levelNumber === 4 || lvl.includes('PARTENAIRE')) return '🤝';
+    if (levelNumber === 3 || lvl.includes('CERTIF')) return '✅';
+    if (levelNumber === 2 || lvl.includes('RECONNUE')) return '🏢';
+    return '🌱';
+  }
+
+  getRankBadgeClass(rank: number): string {
+    if (rank === 1) return 'rank-gold';
+    if (rank === 2) return 'rank-silver';
+    if (rank === 3) return 'rank-bronze';
+    if (rank <= 5) return 'rank-top5';
+    return 'rank-standard';
+  }
+}
