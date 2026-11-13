@@ -10,7 +10,9 @@ export interface Company {
   description?: string;
   tagline?: string;
   website?: string;
+  websiteUrl?: string;
   logoUrl?: string;
+  bannerUrl?: string;
   coverUrl?: string;
   country?: string;
   city?: string;
@@ -145,6 +147,12 @@ export class CompanyService {
 
   getStats(companyId: string): Observable<ApiResponse<CompanyStats>> {
     return this.http.get<ApiResponse<CompanyStats>>(`${this.apiUrl}/companies/${companyId}/stats`);
+  }
+
+  getCompanies(page = 0, size = 50, query?: string): Observable<ApiResponse<any>> {
+    let params = new HttpParams().set('page', page).set('size', size);
+    if (query) params = params.set('query', query);
+    return this.http.get<ApiResponse<any>>(`${this.apiUrl}/companies`, { params });
   }
 
   getCompanyLeaderboard(page = 0, size = 20, country?: string, sector?: string, query?: string): Observable<ApiResponse<CompanyLeaderboardResponse>> {

@@ -6,6 +6,7 @@ import { ProjectService, Project } from '../../core/services/project.service';
 import { NetworkService, UserNetwork } from '../../core/services/network.service';
 import { CommunityGroupService, Group } from '../../core/services/community-group.service';
 import { LeaderboardService, LeaderboardEntry } from '../../core/services/leaderboard.service';
+import { CompanyService, Company } from '../../core/services/company.service';
 import { resolveUploadedMediaUrl } from '../../core/utils/upload-helper';
 
 interface GlobeCountry {
@@ -59,15 +60,18 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
   private networkService = inject(NetworkService);
   private groupService = inject(CommunityGroupService);
   private leaderboardService = inject(LeaderboardService);
+  private companyService = inject(CompanyService);
   private el = inject(ElementRef);
   private ngZone = inject(NgZone);
 
   featuredProjects: Project[] = [];
   featuredMembers: LeaderboardEntry[] = [];
   featuredCommunities: Group[] = [];
+  partnerCompanies: Company[] = [];
   isLoadingProjects = false;
   isLoadingMembers = false;
   isLoadingCommunities = false;
+  isLoadingPartners = false;
 
   // Section active pour le background dynamique multi-sections (0: Hero Collab, 1: Piliers, 2: Projets, 3: Talents/Communautés, 4: Étapes/CTA)
   activeStage = 0;
@@ -109,6 +113,7 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
     this.loadFeaturedProjects();
     this.loadFeaturedMembers();
     this.loadFeaturedCommunities();
+    this.loadPartnerCompanies();
     this.animateCounters();
     this.startFlagRotation();
   }
@@ -708,6 +713,27 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
 
   getGroupInitial(name?: string): string {
     return name && name.trim().length > 0 ? name.trim().charAt(0).toUpperCase() : 'C';
+  }
+
+  loadPartnerCompanies(): void {
+    this.isLoadingPartners = true;
+    this.companyService.getCompanies(0, 10).subscribe({
+      next: (res) => {
+        this.isLoadingPartners = false;
+        if (res && res.success && res.data && res.data.content) {
+          this.partnerCompanies = res.data.content.slice(0, 10);
+        } else if (res && res.data && Array.isArray(res.data)) {
+          this.partnerCompanies = (res.data as any[]).slice(0, 10);
+        }
+      },
+      error: () => {
+        this.isLoadingPartners = false;
+      }
+    });
+  }
+
+  resolveMedia(url?: string): string {
+    return resolveUploadedMediaUrl(url);
   }
 
   cleanText(text: string | undefined): string {

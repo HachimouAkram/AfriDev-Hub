@@ -915,4 +915,48 @@
       </div>
     </div>
   </section>
+
+  <!-- ENTREPRISES PARTENAIRES MARQUEE -->
+  <section class="partner-companies-section app-card reveal-on-scroll" *ngIf="isLoadingPartners || partnerCompanies.length > 0">
+    <div class="partners-header">
+      <div class="partners-badge">
+        <svg class="icon-svg icon-svg-xs" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 21h16.5M4.5 3h15M5.25 3v18m13.5-18v18M9 6.75h1.5m-1.5 3h1.5m-1.5 3h1.5m3-6H15m-1.5 3H15m-1.5 3H15M9 21v-3.375c0-.621.504-1.125 1.125-1.125h3.75c.621 0 1.125.504 1.125 1.125V21" />
+        </svg>
+        <span>Entreprises Partenaires</span>
+      </div>
+      <h3 class="partners-title">Ils Recrutent &amp; Font Confiance à AfriDev Hub</h3>
+      <p class="partners-sub">Découvrez les entreprises tech, startups et scale-ups panafricaines à la recherche des meilleurs talents.</p>
+    </div>
+
+    <!-- Skeletons pendant le chargement -->
+    <div class="partners-skeleton-row" *ngIf="isLoadingPartners">
+      <div class="partner-skeleton-card" *ngFor="let _ of [1,2,3,4,5,6]">
+        <div class="skeleton-circle"></div>
+        <div class="skeleton-line-title"></div>
+      </div>
+    </div>
+
+    <!-- Ruban défilant infini en boucle (Max 10 entreprises, cliquables vers leur profil) -->
+    <div class="partners-marquee-container" *ngIf="!isLoadingPartners && partnerCompanies.length > 0">
+      <div class="partners-marquee-track">
+        <!-- Répété deux fois pour un défilement continu 100% transparent -->
+        <ng-container *ngFor="let rep of [1, 2]">
+          <a *ngFor="let comp of partnerCompanies"
+             [routerLink]="['/company', comp.slug]"
+             class="partner-chip-link"
+             [title]="comp.name + ' - Voir le profil entreprise'">
+            <div class="partner-chip-logo">
+              <img *ngIf="comp.logoUrl" [src]="resolveMedia(comp.logoUrl)" [alt]="comp.name" class="partner-img" loading="lazy" />
+              <span *ngIf="!comp.logoUrl" class="partner-fallback">{{ comp.name.charAt(0).toUpperCase() }}</span>
+            </div>
+            <div class="partner-chip-text">
+              <span class="partner-chip-name">{{ comp.name }}</span>
+              <span class="partner-chip-location" *ngIf="comp.country">{{ comp.country }}</span>
+            </div>
+          </a>
+        </ng-container>
+      </div>
+    </div>
+  </section>
 </div>

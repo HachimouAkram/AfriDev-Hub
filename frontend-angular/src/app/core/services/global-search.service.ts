@@ -3,6 +3,7 @@ import { ProjectService, Project } from './project.service';
 import { NetworkService, UserNetwork } from './network.service';
 import { OpportunityService, Opportunity } from './opportunity.service';
 import { TechEventService, TechEvent } from './tech-event.service';
+import { CompanyService, Company } from './company.service';
 import { Observable, combineLatest, map, of, catchError } from 'rxjs';
 
 export interface SearchResultProject {
@@ -45,6 +46,18 @@ export interface SearchResultEvent {
   tags: string[];
 }
 
+export interface SearchResultCompany {
+  id: string;
+  name: string;
+  slug: string;
+  logoUrl?: string;
+  country?: string;
+  city?: string;
+  sector?: string;
+  companyLevel?: string;
+  verified?: boolean;
+}
+
 export interface GlobalSearchResults {
   query: string;
   suggestedCorrection?: string | null;
@@ -52,6 +65,7 @@ export interface GlobalSearchResults {
   developers: SearchResultDeveloper[];
   opportunities: SearchResultOpportunity[];
   events: SearchResultEvent[];
+  companies: SearchResultCompany[];
   technologies: string[];
   totalMatches: number;
 }
@@ -64,6 +78,17 @@ export class GlobalSearchService {
   private networkService = inject(NetworkService);
   private opportunityService = inject(OpportunityService);
   private techEventService = inject(TechEventService);
+  private companyService = inject(CompanyService);
+
+  private cachedData: {
+    rawProjects: Project[];
+    rawUsers: UserNetwork[];
+    rawOpps: Opportunity[];
+    rawEvents: TechEvent[];
+    rawCompanies: Company[];
+    timestamp: number;
+  } | null = null;
+  private readonly CACHE_TTL_MS = 60000;
 
   private normalizeText(text: string | null | undefined): string {
     if (!text) return '';
@@ -161,6 +186,7 @@ export class GlobalSearchService {
         developers: [],
         opportunities: [],
         events: [],
+        companies: [],
         technologies: [],
         totalMatches: 0
       });
@@ -169,144 +195,210 @@ export class GlobalSearchService {
     const normQuery = this.normalizeText(trimmed);
     const terms = normQuery.split(/\s+/).filter(t => t.length > 0);
 
+    // Fast-path: use cached data if fresh (instant response ~1ms)
+    if (this.cachedData && (Date.now() - this.cachedData.timestamp < this.CACHE_TTL_MS)) {
+      const results = this.filterResults(
+        rawQuery,
+        trimmed,
+        terms,
+        this.cachedData.rawProjects,
+        this.cachedData.rawUsers,
+        this.cachedData.rawOpps,
+        this.cachedData.rawEvents,
+        this.cachedData.rawCompanies
+      );
+      return of(results);
+    }
+
     return combineLatest([
       this.projectService.getProjects(0, 50).pipe(catchError(() => of({ data: { content: [] } }))),
       this.networkService.getNetworkUsers({ size: 50 }).pipe(catchError(() => of({ data: { content: [] } }))),
       this.opportunityService.getOpportunities(undefined, 0, 50).pipe(catchError(() => of({ data: { content: [] } }))),
-      this.techEventService.getEvents(undefined, 0, 50).pipe(catchError(() => of({ data: { content: [] } })))
+      this.techEventService.getEvents(undefined, 0, 50).pipe(catchError(() => of({ data: { content: [] } }))),
+      this.companyService.getCompanies(0, 50).pipe(catchError(() => of({ data: { content: [] } })))
     ]).pipe(
-      map(([projectsRes, usersRes, oppsRes, eventsRes]) => {
+      map(([projectsRes, usersRes, oppsRes, eventsRes, companiesRes]) => {
         const rawProjects: Project[] = projectsRes?.data?.content || projectsRes?.data || [];
         const rawUsers: UserNetwork[] = usersRes?.data?.content || usersRes?.data || [];
         const rawOpps: Opportunity[] = oppsRes?.data?.content || oppsRes?.data || [];
         const rawEvents: TechEvent[] = eventsRes?.data?.content || eventsRes?.data || [];
+        const rawCompanies: Company[] = companiesRes?.data?.content || companiesRes?.data || [];
 
-        // 1. Filtrage Projets
-        const matchingProjects: SearchResultProject[] = rawProjects
-          .filter(p => {
-            const inTitle = this.matchesFuzzy(p.title, terms);
-            const inDesc = this.matchesFuzzy(p.description, terms);
-            const inStack = (p.stack || []).some(s => this.matchesFuzzy(s, terms));
-            const inAuthor = this.matchesFuzzy(p.author?.profile?.fullName || p.author?.email, terms);
-            const inCountry = this.matchesFuzzy(p.author?.profile?.country, terms);
-            const inType = this.matchesFuzzy(p.projectType, terms);
-            const inCompany = this.matchesFuzzy(p.companyName, terms);
-            return inTitle || inDesc || inStack || inAuthor || inCountry || inType || inCompany;
-          })
-          .slice(0, 5)
-          .map(p => ({
-            id: p.id,
-            title: p.title,
-            category: p.projectType || 'Projet',
-            authorName: p.author?.profile?.fullName || p.author?.email || 'Développeur',
-            country: p.author?.profile?.country || '',
-            stack: (p.stack || []).slice(0, 3),
-            price: p.price,
-            currency: p.currency,
-            matchScore: p.matchPercentage || 80
-          }));
-
-        // 2. Filtrage Développeurs
-        const matchingDevs: SearchResultDeveloper[] = rawUsers
-          .filter(u => {
-            const inName = this.matchesFuzzy(u.fullName || u.email, terms);
-            const inTitle = this.matchesFuzzy(u.title, terms);
-            const inCountry = this.matchesFuzzy(u.country, terms);
-            const inCity = this.matchesFuzzy(u.city, terms);
-            const inSkills = (u.skills || []).some(s => this.matchesFuzzy(s, terms));
-            return inName || inTitle || inCountry || inCity || inSkills;
-          })
-          .slice(0, 4)
-          .map(u => ({
-            id: u.id,
-            fullName: u.fullName || u.email,
-            title: u.title || 'Développeur',
-            country: u.country || '',
-            city: u.city || '',
-            avatarUrl: u.avatarUrl,
-            skills: (u.skills || []).slice(0, 3),
-            reputationScore: u.reputationScore || 0
-          }));
-
-        // 3. Filtrage Opportunités
-        const matchingOpps: SearchResultOpportunity[] = rawOpps
-          .filter(o => {
-            const inTitle = this.matchesFuzzy(o.title, terms);
-            const inDesc = this.matchesFuzzy(o.description, terms);
-            const inLocation = this.matchesFuzzy(o.location, terms);
-            const inStack = (o.stack || []).some(s => this.matchesFuzzy(s, terms));
-            return inTitle || inDesc || inLocation || inStack;
-          })
-          .slice(0, 3)
-          .map(o => ({
-            id: o.id,
-            title: o.title,
-            type: o.type,
-            location: o.location,
-            stack: (o.stack || []).slice(0, 3)
-          }));
-
-        // 4. Filtrage Événements & Hackathons
-        const matchingEvents: SearchResultEvent[] = rawEvents
-          .filter(ev => {
-            const inTitle = this.matchesFuzzy(ev.title, terms);
-            const inDesc = this.matchesFuzzy(ev.description, terms);
-            const inLocation = this.matchesFuzzy(ev.location, terms);
-            const inTags = (ev.tags || []).some(t => this.matchesFuzzy(t, terms));
-            return inTitle || inDesc || inLocation || inTags;
-          })
-          .slice(0, 3)
-          .map(ev => ({
-            id: ev.id,
-            title: ev.title,
-            type: ev.type,
-            location: ev.location,
-            startDate: ev.startDate,
-            tags: (ev.tags || []).slice(0, 3)
-          }));
-
-        // 5. Technologies & Domaines découverts (statique + dynamique depuis la base)
-        const baseTech = [
-          'React', 'Angular', 'Vue.js', 'Spring Boot', 'FastAPI', 'Node.js', 'Python',
-          'Docker', 'PostgreSQL', 'MongoDB', 'Flutter', 'Next.js', 'TypeScript', 'Java',
-          'TailwindCSS', 'Redis', 'C#', 'ASP.NET', 'SqlServer', 'Bootstrap', 'E-Commerce',
-          'FinTech', 'IA & ML', 'Kubernetes'
-        ];
-        const dynamicSet = new Map<string, string>();
-        for (const item of baseTech) {
-          dynamicSet.set(this.compactText(item), item);
-        }
-        rawProjects.forEach(p => (p.stack || []).forEach(s => dynamicSet.set(this.compactText(s), s)));
-        rawUsers.forEach(u => (u.skills || []).forEach(s => dynamicSet.set(this.compactText(s), s)));
-        rawEvents.forEach(e => (e.tags || []).forEach(t => dynamicSet.set(this.compactText(t), t)));
-
-        const allKnownTech = Array.from(dynamicSet.values());
-        const matchingTech = allKnownTech.filter(tech => this.matchesFuzzy(tech, terms)).slice(0, 5);
-
-        // Détecter une suggestion orthographique IA si l'utilisateur a fait une faute de frappe
-        let suggestedCorrection: string | null = null;
-        if (terms.length === 1 && terms[0].length >= 4 && matchingTech.length > 0) {
-          const topTech = matchingTech[0];
-          const compactTop = this.compactText(topTech);
-          const compactRaw = this.compactText(trimmed);
-          if (compactTop !== compactRaw && !compactTop.startsWith(compactRaw)) {
-            suggestedCorrection = topTech;
-          }
-        }
-
-        const totalMatches = matchingProjects.length + matchingDevs.length + matchingOpps.length + matchingEvents.length + matchingTech.length;
-
-        return {
-          query: rawQuery,
-          suggestedCorrection,
-          projects: matchingProjects,
-          developers: matchingDevs,
-          opportunities: matchingOpps,
-          events: matchingEvents,
-          technologies: matchingTech,
-          totalMatches
+        this.cachedData = {
+          rawProjects,
+          rawUsers,
+          rawOpps,
+          rawEvents,
+          rawCompanies,
+          timestamp: Date.now()
         };
+
+        return this.filterResults(rawQuery, trimmed, terms, rawProjects, rawUsers, rawOpps, rawEvents, rawCompanies);
       })
     );
+  }
+
+  private filterResults(
+    rawQuery: string,
+    trimmed: string,
+    terms: string[],
+    rawProjects: Project[],
+    rawUsers: UserNetwork[],
+    rawOpps: Opportunity[],
+    rawEvents: TechEvent[],
+    rawCompanies: Company[]
+  ): GlobalSearchResults {
+    // 1. Filtrage Projets
+    const matchingProjects: SearchResultProject[] = rawProjects
+      .filter(p => {
+        const inTitle = this.matchesFuzzy(p.title, terms);
+        const inDesc = this.matchesFuzzy(p.description, terms);
+        const inStack = (p.stack || []).some(s => this.matchesFuzzy(s, terms));
+        const inAuthor = this.matchesFuzzy(p.author?.profile?.fullName || p.author?.email, terms);
+        const inCountry = this.matchesFuzzy(p.author?.profile?.country, terms);
+        const inType = this.matchesFuzzy(p.projectType, terms);
+        const inCompany = this.matchesFuzzy(p.companyName, terms);
+        return inTitle || inDesc || inStack || inAuthor || inCountry || inType || inCompany;
+      })
+      .slice(0, 5)
+      .map(p => ({
+        id: p.id,
+        title: p.title,
+        category: p.projectType || 'Projet',
+        authorName: p.author?.profile?.fullName || p.author?.email || 'Développeur',
+        country: p.author?.profile?.country || '',
+        stack: (p.stack || []).slice(0, 3),
+        price: p.price,
+        currency: p.currency,
+        matchScore: p.matchPercentage || 80
+      }));
+
+    // 2. Filtrage Développeurs
+    const matchingDevs: SearchResultDeveloper[] = rawUsers
+      .filter(u => {
+        const inName = this.matchesFuzzy(u.fullName || u.email, terms);
+        const inTitle = this.matchesFuzzy(u.title, terms);
+        const inCountry = this.matchesFuzzy(u.country, terms);
+        const inCity = this.matchesFuzzy(u.city, terms);
+        const inSkills = (u.skills || []).some(s => this.matchesFuzzy(s, terms));
+        return inName || inTitle || inCountry || inCity || inSkills;
+      })
+      .slice(0, 4)
+      .map(u => ({
+        id: u.id,
+        fullName: u.fullName || u.email,
+        title: u.title || 'Développeur',
+        country: u.country || '',
+        city: u.city || '',
+        avatarUrl: u.avatarUrl,
+        skills: (u.skills || []).slice(0, 3),
+        reputationScore: u.reputationScore || 0
+      }));
+
+    // 3. Filtrage Opportunités
+    const matchingOpps: SearchResultOpportunity[] = rawOpps
+      .filter(o => {
+        const inTitle = this.matchesFuzzy(o.title, terms);
+        const inDesc = this.matchesFuzzy(o.description, terms);
+        const inLocation = this.matchesFuzzy(o.location, terms);
+        const inStack = (o.stack || []).some(s => this.matchesFuzzy(s, terms));
+        return inTitle || inDesc || inLocation || inStack;
+      })
+      .slice(0, 3)
+      .map(o => ({
+        id: o.id,
+        title: o.title,
+        type: o.type,
+        location: o.location,
+        stack: (o.stack || []).slice(0, 3)
+      }));
+
+    // 4. Filtrage Événements & Hackathons
+    const matchingEvents: SearchResultEvent[] = rawEvents
+      .filter(ev => {
+        const inTitle = this.matchesFuzzy(ev.title, terms);
+        const inDesc = this.matchesFuzzy(ev.description, terms);
+        const inLocation = this.matchesFuzzy(ev.location, terms);
+        const inTags = (ev.tags || []).some(t => this.matchesFuzzy(t, terms));
+        return inTitle || inDesc || inLocation || inTags;
+      })
+      .slice(0, 3)
+      .map(ev => ({
+        id: ev.id,
+        title: ev.title,
+        type: ev.type,
+        location: ev.location,
+        startDate: ev.startDate,
+        tags: (ev.tags || []).slice(0, 3)
+      }));
+
+    // 5. Filtrage Entreprises & Recruteurs
+    const matchingCompanies: SearchResultCompany[] = rawCompanies
+      .filter(c => {
+        const inName = this.matchesFuzzy(c.name, terms);
+        const inDesc = this.matchesFuzzy(c.description || c.tagline, terms);
+        const inSector = this.matchesFuzzy(c.sector, terms);
+        const inCountry = this.matchesFuzzy(c.country, terms);
+        const inCity = this.matchesFuzzy(c.city, terms);
+        return inName || inDesc || inSector || inCountry || inCity;
+      })
+      .slice(0, 4)
+      .map(c => ({
+        id: c.id,
+        name: c.name,
+        slug: c.slug,
+        logoUrl: c.logoUrl,
+        country: c.country,
+        city: c.city,
+        sector: c.sector,
+        companyLevel: c.companyLevel,
+        verified: c.verified
+      }));
+
+    // 6. Technologies & Domaines découverts
+    const baseTech = [
+      'React', 'Angular', 'Vue.js', 'Spring Boot', 'FastAPI', 'Node.js', 'Python',
+      'Docker', 'PostgreSQL', 'MongoDB', 'Flutter', 'Next.js', 'TypeScript', 'Java',
+      'TailwindCSS', 'Redis', 'C#', 'ASP.NET', 'SqlServer', 'Bootstrap', 'E-Commerce',
+      'FinTech', 'IA & ML', 'Kubernetes'
+    ];
+    const dynamicSet = new Map<string, string>();
+    for (const item of baseTech) {
+      dynamicSet.set(this.compactText(item), item);
+    }
+    rawProjects.forEach(p => (p.stack || []).forEach(s => dynamicSet.set(this.compactText(s), s)));
+    rawUsers.forEach(u => (u.skills || []).forEach(s => dynamicSet.set(this.compactText(s), s)));
+    rawEvents.forEach(e => (e.tags || []).forEach(t => dynamicSet.set(this.compactText(t), t)));
+    rawCompanies.forEach(c => {
+      if (c.sector) dynamicSet.set(this.compactText(c.sector), c.sector);
+    });
+
+    const allKnownTech = Array.from(dynamicSet.values());
+    const matchingTech = allKnownTech.filter(tech => this.matchesFuzzy(tech, terms)).slice(0, 5);
+
+    // Détecter une suggestion orthographique IA
+    let suggestedCorrection: string | null = null;
+    if (terms.length === 1 && terms[0].length >= 4 && matchingTech.length > 0) {
+      const topTech = matchingTech[0];
+      const compactTop = this.compactText(topTech);
+      const compactRaw = this.compactText(trimmed);
+      if (compactTop !== compactRaw && !compactTop.startsWith(compactRaw)) {
+        suggestedCorrection = topTech;
+      }
+    }
+
+    const totalMatches = matchingProjects.length + matchingDevs.length + matchingOpps.length + matchingEvents.length + matchingCompanies.length + matchingTech.length;
+
+    return {
+      query: rawQuery,
+      suggestedCorrection,
+      projects: matchingProjects,
+      developers: matchingDevs,
+      opportunities: matchingOpps,
+      events: matchingEvents,
+      companies: matchingCompanies,
+      technologies: matchingTech,
+      totalMatches
+    };
   }
 }

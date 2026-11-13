@@ -19,6 +19,7 @@ public class CompanyDto {
     private String description;
     private String logoUrl;
     private String bannerUrl;
+    private String coverUrl;
     private String websiteUrl;
     private String linkedinUrl;
     private String twitterUrl;

@@ -652,6 +652,9 @@ export class RecruiterCompanyProfileComponent implements OnInit {
         if (res.success && res.data) {
           this.company.set(res.data);
           this.form = { ...res.data };
+          const effectiveBanner = res.data.bannerUrl || (res.data as any).coverUrl || '';
+          this.form.bannerUrl = effectiveBanner;
+          this.form.coverUrl = effectiveBanner;
         }
       }
     });
@@ -718,7 +721,9 @@ export class RecruiterCompanyProfileComponent implements OnInit {
       next: (res) => {
         this.isUploadingCover = false;
         if (res.success && res.data?.url) {
-          this.form.coverUrl = resolveUploadedMediaUrl(res.data.url);
+          const uploadedUrl = resolveUploadedMediaUrl(res.data.url);
+          this.form.coverUrl = uploadedUrl;
+          this.form.bannerUrl = uploadedUrl;
         } else {
           this.coverUploadError = 'Erreur lors du téléversement de la bannière.';
         }
@@ -732,12 +737,16 @@ export class RecruiterCompanyProfileComponent implements OnInit {
 
   removeCover(): void {
     this.form.coverUrl = '';
+    this.form.bannerUrl = '';
     this.coverUploadError = '';
   }
 
   saveProfile(): void {
     const comp = this.company();
     if (!comp) return;
+
+    this.form.bannerUrl = this.form.bannerUrl || this.form.coverUrl;
+    this.form.coverUrl = this.form.coverUrl || this.form.bannerUrl;
 
     this.isSaving = true;
     this.successMsg = '';

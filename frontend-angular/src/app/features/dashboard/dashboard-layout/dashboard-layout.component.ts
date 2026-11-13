@@ -203,7 +203,7 @@ export class DashboardLayoutComponent implements OnInit {
     if (url.startsWith('/dashboard/recruiter/applications')) return 'Candidatures reçues';
     if (url.startsWith('/dashboard/recruiter/events')) return 'Événements Tech Entreprise';
     if (url.startsWith('/dashboard/recruiter/resources')) return 'Formations & Savoirs';
-    if (url === '/dashboard/recruiter' || url === '/dashboard/recruiter/') return 'Cockpit Entreprise';
+    if (url === '/dashboard/recruiter' || url === '/dashboard/recruiter/') return 'Dashboard';
 
     // 2. Activité & Espaces Dashboard
     if (url.startsWith('/dashboard/applications') || url === '/applications') return 'Candidatures';

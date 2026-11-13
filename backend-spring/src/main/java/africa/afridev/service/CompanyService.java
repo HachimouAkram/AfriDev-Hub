@@ -190,7 +190,7 @@ public class CompanyService {
         if (request.getLinkedinUrl() != null) company.setLinkedinUrl(request.getLinkedinUrl().trim());
         if (request.getTwitterUrl() != null) company.setTwitterUrl(request.getTwitterUrl().trim());
         if (request.getLogoUrl() != null) company.setLogoUrl(request.getLogoUrl().trim());
-        if (request.getBannerUrl() != null) company.setBannerUrl(request.getBannerUrl().trim());
+        if (request.getEffectiveBannerUrl() != null) company.setBannerUrl(request.getEffectiveBannerUrl());
         if (request.getCountry() != null) company.setCountry(request.getCountry().trim());
         if (request.getCity() != null) company.setCity(request.getCity().trim());
         if (request.getSector() != null) company.setSector(request.getSector().trim());
@@ -413,6 +413,7 @@ public class CompanyService {
                 .description(company.getDescription())
                 .logoUrl(company.getLogoUrl())
                 .bannerUrl(company.getBannerUrl())
+                .coverUrl(company.getBannerUrl())
                 .websiteUrl(company.getWebsiteUrl())
                 .linkedinUrl(company.getLinkedinUrl())
                 .twitterUrl(company.getTwitterUrl())
