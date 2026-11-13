@@ -34,12 +34,12 @@ const requestHandler = (req, res) => {
 
   // Reverse proxy pour toutes les requêtes API vers Spring Boot
   if (req.url && (req.url.startsWith('/api/') || req.url === '/api')) {
-    const backendBase = process.env.BACKEND_URL || 'http://31.207.36.107:8081';
+    const backendBase = process.env.BACKEND_URL || 'http://localhost:8081';
     let targetUrl;
     try {
       targetUrl = new URL(req.url, backendBase);
     } catch (e) {
-      targetUrl = new URL(req.url, 'http://31.207.36.107:8081');
+      targetUrl = new URL(req.url, 'http://localhost:8081');
     }
 
     const proxyHeaders = { ...req.headers };
