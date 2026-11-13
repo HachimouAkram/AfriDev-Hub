@@ -1,22 +1,9 @@
 <div class="landing-container" [attr.data-active-stage]="activeStage">
-  <!-- ARRIÈRE-PLAN PLEINE PAGE VIDÉO CINÉMATIQUE PINTEREST RÉACTIVE AU SCROLL -->
+  <!-- ARRIÈRE-PLAN PLEIN ÉCRAN ANIMÉ 3D PLEXUS CONSTELLATION RÉACTIF AU SCROLL (60 FPS NATIVE SANS VIDÉO) -->
   <div class="home-backdrop-stage" [attr.data-stage]="activeStage" aria-hidden="true">
-    <!-- Couche Vidéo Pleine Page réactive au scroll -->
-    <div class="bg-cinema-media-layer" #videoLayer>
-      <video
-        #bgCinemaVideo
-        class="bg-pinterest-motion-video"
-        autoplay
-        muted
-        loop
-        playsinline
-        preload="auto">
-        <source src="/bg-pinterest-motion.mp4" type="video/mp4" />
-        <source src="https://v1.pinimg.com/videos/iht/hls/5c/7d/a0/5c7da0bdfb8adfde444ba12d9cc2605d.m3u8" type="application/x-mpegURL" />
-      </video>
-      <div class="bg-hologram-mesh"></div>
-      <div class="bg-cinema-scrim"></div>
-    </div>
+    <canvas #stageCanvas class="bg-plexus-canvas"></canvas>
+    <div class="bg-hologram-mesh"></div>
+    <div class="bg-cinema-scrim"></div>
   </div>
 
   <!-- HERO SECTION (SPLIT LAYOUT + PAN-AFRICAN GLOBE NETWORK + REAL PHOTO + ALIGNED STATS) -->

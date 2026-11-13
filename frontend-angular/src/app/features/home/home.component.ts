@@ -100,13 +100,10 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
   statOffers = 0;
   statCountries = 0;
 
-  @ViewChild('stageCanvas') private stageCanvasRef?: ElementRef<HTMLCanvasElement>;
-  @ViewChild('bgCinemaVideo') private bgCinemaVideoRef?: ElementRef<HTMLVideoElement>;
-  @ViewChild('videoLayer') private videoLayerRef?: ElementRef<HTMLElement>;
+  @ViewChild('stageCanvas', { static: false }) private stageCanvasRef?: ElementRef<HTMLCanvasElement>;
   private scrollObserver?: IntersectionObserver;
   private stageSectionObserver?: IntersectionObserver;
-  private videoScrollListener?: () => void;
-  private resizeStageListener?: () => void;
+  private canvasCleanupFn?: () => void;
   private stageAnimId?: number;
 
   ngOnInit(): void {
@@ -121,18 +118,15 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
   ngAfterViewInit(): void {
     this.initScrollReveal();
     this.initStageSectionObserver();
-    this.initScrollReactiveVideo();
+    this.initCyberPlexusAnimation();
   }
 
   ngOnDestroy(): void {
     if (this.stageAnimId) {
       cancelAnimationFrame(this.stageAnimId);
     }
-    if (this.videoScrollListener) {
-      this.videoScrollListener();
-    }
-    if (this.resizeStageListener) {
-      this.resizeStageListener();
+    if (this.canvasCleanupFn) {
+      this.canvasCleanupFn();
     }
     if (this.scrollObserver) {
       this.scrollObserver.disconnect();
@@ -147,149 +141,7 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
     this.flagSwapTimeouts = [];
   }
 
-  /**
-   * Initialise la vidéo de fond cinématique Pinterest et synchronise de façon ultra-fluide
-   * sa vitesse de lecture, sa parallaxe 3D et son échelle avec le défilement (scroll) de l'utilisateur.
-   * Garantit une boucle infinie continue sans aucun blocage ou arrêt soudain.
-   */
-  /**
-   * Initialise l'animation cinématique 3D de fond (effet motion design haute fidélité).
-   * - Apparition fluide et progressive à l'ouverture (fade-in cinématique)
-   * - Vitesse ralentie à 0.45x au repos pour une rotation 3D douce et hypnotique
-   * - Réactivité dynamique et fluide au scroll (accélération amortie avec inertie et éclat)
-   * - Verrouillage permanent 100% plein écran du header jusqu'au footer
-   */
-  private initScrollReactiveVideo(): void {
-    if (typeof window === 'undefined' || !this.bgCinemaVideoRef) return;
-    const video = this.bgCinemaVideoRef.nativeElement;
-    const layer = this.videoLayerRef?.nativeElement;
-    if (!video) return;
 
-    const BASE_PLAYBACK_RATE = 0.45;
-
-    video.muted = true;
-    video.defaultMuted = true;
-    video.playsInline = true;
-    video.loop = true;
-    video.setAttribute('muted', '');
-    video.setAttribute('playsinline', '');
-    video.setAttribute('loop', '');
-    video.setAttribute('autoplay', '');
-
-    // Appliquer immédiatement la vitesse ralentie cinématique
-    video.playbackRate = BASE_PLAYBACK_RATE;
-
-    const startPlay = () => {
-      video.playbackRate = BASE_PLAYBACK_RATE;
-      if (video.paused) {
-        video.play().catch(() => {});
-      }
-    };
-
-    startPlay();
-    video.addEventListener('canplay', startPlay);
-    video.addEventListener('loadeddata', startPlay);
-    document.addEventListener('touchstart', startPlay, { passive: true, once: true });
-    document.addEventListener('click', startPlay, { passive: true, once: true });
-    window.addEventListener('focus', startPlay);
-
-    // Watchdogs pour assurer une boucle infinie continue sans accroc
-    video.addEventListener('ended', () => {
-      video.currentTime = 0;
-      video.playbackRate = BASE_PLAYBACK_RATE;
-      video.play().catch(() => {});
-    });
-
-    video.addEventListener('pause', () => {
-      setTimeout(() => {
-        if (video.paused) {
-          video.play().catch(() => {});
-        }
-      }, 50);
-    });
-
-    video.addEventListener('error', () => {
-      setTimeout(() => {
-        video.load();
-        video.playbackRate = BASE_PLAYBACK_RATE;
-        video.play().catch(() => {});
-      }, 300);
-    });
-
-    let lastScrollY = window.scrollY || 0;
-    let targetPlaybackRate = BASE_PLAYBACK_RATE;
-    let currentPlaybackRate = BASE_PLAYBACK_RATE;
-    let lastTime = performance.now();
-    let isTicking = false;
-
-    const onScroll = () => {
-      const scrollY = window.scrollY || window.pageYOffset || 0;
-      const now = performance.now();
-      const dt = Math.max((now - lastTime) / 1000, 0.016);
-      lastTime = now;
-
-      const deltaY = Math.abs(scrollY - lastScrollY);
-      lastScrollY = scrollY;
-
-      // 1. Accélération cinématique réactive au mouvement de scroll (effet motion design interactif)
-      const scrollVelocity = deltaY / dt;
-      targetPlaybackRate = Math.min(BASE_PLAYBACK_RATE + (scrollVelocity / 550) * 0.95, 1.75);
-
-      if (video.paused) {
-        video.play().catch(() => {});
-      }
-
-      // 2. Progression continue et zoom 3D doux de l'en-tête jusqu'au pied de page
-      const docHeight = Math.max(
-        document.body.scrollHeight,
-        document.documentElement.scrollHeight
-      ) - window.innerHeight;
-      const progress = docHeight > 0 ? Math.min(Math.max(scrollY / docHeight, 0), 1) : 0;
-
-      if (layer) {
-        const scale = 1.0 + progress * 0.06;
-        layer.style.transform = `scale(${scale.toFixed(3)})`;
-      }
-
-      // 3. Éclat et intensité technologique dynamique pendant le défilement
-      const velocityRatio = Math.min(scrollVelocity / 1000, 1);
-      const dynamicSaturate = 1.28 + velocityRatio * 0.16;
-      const dynamicBrightness = 0.98 + velocityRatio * 0.06;
-      video.style.filter = `saturate(${dynamicSaturate.toFixed(2)}) contrast(1.16) brightness(${dynamicBrightness.toFixed(2)})`;
-
-      if (!isTicking) {
-        isTicking = true;
-        requestAnimationFrame(updateMotion);
-      }
-    };
-
-    const updateMotion = () => {
-      // Amorti fluide avec inertie naturelle ramenant la vitesse vers son ralenti de base (0.45x)
-      currentPlaybackRate += (targetPlaybackRate - currentPlaybackRate) * 0.09;
-      targetPlaybackRate += (BASE_PLAYBACK_RATE - targetPlaybackRate) * 0.05;
-
-      if (video && !isNaN(currentPlaybackRate)) {
-        video.playbackRate = Math.max(0.35, Math.min(currentPlaybackRate, 1.75));
-      }
-
-      if (Math.abs(targetPlaybackRate - BASE_PLAYBACK_RATE) > 0.015 || Math.abs(currentPlaybackRate - BASE_PLAYBACK_RATE) > 0.015) {
-        requestAnimationFrame(updateMotion);
-      } else {
-        if (video) {
-          video.playbackRate = BASE_PLAYBACK_RATE;
-          video.style.filter = '';
-        }
-        isTicking = false;
-      }
-    };
-
-    window.addEventListener('scroll', onScroll, { passive: true });
-    this.videoScrollListener = () => {
-      window.removeEventListener('scroll', onScroll);
-      window.removeEventListener('focus', startPlay);
-    };
-    onScroll();
-  }
 
   private startFlagRotation(): void {
     if (typeof window === 'undefined') return;
@@ -355,157 +207,506 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
 
 
   /**
-   * Moteur d'animation Canvas 60 FPS multi-scènes plein écran (inspiré des pins #886505507929441534,
-   * #1028650371200135305 et #973762750662318302) qui morph en temps réel selon la section active (0..4).
+   * Moteur d'animation Canvas 60 FPS 3D Cyber Plexus Constellation.
+   * Reproduction fidèle du rendu Pinterest (m3u8 0f8856bc8561c9018d93e4cdd560df11) :
+   * - Espace cosmique 3D avec nébuleuses dynamiques (émeraude, cyan, bleu nuit)
+   * - Constellation de nœuds cyber en 3D projetés en perspective réelle
+   * - Lignes de maillage géométriques et triangulation scintillante (faces cristallines 3D)
+   * - Cristaux polyèdres 3D flottants (octaèdres sombres avec arêtes néon en rotation)
+   * - Colonne de flux d'énergie ascensionnel au centre (particules et filaments de lumière)
+   * - Réactivité dynamique et inertie fluide au défilement (scroll warp, rotation 3D et propulsion Z)
+   * - Parallaxe douce au mouvement de la souris
+   * - Plein écran 100% garanti de l'en-tête jusqu'au pied de page, sans aucun fichier vidéo
    */
-  private initMultiStageMotionCanvas(): void {
+  private initCyberPlexusAnimation(): void {
     if (typeof window === 'undefined' || !this.stageCanvasRef) return;
-    if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-
     const canvas = this.stageCanvasRef.nativeElement;
-    const ctx = canvas.getContext('2d');
+    const ctx = canvas.getContext('2d', { alpha: true });
     if (!ctx) return;
 
-    let width = window.innerWidth;
-    let height = window.innerHeight;
-    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    this.ngZone.runOutsideAngular(() => {
+      let width = window.innerWidth;
+      let height = window.innerHeight;
+      let dpr = Math.min(window.devicePixelRatio || 1, 2);
 
-    const resize = () => {
-      width = window.innerWidth;
-      height = window.innerHeight;
-      canvas.width = Math.round(width * dpr);
-      canvas.height = Math.round(height * dpr);
-      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    };
-    resize();
-    window.addEventListener('resize', resize, { passive: true });
-    this.resizeStageListener = () => window.removeEventListener('resize', resize);
+      const resize = () => {
+        width = window.innerWidth;
+        height = window.innerHeight;
+        dpr = Math.min(window.devicePixelRatio || 1, 2);
+        canvas.width = Math.round(width * dpr);
+        canvas.height = Math.round(height * dpr);
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      };
+      resize();
+      window.addEventListener('resize', resize, { passive: true });
 
-    interface StageNode {
-      x: number;
-      y: number;
-      vx: number;
-      vy: number;
-      r: number;
-      phase: number;
-      hueShift: number;
-    }
-
-    const nodeCount = width < 768 ? 34 : 64;
-    const nodes: StageNode[] = Array.from({ length: nodeCount }, (_, i) => ({
-      x: Math.random() * width,
-      y: Math.random() * height,
-      vx: (Math.random() - 0.5) * 0.55,
-      vy: (Math.random() - 0.5) * 0.55,
-      r: 1.4 + (i % 3) * 0.85,
-      phase: Math.random() * Math.PI * 2,
-      hueShift: (i % 4) * 18
-    }));
-
-    // Palette RGB par section (0: Émeraude/Cyan Collab, 1: Cyan/Indigo Piliers, 2: Émeraude/Or Projets, 3: Violet/Émeraude Communautés, 4: Émeraude/Azur Launch)
-    const palettes = [
-      { r: 16, g: 185, b: 129, r2: 6, g2: 182, b2: 212 },
-      { r: 6, g: 182, b: 212, r2: 59, g2: 130, b2: 246 },
-      { r: 16, g: 185, b: 129, r2: 245, g2: 158, b2: 11 },
-      { r: 139, g: 92, b: 246, r2: 16, g2: 185, b2: 129 },
-      { r: 16, g: 185, b: 129, r2: 56, g2: 189, b2: 248 }
-    ];
-
-    let curColor = { ...palettes[0] };
-
-    const animate = (now: number) => {
-      const t = now * 0.001;
-      const stageIdx = Math.max(0, Math.min(4, this.activeStage));
-      const targetPal = palettes[stageIdx];
-      const isLight = document.body.classList.contains('light-theme') || document.documentElement.getAttribute('data-theme') === 'light';
-      const alphaScale = isLight ? 0.52 : 1.0;
-
-      // Interpolation douce des couleurs entre sections
-      const lerp = 0.045;
-      curColor.r += (targetPal.r - curColor.r) * lerp;
-      curColor.g += (targetPal.g - curColor.g) * lerp;
-      curColor.b += (targetPal.b - curColor.b) * lerp;
-      curColor.r2 += (targetPal.r2 - curColor.r2) * lerp;
-      curColor.g2 += (targetPal.g2 - curColor.g2) * lerp;
-      curColor.b2 += (targetPal.b2 - curColor.b2) * lerp;
-
-      const c1 = `${Math.round(curColor.r)}, ${Math.round(curColor.g)}, ${Math.round(curColor.b)}`;
-      const c2 = `${Math.round(curColor.r2)}, ${Math.round(curColor.g2)}, ${Math.round(curColor.b2)}`;
-
-      ctx.clearRect(0, 0, width, height);
-
-      // 1. Ondes Sinusoïdales 3D Fluides (Style Pinterest #886505507929441534)
-      const waveCount = 4;
-      const scrollOffset = (window.scrollY || 0) * 0.0018;
-      for (let w = 0; w < waveCount; w++) {
-        ctx.beginPath();
-        const baseY = height * (0.28 + w * 0.16);
-        const amp = (28 + w * 12) * (stageIdx === 1 || stageIdx === 2 ? 1.35 : 1.0);
-        const freq = 0.0024 + w * 0.00045;
-        const speed = t * (0.9 + w * 0.22) + scrollOffset;
-
-        for (let x = 0; x <= width; x += 24) {
-          const y =
-            baseY +
-            Math.sin(x * freq + speed + w) * amp +
-            Math.cos(x * freq * 0.55 - speed * 0.7) * (amp * 0.45);
-          if (x === 0) {
-            ctx.moveTo(x, y);
-          } else {
-            ctx.lineTo(x, y);
-          }
-        }
-        const waveAlpha = (0.14 - w * 0.022) * alphaScale;
-        ctx.strokeStyle = w % 2 === 0 ? `rgba(${c1}, ${waveAlpha})` : `rgba(${c2}, ${waveAlpha})`;
-        ctx.lineWidth = w === 0 ? 1.8 : 1.2;
-        ctx.stroke();
+      interface Node3D {
+        x: number;
+        y: number;
+        z: number;
+        vx: number;
+        vy: number;
+        vz: number;
+        r: number;
+        colorIdx: number;
+        phase: number;
       }
 
-      // 2. Nœuds de Collaboration & Constellation Panafricaine Interactive
-      const maxLinkDist = width < 768 ? 115 : 155;
-      for (let i = 0; i < nodes.length; i++) {
-        const n = nodes[i];
-        // Vitesse et comportement modulés selon la section active
-        const stageSpeedMult = stageIdx === 4 ? 1.65 : stageIdx === 2 ? 1.25 : 1.0;
-        n.x += n.vx * stageSpeedMult;
-        n.y += n.vy * stageSpeedMult - (stageIdx === 2 ? 0.25 : 0);
+      interface Star3D {
+        x: number;
+        y: number;
+        z: number;
+        r: number;
+        phase: number;
+        speed: number;
+      }
 
-        if (n.x < -20) n.x = width + 20;
-        if (n.x > width + 20) n.x = -20;
-        if (n.y < -20) n.y = height + 20;
-        if (n.y > height + 20) n.y = -20;
+      interface Polyhedron3D {
+        x: number;
+        y: number;
+        z: number;
+        size: number;
+        rotX: number;
+        rotY: number;
+        rotZ: number;
+        vRotX: number;
+        vRotY: number;
+        vRotZ: number;
+        vz: number;
+      }
 
-        const pulse = 0.65 + 0.35 * Math.sin(t * 2.2 + n.phase);
+      interface EnergyBeamParticle {
+        x: number;
+        y: number;
+        z: number;
+        vy: number;
+        len: number;
+        width: number;
+        alpha: number;
+        hueOffset: number;
+      }
 
-        // Dessiner le nœud lumineux
-        ctx.beginPath();
-        ctx.arc(n.x, n.y, n.r * (0.85 + pulse * 0.3), 0, Math.PI * 2);
-        ctx.fillStyle = i % 2 === 0 ? `rgba(${c1}, ${0.52 * pulse * alphaScale})` : `rgba(${c2}, ${0.48 * pulse * alphaScale})`;
-        ctx.fill();
+      const isMobile = width < 768;
+      const nodeCount = isMobile ? 42 : 75;
+      const starCount = isMobile ? 50 : 95;
+      const polyCount = isMobile ? 3 : 5;
+      const beamParticleCount = isMobile ? 14 : 24;
 
-        // Relier les nœuds proches (réseau de développeurs en collaboration)
-        for (let j = i + 1; j < nodes.length; j++) {
-          const m = nodes[j];
-          const dx = n.x - m.x;
-          const dy = n.y - m.y;
-          const distSq = dx * dx + dy * dy;
-          if (distSq < maxLinkDist * maxLinkDist) {
-            const dist = Math.sqrt(distSq);
-            const linkAlpha = (1 - dist / maxLinkDist) * 0.16 * alphaScale;
+      const focalLength = 480;
+      const boundsX = width * 0.9;
+      const boundsY = height * 0.9;
+      const minZ = 40;
+      const maxZ = 1050;
+
+      // 1. Initialisation des nœuds 3D
+      const nodes: Node3D[] = [];
+      for (let i = 0; i < nodeCount; i++) {
+        nodes.push({
+          x: (Math.random() - 0.5) * boundsX * 2,
+          y: (Math.random() - 0.5) * boundsY * 2,
+          z: minZ + Math.random() * (maxZ - minZ),
+          vx: (Math.random() - 0.5) * 0.35,
+          vy: (Math.random() - 0.5) * 0.35,
+          vz: (Math.random() - 0.5) * 0.25,
+          r: 2.0 + Math.random() * 2.2,
+          colorIdx: i % 3,
+          phase: Math.random() * Math.PI * 2
+        });
+      }
+
+      // 2. Initialisation des micro-étoiles cosmiques (dust)
+      const stars: Star3D[] = [];
+      for (let i = 0; i < starCount; i++) {
+        stars.push({
+          x: (Math.random() - 0.5) * width * 2.2,
+          y: (Math.random() - 0.5) * height * 2.2,
+          z: 100 + Math.random() * 1400,
+          r: 0.8 + Math.random() * 1.4,
+          phase: Math.random() * Math.PI * 2,
+          speed: 1.2 + Math.random() * 2.5
+        });
+      }
+
+      // 3. Sommets unitaires d'un octaèdre 3D et ses 8 faces triangulaires
+      const octaUnitVertices = [
+        { x: 1, y: 0, z: 0 },
+        { x: -1, y: 0, z: 0 },
+        { x: 0, y: 1, z: 0 },
+        { x: 0, y: -1, z: 0 },
+        { x: 0, y: 0, z: 1 },
+        { x: 0, y: 0, z: -1 }
+      ];
+      const octaFaces = [
+        [0, 2, 4], [2, 1, 4], [1, 3, 4], [3, 0, 4],
+        [0, 5, 2], [2, 5, 1], [1, 5, 3], [3, 5, 0]
+      ];
+
+      const polyhedra: Polyhedron3D[] = [];
+      for (let i = 0; i < polyCount; i++) {
+        polyhedra.push({
+          x: (Math.random() - 0.5) * boundsX * 1.5,
+          y: (Math.random() - 0.5) * boundsY * 1.5,
+          z: 180 + Math.random() * 700,
+          size: 26 + Math.random() * 22,
+          rotX: Math.random() * Math.PI,
+          rotY: Math.random() * Math.PI,
+          rotZ: Math.random() * Math.PI,
+          vRotX: (Math.random() - 0.5) * 0.012,
+          vRotY: (Math.random() - 0.5) * 0.014,
+          vRotZ: (Math.random() - 0.5) * 0.01,
+          vz: -0.2 - Math.random() * 0.3
+        });
+      }
+
+      // 4. Initialisation du flux ascensionnel d'énergie
+      const beamParticles: EnergyBeamParticle[] = [];
+      for (let i = 0; i < beamParticleCount; i++) {
+        beamParticles.push({
+          x: (Math.random() - 0.5) * (width * 0.35),
+          y: Math.random() * height,
+          z: 80 + Math.random() * 500,
+          vy: - (2.6 + Math.random() * 3.5),
+          len: 25 + Math.random() * 45,
+          width: 1.2 + Math.random() * 1.8,
+          alpha: 0.35 + Math.random() * 0.5,
+          hueOffset: (Math.random() - 0.5) * 20
+        });
+      }
+
+      let lastScrollY = window.scrollY || window.pageYOffset || 0;
+      let scrollVelocity = 0;
+      let targetVelocity = 0;
+      let mouseX = 0;
+      let mouseY = 0;
+      let targetMouseX = 0;
+      let targetMouseY = 0;
+
+      const onScroll = () => {
+        const currentY = window.scrollY || window.pageYOffset || 0;
+        const delta = currentY - lastScrollY;
+        lastScrollY = currentY;
+        targetVelocity += delta * 0.55;
+        targetVelocity = Math.max(-45, Math.min(45, targetVelocity));
+      };
+
+      const onMouseMove = (e: MouseEvent) => {
+        targetMouseX = (e.clientX / width - 0.5) * 2;
+        targetMouseY = (e.clientY / height - 0.5) * 2;
+      };
+
+      window.addEventListener('scroll', onScroll, { passive: true });
+      window.addEventListener('mousemove', onMouseMove, { passive: true });
+
+      const animate = (now: number) => {
+        const t = now * 0.001;
+
+        scrollVelocity += (targetVelocity - scrollVelocity) * 0.12;
+        targetVelocity *= 0.88;
+
+        mouseX += (targetMouseX - mouseX) * 0.06;
+        mouseY += (targetMouseY - mouseY) * 0.06;
+
+        const absVel = Math.abs(scrollVelocity);
+        const velocityRatio = Math.min(absVel / 25, 1);
+        const zStep = (0.55 + scrollVelocity * 0.35);
+
+        const isLight = document.body.classList.contains('light-theme') || document.documentElement.getAttribute('data-theme') === 'light';
+        const themeAlpha = isLight ? 0.65 : 1.0;
+
+        ctx.clearRect(0, 0, width, height);
+
+        const cx = width * 0.5;
+        const cy = height * 0.5;
+
+        // A. Nébuleuses Cosmiques
+        const neb1X = cx * (1 + Math.sin(t * 0.3) * 0.28) + mouseX * 25;
+        const neb1Y = cy * (0.8 + Math.cos(t * 0.25) * 0.22);
+        const nebGrad1 = ctx.createRadialGradient(neb1X, neb1Y, 10, neb1X, neb1Y, width * 0.45);
+        if (isLight) {
+          nebGrad1.addColorStop(0, 'rgba(16, 185, 129, 0.09)');
+          nebGrad1.addColorStop(0.6, 'rgba(6, 182, 212, 0.04)');
+          nebGrad1.addColorStop(1, 'rgba(248, 250, 252, 0)');
+        } else {
+          nebGrad1.addColorStop(0, `rgba(16, 185, 129, ${(0.14 + velocityRatio * 0.08).toFixed(3)})`);
+          nebGrad1.addColorStop(0.55, `rgba(6, 182, 212, ${(0.09 + velocityRatio * 0.05).toFixed(3)})`);
+          nebGrad1.addColorStop(1, 'rgba(3, 7, 18, 0)');
+        }
+        ctx.fillStyle = nebGrad1;
+        ctx.fillRect(0, 0, width, height);
+
+        const neb2X = cx * (0.8 - Math.sin(t * 0.35) * 0.25);
+        const neb2Y = cy * (1.2 + Math.sin(t * 0.2) * 0.2);
+        const nebGrad2 = ctx.createRadialGradient(neb2X, neb2Y, 15, neb2X, neb2Y, width * 0.38);
+        if (isLight) {
+          nebGrad2.addColorStop(0, 'rgba(56, 189, 248, 0.07)');
+          nebGrad2.addColorStop(1, 'rgba(248, 250, 252, 0)');
+        } else {
+          nebGrad2.addColorStop(0, `rgba(59, 130, 246, ${(0.11 + velocityRatio * 0.06).toFixed(3)})`);
+          nebGrad2.addColorStop(0.6, 'rgba(16, 185, 129, 0.04)');
+          nebGrad2.addColorStop(1, 'rgba(3, 7, 18, 0)');
+        }
+        ctx.fillStyle = nebGrad2;
+        ctx.fillRect(0, 0, width, height);
+
+        // B. Micro-Étoiles & Poussière Cosmique
+        for (let i = 0; i < stars.length; i++) {
+          const s = stars[i];
+          s.z -= zStep * 0.65;
+          if (s.z < 60) s.z = 1400;
+          if (s.z > 1450) s.z = 80;
+
+          const scale = focalLength / (focalLength + s.z);
+          const px = cx + s.x * scale + mouseX * 12 * scale;
+          const py = cy + s.y * scale + mouseY * 12 * scale;
+
+          if (px >= 0 && px <= width && py >= 0 && py <= height) {
+            const twinkle = 0.35 + 0.65 * Math.sin(t * s.speed + s.phase);
+            const starAlpha = (1 - s.z / 1450) * twinkle * (isLight ? 0.38 : 0.75);
             ctx.beginPath();
-            ctx.moveTo(n.x, n.y);
-            ctx.lineTo(m.x, m.y);
-            ctx.strokeStyle = `rgba(${c1}, ${linkAlpha})`;
-            ctx.lineWidth = 0.85;
-            ctx.stroke();
+            ctx.arc(px, py, Math.max(0.6, s.r * scale * 1.5), 0, Math.PI * 2);
+            ctx.fillStyle = isLight ? `rgba(16, 185, 129, ${starAlpha})` : `rgba(255, 255, 255, ${starAlpha})`;
+            ctx.fill();
           }
         }
-      }
+
+        // C. Colonne de Flux Ascensionnel de Lumière
+        const beamSpeedMult = 1.0 + velocityRatio * 2.8;
+        for (let i = 0; i < beamParticles.length; i++) {
+          const bp = beamParticles[i];
+          bp.y += bp.vy * beamSpeedMult;
+          if (bp.y < -50) {
+            bp.y = height + 40;
+            bp.x = (Math.random() - 0.5) * (width * 0.42);
+            bp.z = 80 + Math.random() * 500;
+          }
+
+          const scale = focalLength / (focalLength + bp.z);
+          const bx = cx + (bp.x + Math.sin(t * 1.5 + i) * 18) * scale + mouseX * 18 * scale;
+          const by = bp.y;
+          const blen = bp.len * scale * (1 + velocityRatio * 0.7);
+
+          const grad = ctx.createLinearGradient(bx, by, bx, by + blen);
+          const coreAlpha = bp.alpha * (0.7 + velocityRatio * 0.5) * (isLight ? 0.5 : 0.95);
+          if (isLight) {
+            grad.addColorStop(0, `rgba(16, 185, 129, ${coreAlpha})`);
+            grad.addColorStop(0.5, `rgba(6, 182, 212, ${coreAlpha * 0.6})`);
+            grad.addColorStop(1, 'rgba(16, 185, 129, 0)');
+          } else {
+            grad.addColorStop(0, `rgba(255, 255, 255, ${coreAlpha})`);
+            grad.addColorStop(0.3, `rgba(0, 245, 212, ${coreAlpha * 0.85})`);
+            grad.addColorStop(0.7, `rgba(0, 229, 153, ${coreAlpha * 0.4})`);
+            grad.addColorStop(1, 'rgba(0, 229, 153, 0)');
+          }
+          ctx.beginPath();
+          ctx.moveTo(bx, by);
+          ctx.lineTo(bx, by + blen);
+          ctx.strokeStyle = grad;
+          ctx.lineWidth = Math.max(0.8, bp.width * scale * (1 + velocityRatio * 0.4));
+          ctx.stroke();
+        }
+
+        // D. Cristaux Polyèdres 3D Flottants (Octaèdres Crystalline du Pin)
+        const rotTiltY = mouseX * 0.25 + scrollVelocity * 0.015;
+        const rotTiltX = mouseY * 0.25;
+
+        for (let pIdx = 0; pIdx < polyhedra.length; pIdx++) {
+          const poly = polyhedra[pIdx];
+          poly.z += poly.vz - zStep * 0.85;
+          if (poly.z < 80) poly.z = 850;
+          if (poly.z > 950) poly.z = 100;
+
+          poly.rotX += poly.vRotX * (1 + velocityRatio * 2.5);
+          poly.rotY += poly.vRotY * (1 + velocityRatio * 2.5);
+          poly.rotZ += poly.vRotZ * (1 + velocityRatio * 2.5);
+
+          const transformedVertices: { x: number; y: number; z: number; px: number; py: number }[] = [];
+          const cosX = Math.cos(poly.rotX);
+          const sinX = Math.sin(poly.rotX);
+          const cosY = Math.cos(poly.rotY + rotTiltY);
+          const sinY = Math.sin(poly.rotY + rotTiltY);
+          const cosZ = Math.cos(poly.rotZ);
+          const sinZ = Math.sin(poly.rotZ);
+
+          for (let v = 0; v < octaUnitVertices.length; v++) {
+            const vUnit = octaUnitVertices[v];
+            const vx = vUnit.x * poly.size;
+            const vy = vUnit.y * poly.size;
+            const vz = vUnit.z * poly.size;
+
+            const x1 = vx * cosY - vz * sinY;
+            const z1 = vx * sinY + vz * cosY;
+            const y2 = vy * cosX - z1 * sinX;
+            const z2 = vy * sinX + z1 * cosX;
+            const x3 = x1 * cosZ - y2 * sinZ;
+            const y3 = x1 * sinZ + y2 * cosZ;
+
+            const finalX = poly.x + x3;
+            const finalY = poly.y + y3;
+            const finalZ = poly.z + z2;
+
+            const scale = focalLength / (focalLength + finalZ);
+            const px = cx + finalX * scale + mouseX * 22 * scale;
+            const py = cy + finalY * scale + mouseY * 22 * scale;
+
+            transformedVertices.push({ x: finalX, y: finalY, z: finalZ, px, py });
+          }
+
+          const polyAlpha = Math.min(Math.max(1 - poly.z / 950, 0), 1) * themeAlpha;
+          for (let f = 0; f < octaFaces.length; f++) {
+            const [i1, i2, i3] = octaFaces[f];
+            const v1 = transformedVertices[i1];
+            const v2 = transformedVertices[i2];
+            const v3 = transformedVertices[i3];
+
+            const area = (v2.px - v1.px) * (v3.py - v1.py) - (v2.py - v1.py) * (v3.px - v1.px);
+            if (area > 0) {
+              ctx.beginPath();
+              ctx.moveTo(v1.px, v1.py);
+              ctx.lineTo(v2.px, v2.py);
+              ctx.lineTo(v3.px, v3.py);
+              ctx.closePath();
+
+              ctx.fillStyle = isLight
+                ? `rgba(16, 185, 129, ${(0.05 * polyAlpha).toFixed(3)})`
+                : `rgba(2, 22, 30, ${(0.48 * polyAlpha).toFixed(3)})`;
+              ctx.fill();
+
+              ctx.strokeStyle = isLight
+                ? `rgba(16, 185, 129, ${(0.42 * polyAlpha).toFixed(3)})`
+                : `rgba(0, 245, 212, ${(0.55 * polyAlpha).toFixed(3)})`;
+              ctx.lineWidth = 1.0;
+              ctx.stroke();
+            }
+          }
+
+          for (let v = 0; v < transformedVertices.length; v++) {
+            const tv = transformedVertices[v];
+            ctx.beginPath();
+            ctx.arc(tv.px, tv.py, 1.8, 0, Math.PI * 2);
+            ctx.fillStyle = isLight ? '#10b981' : '#00f5d4';
+            ctx.fill();
+          }
+        }
+
+        // E. Constellation 3D Plexus (Nœuds, Lignes & Triangulation)
+        const projectedNodes: { px: number; py: number; scale: number; node: Node3D; alpha: number }[] = [];
+
+        for (let i = 0; i < nodes.length; i++) {
+          const n = nodes[i];
+          n.z -= zStep;
+          n.x += n.vx;
+          n.y += n.vy;
+
+          if (n.z < minZ) {
+            n.z = maxZ - 10;
+            n.x = (Math.random() - 0.5) * boundsX * 2;
+            n.y = (Math.random() - 0.5) * boundsY * 2;
+          } else if (n.z > maxZ) {
+            n.z = minZ + 10;
+          }
+
+          const scale = focalLength / (focalLength + n.z);
+          const xRot = n.x * Math.cos(rotTiltY) - n.z * Math.sin(rotTiltY) * 0.15;
+          const yRot = n.y * Math.cos(rotTiltX);
+
+          const px = cx + xRot * scale + mouseX * 30 * scale;
+          const py = cy + yRot * scale + mouseY * 30 * scale;
+
+          const depthAlpha = (1 - (n.z - minZ) / (maxZ - minZ));
+          const pulse = 0.75 + 0.25 * Math.sin(t * 2.0 + n.phase);
+          const nodeAlpha = Math.max(0.1, depthAlpha * pulse * themeAlpha);
+
+          projectedNodes.push({ px, py, scale, node: n, alpha: nodeAlpha });
+        }
+
+        const maxDist2D = isMobile ? 120 : 165;
+        const maxDist2DSq = maxDist2D * maxDist2D;
+        const colorStops = isLight
+          ? ['rgba(16, 185, 129, ', 'rgba(6, 182, 212, ', 'rgba(56, 189, 248, ']
+          : ['rgba(0, 229, 153, ', 'rgba(0, 245, 212, ', 'rgba(56, 189, 248, '];
+
+        for (let i = 0; i < projectedNodes.length; i++) {
+          const p1 = projectedNodes[i];
+          if (p1.px < -50 || p1.px > width + 50 || p1.py < -50 || p1.py > height + 50) continue;
+
+          for (let j = i + 1; j < projectedNodes.length; j++) {
+            const p2 = projectedNodes[j];
+            const dx = p1.px - p2.px;
+            const dy = p1.py - p2.py;
+            const distSq = dx * dx + dy * dy;
+
+            if (distSq < maxDist2DSq) {
+              const dist = Math.sqrt(distSq);
+              const linkAlpha = (1 - dist / maxDist2D) * 0.32 * Math.min(p1.alpha, p2.alpha) * (1 + velocityRatio * 0.5);
+
+              ctx.beginPath();
+              ctx.moveTo(p1.px, p1.py);
+              ctx.lineTo(p2.px, p2.py);
+              ctx.strokeStyle = `${colorStops[p1.node.colorIdx]}${linkAlpha.toFixed(3)})`;
+              ctx.lineWidth = Math.max(0.65, 1.25 * ((p1.scale + p2.scale) * 0.5));
+              ctx.stroke();
+
+              if (j < i + 18) {
+                for (let k = j + 1; k < Math.min(projectedNodes.length, j + 8); k++) {
+                  const p3 = projectedNodes[k];
+                  const dx2 = p1.px - p3.px;
+                  const dy2 = p1.py - p3.py;
+                  const dx3 = p2.px - p3.px;
+                  const dy3 = p2.py - p3.py;
+                  if (dx2 * dx2 + dy2 * dy2 < maxDist2DSq * 0.7 && dx3 * dx3 + dy3 * dy3 < maxDist2DSq * 0.7) {
+                    ctx.beginPath();
+                    ctx.moveTo(p1.px, p1.py);
+                    ctx.lineTo(p2.px, p2.py);
+                    ctx.lineTo(p3.px, p3.py);
+                    ctx.closePath();
+                    ctx.fillStyle = isLight
+                      ? `rgba(16, 185, 129, ${(0.025 * linkAlpha).toFixed(4)})`
+                      : `rgba(0, 245, 212, ${(0.045 * linkAlpha).toFixed(4)})`;
+                    ctx.fill();
+                    break;
+                  }
+                }
+              }
+            }
+          }
+        }
+
+        // Dessin des Nœuds Lumineux
+        for (let i = 0; i < projectedNodes.length; i++) {
+          const p = projectedNodes[i];
+          const pr = Math.max(1.5, p.node.r * p.scale * (1 + velocityRatio * 0.2));
+
+          const haloR = pr * 3.4;
+          const haloGrad = ctx.createRadialGradient(p.px, p.py, pr * 0.5, p.px, p.py, haloR);
+          if (isLight) {
+            haloGrad.addColorStop(0, `rgba(16, 185, 129, ${(0.55 * p.alpha).toFixed(3)})`);
+            haloGrad.addColorStop(1, 'rgba(16, 185, 129, 0)');
+          } else {
+            haloGrad.addColorStop(0, `${colorStops[p.node.colorIdx]}${(0.75 * p.alpha).toFixed(3)})`);
+            haloGrad.addColorStop(1, `${colorStops[p.node.colorIdx]}0)`);
+          }
+          ctx.beginPath();
+          ctx.arc(p.px, p.py, haloR, 0, Math.PI * 2);
+          ctx.fillStyle = haloGrad;
+          ctx.fill();
+
+          ctx.beginPath();
+          ctx.arc(p.px, p.py, pr, 0, Math.PI * 2);
+          ctx.fillStyle = isLight ? '#059669' : (p.node.colorIdx === 0 ? '#00e599' : (p.node.colorIdx === 1 ? '#00f5d4' : '#38bdf8'));
+          ctx.fill();
+        }
+
+        this.stageAnimId = requestAnimationFrame(animate);
+      };
 
       this.stageAnimId = requestAnimationFrame(animate);
-    };
 
-    this.stageAnimId = requestAnimationFrame(animate);
+      this.canvasCleanupFn = () => {
+        window.removeEventListener('resize', resize);
+        window.removeEventListener('scroll', onScroll);
+        window.removeEventListener('mousemove', onMouseMove);
+      };
+    });
   }
 
   private initScrollReveal(): void {
