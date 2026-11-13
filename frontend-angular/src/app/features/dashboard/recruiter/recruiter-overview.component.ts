@@ -377,13 +377,16 @@ import { CompanyBadgeComponent } from '../../../shared/components/company-badge/
     }
 
     .btn-outline-white {
-      background: rgba(255, 255, 255, 0.08);
+      background: rgba(255, 255, 255, 0.12);
       color: #f8fafc;
-      border: 1px solid rgba(255, 255, 255, 0.2);
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      font-weight: 600;
     }
 
     .btn-outline-white:hover {
-      background: rgba(255, 255, 255, 0.15);
+      background: rgba(255, 255, 255, 0.22);
+      border-color: rgba(255, 255, 255, 0.4);
+      color: #ffffff;
     }
 
     .btn-primary-glass {
@@ -679,6 +682,30 @@ import { CompanyBadgeComponent } from '../../../shared/components/company-badge/
     }
     :host-context(body.light-theme) .tagline {
       color: #475569;
+    }
+    :host-context(body.light-theme) .meta-item {
+      color: #475569;
+    }
+    :host-context(body.light-theme) .btn-outline-white {
+      background: #ffffff !important;
+      color: #0f172a !important;
+      border: 1.5px solid #cbd5e1 !important;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05) !important;
+      font-weight: 600;
+    }
+    :host-context(body.light-theme) .btn-outline-white:hover {
+      background: #f8fafc !important;
+      border-color: #10b981 !important;
+      color: #059669 !important;
+      box-shadow: 0 4px 12px rgba(16, 185, 129, 0.15) !important;
+    }
+    :host-context(body.light-theme) .btn-outline-white .btn-svg {
+      color: #0f172a !important;
+      stroke: currentColor !important;
+    }
+    :host-context(body.light-theme) .btn-outline-white:hover .btn-svg {
+      color: #059669 !important;
+      stroke: currentColor !important;
     }
     :host-context(body.light-theme) .metric-label,
     :host-context(body.light-theme) .metric-sub,
