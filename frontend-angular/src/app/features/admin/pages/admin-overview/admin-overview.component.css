@@ -899,11 +899,12 @@
 
 .donut-chart-container {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  justify-content: space-around;
-  gap: 1.5rem;
-  margin-top: 1rem;
-  flex-wrap: wrap;
+  justify-content: center;
+  gap: 1.25rem;
+  margin-top: 0.75rem;
+  width: 100%;
 }
 
 .donut-svg-wrap {
@@ -911,6 +912,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  margin: 0.25rem auto;
 }
 
 .donut-svg {
@@ -954,27 +956,34 @@
 }
 
 .donut-legend-list {
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
   gap: 0.65rem;
-  flex: 1;
-  min-width: 200px;
+  width: 100%;
 }
 
 .donut-legend-item {
   display: flex;
   align-items: center;
-  gap: 0.65rem;
-  padding: 0.35rem 0.65rem;
+  gap: 0.55rem;
+  padding: 0.5rem 0.65rem;
   border-radius: 8px;
-  background: rgba(255, 255, 255, 0.02);
-  border: 1px solid rgba(255, 255, 255, 0.04);
+  background: rgba(255, 255, 255, 0.025);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  min-width: 0;
+  transition: all 0.2s ease;
+}
+
+.donut-legend-item:hover {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.12);
+  transform: translateY(-1px);
 }
 
 .legend-dot {
-  width: 10px;
-  height: 10px;
-  border-radius: 3px;
+  width: 9px;
+  height: 9px;
+  border-radius: 2.5px;
   flex-shrink: 0;
 }
 
@@ -983,25 +992,48 @@
   align-items: center;
   justify-content: space-between;
   width: 100%;
-  font-size: 0.82rem;
+  gap: 0.35rem;
+  min-width: 0;
 }
 
 .legend-name {
   color: var(--text-heading, #F8FAFC);
   font-weight: 600;
+  font-size: 0.78rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.legend-numbers {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  flex-shrink: 0;
 }
 
 .legend-count {
   color: #F8FAFC;
   font-weight: 800;
+  font-size: 0.82rem;
 }
 
 .legend-pct {
   color: var(--text-muted, #94A3B8);
-  font-size: 0.75rem;
+  font-size: 0.72rem;
   font-weight: 600;
-  min-width: 42px;
-  text-align: right;
+}
+
+@media (max-width: 768px) {
+  .donut-legend-list {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 480px) {
+  .donut-legend-list {
+    grid-template-columns: 1fr;
+  }
 }
 
 .bg-cyan-subtle {

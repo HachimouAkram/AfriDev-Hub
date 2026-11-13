@@ -362,14 +362,16 @@
           </div>
         </div>
 
-        <!-- Légende Analytique Spacieuse avec Callouts -->
+        <!-- Légende Analytique en Bas : Grille 3 par ligne (2 lignes de 3) -->
         <div class="donut-legend-list">
           <div class="donut-legend-item" *ngFor="let seg of donutSegments">
             <div class="legend-dot" [style.background-color]="seg.color"></div>
             <div class="legend-text-row">
-              <span class="legend-name">{{ seg.name }}</span>
-              <strong class="legend-count">{{ seg.count }}</strong>
-              <span class="legend-pct">{{ seg.percentage }}%</span>
+              <span class="legend-name" [title]="seg.name">{{ seg.name }}</span>
+              <div class="legend-numbers">
+                <strong class="legend-count">{{ seg.count }}</strong>
+                <span class="legend-pct">{{ seg.percentage }}%</span>
+              </div>
             </div>
           </div>
         </div>
