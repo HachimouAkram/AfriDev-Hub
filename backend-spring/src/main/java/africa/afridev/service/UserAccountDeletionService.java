@@ -214,7 +214,7 @@ public class UserAccountDeletionService {
                 .setParameter("uId", userId).executeUpdate();
         entityManager.createQuery("UPDATE HelpPostEntity hp SET hp.resolvedBy = null WHERE hp.resolvedBy.id = :uId")
                 .setParameter("uId", userId).executeUpdate();
-        entityManager.createQuery("DELETE FROM HelpCommentEntity hc WHERE hc.post.id IN (SELECT p.id FROM HelpPostEntity p WHERE p.author.id = :uId)")
+        entityManager.createQuery("DELETE FROM HelpCommentEntity hc WHERE hc.helpPost.id IN (SELECT p.id FROM HelpPostEntity p WHERE p.author.id = :uId)")
                 .setParameter("uId", userId).executeUpdate();
         entityManager.createQuery("DELETE FROM HelpPostEntity hp WHERE hp.author.id = :uId")
                 .setParameter("uId", userId).executeUpdate();
