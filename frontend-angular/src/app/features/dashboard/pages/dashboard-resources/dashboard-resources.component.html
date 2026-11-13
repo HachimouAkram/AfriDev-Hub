@@ -209,70 +209,116 @@
 
   <!-- ==================== MODAL DE CRÉATION / MODIFICATION ==================== -->
   <div class="modal-overlay" *ngIf="showModal" (click)="closeModal()">
-    <div class="app-card modal-card modal-card-wide animate-pop" (click)="$event.stopPropagation()">
+    <div class="publish-modal-card animate-pop" (click)="$event.stopPropagation()">
       <div class="modal-header">
         <div class="header-titles">
           <h3>{{ isEditMode ? 'Modifier la Formation' : 'Publier une Vidéo ou Formation' }}</h3>
-          <p class="text-xs text-muted">
-            Partagez votre savoir gratuitement ou vendez votre contenu aux développeurs via SasPay.
+          <p class="subtitle">
+            Partagez votre savoir gratuitement ou vendez votre formation via SasPay
           </p>
         </div>
-        <button (click)="closeModal()" class="close-btn">&times;</button>
+        <button type="button" class="btn-close" (click)="closeModal()" aria-label="Fermer">✕</button>
       </div>
 
       <div class="modal-body">
         <!-- Error box -->
-        <div *ngIf="formError()" class="error-box">
-          <i class="ri-error-warning-line"></i> {{ formError() }}
+        <div *ngIf="formError()" class="publish-alert-error">
+          {{ formError() }}
         </div>
 
-        <div class="form-grid-2">
-          <!-- Titre -->
-          <div class="form-group col-span-full">
+        <!-- Row 1: Titre & Type de contenu -->
+        <div class="publish-grid-2">
+          <div class="form-group">
             <label class="form-label">Titre de la vidéo / formation *</label>
             <input 
               type="text" 
               [(ngModel)]="form.title" 
-              placeholder="Ex: Maîtriser Spring Boot & SasPay de zéro à la production" 
+              maxlength="160"
+              placeholder="Ex: Maîtriser Spring Boot & SasPay en pratique" 
               class="form-input">
           </div>
 
-          <!-- Type de contenu -->
           <div class="form-group">
             <label class="form-label">Type de contenu *</label>
             <select [(ngModel)]="form.type" class="form-input">
-              <option value="COURSE">🎓 Formation complète</option>
-              <option value="VIDEO">🎥 Vidéo pratique</option>
-              <option value="TUTORIAL">🛠️ Tutoriel pas à pas</option>
-              <option value="ARTICLE">📝 Article technique</option>
-              <option value="TECH_CHEATSHEET">📋 Antisèche / Cheat Sheet</option>
+              <option value="VIDEO">🎥 Vidéo</option>
+              <option value="COURSE">🎓 Formation Complète</option>
+              <option value="TUTORIAL">🛠️ Tutoriel Pratique</option>
+              <option value="ARTICLE">📝 Article Technique</option>
+              <option value="TECH_CHEATSHEET">📋 Antisèche / Guide</option>
             </select>
           </div>
+        </div>
 
-          <!-- Niveau -->
+        <!-- Row 2: Description détaillée -->
+        <div class="form-group">
+          <label class="form-label">Description détaillée *</label>
+          <textarea 
+            [(ngModel)]="form.description" 
+            rows="3" 
+            placeholder="Expliquez ce que les développeurs vont apprendre, les prérequis et le résultat concret..." 
+            class="form-input form-textarea"></textarea>
+        </div>
+
+        <!-- Row 3: Technologies abordées (Saisie libre & multi-technologies) -->
+        <div class="form-group">
+          <label class="form-label">Technologies abordées * (Saisie libre & multi-technologies)</label>
+          <div class="tech-tags-wrapper">
+            <div class="tech-chips-list" *ngIf="techTags().length > 0">
+              <span class="tech-chip" *ngFor="let tag of techTags()">
+                {{ tag }}
+                <button type="button" class="tech-chip-remove" (click)="removeTechTag(tag)" aria-label="Supprimer">×</button>
+              </span>
+            </div>
+            <div class="tech-input-row">
+              <input 
+                type="text" 
+                [(ngModel)]="techInput" 
+                (keydown.enter)="$event.preventDefault(); addTechTag()"
+                (keydown.comma)="$event.preventDefault(); addTechTag()"
+                placeholder="Tapez une technologie (ex: Angular, Spring Boot, Docker...) et validez" 
+                class="form-input tech-input-field">
+              <button type="button" class="btn btn-outline btn-sm" (click)="addTechTag()">+ Ajouter</button>
+            </div>
+          </div>
+
+          <!-- Suggestions rapides -->
+          <div class="tech-suggestions">
+            <span class="suggestion-label">Suggestions rapides :</span>
+            <button 
+              type="button" 
+              *ngFor="let sug of availableTechSuggestions" 
+              class="tech-sug-pill"
+              [class.active]="techTags().includes(sug)"
+              (click)="toggleSuggestedTech(sug)">
+              {{ techTags().includes(sug) ? '✓ ' + sug : '+ ' + sug }}
+            </button>
+          </div>
+        </div>
+
+        <!-- Row 4: Niveau, Langue & Durée -->
+        <div class="publish-grid-3">
           <div class="form-group">
-            <label class="form-label">Niveau cible *</label>
+            <label class="form-label">Niveau requis *</label>
             <select [(ngModel)]="form.level" class="form-input">
               <option value="BEGINNER">Débutant</option>
               <option value="INTERMEDIATE">Intermédiaire</option>
-              <option value="ADVANCED">Avancé / Expert</option>
+              <option value="ADVANCED">Avancé</option>
             </select>
           </div>
 
-          <!-- Langue -->
           <div class="form-group">
-            <label class="form-label">Langue d'enseignement *</label>
+            <label class="form-label">Langue *</label>
             <select [(ngModel)]="form.language" class="form-input">
-              <option value="fr">FR Français</option>
-              <option value="en">EN Anglais</option>
-              <option value="wo">WO Wolof</option>
-              <option value="sw">SW Swahili</option>
+              <option value="fr">🇫🇷 Français</option>
+              <option value="en">🇬🇧 English</option>
+              <option value="wo">🇸🇳 Wolof</option>
+              <option value="sw">🇹🇿 Kiswahili</option>
             </select>
           </div>
 
-          <!-- Durée estimée -->
           <div class="form-group">
-            <label class="form-label">Durée estimée (minutes)</label>
+            <label class="form-label">Durée (minutes)</label>
             <input 
               type="number" 
               [(ngModel)]="form.durationMinutes" 
@@ -283,146 +329,123 @@
           </div>
         </div>
 
-        <!-- Technologies multi-tags -->
-        <div class="form-group mt-3">
-          <label class="form-label">Technologies abordées *</label>
-          <div class="chips-input-container">
-            <span *ngFor="let tag of techTags()" class="tech-chip">
-              #{{ tag }}
-              <button type="button" (click)="removeTechTag(tag)" class="btn-remove-chip">&times;</button>
-            </span>
-            <input 
-              type="text" 
-              [(ngModel)]="techInput" 
-              (keydown.enter)="$event.preventDefault(); addTechTag()"
-              (keydown.comma)="$event.preventDefault(); addTechTag()"
-              placeholder="Ex: Angular, Spring Boot, Docker (Entrée ou virgule pour ajouter)..." 
-              class="chip-inline-input">
-          </div>
-
-          <!-- Suggestions rapides -->
-          <div class="quick-chips-row">
-            <span class="quick-label">Suggestions :</span>
-            <button 
-              *ngFor="let s of quickSuggestions" 
-              type="button" 
-              (click)="addTechTag(s)" 
-              class="btn-quick-chip">
-              + {{ s }}
-            </button>
-          </div>
-        </div>
-
-        <!-- Source Vidéo -->
-        <div class="form-group mt-4">
-          <label class="form-label">Source Vidéo</label>
-          
-          <div class="toggle-pills-row">
-            <button 
-              type="button" 
-              (click)="videoSourceMode.set('URL')" 
-              class="toggle-pill" 
-              [class.active]="videoSourceMode() === 'URL'">
-              <i class="ri-youtube-line"></i> Lien YouTube / Vidéo externe
-            </button>
+        <!-- Row 5: Source Vidéo -->
+        <div class="form-group">
+          <label class="form-label">Source Vidéo (MP4/WebM/MOV jusqu'à 50 Mo ou lien YouTube / Vimeo)</label>
+          <div class="mode-switch-row">
             <button 
               type="button" 
               (click)="videoSourceMode.set('UPLOAD')" 
-              class="toggle-pill" 
+              class="mode-pill" 
               [class.active]="videoSourceMode() === 'UPLOAD'">
-              <i class="ri-upload-cloud-line"></i> Téléverser un fichier MP4 / WebM
+              📁 Importer une vidéo
+            </button>
+            <button 
+              type="button" 
+              (click)="videoSourceMode.set('URL')" 
+              class="mode-pill" 
+              [class.active]="videoSourceMode() === 'URL'">
+              🔗 Lien YouTube / URL Vidéo
             </button>
           </div>
 
-          <div *ngIf="videoSourceMode() === 'URL'" class="mt-2">
+          <div *ngIf="videoSourceMode() === 'UPLOAD'" class="upload-dropzone">
             <input 
-              type="text" 
-              [(ngModel)]="form.youtubeUrl" 
-              placeholder="Ex: https://www.youtube.com/watch?v=..." 
-              class="form-input">
-          </div>
-
-          <div *ngIf="videoSourceMode() === 'UPLOAD'" class="mt-2">
-            <label class="upload-dropzone" [class.uploading]="isUploadingVideo()">
-              <input type="file" accept="video/mp4,video/webm,video/quicktime" (change)="onVideoFileSelected($event)" style="display: none;">
-              <svg class="icon-svg icon-svg-md" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
-              </svg>
-              <span *ngIf="!isUploadingVideo() && !uploadedVideoFileName()">Cliquez pour choisir un fichier vidéo (.mp4, .webm - max 50 Mo)</span>
-              <span *ngIf="isUploadingVideo()">Téléversement en cours...</span>
-              <span *ngIf="!isUploadingVideo() && uploadedVideoFileName()" class="text-emerald font-semibold">
-                ✓ Vidéo chargée : {{ uploadedVideoFileName() }}
-              </span>
+              type="file" 
+              accept="video/mp4,video/webm,video/quicktime,.mp4,.webm,.mov,.m4v" 
+              (change)="onVideoFileSelected($event)" 
+              id="dashResourceVideoFile" 
+              class="hidden-file-input">
+            <label for="dashResourceVideoFile" class="upload-dropzone-label">
+              <span *ngIf="!isUploadingVideo() && !uploadedVideoFileName()">Cliquez pour choisir une vidéo (.mp4, .webm, .mov · max 50 Mo)</span>
+              <span *ngIf="isUploadingVideo()">Envoi de la vidéo en cours... {{ videoUploadProgress() }}%</span>
+              <span *ngIf="!isUploadingVideo() && uploadedVideoFileName()" class="upload-ok">✓ {{ uploadedVideoFileName() }} prête</span>
             </label>
-          </div>
-        </div>
-
-        <!-- Miniature & PDF Document -->
-        <div class="form-grid-2 mt-4">
-          <div class="form-group">
-            <label class="form-label">Image de couverture / Miniature</label>
-            <label class="file-pick-btn" [class.uploading]="isUploadingThumb()">
-              <input type="file" accept="image/*" (change)="onThumbFileSelected($event)" style="display: none;">
-              <svg class="icon-svg icon-svg-xs" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
-              </svg>
-              <span *ngIf="!uploadedThumbFileName()">Choisir une image</span>
-              <span *ngIf="uploadedThumbFileName()" class="text-emerald">✓ {{ uploadedThumbFileName() }}</span>
-            </label>
-          </div>
-
-          <div class="form-group">
-            <label class="form-label">Support PDF associé (Optionnel)</label>
-            <label class="file-pick-btn" [class.uploading]="isUploadingPdf()">
-              <input type="file" accept="application/pdf" (change)="onPdfFileSelected($event)" style="display: none;">
-              <svg class="icon-svg icon-svg-xs" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
-              </svg>
-              <span *ngIf="!uploadedPdfFileName()">Joindre un PDF</span>
-              <span *ngIf="uploadedPdfFileName()" class="text-emerald">✓ {{ uploadedPdfFileName() }}</span>
-            </label>
-          </div>
-        </div>
-
-        <!-- Tarification / Monétisation SasPay -->
-        <div class="pricing-box mt-4">
-          <label class="custom-checkbox-label">
-            <input type="checkbox" [(ngModel)]="form.isPaid">
-            <span><strong>Vendre cette formation</strong> (Monétisation via SasPay - Wave, Orange Money, M-Pesa, MTN)</span>
-          </label>
-
-          <div *ngIf="form.isPaid" class="pricing-inputs-row mt-3">
-            <div class="form-group">
-              <label class="form-label">Tarif d'accès *</label>
-              <div class="currency-input-wrap">
-                <input 
-                  type="number" 
-                  [(ngModel)]="form.price" 
-                  min="500" 
-                  step="500" 
-                  placeholder="Ex: 5000" 
-                  class="form-input">
-                <span class="currency-tag">XOF</span>
-              </div>
-              <small class="field-hint">Le produit de vos ventes vous sera versé directement par SasPay.</small>
+            <div class="upload-progress-track" *ngIf="isUploadingVideo()">
+              <div class="upload-progress-fill" [style.width.%]="videoUploadProgress()"></div>
             </div>
           </div>
+
+          <div *ngIf="videoSourceMode() === 'URL'">
+            <input 
+              type="url" 
+              [(ngModel)]="form.youtubeUrl" 
+              placeholder="https://www.youtube.com/watch?v=... ou https://.../video.mp4" 
+              class="form-input">
+          </div>
         </div>
 
-        <!-- Description -->
-        <div class="form-group mt-4">
-          <label class="form-label">Description détaillée *</label>
-          <textarea 
-            [(ngModel)]="form.description" 
-            rows="4" 
-            placeholder="Expliquez ce que les développeurs vont apprendre, les prérequis et le résultat concret..." 
-            class="form-textarea"></textarea>
+        <!-- Row 6: Miniature & Support PDF -->
+        <div class="publish-grid-2">
+          <div class="form-group">
+            <label class="form-label">Miniature / Image de couverture (optionnel)</label>
+            <label class="upload-mini-btn">
+              <input type="file" accept="image/*" (change)="onThumbFileSelected($event)" class="hidden-file-input">
+              <span *ngIf="isUploadingThumb()">Upload miniature...</span>
+              <span *ngIf="!isUploadingThumb() && uploadedThumbFileName()">✓ {{ uploadedThumbFileName() }}</span>
+              <span *ngIf="!isUploadingThumb() && !uploadedThumbFileName()">🖼️ Choisir une image</span>
+            </label>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Support PDF associé (optionnel)</label>
+            <label class="upload-mini-btn">
+              <input type="file" accept="application/pdf,.pdf" (change)="onPdfFileSelected($event)" class="hidden-file-input">
+              <span *ngIf="isUploadingPdf()">Upload PDF...</span>
+              <span *ngIf="!isUploadingPdf() && uploadedPdfFileName()">✓ {{ uploadedPdfFileName() }}</span>
+              <span *ngIf="!isUploadingPdf() && !uploadedPdfFileName()">📄 Joindre un PDF</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Row 7: Tarification & Monétisation SasPay -->
+        <div class="form-group">
+          <label class="form-label">Tarification & Monétisation</label>
+          <div class="pricing-toggle-grid">
+            <button 
+              type="button" 
+              class="pricing-choice" 
+              [class.active]="!form.isPaid" 
+              (click)="form.isPaid = false; form.price = 0">
+              <span class="choice-title">🎁 Ressource Gratuite</span>
+              <span class="choice-desc">Accès libre pour toute la communauté</span>
+            </button>
+            <button 
+              type="button" 
+              class="pricing-choice" 
+              [class.active]="form.isPaid" 
+              (click)="form.isPaid = true; form.price = form.price || 5000">
+              <span class="choice-title">💳 Formation Payante · SasPay</span>
+              <span class="choice-desc">Encaissement Wave, Orange Money & Carte</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Prix et calcul si Payante -->
+        <div class="publish-grid-2" *ngIf="form.isPaid">
+          <div class="form-group">
+            <label class="form-label">Votre prix net créateur (XOF) *</label>
+            <input 
+              type="number" 
+              [(ngModel)]="form.price" 
+              min="500" 
+              step="500" 
+              placeholder="Ex: 5000"
+              class="form-input">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Prix affiché à l'acheteur (+7% frais)</label>
+            <div class="saspay-net-preview">
+              <span>{{ calcTotalBuyerPrice(form.price) }} {{ form.currency || 'XOF' }} via SasPay</span>
+              <small>Vous recevez {{ form.price || 0 }} {{ form.currency || 'XOF' }}</small>
+            </div>
+          </div>
         </div>
       </div>
 
       <div class="modal-footer">
-        <button (click)="closeModal()" class="btn btn-outline" [disabled]="isSubmitting()">Annuler</button>
-        <button (click)="submitForm()" [disabled]="isSubmitting()" class="btn btn-emerald">
+        <button type="button" (click)="closeModal()" class="btn btn-outline" [disabled]="isSubmitting()">Annuler</button>
+        <button type="button" (click)="submitForm()" [disabled]="isSubmitting() || isUploadingVideo()" class="btn btn-emerald">
           <span *ngIf="!isSubmitting()">{{ isEditMode ? 'Enregistrer les modifications' : 'Publier la formation' }}</span>
           <span *ngIf="isSubmitting()">Enregistrement en cours...</span>
         </button>
@@ -435,7 +458,7 @@
     <div class="app-card modal-card delete-card animate-pop" (click)="$event.stopPropagation()">
       <div class="modal-header">
         <h3 class="danger-title">Supprimer la formation ?</h3>
-        <button (click)="closeDeleteModal()" class="close-btn">&times;</button>
+        <button type="button" (click)="closeDeleteModal()" class="btn-close" aria-label="Fermer">✕</button>
       </div>
 
       <div class="modal-body">
@@ -448,8 +471,8 @@
       </div>
 
       <div class="modal-footer">
-        <button (click)="closeDeleteModal()" class="btn btn-outline" [disabled]="isDeleting()">Annuler</button>
-        <button (click)="confirmDelete()" [disabled]="isDeleting()" class="btn btn-danger">
+        <button type="button" (click)="closeDeleteModal()" class="btn btn-outline" [disabled]="isDeleting()">Annuler</button>
+        <button type="button" (click)="confirmDelete()" [disabled]="isDeleting()" class="btn btn-danger">
           <span *ngIf="!isDeleting()">Supprimer définitivement</span>
           <span *ngIf="isDeleting()">Suppression...</span>
         </button>
@@ -462,7 +485,7 @@
     <div class="video-preview-modal-content animate-pop" (click)="$event.stopPropagation()">
       <div class="video-preview-header">
         <h4>{{ activeVideoResource.title }}</h4>
-        <button (click)="closeVideoPreview()" class="close-btn">&times;</button>
+        <button type="button" (click)="closeVideoPreview()" class="btn-close" aria-label="Fermer">✕</button>
       </div>
       <div class="video-player-wrap">
         <iframe 

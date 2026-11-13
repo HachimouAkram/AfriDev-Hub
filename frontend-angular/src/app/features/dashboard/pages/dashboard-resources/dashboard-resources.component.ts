@@ -77,7 +77,21 @@ export class DashboardResourcesComponent implements OnInit {
   // Technology tags management
   techInput = '';
   techTags = signal<string[]>([]);
-  quickSuggestions = ['React', 'Angular', 'Vue.js', 'Spring Boot', 'Node.js', 'Python', 'Docker', 'AWS', 'PostgreSQL', 'Flutter'];
+  readonly availableTechSuggestions = [
+    'Node.js',
+    'Angular',
+    'Spring Boot',
+    'Python',
+    'React',
+    'TypeScript',
+    'Docker',
+    'Flutter',
+    'Java',
+    'PostgreSQL',
+    'IA & LLM',
+    'DevOps'
+  ];
+  quickSuggestions = this.availableTechSuggestions;
 
   form: ResourceFormModel = this.getEmptyForm();
 
@@ -206,6 +220,19 @@ export class DashboardResourcesComponent implements OnInit {
 
   removeTechTag(tagToRemove: string): void {
     this.techTags.set(this.techTags().filter(t => t !== tagToRemove));
+  }
+
+  toggleSuggestedTech(sug: string): void {
+    const current = this.techTags();
+    if (current.includes(sug)) {
+      this.removeTechTag(sug);
+    } else {
+      this.addTechTag(sug);
+    }
+  }
+
+  calcTotalBuyerPrice(netPrice: number): number {
+    return Math.round((Number(netPrice) || 0) * 1.07);
   }
 
   // --- Uploads ---
