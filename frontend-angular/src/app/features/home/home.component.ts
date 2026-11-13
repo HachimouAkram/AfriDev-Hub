@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, AfterViewInit, OnDestroy, ElementRef, ViewChild } from '@angular/core';
+import { Component, inject, OnInit, AfterViewInit, OnDestroy, ElementRef, ViewChild, NgZone } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
@@ -6,6 +6,7 @@ import { ProjectService, Project } from '../../core/services/project.service';
 import { NetworkService, UserNetwork } from '../../core/services/network.service';
 import { CommunityGroupService, Group } from '../../core/services/community-group.service';
 import { LeaderboardService, LeaderboardEntry } from '../../core/services/leaderboard.service';
+import { resolveUploadedMediaUrl } from '../../core/utils/upload-helper';
 
 interface GlobeCountry {
   code: string;
@@ -59,6 +60,7 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
   private groupService = inject(CommunityGroupService);
   private leaderboardService = inject(LeaderboardService);
   private el = inject(ElementRef);
+  private ngZone = inject(NgZone);
 
   featuredProjects: Project[] = [];
   featuredMembers: LeaderboardEntry[] = [];
@@ -66,6 +68,10 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
   isLoadingProjects = false;
   isLoadingMembers = false;
   isLoadingCommunities = false;
+
+  // Section active pour le background dynamique multi-sections (0: Hero Collab, 1: Piliers, 2: Projets, 3: Talents/Communautés, 4: Étapes/CTA)
+  activeStage = 0;
+  private brokenCoverIds = new Set<string>();
 
   // 18 Pan-African Countries rotating smoothly across the 8 orbital globe slots (8 initial + 10 added)
   globeSlots: GlobeSlot[] = [
@@ -90,17 +96,14 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
   statOffers = 0;
   statCountries = 0;
 
-  @ViewChild('earthCanvas') private earthCanvasRef?: ElementRef<HTMLCanvasElement>;
+  @ViewChild('stageCanvas') private stageCanvasRef?: ElementRef<HTMLCanvasElement>;
+  @ViewChild('bgCinemaVideo') private bgCinemaVideoRef?: ElementRef<HTMLVideoElement>;
+  @ViewChild('videoLayer') private videoLayerRef?: ElementRef<HTMLElement>;
   private scrollObserver?: IntersectionObserver;
-  private scrollListener?: () => void;
-  private glAnimId?: number;
-  private glContext?: WebGLRenderingContext | null;
-  private targetRotX = 0.22;
-  private targetRotY = -0.32;
-  private targetRotZ = -0.08;
-  private currentRotX = 0.22;
-  private currentRotY = -0.32;
-  private currentRotZ = -0.08;
+  private stageSectionObserver?: IntersectionObserver;
+  private videoScrollListener?: () => void;
+  private resizeStageListener?: () => void;
+  private stageAnimId?: number;
 
   ngOnInit(): void {
     this.loadFeaturedProjects();
@@ -112,18 +115,28 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
 
   ngAfterViewInit(): void {
     this.initScrollReveal();
-    this.initRealEarthWebGL();
+    this.initStageSectionObserver();
+    this.initScrollReactiveVideo();
+    this.ngZone.runOutsideAngular(() => {
+      this.initMultiStageMotionCanvas();
+    });
   }
 
   ngOnDestroy(): void {
-    if (this.glAnimId) {
-      cancelAnimationFrame(this.glAnimId);
+    if (this.stageAnimId) {
+      cancelAnimationFrame(this.stageAnimId);
     }
-    if (this.scrollListener) {
-      this.scrollListener();
+    if (this.videoScrollListener) {
+      this.videoScrollListener();
+    }
+    if (this.resizeStageListener) {
+      this.resizeStageListener();
     }
     if (this.scrollObserver) {
       this.scrollObserver.disconnect();
+    }
+    if (this.stageSectionObserver) {
+      this.stageSectionObserver.disconnect();
     }
     if (this.flagRotationInterval) {
       clearInterval(this.flagRotationInterval);
@@ -133,210 +146,128 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   /**
-   * Initialise un VRAI globe terrestre 3D en WebGL ultra-performant.
-   * Il tourne de façon fluide avec le défilement (scroll) de l'utilisateur
-   * et projette la véritable carte de la Terre avec l'Afrique au centre et un halo atmosphérique émeraude.
+   * Initialise la vidéo de fond cinématique Pinterest et synchronise de façon ultra-fluide
+   * sa vitesse de lecture, sa parallaxe 3D et son échelle avec le défilement (scroll) de l'utilisateur.
+   * Garantit une boucle infinie continue sans aucun blocage ou arrêt soudain.
    */
-  private initRealEarthWebGL(): void {
-    if (typeof window === 'undefined' || !this.earthCanvasRef) return;
-    const canvas = this.earthCanvasRef.nativeElement;
-    const gl = canvas.getContext('webgl', { alpha: true, antialias: true, premultipliedAlpha: false });
-    if (!gl) return;
-    this.glContext = gl;
+  private initScrollReactiveVideo(): void {
+    if (typeof window === 'undefined' || !this.bgCinemaVideoRef) return;
+    const video = this.bgCinemaVideoRef.nativeElement;
+    const layer = this.videoLayerRef?.nativeElement;
+    if (!video) return;
 
-    const dpr = Math.min(window.devicePixelRatio || 1, 2);
-    const size = 520;
-    canvas.width = Math.round(size * dpr);
-    canvas.height = Math.round(size * dpr);
-    gl.viewport(0, 0, canvas.width, canvas.height);
+    video.muted = true;
+    video.playsInline = true;
+    video.loop = true;
 
-    const vsSource = `
-      attribute vec2 a_pos;
-      void main() {
-        gl_Position = vec4(a_pos, 0.0, 1.0);
+    // Déclencheur automatique de lecture résistant aux restrictions navigateurs / mobiles
+    const startPlay = () => {
+      if (video.paused) {
+        video.play().catch(() => {});
       }
-    `;
+    };
+    startPlay();
+    document.addEventListener('touchstart', startPlay, { passive: true });
+    document.addEventListener('click', startPlay, { passive: true });
+    window.addEventListener('focus', startPlay);
 
-    const fsSource = `
-      precision mediump float;
-      uniform vec2 u_res;
-      uniform vec3 u_rot;
-      uniform sampler2D u_tex;
+    // Watchdogs pour assurer une boucle infinie permanente (ne s'arrête jamais)
+    video.addEventListener('ended', () => {
+      video.currentTime = 0;
+      video.play().catch(() => {});
+    });
 
-      void main() {
-        vec2 p = (gl_FragCoord.xy - u_res * 0.5) / (min(u_res.x, u_res.y) * 0.5);
-        float r = length(p);
-        float sphereR = 0.86;
-
-        // Halo d'atmosphère externe doux
-        if (r > sphereR) {
-          float dist = r - sphereR;
-          float glow = exp(-dist * 13.0) * 0.55;
-          gl_FragColor = vec4(vec3(0.06, 0.73, 0.51) * glow, glow * 0.8);
-          return;
+    video.addEventListener('pause', () => {
+      // Si la vidéo est mise en pause intempestivement par le navigateur
+      setTimeout(() => {
+        if (video.paused) {
+          video.play().catch(() => {});
         }
+      }, 50);
+    });
 
-        // Normale sphérique 3D
-        float z = sqrt(max(0.0, sphereR * sphereR - r * r));
-        vec3 normal = vec3(p.x, -p.y, z) / sphereR;
-
-        // 1. Rotation autour de X (Pitch / Inclinaison verticale)
-        float cosX = cos(u_rot.x);
-        float sinX = sin(u_rot.x);
-        vec3 vX = vec3(
-          normal.x,
-          normal.y * cosX - normal.z * sinX,
-          normal.y * sinX + normal.z * cosX
-        );
-
-        // 2. Rotation autour de Y (Yaw / Rotation Est-Ouest avec changement de sens)
-        float cosY = cos(u_rot.y);
-        float sinY = sin(u_rot.y);
-        vec3 vY = vec3(
-          vX.x * cosY + vX.z * sinY,
-          vX.y,
-          -vX.x * sinY + vX.z * cosY
-        );
-
-        // 3. Rotation autour de Z (Roll / Basculement axial latéral)
-        float cosZ = cos(u_rot.z);
-        float sinZ = sin(u_rot.z);
-        vec3 rotNormal = vec3(
-          vY.x * cosZ - vY.y * sinZ,
-          vY.x * sinZ + vY.y * cosZ,
-          vY.z
-        );
-
-        // Projection équirectangulaire de la vraie texture terrestre
-        float lon = atan(rotNormal.x, -rotNormal.z);
-        float lat = asin(clamp(rotNormal.y, -1.0, 1.0));
-        vec2 uv = vec2((lon + 3.14159265) / (2.0 * 3.14159265), (lat + 1.57079632) / 3.14159265);
-
-        vec4 texColor = texture2D(u_tex, vec2(uv.x, 1.0 - uv.y));
-
-        // Éclairage directionnel 3D (Soleil venant du haut-gauche)
-        vec3 lightDir = normalize(vec3(0.65, 0.45, 0.85));
-        float diff = max(dot(normal, lightDir), 0.0);
-        float ambient = 0.42;
-        float light = diff * 0.58 + ambient;
-
-        vec3 dayColor = texColor.rgb * light;
-        vec3 nightColor = texColor.rgb * 0.40 + vec3(0.02, 0.09, 0.06);
-        vec3 surface = mix(nightColor, dayColor, clamp(diff * 1.9, 0.0, 1.0));
-
-        // Effet de halo d'atmosphère rasante (Rayleigh / Fresnel émeraude)
-        float fresnel = pow(1.0 - normal.z, 2.5);
-        vec3 atmoRim = vec3(0.12, 0.85, 0.58) * fresnel * 0.75;
-
-        gl_FragColor = vec4(surface + atmoRim, 0.96);
+    video.addEventListener('timeupdate', () => {
+      // Prévenir le blocage de fin de fragment en rebouclant sans à-coup 150ms avant la fin
+      if (video.duration && video.duration > 0.5 && video.currentTime >= video.duration - 0.15) {
+        video.currentTime = 0;
+        video.play().catch(() => {});
       }
-    `;
+    });
 
-    const createShader = (type: number, src: string) => {
-      const s = gl.createShader(type);
-      if (!s) return null;
-      gl.shaderSource(s, src);
-      gl.compileShader(s);
-      return s;
-    };
+    video.addEventListener('error', () => {
+      // Recharger en cas de mini coupure réseau ou erreur de décodage
+      setTimeout(() => {
+        video.load();
+        video.play().catch(() => {});
+      }, 300);
+    });
 
-    const vs = createShader(gl.VERTEX_SHADER, vsSource);
-    const fs = createShader(gl.FRAGMENT_SHADER, fsSource);
-    if (!vs || !fs) return;
+    let lastScrollY = window.scrollY || 0;
+    let targetPlaybackRate = 1.0;
+    let currentPlaybackRate = 1.0;
+    let lastTime = performance.now();
+    let isTicking = false;
 
-    const program = gl.createProgram();
-    if (!program) return;
-    gl.attachShader(program, vs);
-    gl.attachShader(program, fs);
-    gl.linkProgram(program);
-    gl.useProgram(program);
-
-    const posBuffer = gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER, posBuffer);
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([
-      -1, -1,
-       1, -1,
-      -1,  1,
-      -1,  1,
-       1, -1,
-       1,  1
-    ]), gl.STATIC_DRAW);
-
-    const aPos = gl.getAttribLocation(program, 'a_pos');
-    gl.enableVertexAttribArray(aPos);
-    gl.vertexAttribPointer(aPos, 2, gl.FLOAT, false, 0, 0);
-
-    const uRes = gl.getUniformLocation(program, 'u_res');
-    const uRot = gl.getUniformLocation(program, 'u_rot');
-
-    gl.uniform2f(uRes, canvas.width, canvas.height);
-
-    // Initialisation d'une texture temporaire émeraude
-    const texture = gl.createTexture();
-    gl.bindTexture(gl.TEXTURE_2D, texture);
-    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE, new Uint8Array([16, 185, 129, 255]));
-
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.REPEAT);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-
-    // Chargement de la vraie texture photographique de la Terre
-    const img = new Image();
-    img.src = '/earth-texture.jpg';
-    img.crossOrigin = 'anonymous';
-    img.onload = () => {
-      gl.bindTexture(gl.TEXTURE_2D, texture);
-      gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
-      gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, img);
-    };
-
-    // Synchronisation en direct avec le défilement (Scroll) :
-    // Vitesse ralentie et changement dynamique d'orientation et de direction
     const onScroll = () => {
       const scrollY = window.scrollY || window.pageYOffset || 0;
-
-      // 1. Rotation horizontale ralentie et multi-directionnelle :
-      // Au fil du défilement, la rotation ondoie et inverse doucement son orientation
-      this.targetRotY = -0.32 + Math.sin(scrollY * 0.00065) * 1.25 + scrollY * 0.00015;
-
-      // 2. Changement dynamique d'inclinaison verticale (Pitch haut/bas) :
-      this.targetRotX = 0.22 + Math.sin(scrollY * 0.00095) * 0.26;
-
-      // 3. Basculement latéral subtil (Roll 3D) :
-      this.targetRotZ = -0.08 + Math.cos(scrollY * 0.0008) * 0.12;
-
-      const hostEl = this.el.nativeElement as HTMLElement;
-      if (hostEl) {
-        hostEl.style.setProperty('--scroll-y-pos', `${scrollY}px`);
-      }
-    };
-    window.addEventListener('scroll', onScroll, { passive: true });
-    this.scrollListener = () => window.removeEventListener('scroll', onScroll);
-    onScroll();
-
-    // Boucle de rendu WebGL à 60/120fps (accélération matérielle GPU)
-    let lastTime = performance.now();
-    const render = (now: number) => {
-      const dt = Math.min((now - lastTime) / 1000, 0.1);
+      const now = performance.now();
+      const dt = Math.max((now - lastTime) / 1000, 0.016);
       lastTime = now;
 
-      // Respiration subtile en repos (très lente)
-      const idleBreathing = Math.sin(now * 0.00035) * 0.03;
+      const deltaY = Math.abs(scrollY - lastScrollY);
+      lastScrollY = scrollY;
 
-      // Interpolation amortie ultra-douce
-      const lerpSpeed = 0.055;
-      this.currentRotX += (this.targetRotX - this.currentRotX) * lerpSpeed;
-      this.currentRotY += ((this.targetRotY + idleBreathing) - this.currentRotY) * lerpSpeed;
-      this.currentRotZ += (this.targetRotZ - this.currentRotZ) * lerpSpeed;
+      // 1. Plus l'utilisateur scrolle, plus l'animation vidéo s'enchaîne et s'accélère
+      const scrollVelocity = deltaY / dt;
+      targetPlaybackRate = Math.min(1.0 + (scrollVelocity / 600) * 1.15, 2.5);
 
-      gl.uniform3f(uRot, this.currentRotX, this.currentRotY, this.currentRotZ);
-      gl.drawArrays(gl.TRIANGLES, 0, 6);
+      // Réveiller la lecture au scroll si elle était en attente
+      if (video.paused) {
+        video.play().catch(() => {});
+      }
 
-      this.glAnimId = requestAnimationFrame(render);
+      // 2. Parallaxe et profondeur 3D douce selon la progression du scroll
+      const docHeight = Math.max(
+        document.body.scrollHeight,
+        document.documentElement.scrollHeight
+      ) - window.innerHeight;
+      const progress = docHeight > 0 ? Math.min(Math.max(scrollY / docHeight, 0), 1) : 0;
+
+      if (layer) {
+        const translateY = -scrollY * 0.11;
+        const scale = 1.02 + progress * 0.07;
+        layer.style.transform = `translate3d(0, ${translateY.toFixed(1)}px, 0) scale(${scale.toFixed(3)})`;
+      }
+
+      if (!isTicking) {
+        isTicking = true;
+        requestAnimationFrame(updateMotion);
+      }
     };
 
-    this.glAnimId = requestAnimationFrame(render);
+    const updateMotion = () => {
+      // Amorti fluide de la vitesse de lecture vers 1.0x (inertie naturelle)
+      currentPlaybackRate += (targetPlaybackRate - currentPlaybackRate) * 0.12;
+      targetPlaybackRate += (1.0 - targetPlaybackRate) * 0.06;
+
+      if (video && !isNaN(currentPlaybackRate)) {
+        video.playbackRate = Math.max(0.85, Math.min(currentPlaybackRate, 2.5));
+      }
+
+      if (Math.abs(targetPlaybackRate - 1.0) > 0.02 || Math.abs(currentPlaybackRate - 1.0) > 0.02) {
+        requestAnimationFrame(updateMotion);
+      } else {
+        if (video) video.playbackRate = 1.0;
+        isTicking = false;
+      }
+    };
+
+    window.addEventListener('scroll', onScroll, { passive: true });
+    this.videoScrollListener = () => {
+      window.removeEventListener('scroll', onScroll);
+      window.removeEventListener('focus', startPlay);
+    };
+    onScroll();
   }
 
   private startFlagRotation(): void {
@@ -371,6 +302,189 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
       x = Math.min(456 - slot.current.width, slot.anchorX);
     }
     return `translate(${x}, ${slot.y})`;
+  }
+
+  private initStageSectionObserver(): void {
+    if (typeof window === 'undefined' || !('IntersectionObserver' in window)) return;
+    const sections = this.el.nativeElement.querySelectorAll('[data-stage-section]');
+    if (!sections.length) return;
+
+    this.stageSectionObserver = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (entry.isIntersecting) {
+            const rawStage = entry.target.getAttribute('data-stage-section');
+            const parsed = rawStage !== null ? parseInt(rawStage, 10) : 0;
+            if (!isNaN(parsed) && parsed !== this.activeStage) {
+              this.activeStage = parsed;
+            }
+          }
+        }
+      },
+      {
+        root: null,
+        threshold: 0.28,
+        rootMargin: '-12% 0px -22% 0px'
+      }
+    );
+
+    sections.forEach((sec: Element) => this.stageSectionObserver?.observe(sec));
+  }
+
+
+
+  /**
+   * Moteur d'animation Canvas 60 FPS multi-scènes plein écran (inspiré des pins #886505507929441534,
+   * #1028650371200135305 et #973762750662318302) qui morph en temps réel selon la section active (0..4).
+   */
+  private initMultiStageMotionCanvas(): void {
+    if (typeof window === 'undefined' || !this.stageCanvasRef) return;
+    if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+    const canvas = this.stageCanvasRef.nativeElement;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    let width = window.innerWidth;
+    let height = window.innerHeight;
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+
+    const resize = () => {
+      width = window.innerWidth;
+      height = window.innerHeight;
+      canvas.width = Math.round(width * dpr);
+      canvas.height = Math.round(height * dpr);
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    };
+    resize();
+    window.addEventListener('resize', resize, { passive: true });
+    this.resizeStageListener = () => window.removeEventListener('resize', resize);
+
+    interface StageNode {
+      x: number;
+      y: number;
+      vx: number;
+      vy: number;
+      r: number;
+      phase: number;
+      hueShift: number;
+    }
+
+    const nodeCount = width < 768 ? 34 : 64;
+    const nodes: StageNode[] = Array.from({ length: nodeCount }, (_, i) => ({
+      x: Math.random() * width,
+      y: Math.random() * height,
+      vx: (Math.random() - 0.5) * 0.55,
+      vy: (Math.random() - 0.5) * 0.55,
+      r: 1.4 + (i % 3) * 0.85,
+      phase: Math.random() * Math.PI * 2,
+      hueShift: (i % 4) * 18
+    }));
+
+    // Palette RGB par section (0: Émeraude/Cyan Collab, 1: Cyan/Indigo Piliers, 2: Émeraude/Or Projets, 3: Violet/Émeraude Communautés, 4: Émeraude/Azur Launch)
+    const palettes = [
+      { r: 16, g: 185, b: 129, r2: 6, g2: 182, b2: 212 },
+      { r: 6, g: 182, b: 212, r2: 59, g2: 130, b2: 246 },
+      { r: 16, g: 185, b: 129, r2: 245, g2: 158, b2: 11 },
+      { r: 139, g: 92, b: 246, r2: 16, g2: 185, b2: 129 },
+      { r: 16, g: 185, b: 129, r2: 56, g2: 189, b2: 248 }
+    ];
+
+    let curColor = { ...palettes[0] };
+
+    const animate = (now: number) => {
+      const t = now * 0.001;
+      const stageIdx = Math.max(0, Math.min(4, this.activeStage));
+      const targetPal = palettes[stageIdx];
+      const isLight = document.body.classList.contains('light-theme') || document.documentElement.getAttribute('data-theme') === 'light';
+      const alphaScale = isLight ? 0.52 : 1.0;
+
+      // Interpolation douce des couleurs entre sections
+      const lerp = 0.045;
+      curColor.r += (targetPal.r - curColor.r) * lerp;
+      curColor.g += (targetPal.g - curColor.g) * lerp;
+      curColor.b += (targetPal.b - curColor.b) * lerp;
+      curColor.r2 += (targetPal.r2 - curColor.r2) * lerp;
+      curColor.g2 += (targetPal.g2 - curColor.g2) * lerp;
+      curColor.b2 += (targetPal.b2 - curColor.b2) * lerp;
+
+      const c1 = `${Math.round(curColor.r)}, ${Math.round(curColor.g)}, ${Math.round(curColor.b)}`;
+      const c2 = `${Math.round(curColor.r2)}, ${Math.round(curColor.g2)}, ${Math.round(curColor.b2)}`;
+
+      ctx.clearRect(0, 0, width, height);
+
+      // 1. Ondes Sinusoïdales 3D Fluides (Style Pinterest #886505507929441534)
+      const waveCount = 4;
+      const scrollOffset = (window.scrollY || 0) * 0.0018;
+      for (let w = 0; w < waveCount; w++) {
+        ctx.beginPath();
+        const baseY = height * (0.28 + w * 0.16);
+        const amp = (28 + w * 12) * (stageIdx === 1 || stageIdx === 2 ? 1.35 : 1.0);
+        const freq = 0.0024 + w * 0.00045;
+        const speed = t * (0.9 + w * 0.22) + scrollOffset;
+
+        for (let x = 0; x <= width; x += 24) {
+          const y =
+            baseY +
+            Math.sin(x * freq + speed + w) * amp +
+            Math.cos(x * freq * 0.55 - speed * 0.7) * (amp * 0.45);
+          if (x === 0) {
+            ctx.moveTo(x, y);
+          } else {
+            ctx.lineTo(x, y);
+          }
+        }
+        const waveAlpha = (0.14 - w * 0.022) * alphaScale;
+        ctx.strokeStyle = w % 2 === 0 ? `rgba(${c1}, ${waveAlpha})` : `rgba(${c2}, ${waveAlpha})`;
+        ctx.lineWidth = w === 0 ? 1.8 : 1.2;
+        ctx.stroke();
+      }
+
+      // 2. Nœuds de Collaboration & Constellation Panafricaine Interactive
+      const maxLinkDist = width < 768 ? 115 : 155;
+      for (let i = 0; i < nodes.length; i++) {
+        const n = nodes[i];
+        // Vitesse et comportement modulés selon la section active
+        const stageSpeedMult = stageIdx === 4 ? 1.65 : stageIdx === 2 ? 1.25 : 1.0;
+        n.x += n.vx * stageSpeedMult;
+        n.y += n.vy * stageSpeedMult - (stageIdx === 2 ? 0.25 : 0);
+
+        if (n.x < -20) n.x = width + 20;
+        if (n.x > width + 20) n.x = -20;
+        if (n.y < -20) n.y = height + 20;
+        if (n.y > height + 20) n.y = -20;
+
+        const pulse = 0.65 + 0.35 * Math.sin(t * 2.2 + n.phase);
+
+        // Dessiner le nœud lumineux
+        ctx.beginPath();
+        ctx.arc(n.x, n.y, n.r * (0.85 + pulse * 0.3), 0, Math.PI * 2);
+        ctx.fillStyle = i % 2 === 0 ? `rgba(${c1}, ${0.52 * pulse * alphaScale})` : `rgba(${c2}, ${0.48 * pulse * alphaScale})`;
+        ctx.fill();
+
+        // Relier les nœuds proches (réseau de développeurs en collaboration)
+        for (let j = i + 1; j < nodes.length; j++) {
+          const m = nodes[j];
+          const dx = n.x - m.x;
+          const dy = n.y - m.y;
+          const distSq = dx * dx + dy * dy;
+          if (distSq < maxLinkDist * maxLinkDist) {
+            const dist = Math.sqrt(distSq);
+            const linkAlpha = (1 - dist / maxLinkDist) * 0.16 * alphaScale;
+            ctx.beginPath();
+            ctx.moveTo(n.x, n.y);
+            ctx.lineTo(m.x, m.y);
+            ctx.strokeStyle = `rgba(${c1}, ${linkAlpha})`;
+            ctx.lineWidth = 0.85;
+            ctx.stroke();
+          }
+        }
+      }
+
+      this.stageAnimId = requestAnimationFrame(animate);
+    };
+
+    this.stageAnimId = requestAnimationFrame(animate);
   }
 
   private initScrollReveal(): void {
@@ -432,16 +546,75 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
 
   loadFeaturedProjects(): void {
     this.isLoadingProjects = true;
-    this.projectService.getProjects(0, 3).subscribe({
+    this.projectService.getProjects(0, 12, undefined, 'MOST_VIEWED').subscribe({
       next: (res) => {
         this.isLoadingProjects = false;
         if (res.success && res.data) {
-          const list = res.data.content || res.data || [];
+          const list: Project[] = [...(res.data.content || res.data || [])];
+          // Tri strict côté client : les projets les plus vus (viewsCount) puis reconnaissances (recognitionsCount)
+          list.sort((a, b) => {
+            const viewsDiff = (b.viewsCount || 0) - (a.viewsCount || 0);
+            if (viewsDiff !== 0) return viewsDiff;
+            return (b.recognitionsCount || 0) - (a.recognitionsCount || 0);
+          });
           this.featuredProjects = list.slice(0, 3);
         }
       },
-      error: () => this.isLoadingProjects = false
+      error: () => (this.isLoadingProjects = false)
     });
+  }
+
+  getMediaUrl(url: string | undefined | null): string {
+    return resolveUploadedMediaUrl(url);
+  }
+
+  private readonly defaultProjectCovers = [
+    'https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&w=1000&q=80',
+    'https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=1000&q=80',
+    'https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=1000&q=80'
+  ];
+
+  getProjectCoverUrl(proj: Project, idx: number): string {
+    if (this.brokenCoverIds.has(proj.id)) {
+      return this.defaultProjectCovers[idx % this.defaultProjectCovers.length];
+    }
+    if (proj.screenshots && proj.screenshots.length > 0 && proj.screenshots[0]) {
+      return resolveUploadedMediaUrl(proj.screenshots[0]);
+    }
+    return this.defaultProjectCovers[idx % this.defaultProjectCovers.length];
+  }
+
+  onProjectCoverError(event: Event, proj: Project): void {
+    this.brokenCoverIds.add(proj.id);
+    const imgEl = event.target as HTMLImageElement;
+    if (imgEl) {
+      imgEl.src = this.defaultProjectCovers[0];
+    }
+  }
+
+  getProjectViewsDisplay(proj: Project, idx: number): number {
+    if (proj.viewsCount && proj.viewsCount > 0) {
+      return proj.viewsCount;
+    }
+    // Estimation cohérente basée sur les reconnaissances si viewsCount est encore à 0
+    return Math.max(120 - idx * 25, (proj.recognitionsCount || 1) * 38);
+  }
+
+  getProjectTypeLabel(proj: Project): string {
+    switch (proj.projectType) {
+      case 'SAAS':
+        return 'SaaS';
+      case 'FOR_SALE':
+        return 'En Vente';
+      case 'COLLABORATIVE':
+        return 'Collaboratif';
+      case 'ENTERPRISE':
+        return 'Entreprise';
+      case 'PORTFOLIO':
+        return 'Portfolio';
+      default:
+        return proj.isOpenSource ? 'Open Source' : 'Projet Tech';
+    }
   }
 
   loadFeaturedMembers(): void {

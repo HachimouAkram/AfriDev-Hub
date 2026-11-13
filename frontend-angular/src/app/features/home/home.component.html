@@ -1,55 +1,38 @@
-<div class="landing-container">
-  <!-- ARRIÈRE-PLAN DYNAMIQUE : GLOBE 3D ROTATIF AU SCROLL + ENVIRONNEMENT DÉVELOPPEUR -->
-  <div class="home-backdrop-stage" aria-hidden="true">
-    <!-- Grille matricielle développeur & halo d'ambiance -->
-    <div class="bg-dev-grid"></div>
-    <div class="bg-radial-aurora"></div>
-
-    <!-- VRAI GLOBE TERRESTRE 3D PHOTOGRAPHIQUE (WEBGL + TEXTURE TERRE TOURNANT AU SCROLL) -->
-    <div class="bg-globe-anchor">
-      <div class="earth-globe-wrapper">
-        <canvas #earthCanvas class="earth-webgl-canvas"></canvas>
-        <!-- Anneau orbital technologique avec satellites de données connectés -->
-        <div class="earth-tech-orbit">
-          <span class="orbit-tech-node node-1"></span>
-          <span class="orbit-tech-node node-2"></span>
-          <span class="orbit-tech-node node-3"></span>
-          <span class="orbit-tech-node node-4"></span>
-        </div>
-      </div>
+<div class="landing-container" [attr.data-active-stage]="activeStage">
+  <!-- ARRIÈRE-PLAN PLEINE PAGE VIDÉO CINÉMATIQUE PINTEREST RÉACTIVE AU SCROLL -->
+  <div class="home-backdrop-stage" [attr.data-stage]="activeStage" aria-hidden="true">
+    <!-- Couche Vidéo Pleine Page réactive au scroll -->
+    <div class="bg-cinema-media-layer" #videoLayer>
+      <video
+        #bgCinemaVideo
+        class="bg-pinterest-motion-video"
+        autoplay
+        muted
+        loop
+        playsinline
+        preload="auto">
+        <source src="/bg-pinterest-motion.mp4" type="video/mp4" />
+        <source src="https://v1.pinimg.com/videos/iht/hls/5c/7d/a0/5c7da0bdfb8adfde444ba12d9cc2605d.m3u8" type="application/x-mpegURL" />
+      </video>
+      <div class="bg-cinema-scrim"></div>
     </div>
 
-    <!-- Éléments d'environnement de développement flottants & parallax scroll -->
-    <div class="bg-dev-floating-elements">
-      <div class="dev-float-pill pill-pos-1">
-        <span class="pill-dot"></span>
-        <code>git commit -m "Pan-Africa Tech Hub" ✨</code>
-      </div>
-      <div class="dev-float-pill pill-pos-2">
-        <code>const talent = await afridev.connect(54);</code>
-      </div>
-      <div class="dev-float-pill pill-pos-3">
-        <code>&lt;FullStack stack="Spring • Angular • Cloud" /&gt;</code>
-      </div>
-      <div class="dev-float-pill pill-pos-4">
-        <span class="pill-badge-ok">200 OK</span>
-        <code>peerReview.verify(status: CERTIFIED)</code>
-      </div>
-      <div class="dev-float-pill pill-pos-5">
-        <code>docker compose up -d --scale microservices=54</code>
-      </div>
-
-      <!-- Glyphes de syntaxe discrets -->
-      <span class="dev-syntax-glyph glyph-1">&lt;/&gt;</span>
-      <span class="dev-syntax-glyph glyph-2">&#123; &#125;</span>
-      <span class="dev-syntax-glyph glyph-3">=&gt;</span>
-      <span class="dev-syntax-glyph glyph-4">&#955;</span>
-      <span class="dev-syntax-glyph glyph-5">// dev.deploy()</span>
+    <!-- Couche Projecteurs Dynamiques (Morphing Couleurs & Positions selon la Section 0..4) -->
+    <div class="bg-stage-aurora-layer">
+      <div class="stage-beam beam-primary"></div>
+      <div class="stage-beam beam-secondary"></div>
+      <div class="stage-beam beam-accent"></div>
     </div>
+
+    <!-- Grille Perspective 3D Discrète -->
+    <div class="bg-perspective-grid"></div>
+
+    <!-- Moteur Canvas 60 FPS Multi-Scènes (Ondes 3D & Constellation Tech Subtile) -->
+    <canvas #stageCanvas class="stage-motion-canvas"></canvas>
   </div>
 
   <!-- HERO SECTION (SPLIT LAYOUT + PAN-AFRICAN GLOBE NETWORK + REAL PHOTO + ALIGNED STATS) -->
-  <header class="hero-section app-card">
+  <header class="hero-section app-card" data-stage-section="0">
     <div class="hero-bg-glow" aria-hidden="true"></div>
 
     <div class="hero-layout">
@@ -377,7 +360,7 @@
   </header>
 
   <!-- PILLARS / FEATURES SECTION (SCANNABLE ICON-LED CARDS) -->
-  <section class="pillars-section reveal-on-scroll">
+  <section class="pillars-section reveal-on-scroll" data-stage-section="1">
     <div class="section-header">
       <span class="badge badge-emerald">Pourquoi Choisir AfriDev Hub ?</span>
       <h2>Une Plateforme Conçue pour l'Écosystème Tech Africain</h2>
@@ -573,12 +556,12 @@
     </div>
   </section>
 
-  <!-- FEATURED PROJECTS SHOWCASE -->
-  <section class="showcase-section reveal-on-scroll">
+  <!-- FEATURED PROJECTS SHOWCASE (TOP 3 LES PLUS VUS AVEC PHOTO DE COUVERTURE) -->
+  <section class="showcase-section reveal-on-scroll" data-stage-section="2">
     <div class="section-showcase-header">
-      <span class="badge badge-emerald badge-hero-section">Vitrine de Projets</span>
-      <h2 class="section-big-title">Dernières Créations de la Communauté</h2>
-      <p class="section-subtitle">Explorez les projets phares, applications open-source et SaaS conçus par les développeurs africains.</p>
+      <span class="badge badge-emerald badge-hero-section">Vitrine des Projets les Plus Vus</span>
+      <h2 class="section-big-title">Les 3 Projets les Plus Vus de la Communauté</h2>
+      <p class="section-subtitle">Explorez les projets phares les plus consultés, applications open-source et SaaS conçus par les développeurs africains.</p>
       <div class="section-action-center">
         <a routerLink="/projects" class="btn btn-outline btn-md">
           <span>Voir tous les projets</span>
@@ -590,34 +573,67 @@
     </div>
 
     <div class="projects-grid" *ngIf="!isLoadingProjects; else loadingProjectsTpl">
-      <div *ngFor="let proj of featuredProjects.slice(0, 3)" class="app-card project-home-card">
-        <div class="proj-card-top">
-          <span class="badge badge-emerald">
-            <svg class="icon-svg icon-svg-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 00-.182.557l1.285 5.385c.116.486-.412.87-.837.616l-4.71-2.826a.563.563 0 00-.586 0l-4.71 2.826c-.425.255-.953-.13-.837-.616l1.285-5.385a.563.563 0 00-.182-.557l-4.204-3.602c-.38-.325-.178-.948.32-.988l5.518-.442a.563.563 0 00.475-.345L11.48 3.5z" />
-            </svg>
-            {{ proj.recognitionsCount || 0 }} reconnaissances
-          </span>
-          <span class="proj-badge-os" *ngIf="proj.isOpenSource">Open Source</span>
-        </div>
-
-        <h3 class="proj-title">{{ proj.title }}</h3>
-        <p class="proj-desc">{{ proj.description }}</p>
-
-        <div class="proj-stack" *ngIf="proj.stack && proj.stack.length">
-          <span *ngFor="let tech of proj.stack.slice(0, 4)" class="badge badge-gray">{{ tech }}</span>
-        </div>
-
-        <div class="proj-footer">
-          <div class="proj-author" *ngIf="proj.author">
-            <div class="author-avatar">
-              {{ (proj.author.profile?.fullName || proj.author.email || 'D').charAt(0).toUpperCase() }}
-            </div>
-            <span class="author-name">{{ proj.author.profile?.fullName || proj.author.email }}</span>
+      <article *ngFor="let proj of featuredProjects.slice(0, 3); let idx = index" class="app-card project-home-card has-cover-banner" [routerLink]="['/projects']" [queryParams]="{ highlight: proj.id }">
+        <!-- Photo de Couverture 16:9 -->
+        <div class="home-proj-cover">
+          <img
+            *ngIf="getProjectCoverUrl(proj, idx)"
+            [src]="getProjectCoverUrl(proj, idx)"
+            [alt]="proj.title"
+            loading="lazy"
+            class="home-proj-cover-img"
+            (error)="onProjectCoverError($event, proj)" />
+          <div *ngIf="!getProjectCoverUrl(proj, idx)" class="home-proj-cover-fallback">
+            <div class="home-proj-cover-grid"></div>
+            <span class="home-proj-monogram">{{ proj.title.charAt(0).toUpperCase() }}</span>
           </div>
-          <a routerLink="/projects" class="btn btn-outline btn-xs">Détails</a>
+          <div class="home-proj-cover-gradient"></div>
+
+          <!-- Badges Flottants sur la Photo de Couverture -->
+          <div class="home-proj-cover-top-badges">
+            <span class="home-proj-rank-pill">
+              🔥 Top #{{ idx + 1 }} • {{ getProjectViewsDisplay(proj, idx) | number }} vues
+            </span>
+            <span class="home-proj-type-pill">
+              {{ getProjectTypeLabel(proj) }}
+            </span>
+          </div>
+
+          <div class="home-proj-cover-bottom-badges">
+            <span class="home-proj-recog-pill">
+              <svg class="icon-svg icon-svg-xs" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 00-.182.557l1.285 5.385c.116.486-.412.87-.837.616l-4.71-2.826a.563.563 0 00-.586 0l-4.71 2.826c-.425.255-.953-.13-.837-.616l1.285-5.385a.563.563 0 00-.182-.557l-4.204-3.602c-.38-.325-.178-.948.32-.988l5.518-.442a.563.563 0 00.475-.345L11.48 3.5z" />
+              </svg>
+              {{ proj.recognitionsCount || 0 }} reconnaissances
+            </span>
+          </div>
         </div>
-      </div>
+
+        <!-- Contenu de la Carte Projet -->
+        <div class="home-proj-body">
+          <h3 class="proj-title">{{ proj.title }}</h3>
+          <p class="proj-desc">{{ proj.description }}</p>
+
+          <div class="proj-stack" *ngIf="proj.stack && proj.stack.length">
+            <span *ngFor="let tech of proj.stack.slice(0, 4)" class="badge badge-gray">{{ tech }}</span>
+          </div>
+
+          <div class="proj-footer">
+            <div class="proj-author" *ngIf="proj.author">
+              <img
+                *ngIf="proj.author.profile?.avatarUrl"
+                [src]="getMediaUrl(proj.author.profile?.avatarUrl)"
+                [alt]="proj.author.profile?.fullName || 'Auteur'"
+                class="author-avatar-img" />
+              <div *ngIf="!proj.author.profile?.avatarUrl" class="author-avatar">
+                {{ (proj.author.profile?.fullName || proj.author.email || 'D').charAt(0).toUpperCase() }}
+              </div>
+              <span class="author-name">{{ proj.author.profile?.fullName || proj.author.email }}</span>
+            </div>
+            <a routerLink="/projects" class="btn btn-outline btn-xs" (click)="$event.stopPropagation()">Détails</a>
+          </div>
+        </div>
+      </article>
 
       <div *ngIf="featuredProjects.length === 0" class="empty-showcase app-card">
         <p class="text-muted">Aucun projet publié pour le moment. Soyez le premier à publier votre projet !</p>
@@ -652,7 +668,7 @@
   </section>
 
   <!-- FEATURED MEMBERS DIRECTORY SHOWCASE -->
-  <section class="members-showcase-section reveal-on-scroll">
+  <section class="members-showcase-section reveal-on-scroll" data-stage-section="3">
     <div class="section-showcase-header">
       <span class="badge badge-emerald badge-hero-section">Annuaire & Réseau</span>
       <h2 class="section-big-title">Rencontrez les Développeurs d'Élite</h2>
@@ -817,7 +833,7 @@
   </section>
 
   <!-- HOW IT WORKS STEP-BY-STEP -->
-  <section class="steps-section app-card reveal-on-scroll">
+  <section class="steps-section app-card reveal-on-scroll" data-stage-section="4">
     <div class="section-header steps-header">
       <span class="badge badge-emerald">Parcours Simple &amp; Rapide</span>
       <h2>Comment Fonctionne AfriDev Hub ?</h2>

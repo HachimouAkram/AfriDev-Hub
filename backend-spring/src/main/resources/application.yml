@@ -72,8 +72,8 @@ app:
   google:
     client-id: ${GOOGLE_CLIENT_ID:496829118154-ifg5amooc56vptf4oorlfs3u77t51rem.apps.googleusercontent.com}
   github:
-    client-id: ${GITHUB_CLIENT_ID:Ov23liThxmOjC0n7pOW3}
-    client-secret: ${GITHUB_CLIENT_SECRET:}
+    client-id: ${GITHUB_CLIENT_ID:Ov23liThxmOjc0n7p0W3}
+    client-secret: ${GITHUB_CLIENT_SECRET:fe56648fae6381acd7cf47e9499e0f022926c01f}
   fastapi:
     url: ${FASTAPI_BASE_URL:http://localhost:8000}
     internal-key: ${FASTAPI_INTERNAL_KEY:afridev_internal_secret_key_2026_x7k9}
