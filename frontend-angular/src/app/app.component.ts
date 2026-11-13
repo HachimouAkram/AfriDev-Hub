@@ -1403,6 +1403,9 @@ import { Subscription } from 'rxjs';
       top: calc(100% + 0.6rem);
       right: 0;
       width: 240px;
+      max-height: calc(100vh - 84px);
+      overflow-y: auto;
+      overscroll-behavior: contain;
       background: var(--bg-surface-card);
       border: 1px solid var(--border-light);
       border-radius: 14px;
@@ -1412,6 +1415,19 @@ import { Subscription } from 'rxjs';
       display: flex;
       flex-direction: column;
       animation: dropdownFadeIn 0.15s ease;
+    }
+    .profile-dropdown-card::-webkit-scrollbar {
+      width: 5px;
+    }
+    .profile-dropdown-card::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    .profile-dropdown-card::-webkit-scrollbar-thumb {
+      background: rgba(148, 163, 184, 0.28);
+      border-radius: 999px;
+    }
+    .profile-dropdown-card::-webkit-scrollbar-thumb:hover {
+      background: rgba(16, 185, 129, 0.55);
     }
     @keyframes dropdownFadeIn {
       from { opacity: 0; transform: translateY(-6px); }

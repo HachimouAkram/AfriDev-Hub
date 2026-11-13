@@ -799,6 +799,9 @@ body.light-theme .nav-item .nav-badge.badge-event {
   top: calc(100% + 0.6rem);
   right: 0;
   width: 285px;
+  max-height: calc(100vh - 84px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
   background: var(--bg-surface-card);
   border: 1px solid var(--border-subtle);
   border-radius: 16px;
@@ -809,6 +812,23 @@ body.light-theme .nav-item .nav-badge.badge-event {
   flex-direction: column;
   gap: 0.75rem;
   animation: fadeInDown 0.15s ease-out;
+}
+
+.profile-dropdown-menu::-webkit-scrollbar {
+  width: 5px;
+}
+
+.profile-dropdown-menu::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.profile-dropdown-menu::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.28);
+  border-radius: 999px;
+}
+
+.profile-dropdown-menu::-webkit-scrollbar-thumb:hover {
+  background: rgba(16, 185, 129, 0.55);
 }
 
 @keyframes fadeInDown {
