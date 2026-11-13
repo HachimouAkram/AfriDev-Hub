@@ -15,7 +15,7 @@ import { AuthService } from '../../../core/services/auth.service';
           <p>Traçabilité complète des actions effectuées au sein de l'entreprise par tous les recruteurs.</p>
         </div>
         <span class="badge-role" [class.badge-owner]="isOwner()">
-          {{ isOwner() ? '👑 Vue Globale (Propriétaire)' : '💼 Vos actions personnelles' }}
+          {{ isOwner() ? 'Vue Globale (Propriétaire)' : 'Vos actions personnelles' }}
         </span>
       </div>
 
@@ -23,7 +23,9 @@ import { AuthService } from '../../../core/services/auth.service';
         <div class="timeline" *ngIf="logs().length > 0; else emptyTpl">
           <div class="timeline-item" *ngFor="let log of logs()">
             <div class="timeline-badge" [ngClass]="getBadgeClass(log.activityType)">
-              {{ getActivityIcon(log.activityType) }}
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 18px; height: 18px;">
+                <path stroke-linecap="round" stroke-linejoin="round" [attr.d]="getActivitySvgPath(log.activityType)" />
+              </svg>
             </div>
             <div class="timeline-content">
               <div class="item-header">
@@ -42,7 +44,9 @@ import { AuthService } from '../../../core/services/auth.service';
 
         <ng-template #emptyTpl>
           <div class="empty-state">
-            <span class="empty-icon">📜</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="width: 40px; height: 40px; margin: 0 auto 0.75rem auto; color: #64748b; display: block;">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
             <p>Aucune action enregistrée pour le moment dans le journal d'activité.</p>
           </div>
         </ng-template>
@@ -135,10 +139,10 @@ import { AuthService } from '../../../core/services/auth.service';
       border: 1px solid rgba(255, 255, 255, 0.1);
     }
 
-    .badge-green { background: rgba(16, 185, 129, 0.15); border-color: rgba(16, 185, 129, 0.3); }
-    .badge-blue { background: rgba(59, 130, 246, 0.15); border-color: rgba(59, 130, 246, 0.3); }
-    .badge-amber { background: rgba(245, 158, 11, 0.15); border-color: rgba(245, 158, 11, 0.3); }
-    .badge-red { background: rgba(239, 68, 68, 0.15); border-color: rgba(239, 68, 68, 0.3); }
+    .badge-green { background: rgba(16, 185, 129, 0.15); border-color: rgba(16, 185, 129, 0.3); color: #10b981; }
+    .badge-blue { background: rgba(59, 130, 246, 0.15); border-color: rgba(59, 130, 246, 0.3); color: #3b82f6; }
+    .badge-amber { background: rgba(245, 158, 11, 0.15); border-color: rgba(245, 158, 11, 0.3); color: #f59e0b; }
+    .badge-red { background: rgba(239, 68, 68, 0.15); border-color: rgba(239, 68, 68, 0.3); color: #ef4444; }
 
     .timeline-content {
       background: rgba(15, 23, 42, 0.5);
@@ -269,17 +273,17 @@ export class RecruiterActivityLogComponent implements OnInit {
     });
   }
 
-  getActivityIcon(type: string): string {
+  getActivitySvgPath(type: string): string {
     switch (type) {
-      case 'OPPORTUNITY_PUBLISHED': return '💼';
-      case 'CANDIDATE_ACCEPTED': return '🤝';
-      case 'CANDIDATE_REJECTED': return '❌';
-      case 'EVENT_PUBLISHED': return '📅';
-      case 'RESOURCE_PUBLISHED': return '📚';
-      case 'MEMBER_INVITED': return '✉️';
-      case 'MEMBER_REMOVED': return '🚫';
-      case 'PROFILE_UPDATED': return '✏️';
-      default: return '📌';
+      case 'OPPORTUNITY_PUBLISHED': return 'M20.25 14.15v4.25c0 1.094-.787 2.036-1.872 2.18-2.087.277-4.216.42-6.378.42s-4.291-.143-6.378-.42c-1.085-.144-1.872-1.086-1.872-2.18v-4.25m16.5 0a2.18 2.18 0 00.75-1.661V8.706c0-1.081-.768-2.015-1.837-2.175a48.114 48.114 0 00-3.413-.387m4.5 8.006c-.194.165-.42.295-.673.38A23.978 23.978 0 0112 15.75c-2.648 0-5.195-.429-7.577-1.22a2.016 2.016 0 01-.673-.38m0 0A2.18 2.18 0 013 12.489V8.706c0-1.081.768-2.015 1.837-2.175a48.111 48.111 0 013.413-.387m7.5 0V4.5a2.25 2.25 0 00-2.25-2.25h-3a2.25 2.25 0 00-2.25 2.25v1.644m6 0a47.4 47.4 0 01-6 0';
+      case 'CANDIDATE_ACCEPTED': return 'M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z';
+      case 'CANDIDATE_REJECTED': return 'M9.75 9.75l4.5 4.5m0-4.5l-4.5 4.5M21 12a9 9 0 11-18 0 9 9 0 0118 0z';
+      case 'EVENT_PUBLISHED': return 'M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5';
+      case 'RESOURCE_PUBLISHED': return 'M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25';
+      case 'MEMBER_INVITED': return 'M19 7.5v3m0 0v3m0-3h3m-3 0h-3m-2.25-4.125a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zM4 19.235v-.11a6.375 6.375 0 0112.75 0v.109A12.318 12.318 0 0110.374 21c-2.331 0-4.512-.645-6.374-1.766z';
+      case 'MEMBER_REMOVED': return 'M22 10.5h-6m-2.25-4.125a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zM4 19.235v-.11a6.375 6.375 0 0112.75 0v.109A12.318 12.318 0 0110.374 21c-2.331 0-4.512-.645-6.374-1.766z';
+      case 'PROFILE_UPDATED': return 'M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931z';
+      default: return 'M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z';
     }
   }
 

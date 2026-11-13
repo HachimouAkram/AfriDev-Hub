@@ -16,33 +16,60 @@ import { CompanyBadgeComponent } from '../../../shared/components/company-badge/
           <div class="company-logo-badge">
             <img *ngIf="company()?.logoUrl; else placeholderLogo" [src]="company()?.logoUrl" [alt]="company()?.name" />
             <ng-template #placeholderLogo>
-              <div class="logo-placeholder">🏢</div>
+              <svg class="logo-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 21h16.5M4.5 3h15M5.25 3v18m13.5-18v18M9 6.75h1.5m-1.5 3h1.5m-1.5 3h1.5m3-6H15m-1.5 3H15m-1.5 3H15M9 21v-3.375c0-.621.504-1.125 1.125-1.125h3.75c.621 0 1.125.504 1.125 1.125V21" />
+              </svg>
             </ng-template>
           </div>
           <div class="company-hero-info">
             <div class="title-row">
               <h1 class="company-name">{{ company()?.name }}</h1>
               <app-company-badge [level]="company()?.companyLevel || 'STARTUP'" [xp]="company()?.companyXp" [showXp]="true"></app-company-badge>
-              <span *ngIf="company()?.verified" class="verified-pill">✓ Vérifiée</span>
+              <span *ngIf="company()?.verified" class="verified-pill">
+                <svg class="inline-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                </svg>
+                Vérifiée
+              </span>
             </div>
             <p class="tagline" *ngIf="company()?.tagline">{{ company()?.tagline }}</p>
             <div class="company-meta">
-              <span *ngIf="company()?.city || company()?.country">
-                📍 {{ company()?.city }}{{ company()?.city && company()?.country ? ', ' : '' }}{{ company()?.country }}
+              <span class="meta-item" *ngIf="company()?.city || company()?.country">
+                <svg class="meta-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" />
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" />
+                </svg>
+                {{ company()?.city }}{{ company()?.city && company()?.country ? ', ' : '' }}{{ company()?.country }}
               </span>
-              <span *ngIf="company()?.sector">🏷️ {{ company()?.sector }}</span>
-              <span *ngIf="company()?.website">
-                🔗 <a [href]="company()?.website" target="_blank" rel="noopener">{{ company()?.website }}</a>
+              <span class="meta-item" *ngIf="company()?.sector">
+                <svg class="meta-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M9.568 3H5.25A2.25 2.25 0 003 5.25v4.318c0 .597.237 1.17.659 1.591l9.581 9.581c.699.699 1.78.872 2.607.33a18.095 18.095 0 005.223-5.223c.542-.827.369-1.908-.33-2.607L11.16 3.66A2.25 2.25 0 009.568 3z" />
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M6 6h.008v.008H6V6z" />
+                </svg>
+                {{ company()?.sector }}
+              </span>
+              <span class="meta-item" *ngIf="company()?.website">
+                <svg class="meta-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M13.19 8.688a4.5 4.5 0 011.242 7.244l-4.5 4.5a4.5 4.5 0 01-6.364-6.364l1.757-1.757m13.35-.622l1.757-1.757a4.5 4.5 0 00-6.364-6.364l-4.5 4.5a4.5 4.5 0 001.242 7.244" />
+                </svg>
+                <a [href]="company()?.website" target="_blank" rel="noopener">{{ company()?.website }}</a>
               </span>
             </div>
           </div>
         </div>
         <div class="hero-actions">
           <a [routerLink]="['/company', company()?.slug]" class="btn btn-outline-white" target="_blank">
-            👁️ Fiche publique
+            <svg class="btn-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
+              <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+            </svg>
+            <span>Fiche publique</span>
           </a>
           <a routerLink="/dashboard/recruiter/profile" class="btn btn-primary-glass">
-            ✏️ Modifier l'entreprise
+            <svg class="btn-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" />
+            </svg>
+            <span>Modifier l'entreprise</span>
           </a>
         </div>
       </div>
@@ -50,7 +77,11 @@ import { CompanyBadgeComponent } from '../../../shared/components/company-badge/
       <!-- Quick Metrics Grid -->
       <div class="metrics-grid">
         <div class="metric-card">
-          <div class="metric-icon metric-purple">💼</div>
+          <div class="metric-icon metric-purple">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M20.25 14.15v4.25c0 1.094-.787 2.036-1.872 2.18-2.087.277-4.216.42-6.378.42s-4.291-.143-6.378-.42c-1.085-.144-1.872-1.086-1.872-2.18v-4.25m16.5 0a2.18 2.18 0 00.75-1.661V8.706c0-1.081-.768-2.015-1.837-2.175a48.114 48.114 0 00-3.413-.387m4.5 8.006c-.194.165-.42.295-.673.38A23.978 23.978 0 0112 15.75c-2.648 0-5.195-.429-7.577-1.22a2.016 2.016 0 01-.673-.38m0 0A2.18 2.18 0 013 12.489V8.706c0-1.081.768-2.015 1.837-2.175a48.111 48.111 0 013.413-.387m7.5 0V4.5a2.25 2.25 0 00-2.25-2.25h-3a2.25 2.25 0 00-2.25 2.25v1.644m6 0a47.4 47.4 0 01-6 0" />
+            </svg>
+          </div>
           <div class="metric-data">
             <span class="metric-value">{{ stats()?.totalOpportunities ?? 0 }}</span>
             <span class="metric-label">Offres publiées</span>
@@ -59,7 +90,11 @@ import { CompanyBadgeComponent } from '../../../shared/components/company-badge/
         </div>
 
         <div class="metric-card">
-          <div class="metric-icon metric-emerald">👥</div>
+          <div class="metric-icon metric-emerald">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
+            </svg>
+          </div>
           <div class="metric-data">
             <span class="metric-value">{{ stats()?.totalApplications ?? 0 }}</span>
             <span class="metric-label">Candidatures reçues</span>
@@ -68,7 +103,11 @@ import { CompanyBadgeComponent } from '../../../shared/components/company-badge/
         </div>
 
         <div class="metric-card">
-          <div class="metric-icon metric-amber">🏆</div>
+          <div class="metric-icon metric-amber">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 18.75h-9m9 0a3 3 0 013 3h-15a3 3 0 013-3m9 0v-3.375c0-.621-.504-1.125-1.125-1.125h-.871M7.5 18.75v-3.375c0-.621.504-1.125 1.125-1.125h.872m5.003 0H9.497m5.003 0A6.75 6.75 0 0018 7.5c0-1.875-.75-3.625-2.025-4.875A1.125 1.125 0 0015 2.25H9c-.435 0-.83.25-1.025.625A6.75 6.75 0 006 7.5c0 3.728 3.022 6.75 6.75 6.75h.75z" />
+            </svg>
+          </div>
           <div class="metric-data">
             <span class="metric-value">{{ company()?.companyXp ?? 0 }}</span>
             <span class="metric-label">Points d'XP Entreprise</span>
@@ -77,7 +116,11 @@ import { CompanyBadgeComponent } from '../../../shared/components/company-badge/
         </div>
 
         <div class="metric-card">
-          <div class="metric-icon metric-blue">🤝</div>
+          <div class="metric-icon metric-blue">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z" />
+            </svg>
+          </div>
           <div class="metric-data">
             <span class="metric-value">{{ stats()?.membersCount ?? 1 }}</span>
             <span class="metric-label">Recruteurs dans l'équipe</span>
@@ -93,28 +136,44 @@ import { CompanyBadgeComponent } from '../../../shared/components/company-badge/
         <h3>Actions Rapides</h3>
         <div class="actions-group">
           <a routerLink="/dashboard/recruiter/offers" class="quick-btn">
-            <span class="quick-icon">➕</span>
+            <div class="quick-icon-box icon-emerald">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+              </svg>
+            </div>
             <div class="quick-text">
               <span class="quick-title">Publier une offre</span>
-              <span class="quick-desc">+50 XP pour l'entreprise</span>
+              <span class="quick-desc">+30 XP pour l'entreprise</span>
             </div>
           </a>
           <a routerLink="/dashboard/recruiter/events" class="quick-btn">
-            <span class="quick-icon">📅</span>
+            <div class="quick-icon-box icon-blue">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" />
+              </svg>
+            </div>
             <div class="quick-text">
               <span class="quick-title">Organiser un événement tech</span>
-              <span class="quick-desc">Webinaire, hackathon (+75 XP)</span>
+              <span class="quick-desc">Webinaire, hackathon (+40 XP)</span>
             </div>
           </a>
           <a routerLink="/dashboard/recruiter/resources" class="quick-btn">
-            <span class="quick-icon">📚</span>
+            <div class="quick-icon-box icon-purple">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" />
+              </svg>
+            </div>
             <div class="quick-text">
               <span class="quick-title">Partager une formation</span>
-              <span class="quick-desc">Tutoriel ou ressource (+40 XP)</span>
+              <span class="quick-desc">Tutoriel ou ressource (+35 XP)</span>
             </div>
           </a>
           <a routerLink="/dashboard/recruiter/team" class="quick-btn">
-            <span class="quick-icon">✉️</span>
+            <div class="quick-icon-box icon-amber">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M19 7.5v3m0 0v3m0-3h3m-3 0h-3m-2.25-4.125a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zM4 19.235v-.11a6.375 6.375 0 0112.75 0v.109A12.318 12.318 0 0110.374 21c-2.331 0-4.512-.645-6.374-1.766z" />
+              </svg>
+            </div>
             <div class="quick-text">
               <span class="quick-title">Inviter un recruteur</span>
               <span class="quick-desc">Collaborer en équipe</span>
@@ -160,7 +219,7 @@ import { CompanyBadgeComponent } from '../../../shared/components/company-badge/
       </div>
       <ng-template #errorTpl>
         <div class="loading-state" style="color: #ef4444;">
-          <p style="font-size: 1.1rem; font-weight: 700; margin-bottom: 0.5rem;">⚠️ {{ errorMessage() }}</p>
+          <p style="font-size: 1.1rem; font-weight: 700; margin-bottom: 0.5rem;">{{ errorMessage() }}</p>
           <a routerLink="/dashboard/recruiter/profile" class="btn btn-primary-glass" style="margin-top: 1rem;">
             Créer ou compléter ma fiche entreprise
           </a>
@@ -195,16 +254,17 @@ import { CompanyBadgeComponent } from '../../../shared/components/company-badge/
     }
 
     .company-logo-badge {
-      width: 80px;
-      height: 80px;
+      width: 76px;
+      height: 76px;
       border-radius: 16px;
-      background: rgba(15, 23, 42, 0.8);
-      border: 1px solid rgba(255, 255, 255, 0.1);
+      background: rgba(15, 23, 42, 0.85);
+      border: 1px solid rgba(16, 185, 129, 0.3);
       display: flex;
       align-items: center;
       justify-content: center;
       overflow: hidden;
       flex-shrink: 0;
+      color: #10b981;
     }
 
     .company-logo-badge img {
@@ -213,8 +273,9 @@ import { CompanyBadgeComponent } from '../../../shared/components/company-badge/
       object-fit: cover;
     }
 
-    .logo-placeholder {
-      font-size: 2.5rem;
+    .logo-svg {
+      width: 36px;
+      height: 36px;
     }
 
     .title-row {
@@ -233,13 +294,21 @@ import { CompanyBadgeComponent } from '../../../shared/components/company-badge/
     }
 
     .verified-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
       background: rgba(16, 185, 129, 0.2);
       color: #10b981;
       border: 1px solid rgba(16, 185, 129, 0.4);
-      padding: 2px 8px;
+      padding: 2px 9px;
       border-radius: 9999px;
       font-size: 0.75rem;
       font-weight: 600;
+    }
+
+    .inline-svg {
+      width: 13px;
+      height: 13px;
     }
 
     .tagline {
@@ -250,10 +319,23 @@ import { CompanyBadgeComponent } from '../../../shared/components/company-badge/
 
     .company-meta {
       display: flex;
-      gap: 1rem;
+      gap: 1.15rem;
       font-size: 0.85rem;
       color: var(--text-secondary, #94a3b8);
       flex-wrap: wrap;
+    }
+
+    .meta-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+
+    .meta-svg {
+      width: 15px;
+      height: 15px;
+      color: #10b981;
+      flex-shrink: 0;
     }
 
     .company-meta a {
@@ -276,7 +358,13 @@ import { CompanyBadgeComponent } from '../../../shared/components/company-badge/
       transition: all 0.2s ease;
       display: inline-flex;
       align-items: center;
-      gap: 6px;
+      gap: 7px;
+    }
+
+    .btn-svg {
+      width: 17px;
+      height: 17px;
+      flex-shrink: 0;
     }
 
     .btn-outline-white {
@@ -319,20 +407,24 @@ import { CompanyBadgeComponent } from '../../../shared/components/company-badge/
     }
 
     .metric-icon {
-      width: 50px;
-      height: 50px;
+      width: 48px;
+      height: 48px;
       border-radius: 12px;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 1.5rem;
       flex-shrink: 0;
     }
 
-    .metric-purple { background: rgba(168, 85, 247, 0.15); }
-    .metric-emerald { background: rgba(16, 185, 129, 0.15); }
-    .metric-amber { background: rgba(245, 158, 11, 0.15); }
-    .metric-blue { background: rgba(59, 130, 246, 0.15); }
+    .metric-icon svg {
+      width: 24px;
+      height: 24px;
+    }
+
+    .metric-purple { background: rgba(168, 85, 247, 0.14); color: #a855f7; border: 1px solid rgba(168, 85, 247, 0.25); }
+    .metric-emerald { background: rgba(16, 185, 129, 0.14); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.25); }
+    .metric-amber { background: rgba(245, 158, 11, 0.14); color: #f59e0b; border: 1px solid rgba(245, 158, 11, 0.25); }
+    .metric-blue { background: rgba(59, 130, 246, 0.14); color: #3b82f6; border: 1px solid rgba(59, 130, 246, 0.25); }
 
     .metric-data {
       display: flex;
@@ -393,7 +485,7 @@ import { CompanyBadgeComponent } from '../../../shared/components/company-badge/
     .quick-btn {
       display: flex;
       align-items: center;
-      gap: 0.75rem;
+      gap: 0.85rem;
       padding: 1rem;
       border-radius: 12px;
       background: rgba(15, 23, 42, 0.5);
@@ -408,9 +500,25 @@ import { CompanyBadgeComponent } from '../../../shared/components/company-badge/
       transform: translateY(-2px);
     }
 
-    .quick-icon {
-      font-size: 1.5rem;
+    .quick-icon-box {
+      width: 42px;
+      height: 42px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
     }
+
+    .quick-icon-box svg {
+      width: 20px;
+      height: 20px;
+    }
+
+    .icon-emerald { background: rgba(16, 185, 129, 0.14); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.25); }
+    .icon-blue { background: rgba(59, 130, 246, 0.14); color: #3b82f6; border: 1px solid rgba(59, 130, 246, 0.25); }
+    .icon-purple { background: rgba(168, 85, 247, 0.14); color: #a855f7; border: 1px solid rgba(168, 85, 247, 0.25); }
+    .icon-amber { background: rgba(245, 158, 11, 0.14); color: #f59e0b; border: 1px solid rgba(245, 158, 11, 0.25); }
 
     .quick-text {
       display: flex;
@@ -581,4 +689,3 @@ export class RecruiterOverviewComponent implements OnInit {
     });
   }
 }
-

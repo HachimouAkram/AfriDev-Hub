@@ -7,7 +7,7 @@ import { CommonModule } from '@angular/common';
   imports: [CommonModule],
   template: `
     <span class="company-badge" [ngClass]="levelClass">
-      <span class="badge-icon">{{ icon }}</span>
+      <span class="badge-dot"></span>
       <span class="badge-label">{{ label }}</span>
       <span *ngIf="showXp && xp !== undefined" class="badge-xp">{{ xp }} XP</span>
     </span>
@@ -17,23 +17,27 @@ import { CommonModule } from '@angular/common';
       display: inline-flex;
       align-items: center;
       gap: 6px;
-      padding: 3px 10px;
+      padding: 4px 11px;
       border-radius: 9999px;
       font-size: 0.75rem;
-      font-weight: 600;
+      font-weight: 700;
       letter-spacing: 0.02em;
       border: 1px solid transparent;
       transition: all 0.2s ease;
     }
 
-    .badge-icon {
-      font-size: 0.85rem;
-      line-height: 1;
+    .badge-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: currentColor;
+      box-shadow: 0 0 6px currentColor;
+      flex-shrink: 0;
     }
 
     .badge-xp {
-      opacity: 0.85;
-      font-size: 0.7rem;
+      opacity: 0.9;
+      font-size: 0.72rem;
       margin-left: 2px;
       padding-left: 6px;
       border-left: 1px solid currentColor;
@@ -41,27 +45,27 @@ import { CommonModule } from '@angular/common';
 
     /* Paliers */
     .lvl-startup {
-      background: rgba(148, 163, 184, 0.12);
-      color: #94a3b8;
-      border-color: rgba(148, 163, 184, 0.25);
-    }
-
-    .lvl-reconnue {
       background: rgba(16, 185, 129, 0.12);
       color: #10b981;
       border-color: rgba(16, 185, 129, 0.3);
     }
 
-    .lvl-certifiee {
+    .lvl-reconnue {
       background: rgba(59, 130, 246, 0.12);
       color: #3b82f6;
       border-color: rgba(59, 130, 246, 0.3);
     }
 
-    .lvl-partenaire {
+    .lvl-certifiee {
       background: rgba(168, 85, 247, 0.12);
       color: #a855f7;
       border-color: rgba(168, 85, 247, 0.3);
+    }
+
+    .lvl-partenaire {
+      background: rgba(249, 115, 22, 0.12);
+      color: #f97316;
+      border-color: rgba(249, 115, 22, 0.3);
     }
 
     .lvl-elite {
@@ -78,33 +82,20 @@ export class CompanyBadgeComponent {
   @Input() showXp: boolean = false;
 
   get levelClass(): string {
-    switch (this.level?.toUpperCase()) {
-      case 'ELITE_AFRIQUE': return 'lvl-elite';
-      case 'PARTENAIRE': return 'lvl-partenaire';
-      case 'CERTIFIEE': return 'lvl-certifiee';
-      case 'RECONNUE': return 'lvl-reconnue';
-      default: return 'lvl-startup';
-    }
-  }
-
-  get icon(): string {
-    switch (this.level?.toUpperCase()) {
-      case 'ELITE_AFRIQUE': return '👑';
-      case 'PARTENAIRE': return '💎';
-      case 'CERTIFIEE': return '🛡️';
-      case 'RECONNUE': return '⭐';
-      default: return '🌱';
-    }
+    const l = this.level?.toUpperCase() || '';
+    if (l.includes('ELITE') || l.includes('ÉLITE')) return 'lvl-elite';
+    if (l.includes('PARTENAIRE')) return 'lvl-partenaire';
+    if (l.includes('CERTIF')) return 'lvl-certifiee';
+    if (l.includes('RECONNUE')) return 'lvl-reconnue';
+    return 'lvl-startup';
   }
 
   get label(): string {
-    switch (this.level?.toUpperCase()) {
-      case 'ELITE_AFRIQUE': return 'Élite Afrique';
-      case 'PARTENAIRE': return 'Partenaire';
-      case 'CERTIFIEE': return 'Certifiée';
-      case 'RECONNUE': return 'Reconnue';
-      default: return 'Startup';
-    }
+    const l = this.level?.toUpperCase() || '';
+    if (l.includes('ELITE') || l.includes('ÉLITE')) return 'Élite Afrique';
+    if (l.includes('PARTENAIRE')) return 'Partenaire';
+    if (l.includes('CERTIF')) return 'Certifiée';
+    if (l.includes('RECONNUE')) return 'Reconnue';
+    return 'Startup';
   }
 }
-

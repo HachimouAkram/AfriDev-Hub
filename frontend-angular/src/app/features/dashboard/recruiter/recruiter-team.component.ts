@@ -16,13 +16,19 @@ import { AuthService } from '../../../core/services/auth.service';
           <p>Gérez les recruteurs habilités à publier des offres et recruter au nom de votre entreprise.</p>
         </div>
         <button class="btn btn-primary" (click)="openInviteModal()" *ngIf="isOwner()">
-          ➕ Inviter un recruteur
+          <svg class="btn-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+          </svg>
+          <span>Inviter un recruteur</span>
         </button>
       </div>
 
       <!-- Notice pour les recruteurs non-owners -->
       <div class="info-alert" *ngIf="!isOwner()">
-        ℹ️ Seul le responsable (propriétaire) de l'entreprise peut inviter ou retirer des membres de l'équipe.
+        <svg class="alert-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z" />
+        </svg>
+        <span>Seul le responsable (propriétaire) de l'entreprise peut inviter ou retirer des membres de l'équipe.</span>
       </div>
 
       <!-- Members Grid -->
@@ -39,7 +45,7 @@ import { AuthService } from '../../../core/services/auth.service';
             <div class="name-row">
               <span class="member-name">{{ member.fullName }}</span>
               <span class="role-badge" [class.role-owner]="member.role === 'OWNER'">
-                {{ member.role === 'OWNER' ? '👑 Responsable' : '💼 Recruteur' }}
+                {{ member.role === 'OWNER' ? 'Responsable' : 'Recruteur' }}
               </span>
             </div>
             <span class="member-title">{{ member.jobTitle || 'Recruteur Talent Acquisition' }}</span>
@@ -51,7 +57,9 @@ import { AuthService } from '../../../core/services/auth.service';
 
           <div class="member-actions" *ngIf="isOwner() && member.role !== 'OWNER'">
             <button class="btn-icon-danger" (click)="removeMember(member)" title="Retirer de l'équipe">
-              🗑️
+              <svg class="danger-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
+              </svg>
             </button>
           </div>
         </div>
@@ -133,6 +141,26 @@ import { AuthService } from '../../../core/services/auth.service';
       border-radius: 10px;
       color: #93c5fd;
       font-size: 0.85rem;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+
+    .alert-svg {
+      width: 18px;
+      height: 18px;
+      flex-shrink: 0;
+    }
+
+    .btn-svg {
+      width: 16px;
+      height: 16px;
+      flex-shrink: 0;
+    }
+
+    .danger-svg {
+      width: 18px;
+      height: 18px;
     }
 
     .members-grid {
@@ -233,10 +261,13 @@ import { AuthService } from '../../../core/services/auth.service';
       background: transparent;
       border: none;
       cursor: pointer;
-      font-size: 1.1rem;
+      color: #ef4444;
       padding: 6px;
       border-radius: 8px;
       transition: background 0.2s;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
     }
 
     .btn-icon-danger:hover {
@@ -251,6 +282,9 @@ import { AuthService } from '../../../core/services/auth.service';
       cursor: pointer;
       border: none;
       transition: all 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
     }
 
     .btn-primary {

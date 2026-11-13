@@ -22,7 +22,9 @@ import { OpportunityService, Opportunity } from '../../../core/services/opportun
           <div class="logo-box">
             <img *ngIf="company()?.logoUrl; else letterLogo" [src]="company()?.logoUrl" [alt]="company()?.name" />
             <ng-template #letterLogo>
-              <div class="letter-placeholder">🏢</div>
+              <svg viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="1.8" style="width: 48px; height: 48px;">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 21h16.5M4.5 3h15M5.25 3v18m13.5-18v18M9 6.75h1.5m-1.5 3h1.5m-1.5 3h1.5m3-6H15m-1.5 3H15m-1.5 3H15M9 21v-3.375c0-.621.504-1.125 1.125-1.125h3.75c.621 0 1.125.504 1.125 1.125V21" />
+              </svg>
             </ng-template>
           </div>
 
@@ -30,18 +32,40 @@ import { OpportunityService, Opportunity } from '../../../core/services/opportun
             <div class="title-row">
               <h1 class="company-name">{{ company()?.name }}</h1>
               <app-company-badge [level]="company()?.companyLevel || 'STARTUP'" [xp]="company()?.companyXp" [showXp]="true"></app-company-badge>
-              <span class="verified-tag" *ngIf="company()?.verified">✓ Vérifiée AfriDev</span>
+              <span class="verified-tag" *ngIf="company()?.verified">Vérifiée AfriDev</span>
             </div>
             <p class="tagline" *ngIf="company()?.tagline">{{ company()?.tagline }}</p>
             <div class="meta-row">
-              <span *ngIf="company()?.country || company()?.city">
-                📍 {{ company()?.city }}{{ company()?.city && company()?.country ? ', ' : '' }}{{ company()?.country }}
+              <span class="meta-inline" *ngIf="company()?.country || company()?.city">
+                <svg class="meta-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" />
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" />
+                </svg>
+                {{ company()?.city }}{{ company()?.city && company()?.country ? ', ' : '' }}{{ company()?.country }}
               </span>
-              <span *ngIf="company()?.sector">🏷️ {{ company()?.sector }}</span>
-              <span *ngIf="company()?.companySize">👥 {{ company()?.companySize }} collaborateurs</span>
-              <span *ngIf="company()?.foundedYear">📅 Fondée en {{ company()?.foundedYear }}</span>
-              <span *ngIf="company()?.website">
-                🔗 <a [href]="company()?.website" target="_blank" rel="noopener">{{ company()?.website }}</a>
+              <span class="meta-inline" *ngIf="company()?.sector">
+                <svg class="meta-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M9.568 3H5.25A2.25 2.25 0 003 5.25v4.318c0 .597.237 1.17.659 1.591l9.581 9.581c.699.699 1.78.872 2.607.33a18.095 18.095 0 005.223-5.223c.542-.827.369-1.908-.33-2.607L11.16 3.66A2.25 2.25 0 009.568 3z" />
+                </svg>
+                {{ company()?.sector }}
+              </span>
+              <span class="meta-inline" *ngIf="company()?.companySize">
+                <svg class="meta-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z" />
+                </svg>
+                {{ company()?.companySize }} collaborateurs
+              </span>
+              <span class="meta-inline" *ngIf="company()?.foundedYear">
+                <svg class="meta-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" />
+                </svg>
+                Fondée en {{ company()?.foundedYear }}
+              </span>
+              <span class="meta-inline" *ngIf="company()?.website">
+                <svg class="meta-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M13.19 8.688a4.5 4.5 0 011.242 7.244l-4.5 4.5a4.5 4.5 0 01-6.364-6.364l1.757-1.757m13.35-.622l1.757-1.757a4.5 4.5 0 00-6.364-6.364l-4.5 4.5a4.5 4.5 0 001.242 7.244" />
+                </svg>
+                <a [href]="company()?.website" target="_blank" rel="noopener">{{ company()?.website }}</a>
               </span>
             </div>
           </div>
@@ -70,9 +94,9 @@ import { OpportunityService, Opportunity } from '../../../core/services/opportun
                   <span class="badge" [ngClass]="'badge-' + opt.type.toLowerCase()">{{ opt.type }}</span>
                   <h3 class="opt-title">{{ opt.title }}</h3>
                   <div class="opt-meta">
-                    <span>📍 {{ opt.location }}</span>
-                    <span *ngIf="opt.isRemote">🌐 Télétravail</span>
-                    <span *ngIf="opt.budget" class="opt-budget">💰 {{ opt.budget }}</span>
+                    <span>{{ opt.location }}</span>
+                    <span *ngIf="opt.isRemote">• Télétravail</span>
+                    <span *ngIf="opt.budget" class="opt-budget">• {{ opt.budget }}</span>
                   </div>
                 </div>
                 <a routerLink="/opportunities" [queryParams]="{ q: company()?.name }" class="btn btn-outline-primary">
@@ -228,6 +252,19 @@ import { OpportunityService, Opportunity } from '../../../core/services/opportun
       font-size: 0.85rem;
       color: #94a3b8;
       flex-wrap: wrap;
+    }
+
+    .meta-inline {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+
+    .meta-svg {
+      width: 15px;
+      height: 15px;
+      color: #10b981;
+      flex-shrink: 0;
     }
 
     .meta-row a {

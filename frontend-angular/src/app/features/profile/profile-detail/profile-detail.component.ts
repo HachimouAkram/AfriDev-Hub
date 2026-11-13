@@ -148,10 +148,10 @@ export class ProfileDetailComponent implements OnInit {
   getSystemRoleBadge(): string {
     const role = this.getUserRole();
     switch (role) {
-      case 'SUPER_ADMIN': return '👑 SUPER_ADMIN';
-      case 'ADMIN': return '🛡️ ADMIN';
-      case 'RECRUITER': return '💼 RECRUITER (Recruteur Entreprise)';
-      case 'DEVELOPER': return '💻 DEVELOPER (Développeur)';
+      case 'SUPER_ADMIN': return 'SUPER_ADMIN';
+      case 'ADMIN': return 'ADMIN';
+      case 'RECRUITER': return 'RECRUITER (Recruteur Entreprise)';
+      case 'DEVELOPER': return 'DEVELOPER (Développeur)';
       default: return role;
     }
   }

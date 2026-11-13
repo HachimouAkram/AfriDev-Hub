@@ -61,11 +61,13 @@ import { CompanyBadgeComponent } from '../../../shared/components/company-badge/
       <header class="header-section app-card">
         <div class="header-text">
           <div style="display:inline-flex;gap:6px;background:rgba(30,41,59,0.7);padding:4px;border-radius:9999px;border:1px solid rgba(255,255,255,0.1);margin-bottom:0.75rem;">
-            <a routerLink="/leaderboard" style="color:#94a3b8;font-size:0.8rem;font-weight:600;padding:6px 14px;text-decoration:none;border-radius:9999px;">
-              👨‍💻 Développeurs
+            <a routerLink="/leaderboard" style="display:inline-flex;align-items:center;gap:6px;color:#94a3b8;font-size:0.8rem;font-weight:600;padding:6px 14px;text-decoration:none;border-radius:9999px;">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:15px;height:15px;"><path stroke-linecap="round" stroke-linejoin="round" d="M17.25 6.75L22.5 12l-5.25 5.25m-10.5 0L1.5 12l5.25-5.25m7.5-3l-4.5 16.5"/></svg>
+              <span>Développeurs</span>
             </a>
-            <span style="background:#10b981;color:#064e3b;font-weight:700;font-size:0.8rem;padding:6px 14px;border-radius:9999px;">
-              🏢 Entreprises
+            <span style="display:inline-flex;align-items:center;gap:6px;background:#10b981;color:#064e3b;font-weight:700;font-size:0.8rem;padding:6px 14px;border-radius:9999px;">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:15px;height:15px;"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 21h16.5M4.5 3h15M5.25 3v18m13.5-18v18M9 6.75h1.5m-1.5 3h1.5m-1.5 3h1.5m3-6H15m-1.5 3H15m-1.5 3H15M9 21v-3.375c0-.621.504-1.125 1.125-1.125h3.75c.621 0 1.125.504 1.125 1.125V21"/></svg>
+              <span>Entreprises</span>
             </span>
           </div>
           <h1>Classement des Entreprises & Recruteurs Tech</h1>
@@ -182,7 +184,6 @@ import { CompanyBadgeComponent } from '../../../shared/components/company-badge/
               <div *ngIf="!mc.logoUrl" class="cur-avatar-fallback">
                 {{ getInitials(mc.name) }}
               </div>
-              <span class="cur-level-badge" [title]="mc.companyLevel">{{ getLevelBadge(mc.levelNumber, mc.companyLevel) }}</span>
             </div>
             <div class="cur-details">
               <div class="cur-meta-row">
@@ -206,7 +207,7 @@ import { CompanyBadgeComponent } from '../../../shared/components/company-badge/
               <span class="xp-label">Total XP</span>
               <span class="xp-number">{{ mc.companyXp | number }} XP</span>
               <span class="level-pill" [style.color]="getLevelColor(mc.levelNumber, mc.companyLevel)">
-                {{ getLevelBadge(mc.levelNumber, mc.companyLevel) }} {{ mc.companyLevel || 'Startup' }}
+                {{ mc.companyLevel || 'Startup' }}
               </span>
             </div>
           </div>
@@ -267,7 +268,7 @@ import { CompanyBadgeComponent } from '../../../shared/components/company-badge/
                   <span class="xp-unit">XP</span>
                 </div>
                 <span class="podium-level-pill" [style.borderColor]="getLevelColor(comp.levelNumber, comp.companyLevel)">
-                  {{ getLevelBadge(comp.levelNumber, comp.companyLevel) }} {{ comp.companyLevel || 'Startup' }}
+                  {{ comp.companyLevel || 'Startup' }}
                 </span>
               </div>
             </div>
@@ -336,7 +337,7 @@ import { CompanyBadgeComponent } from '../../../shared/components/company-badge/
                   </td>
                   <td>
                     <span class="badge-opportunities" *ngIf="row.activeOpportunitiesCount > 0">
-                      💼 {{ row.activeOpportunitiesCount }} offre(s)
+                      {{ row.activeOpportunitiesCount }} offre(s)
                     </span>
                     <span *ngIf="!row.activeOpportunitiesCount" style="color: var(--text-muted); font-size: 0.8rem;">—</span>
                   </td>
@@ -444,23 +445,23 @@ import { CompanyBadgeComponent } from '../../../shared/components/company-badge/
           <!-- Levels Recap -->
           <div class="levels-recap-bar">
             <div class="level-chip">
-              <span class="lvl-label"><span class="lvl-dot lvl-junior"></span>🌱 Startup</span>
+              <span class="lvl-label"><span class="lvl-dot lvl-junior"></span>Startup</span>
               <small>0 - 499 XP</small>
             </div>
             <div class="level-chip">
-              <span class="lvl-label"><span class="lvl-dot lvl-senior"></span>🏢 Reconnue</span>
+              <span class="lvl-label"><span class="lvl-dot lvl-senior"></span>Reconnue</span>
               <small>500 - 1 999 XP</small>
             </div>
             <div class="level-chip">
-              <span class="lvl-label"><span class="lvl-dot lvl-expert"></span>✅ Certifiée</span>
+              <span class="lvl-label"><span class="lvl-dot lvl-expert"></span>Certifiée</span>
               <small>2 000 - 4 999 XP</small>
             </div>
             <div class="level-chip">
-              <span class="lvl-label"><span class="lvl-dot lvl-tech"></span>🤝 Partenaire</span>
+              <span class="lvl-label"><span class="lvl-dot lvl-tech"></span>Partenaire</span>
               <small>5 000 - 9 999 XP</small>
             </div>
             <div class="level-chip">
-              <span class="lvl-label"><span class="lvl-dot lvl-leader"></span>👑 Élite Afrique</span>
+              <span class="lvl-label"><span class="lvl-dot lvl-leader"></span>Élite Afrique</span>
               <small>10 000+ XP</small>
             </div>
           </div>
