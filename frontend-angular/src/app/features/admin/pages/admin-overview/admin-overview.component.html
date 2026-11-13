@@ -322,51 +322,9 @@
     </div>
   </section>
 
-  <!-- B. Ligne Analytique : Bâtons Groupés Comparatifs + Donut Chart Écosystème -->
-  <section class="analytics-row">
-    <!-- Chart 1 : Bâtons Groupés avec Valeurs au Sommet (Inspiré des captures 1 & 4) -->
-    <div class="chart-card app-card">
-      <div class="chart-header">
-        <div>
-          <h3>Volume Comparatif par Période</h3>
-          <p class="chart-desc">Développeurs certifiés vs Entreprises & Offres créées.</p>
-        </div>
-        <div class="grouped-legend-chips">
-          <span class="chip-legend"><span class="chip-dot dot-pink"></span> Talents</span>
-          <span class="chip-legend"><span class="chip-dot dot-slate"></span> Entreprises</span>
-        </div>
-      </div>
-
-      <!-- Graphique Bâtons Groupés avec Chiffres sur les Barres -->
-      <div class="grouped-bars-container">
-        <!-- Grille de fond graduée -->
-        <div class="grid-backdrop">
-          <div class="grid-step"><span>12</span></div>
-          <div class="grid-step"><span>8</span></div>
-          <div class="grid-step"><span>4</span></div>
-          <div class="grid-step"><span>0</span></div>
-        </div>
-
-        <!-- Colonnes groupées -->
-        <div class="bars-columns-wrap">
-          <div class="bar-pair-group" *ngFor="let g of groupedBars">
-            <div class="bars-pair">
-              <!-- Barre 1: Talents (Rose / Magenta avec chiffre au-dessus comme capture 1) -->
-              <div class="bar-single bar-pink" [style.height.%]="g.heightPct1" [title]="g.month + ' - Talents: ' + g.val1">
-                <span class="bar-value-top">{{ g.val1 }}</span>
-              </div>
-              <!-- Barre 2: Entreprises (Bleu gris avec chiffre au-dessus comme capture 1) -->
-              <div class="bar-single bar-slate" [style.height.%]="g.heightPct2" [title]="g.month + ' - Entreprises: ' + g.val2">
-                <span class="bar-value-top">{{ g.val2 }}</span>
-              </div>
-            </div>
-            <span class="bar-group-month">{{ g.month }}</span>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Chart 2: Donut Chart SVG avec Total au Centre (Inspiré de la capture 1) -->
+  <!-- B. Ligne Analytique Duo : Donut Chart Écosystème + Top Hubs Technologiques (Élargis en 2 Colonnes) -->
+  <section class="analytics-duo-row">
+    <!-- Chart 1: Donut Chart SVG avec Total au Centre (Inspiré de la capture 1) -->
     <div class="chart-card app-card donut-chart-card">
       <div class="chart-header">
         <div>
@@ -379,7 +337,7 @@
       <div class="donut-chart-container">
         <!-- SVG Donut Chart -->
         <div class="donut-svg-wrap">
-          <svg class="donut-svg" viewBox="0 0 200 200" width="170" height="170">
+          <svg class="donut-svg" viewBox="0 0 200 200" width="180" height="180">
             <!-- Cercle de fond -->
             <circle cx="100" cy="100" r="68" class="donut-track" fill="transparent" stroke="rgba(255, 255, 255, 0.06)" stroke-width="22" />
             <!-- Segments colorés -->
@@ -404,7 +362,7 @@
           </div>
         </div>
 
-        <!-- Légende Analytique Compacte avec Callouts -->
+        <!-- Légende Analytique Spacieuse avec Callouts -->
         <div class="donut-legend-list">
           <div class="donut-legend-item" *ngFor="let seg of donutSegments">
             <div class="legend-dot" [style.background-color]="seg.color"></div>
@@ -418,8 +376,8 @@
       </div>
     </div>
 
-    <!-- Chart 3: Top Hubs Panafricains en Bâtons Horizontaux -->
-    <div class="chart-card app-card">
+    <!-- Chart 2: Top Hubs Panafricains en Bâtons Horizontaux (Élargi sans coupure) -->
+    <div class="chart-card app-card hubs-card">
       <div class="chart-header">
         <div>
           <h3>Top Hubs Technologiques</h3>
@@ -446,6 +404,48 @@
             </div>
             <span class="dist-pct">{{ c.performanceScore || c.adoptionPercentage }}/100</span>
           </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- C. Bâtons Groupés Comparatifs en Pleine Largeur (Prend toute la largeur de l'écran en bas des deux) -->
+  <section class="grouped-bars-full-section app-card">
+    <div class="chart-header">
+      <div>
+        <h3>Volume Comparatif par Période</h3>
+        <p class="chart-desc">Développeurs certifiés vs Entreprises partenaires & Offres créées (Mai - Octobre 2026).</p>
+      </div>
+      <div class="grouped-legend-chips">
+        <span class="chip-legend"><span class="chip-dot dot-pink"></span> Talents Développeurs</span>
+        <span class="chip-legend"><span class="chip-dot dot-slate"></span> Entreprises & Offres</span>
+      </div>
+    </div>
+
+    <!-- Graphique Bâtons Groupés Pleine Largeur avec Chiffres sur les Barres -->
+    <div class="grouped-bars-container-full">
+      <!-- Grille de fond graduée -->
+      <div class="grid-backdrop">
+        <div class="grid-step"><span>12</span></div>
+        <div class="grid-step"><span>8</span></div>
+        <div class="grid-step"><span>4</span></div>
+        <div class="grid-step"><span>0</span></div>
+      </div>
+
+      <!-- Colonnes groupées spacieuses prenant toute la largeur -->
+      <div class="bars-columns-wrap">
+        <div class="bar-pair-group" *ngFor="let g of groupedBars">
+          <div class="bars-pair">
+            <!-- Barre 1: Talents (Rose / Magenta avec chiffre au-dessus) -->
+            <div class="bar-single bar-pink" [style.height.%]="g.heightPct1" [title]="g.month + ' - Talents: ' + g.val1">
+              <span class="bar-value-top">{{ g.val1 }}</span>
+            </div>
+            <!-- Barre 2: Entreprises (Bleu gris avec chiffre au-dessus) -->
+            <div class="bar-single bar-slate" [style.height.%]="g.heightPct2" [title]="g.month + ' - Entreprises: ' + g.val2">
+              <span class="bar-value-top">{{ g.val2 }}</span>
+            </div>
+          </div>
+          <span class="bar-group-month">{{ g.month }}</span>
         </div>
       </div>
     </div>

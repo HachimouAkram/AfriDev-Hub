@@ -251,7 +251,20 @@
   font-weight: 500;
 }
 
-/* 3. ANALYTICS ROW */
+/* 3. ANALYTICS ROWS */
+.analytics-duo-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+@media (max-width: 992px) {
+  .analytics-duo-row {
+    grid-template-columns: 1fr;
+  }
+}
+
 .analytics-row {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -489,7 +502,8 @@
   display: flex;
   align-items: center;
   gap: 0.85rem;
-  width: 140px;
+  width: 175px;
+  flex-shrink: 0;
 }
 
 .dist-meter-track {
@@ -510,8 +524,9 @@
   font-size: 0.75rem;
   font-weight: 800;
   color: var(--emerald-400);
-  width: 42px;
+  min-width: 65px;
   text-align: right;
+  white-space: nowrap;
 }
 
 /* 4. SYSTEM HEALTH SECTION */
@@ -1578,6 +1593,89 @@
   font-size: 0.72rem;
   color: var(--text-muted, #94A3B8);
   font-weight: 600;
+}
+
+/* ==========================================================================
+   C. Bâtons Groupés Pleine Largeur (Prend toute la largeur de l'écran)
+   ========================================================================== */
+.grouped-bars-full-section {
+  padding: 1.5rem;
+  background: var(--bg-surface-card, #0F172A);
+  border: 1px solid var(--border-light, rgba(255, 255, 255, 0.08));
+  border-radius: var(--radius-lg, 16px);
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  margin-bottom: 1.5rem;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.grouped-bars-container-full {
+  height: 200px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  margin-top: 0.5rem;
+  width: 100%;
+}
+
+.grouped-bars-container-full .grid-backdrop {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  pointer-events: none;
+}
+
+.grouped-bars-container-full .bars-columns-wrap {
+  display: flex;
+  justify-content: space-around;
+  align-items: flex-end;
+  height: 175px;
+  padding: 0 1rem 0 2rem;
+  z-index: 2;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.grouped-bars-container-full .bar-pair-group {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.55rem;
+  flex: 1;
+  max-width: 110px;
+}
+
+.grouped-bars-container-full .bars-pair {
+  display: flex;
+  align-items: flex-end;
+  gap: 10px;
+  height: 145px;
+  width: 100%;
+  justify-content: center;
+}
+
+.grouped-bars-container-full .bar-single {
+  width: 24px;
+  border-radius: 6px 6px 0 0;
+  position: relative;
+  transition: height 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.grouped-bars-container-full .bar-value-top {
+  position: absolute;
+  top: -18px;
+  font-size: 0.74rem;
+  font-weight: 800;
+  color: var(--text-heading, #F8FAFC);
+  white-space: nowrap;
 }
 
 
