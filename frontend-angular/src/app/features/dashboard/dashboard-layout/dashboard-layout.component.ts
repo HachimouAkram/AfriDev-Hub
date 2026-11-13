@@ -116,7 +116,6 @@ export class DashboardLayoutComponent implements OnInit {
     if (event) event.stopPropagation();
     this.isLangMenuOpen = false;
     this.translationService.setLanguage(lang);
-    this.speakVoice(lang);
   }
 
   speakVoice(lang: Language, event?: Event): void {

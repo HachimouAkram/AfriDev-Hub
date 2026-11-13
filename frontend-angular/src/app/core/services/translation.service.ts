@@ -63,7 +63,91 @@ export const DICTIONARIES: Record<string, Record<string, string>> = {
     'action.All': 'Tous',
     'action.reset': 'Réinitialiser',
     'action.details': 'Voir les détails',
+    'action.details_short': 'Détails',
+    'action.discover': 'Découvrir',
+    'action.view_profile': 'Voir le Profil',
     'action.close': 'Fermer',
+    // Hero & Home
+    'hero.badge': 'Le Premier Réseau Tech Panafricain Certifié',
+    'hero.title_1': 'Connectez les Talents Tech Africains',
+    'hero.title_2': 'Évaluez, Collaborez & Propulsez votre Carrière',
+    'hero.subtitle': 'AfriDev Hub réunit les développeurs, ingénieurs et recruteurs du continent. Valorisez vos projets réels, certifiez votre réputation par vos pairs et accédez aux meilleures opportunités Tech.',
+    'hero.join_free': 'Rejoindre la Communauté (Gratuit)',
+    'hero.my_space': 'Accéder à mon Espace',
+    'hero.discover_projects': 'Découvrir les Projets',
+    'hero.interconnection': 'Interconnexion Afrique • 54 Pays',
+    'hero.live_network': 'Réseau Live',
+    'hero.stat_rep': 'Réputation Certifiée',
+    'hero.stat_sync': 'Synchronisation Directe',
+    'hero.stat_countries_num': '54 Pays',
+    'hero.stat_pan': 'Réseau Panafricain',
+    'hero.stat_verified': 'Vérifié',
+    'hero.stat_momo_peers': 'Mobile Money & Pairs',
+    // Home Pillars
+    'home.why_badge': 'Pourquoi Choisir AfriDev Hub ?',
+    'home.why_title': "Une Plateforme Conçue pour l'Écosystème Tech Africain",
+    'home.why_desc': "L'essentiel pour prouver votre valeur et collaborer en confiance.",
+    'home.p1_kicker': 'Confiance',
+    'home.p1_lead': 'Un score technique audité par vos pairs.',
+    'home.p1_pt1': 'Qualité de code & architecture',
+    'home.p1_pt2': 'Collaboration & fiabilité prouvées',
+    'home.p1_pt3': 'Au-delà des simples CV',
+    'home.p2_kicker': 'Code & Stacks',
+    'home.p2_title': 'GitHub Live & Stats',
+    'home.p2_lead': "Vos contributions parlent d'elles-mêmes.",
+    'home.p2_pt1': 'Activité des 12 derniers mois',
+    'home.p2_pt2': 'Langages & étoiles valorisés',
+    'home.p2_pt3': 'Synchronisation en 1 clic',
+    'home.p3_kicker': 'Carrière',
+    'home.p3_title': 'Opportunités Vérifiées',
+    'home.p3_lead': 'Missions & emplois tech sans mauvaise surprise.',
+    'home.p3_pt1': 'Offres CDI & freelance contrôlées',
+    'home.p3_pt2': 'Profils Mobile Money vérifiés',
+    'home.p3_pt3': 'Paiements & cessions sécurisés',
+    'home.p4_title': 'Messagerie Instantanée',
+    'home.p4_lead': 'Échangez en direct à travers tout le continent.',
+    'home.p4_pt1': 'Chat direct devs & mentors',
+    'home.p4_pt2': 'Lien direct avec les recruteurs',
+    'home.p4_pt3': 'Citations & suivi fluide',
+    // Home Metrics & Sections
+    'home.metric_devs': 'Développeurs Inscrits',
+    'home.metric_devs_sub': 'Talents certifiés et actifs',
+    'home.metric_projs': 'Projets & Repos',
+    'home.metric_projs_sub': 'Open Source et Vitrines SaaS',
+    'home.metric_opps': 'Opportunités Tech',
+    'home.metric_opps_sub': 'CDI, Freelance & Missions',
+    'home.metric_countries': 'Pays Représentés',
+    'home.metric_countries_sub': 'Couverture 100% continentale',
+    'home.proj_title': 'Dernières Créations de la Communauté',
+    'home.proj_sub': 'Explorez les projets phares, applications open-source et SaaS conçus par les développeurs africains.',
+    'home.proj_all': 'Voir tous les projets',
+    'home.proj_publish': 'Publier un Projet',
+    'home.members_badge': 'Annuaire & Réseau',
+    'home.members_title': "Rencontrez les Développeurs d'Élite",
+    'home.members_sub': "Connectez-vous avec les talents tech les plus actifs, vérifiés et recommandés à travers toute l'Afrique.",
+    'home.members_all': "Explorer l'Annuaire complet",
+    'home.comm_badge': 'Collectifs & Écosystème',
+    'home.comm_title': 'Communautés Tech Panafricaines',
+    'home.comm_sub': "Rejoignez des collectifs de développeurs par technologie, pays ou centre d'intérêt. Partagez vos savoirs et entraidez-vous au quotidien.",
+    'home.comm_all': 'Explorer toutes les communautés',
+    'home.steps_badge': 'Parcours Simple & Rapide',
+    'home.steps_title': 'Comment Fonctionne AfriDev Hub ?',
+    'home.steps_sub': 'Trois étapes simples pour passer de votre profil GitHub aux meilleures opportunités du continent.',
+    'home.step1_title': 'Créez votre Profil',
+    'home.step1_desc': 'Ajoutez vos compétences, votre pays et synchronisez GitHub en quelques secondes.',
+    'home.step1_act_1': 'Compléter mon profil',
+    'home.step1_act_2': 'Créer un profil',
+    'home.step2_title': 'Publiez & Certifiez',
+    'home.step2_desc': 'Exposez vos projets réels et obtenez des évaluations vérifiées par vos pairs.',
+    'home.step2_act': 'Découvrir la vitrine',
+    'home.step3_title': 'Collaborez & Postulez',
+    'home.step3_desc': 'Discutez en direct par messagerie et décrochez les meilleures missions Tech.',
+    'home.step3_act': 'Explorer les offres',
+    'home.cta_title': 'Prêt à Propulser votre Carrière Tech en Afrique ?',
+    'home.cta_desc': 'Rejoignez gratuitement la communauté AfriDev Hub et faites reconnaître votre valeur technique à sa juste mesure.',
+    'home.cta_btn_dash': 'Accéder à mon Tableau de Bord',
+    'home.cta_btn_reg': 'Créer un Compte Gratuitement',
+    'home.cta_btn_opp': 'Consulter les Opportunités',
     // Payment
     'payment.free': 'Gratuit',
     'payment.paid': 'Payant',
@@ -105,7 +189,7 @@ export const DICTIONARIES: Record<string, Record<string, string>> = {
     'projects.demo': 'Démo en Ligne',
     'projects.buy': 'Acheter ce projet',
     'projects.contact_author': 'Messagerie',
-    // Footer & Common UI
+    // Footer
     'footer.mission': 'La première plateforme panafricaine certifiant la réputation, les projets réels et les compétences des développeurs africains.',
     'footer.mission_long': 'La première plateforme panafricaine certifiant la réputation, les projets réels et les compétences des développeurs africains auprès des pairs et des recruteurs du monde entier.',
     'footer.active_countries': 'Réseau actif dans 54 pays africains',
@@ -168,7 +252,91 @@ export const DICTIONARIES: Record<string, Record<string, string>> = {
     'action.All': 'All',
     'action.reset': 'Reset',
     'action.details': 'View details',
+    'action.details_short': 'Details',
+    'action.discover': 'Discover',
+    'action.view_profile': 'View Profile',
     'action.close': 'Close',
+    // Hero & Home
+    'hero.badge': 'The First Certified Pan-African Tech Network',
+    'hero.title_1': 'Connect African Tech Talents',
+    'hero.title_2': 'Evaluate, Collaborate & Propel Your Career',
+    'hero.subtitle': 'AfriDev Hub brings together developers, engineers and recruiters across the continent. Showcase your real projects, certify your reputation with peers and access top Tech opportunities.',
+    'hero.join_free': 'Join the Community (Free)',
+    'hero.my_space': 'Access My Space',
+    'hero.discover_projects': 'Discover Projects',
+    'hero.interconnection': 'Africa Interconnection • 54 Countries',
+    'hero.live_network': 'Live Network',
+    'hero.stat_rep': 'Certified Reputation',
+    'hero.stat_sync': 'Direct Synchronization',
+    'hero.stat_countries_num': '54 Countries',
+    'hero.stat_pan': 'Pan-African Network',
+    'hero.stat_verified': 'Verified',
+    'hero.stat_momo_peers': 'Mobile Money & Peers',
+    // Home Pillars
+    'home.why_badge': 'Why Choose AfriDev Hub?',
+    'home.why_title': 'A Platform Designed for the African Tech Ecosystem',
+    'home.why_desc': 'Everything you need to prove your skills and collaborate with confidence.',
+    'home.p1_kicker': 'Trust',
+    'home.p1_lead': 'A technical score audited by your peers.',
+    'home.p1_pt1': 'Code quality & architecture',
+    'home.p1_pt2': 'Proven collaboration & reliability',
+    'home.p1_pt3': 'Beyond traditional resumes',
+    'home.p2_kicker': 'Code & Stacks',
+    'home.p2_title': 'GitHub Live & Stats',
+    'home.p2_lead': 'Your contributions speak for themselves.',
+    'home.p2_pt1': 'Last 12 months activity',
+    'home.p2_pt2': 'Highlighted languages & stars',
+    'home.p2_pt3': '1-click synchronization',
+    'home.p3_kicker': 'Career',
+    'home.p3_title': 'Verified Opportunities',
+    'home.p3_lead': 'Tech missions & jobs with zero surprises.',
+    'home.p3_pt1': 'Vetted full-time & freelance offers',
+    'home.p3_pt2': 'Verified Mobile Money profiles',
+    'home.p3_pt3': 'Secure payments & transfers',
+    'home.p4_title': 'Instant Messaging',
+    'home.p4_lead': 'Chat live across the entire continent.',
+    'home.p4_pt1': 'Direct chat with devs & mentors',
+    'home.p4_pt2': 'Direct link with recruiters',
+    'home.p4_pt3': 'Smooth replies & tracking',
+    // Home Metrics & Sections
+    'home.metric_devs': 'Registered Developers',
+    'home.metric_devs_sub': 'Certified and active talents',
+    'home.metric_projs': 'Projects & Repos',
+    'home.metric_projs_sub': 'Open Source and SaaS Showcases',
+    'home.metric_opps': 'Tech Opportunities',
+    'home.metric_opps_sub': 'Full-time, Freelance & Missions',
+    'home.metric_countries': 'Countries Represented',
+    'home.metric_countries_sub': '100% continental coverage',
+    'home.proj_title': 'Latest Community Creations',
+    'home.proj_sub': 'Explore flagship projects, open-source apps and SaaS built by African developers.',
+    'home.proj_all': 'View all projects',
+    'home.proj_publish': 'Publish a Project',
+    'home.members_badge': 'Directory & Network',
+    'home.members_title': 'Meet Elite Developers',
+    'home.members_sub': 'Connect with the most active, verified and recommended tech talents across Africa.',
+    'home.members_all': 'Explore full Directory',
+    'home.comm_badge': 'Collectives & Ecosystem',
+    'home.comm_title': 'Pan-African Tech Communities',
+    'home.comm_sub': 'Join developer collectives by technology, country or interest. Share knowledge and help each other daily.',
+    'home.comm_all': 'Explore all communities',
+    'home.steps_badge': 'Simple & Fast Journey',
+    'home.steps_title': 'How Does AfriDev Hub Work?',
+    'home.steps_sub': 'Three simple steps to go from your GitHub profile to the best opportunities on the continent.',
+    'home.step1_title': 'Create Your Profile',
+    'home.step1_desc': 'Add your skills, country and sync GitHub in seconds.',
+    'home.step1_act_1': 'Complete my profile',
+    'home.step1_act_2': 'Create a profile',
+    'home.step2_title': 'Publish & Certify',
+    'home.step2_desc': 'Showcase your real projects and get verified peer reviews.',
+    'home.step2_act': 'Discover the showcase',
+    'home.step3_title': 'Collaborate & Apply',
+    'home.step3_desc': 'Chat live via messaging and land the best Tech missions.',
+    'home.step3_act': 'Explore job offers',
+    'home.cta_title': 'Ready to Propel Your Tech Career in Africa?',
+    'home.cta_desc': 'Join the AfriDev Hub community for free and get your technical skills recognized.',
+    'home.cta_btn_dash': 'Access My Dashboard',
+    'home.cta_btn_reg': 'Create a Free Account',
+    'home.cta_btn_opp': 'Browse Opportunities',
     // Payment
     'payment.free': 'Free',
     'payment.paid': 'Paid',
@@ -210,7 +378,7 @@ export const DICTIONARIES: Record<string, Record<string, string>> = {
     'projects.demo': 'Live Demo',
     'projects.buy': 'Buy this project',
     'projects.contact_author': 'Direct Message',
-    // Footer & Common UI
+    // Footer
     'footer.mission': 'The premier pan-African platform certifying reputation, real-world projects and skills of African developers.',
     'footer.mission_long': 'The premier pan-African platform certifying reputation, real-world projects and skills of African developers with peers and recruiters worldwide.',
     'footer.active_countries': 'Active community across 54 African countries',
@@ -248,7 +416,7 @@ export const DICTIONARIES: Record<string, Record<string, string>> = {
     'nav.theme_light': 'Def ko xool bu leer',
     'nav.view_site': 'Xool dal bi',
     'nav.overview': 'Xool ci kaw',
-    'nav.applications': ' Ñaan yi',
+    'nav.applications': 'Ñaan yi',
     'nav.offers': 'Liggéey yi',
     'nav.tech_help': 'Ndimbal Tech',
     'nav.mentors': 'Njiit yi',
@@ -273,7 +441,91 @@ export const DICTIONARIES: Record<string, Record<string, string>> = {
     'action.All': 'Yépp',
     'action.reset': 'Delloo na woon',
     'action.details': 'Xool li ci biir',
+    'action.details_short': 'Li ci biir',
+    'action.discover': 'Xoolal',
+    'action.view_profile': 'Xool Jëmm ji',
     'action.close': 'Tëj',
+    // Hero & Home
+    'hero.badge': 'Mboolo Tech bu Njëkk ci Afrig bu Wóor',
+    'hero.title_1': 'Lëkkale Xaralay Afrig yi',
+    'hero.title_2': 'Seetlu, Liggéeyandoo & Yëkkati sa Liggéey',
+    'hero.subtitle': 'AfriDev Hub dajale na liggéeykati xarala ak ñiy wut liggéeykat ci Afrig. Wonel sa sémb yu dëggu te am xéwal yu baax.',
+    'hero.join_free': 'Bokk ci Mboolo mi (Amul fay)',
+    'hero.my_space': 'Duggu ci sama Palaas',
+    'hero.discover_projects': 'Xool Sémb yi',
+    'hero.interconnection': 'Lëkkaloo Afrig • 54 Réew',
+    'hero.live_network': 'Mboolo Live',
+    'hero.stat_rep': 'Wóolu bu Wér',
+    'hero.stat_sync': 'Lëkkaloo Direct',
+    'hero.stat_countries_num': '54 Réew',
+    'hero.stat_pan': 'Mboolo Afrig',
+    'hero.stat_verified': 'Wér na',
+    'hero.stat_momo_peers': 'Mobile Money & Moroom',
+    // Home Pillars
+    'home.why_badge': 'Lu tax ngay tànn AfriDev Hub ?',
+    'home.why_title': 'Dal buñ Defar ngir Xaralay Afrig',
+    'home.why_desc': 'Lépp loo soxla ngir wone sa xam-xam ak liggéey ci wóolu.',
+    'home.p1_kicker': 'Wóolu',
+    'home.p1_lead': 'Seetlu xam-xam bu say moroom dëggal.',
+    'home.p1_pt1': 'Baaxaayu kod ak tabax',
+    'home.p1_pt2': 'Liggéeyandoo ak wóolu bu leer',
+    'home.p1_pt3': 'Raw ay kayitu CV rekk',
+    'home.p2_kicker': 'Kod & Xarala',
+    'home.p2_title': 'GitHub Live & Lim yi',
+    'home.p2_lead': 'Sa liggéey mooy wax ci yaw.',
+    'home.p2_pt1': 'Liggéeyu 12 weer yi weesu',
+    'home.p2_pt2': 'Làkk yi ak biddéew yi',
+    'home.p2_pt3': 'Lëkkaloo ci benn bës',
+    'home.p3_kicker': 'Liggéey',
+    'home.p3_title': 'Xéwal yu Wér',
+    'home.p3_lead': 'Liggéeyu Tech yu amul njaxlaf.',
+    'home.p3_pt1': 'Xéwal CDI ak freelance yuñ seetlu',
+    'home.p3_pt2': 'Jëmm Mobile Money yu wér',
+    'home.p3_pt3': 'Fay ak jëflante yu wóor',
+    'home.p4_title': 'Bataaxal bu Gaaw',
+    'home.p4_lead': 'Waxtaanal direct ci biir Afrig gépp.',
+    'home.p4_pt1': 'Waxtaan direct ak xarala yi',
+    'home.p4_pt2': 'Lëkkaloo direct ak ñiy jël liggéey',
+    'home.p4_pt3': 'Toppato bu yomb te gaaw',
+    // Home Metrics & Sections
+    'home.metric_devs': 'Xarala yu Bindu',
+    'home.metric_devs_sub': 'Xam-xam yu wér te dox',
+    'home.metric_projs': 'Sémb & Repos',
+    'home.metric_projs_sub': 'Open Source ak SaaS',
+    'home.metric_opps': 'Xéwali Tech',
+    'home.metric_opps_sub': 'CDI, Freelance & Liggéey',
+    'home.metric_countries': 'Réew yi ci Bokk',
+    'home.metric_countries_sub': 'Afrig gépp 100%',
+    'home.proj_title': 'Sémb yu Bees yu Mboolo mi',
+    'home.proj_sub': 'Xoolal sémb yu mag yi, aplicaciones open-source ak SaaS yu xaralay Afrig defar.',
+    'home.proj_all': 'Xool sémb yépp',
+    'home.proj_publish': 'Duggal Sémb',
+    'home.members_badge': 'Limu Xarala & Mboolo',
+    'home.members_title': 'Taalif Xarala yu Mag yi',
+    'home.members_sub': 'Lëkkalool ak xarala yi gëna sawar te wér ci biir Afrig gépp.',
+    'home.members_all': 'Xool Lim bi yépp',
+    'home.comm_badge': 'Mbooloo & Xarala',
+    'home.comm_title': 'Mbooloo Tech yu Afrig',
+    'home.comm_sub': 'Bokkal ci mbooloo xarala yi ci sa réew walla sa xam-xam ngir dimbalante bés bu nekk.',
+    'home.comm_all': 'Xool mbooloo yépp',
+    'home.steps_badge': 'Yoon wu Yomb te Gaaw',
+    'home.steps_title': 'Naka la AfriDev Hub di Doxe ?',
+    'home.steps_sub': 'Ñetti jéego yu yomb ngir jóge ci sa GitHub dem ci xéwal yi gëna baax ci Afrig.',
+    'home.step1_title': 'Sos sa Jëmm',
+    'home.step1_desc': 'Duggalal sa xam-xam, sa réew te lëkkale ko ak GitHub ci saa si.',
+    'home.step1_act_1': 'Mottali sama jëmm',
+    'home.step1_act_2': 'Sos sama jëmm',
+    'home.step2_title': 'Wonel & Wóoral',
+    'home.step2_desc': 'Wonel sa sémb yu dëggu te am seetlu yu wér ci say moroom.',
+    'home.step2_act': 'Xool wone gi',
+    'home.step3_title': 'Liggéeyandoo & Ñaan',
+    'home.step3_desc': 'Waxtaanal direct ci bataaxal te am liggéey Tech yi gëna baax.',
+    'home.step3_act': 'Xool xéwal yi',
+    'home.cta_title': 'Ndax Pare nga ngir Yëkkati sa Liggéeyu Tech ci Afrig ?',
+    'home.cta_desc': 'Bokkal ci AfriDev Hub amul fay ngir ñu xam sa xam-xam bu dëggu.',
+    'home.cta_btn_dash': 'Duggu ci sama Palaas',
+    'home.cta_btn_reg': 'Sos Kont bu Amul Fay',
+    'home.cta_btn_opp': 'Xool Xéwal yi',
     // Payment
     'payment.free': 'Amul fay',
     'payment.paid': 'Dafay fayiku',
@@ -315,7 +567,7 @@ export const DICTIONARIES: Record<string, Record<string, string>> = {
     'projects.demo': 'Xool wone gi ci internet',
     'projects.buy': 'Jënd sémb bi',
     'projects.contact_author': 'Bataaxal',
-    // Footer & Common UI
+    // Footer
     'footer.mission': 'Mboolo mu mag miy takk ndam ak wone xam-xamu liggéeykatu xarala yu Afrig.',
     'footer.mission_long': 'Mboolo mu mag miy takk ndam, sémb yu dëggu ak xam-xamu liggéeykatu xarala yu Afrig ci àddina bi.',
     'footer.active_countries': '54 réewi Afrig ñoo ci bokk',
@@ -378,7 +630,91 @@ export const DICTIONARIES: Record<string, Record<string, string>> = {
     'action.All': 'Zote',
     'action.reset': 'Weka upya',
     'action.details': 'Tazama maelezo',
+    'action.details_short': 'Maelezo',
+    'action.discover': 'Gundua',
+    'action.view_profile': 'Tazama Wasifu',
     'action.close': 'Funga',
+    // Hero & Home
+    'hero.badge': 'Mtandao wa Kwanza wa Tech Ulioidhinishwa Afrika',
+    'hero.title_1': 'Unganisha Vipaji vya Tech vya Afrika',
+    'hero.title_2': 'Tathmini, Shirikiana na Kuza Kipaji Chako',
+    'hero.subtitle': 'AfriDev Hub inawaunganisha wasanidi programu, wahandisi na waajiri kote barani. Onyesha miradi yako halisi, thibitisha sifa yako na upate fursa bora za Tech.',
+    'hero.join_free': 'Jiunge na Jumuiya (Bure)',
+    'hero.my_space': 'Ingia Kwenye Akaunti Yangu',
+    'hero.discover_projects': 'Gundua Miradi',
+    'hero.interconnection': 'Muunganisho wa Afrika • Nchi 54',
+    'hero.live_network': 'Mtandao Mubashara',
+    'hero.stat_rep': 'Sifa Iliyothibitishwa',
+    'hero.stat_sync': 'Usawazishaji wa Moja kwa Moja',
+    'hero.stat_countries_num': 'Nchi 54',
+    'hero.stat_pan': 'Mtandao wa Afrika Nzima',
+    'hero.stat_verified': 'Imethibitishwa',
+    'hero.stat_momo_peers': 'Mobile Money na Wenza',
+    // Home Pillars
+    'home.why_badge': 'Kwa Nini Uchague AfriDev Hub?',
+    'home.why_title': 'Jukwaa Lililoundwa kwa Mfumo wa Tech wa Afrika',
+    'home.why_desc': 'Kila kitu unachohitaji ili kuthibitisha thamani yako na kushirikiana kwa uaminifu.',
+    'home.p1_kicker': 'Uaminifu',
+    'home.p1_lead': 'Alama ya kiufundi iliyokaguliwa na wenzako.',
+    'home.p1_pt1': 'Ubora wa msimbo na usanifu',
+    'home.p1_pt2': 'Ushirikiano na uaminifu uliothibitishwa',
+    'home.p1_pt3': 'Zaidi ya CV za kawaida',
+    'home.p2_kicker': 'Msimbo na Teknolojia',
+    'home.p2_title': 'GitHub Mubashara na Takwimu',
+    'home.p2_lead': 'Michango yako inajieleza yenyewe.',
+    'home.p2_pt1': 'Shughuli za miezi 12 iliyopita',
+    'home.p2_pt2': 'Lugha na nyota zilizopewa kipaumbele',
+    'home.p2_pt3': 'Usawazishaji kwa kubofya mara 1',
+    'home.p3_kicker': 'Kazi na Ajira',
+    'home.p3_title': 'Fursa Zilizothibitishwa',
+    'home.p3_lead': 'Kazi na miradi ya tech bila usumbufu.',
+    'home.p3_pt1': 'Ajira za kudumu na freelance zilizohakikiwa',
+    'home.p3_pt2': 'Wasifu wa Mobile Money uliothibitishwa',
+    'home.p3_pt3': 'Malipo na mauzo salama',
+    'home.p4_title': 'Ujumbe wa Papo Hapo',
+    'home.p4_lead': 'Wasiliana moja kwa moja kote barani Afrika.',
+    'home.p4_pt1': 'Mazungumzo ya moja kwa moja na washauri',
+    'home.p4_pt2': 'Mawasiliano ya moja kwa moja na waajiri',
+    'home.p4_pt3': 'Majibu na ufuatiliaji wa haraka',
+    // Home Metrics & Sections
+    'home.metric_devs': 'Wasanidi Waliosajiliwa',
+    'home.metric_devs_sub': 'Vipaji vilivyothibitishwa na hai',
+    'home.metric_projs': 'Miradi na Repos',
+    'home.metric_projs_sub': 'Open Source na Maonyesho ya SaaS',
+    'home.metric_opps': 'Fursa za Tech',
+    'home.metric_opps_sub': 'Ajira, Freelance na Miradi',
+    'home.metric_countries': 'Nchi Zinazowakilishwa',
+    'home.metric_countries_sub': 'Mtandao wa Afrika nzima 100%',
+    'home.proj_title': 'Miradi Mipya ya Jumuiya',
+    'home.proj_sub': 'Chunguza miradi mikuu, programu za open-source na SaaS zilizoundwa na wasanidi wa Kiafrika.',
+    'home.proj_all': 'Tazama miradi yote',
+    'home.proj_publish': 'Chapisha Mradi',
+    'home.members_badge': 'Orodha na Mtandao',
+    'home.members_title': 'Kutana na Wasanidi Bora',
+    'home.members_sub': 'Ungana na vipaji vya tech vinavyofanya kazi kwa bidii na vilivyothibitishwa kote Afrika.',
+    'home.members_all': 'Chunguza Orodha kamili',
+    'home.comm_badge': 'Vikundi na Mfumo',
+    'home.comm_title': 'Jumuiya za Tech za Afrika Nzima',
+    'home.comm_sub': 'Jiunge na vikundi vya wasanidi kulingana na teknolojia, nchi au mada. Shiriki maarifa kila siku.',
+    'home.comm_all': 'Chunguza jumuiya zote',
+    'home.steps_badge': 'Hatua Rahisi na Haraka',
+    'home.steps_title': 'AfriDev Hub Inafanyaje Kazi?',
+    'home.steps_sub': 'Hatua tatu rahisi kutoka kwenye wasifu wako wa GitHub hadi fursa bora za bara la Afrika.',
+    'home.step1_title': 'Unda Wasifu Wako',
+    'home.step1_desc': 'Ongeza ujuzi wako, nchi yako na uunganishe GitHub kwa sekunde chache.',
+    'home.step1_act_1': 'Kamilisha wasifu wangu',
+    'home.step1_act_2': 'Unda wasifu',
+    'home.step2_title': 'Chapisha na Thibitisha',
+    'home.step2_desc': 'Onyesha miradi yako halisi na upate tathmini zilizothibitishwa na wenzako.',
+    'home.step2_act': 'Gundua maonyesho',
+    'home.step3_title': 'Shirikiana na Omba Kazi',
+    'home.step3_desc': 'Zungumza moja kwa moja kwa ujumbe na upate kazi bora za Tech.',
+    'home.step3_act': 'Chunguza ofa za kazi',
+    'home.cta_title': 'Je, Uko Tayari Kukuza Kazi Yako ya Tech Afrika?',
+    'home.cta_desc': 'Jiunge na jumuiya ya AfriDev Hub bure na utambulike kwa uwezo wako wa kiufundi.',
+    'home.cta_btn_dash': 'Ingia Kwenye Dashibodi Yangu',
+    'home.cta_btn_reg': 'Fungua Akaunti Bure',
+    'home.cta_btn_opp': 'Tazama Fursa za Kazi',
     // Payment
     'payment.free': 'Bure',
     'payment.paid': 'Ya Kulipia',
@@ -420,7 +756,7 @@ export const DICTIONARIES: Record<string, Record<string, string>> = {
     'projects.demo': 'Jaribio Mtandaoni',
     'projects.buy': 'Nunua mradi huu',
     'projects.contact_author': 'Ujumbe',
-    // Footer & Common UI
+    // Footer
     'footer.mission': 'Jukwaa kuu la Afrika linalothibitisha sifa, miradi halisi na ujuzi wa watengenezaji programu wa Kiafrika.',
     'footer.mission_long': 'Jukwaa kuu la Afrika linalothibitisha sifa, miradi halisi na ujuzi wa watengenezaji programu wa Kiafrika kwa wenzao na waajiri kote duniani.',
     'footer.active_countries': 'Mtandao unaofanya kazi katika nchi 54 za Afrika',
@@ -443,21 +779,26 @@ export const DICTIONARIES: Record<string, Record<string, string>> = {
 })
 export class TranslationService {
   private readonly STORAGE_KEY = 'afridev_lang';
+  private readonly CACHE_STORAGE_KEY = 'afridev_i18n_cache_v4';
   private readonly ngZone = inject(NgZone);
 
   languages = SUPPORTED_LANGUAGES;
   currentLang = signal<Language>(SUPPORTED_LANGUAGES[0]);
 
-  // Index inversé ultra-rapide O(1) permettant d'identifier toute phrase connue (FR, EN, WO, SW)
   private readonly phraseToKeyMap = new Map<string, string>();
-  // Sauvegarde du texte français original de chaque noeud Text pour une restauration 0ms
   private readonly originalTextMap = new WeakMap<Text, string>();
   private readonly originalAttrMap = new WeakMap<Element, Record<string, string>>();
-  private domObserver: MutationObserver | null = null;
-  private rafPending = false;
-  private comboRetryTimer: ReturnType<typeof setTimeout> | null = null;
+  private readonly dynamicCache: Record<string, Map<string, string>> = {
+    en: new Map<string, string>(),
+    wo: new Map<string, string>(),
+    sw: new Map<string, string>()
+  };
 
-  // Dictionnaire réactif pour la langue active
+  private domObserver: MutationObserver | null = null;
+  private observerTimer: ReturnType<typeof setTimeout> | null = null;
+  private activeAbortControllers: AbortController[] = [];
+  private activeRunId = 0;
+
   activeDictionary = computed(() => {
     const code = this.currentLang().code;
     return DICTIONARIES[code] || DICTIONARIES['fr'];
@@ -465,6 +806,7 @@ export class TranslationService {
 
   constructor() {
     this.buildPhraseLookupIndex();
+    this.loadPersistentCache();
     this.initLanguage();
   }
 
@@ -482,10 +824,57 @@ export class TranslationService {
         }
       }
     }
+    const frDict = DICTIONARIES['fr'];
+    for (const targetCode of ['en', 'wo', 'sw']) {
+      const targetDict = DICTIONARIES[targetCode];
+      const map = this.dynamicCache[targetCode];
+      for (const [key, frVal] of Object.entries(frDict)) {
+        const normFr = this.normalizePhrase(frVal);
+        if (normFr && targetDict[key]) {
+          map.set(normFr, targetDict[key]);
+        }
+      }
+    }
+  }
+
+  private loadPersistentCache(): void {
+    if (typeof window === 'undefined') return;
+    try {
+      const raw = localStorage.getItem(this.CACHE_STORAGE_KEY);
+      if (!raw) return;
+      const parsed = JSON.parse(raw) as Record<string, Record<string, string>>;
+      for (const code of ['en', 'wo', 'sw']) {
+        const entries = parsed[code];
+        if (entries && typeof entries === 'object') {
+          const map = this.dynamicCache[code];
+          for (const [k, v] of Object.entries(entries)) {
+            if (k && v) map.set(k, v);
+          }
+        }
+      }
+    } catch {}
+  }
+
+  private savePersistentCache(): void {
+    if (typeof window === 'undefined') return;
+    try {
+      const serialized: Record<string, Record<string, string>> = { en: {}, wo: {}, sw: {} };
+      for (const code of ['en', 'wo', 'sw']) {
+        const map = this.dynamicCache[code];
+        let count = 0;
+        for (const [k, v] of map.entries()) {
+          serialized[code][k] = v;
+          if (++count >= 800) break;
+        }
+      }
+      localStorage.setItem(this.CACHE_STORAGE_KEY, JSON.stringify(serialized));
+    } catch {}
   }
 
   private initLanguage(): void {
     if (typeof window === 'undefined') return;
+    this.clearGoogTransCookies();
+
     const savedCode = localStorage.getItem(this.STORAGE_KEY);
     if (savedCode) {
       const match = this.languages.find(l => l.code === savedCode);
@@ -494,35 +883,30 @@ export class TranslationService {
         if (typeof document !== 'undefined') {
           document.documentElement.lang = match.code;
         }
+        this.setupDomObserver();
         if (match.code !== 'fr') {
           this.scheduleInitialTranslation(match.code);
-        } else {
-          this.clearGoogTransCookies();
         }
+        return;
       }
     }
+    this.setupDomObserver();
   }
 
   private scheduleInitialTranslation(targetCode: string): void {
     if (typeof window === 'undefined') return;
     this.ngZone.runOutsideAngular(() => {
-      this.setupDomObserver();
       const runPass = () => {
-        this.applyInstantDomTranslation(targetCode);
-        this.syncGoogleTranslateCombo(targetCode, 0);
+        this.triggerGoogleTranslate(targetCode);
       };
       if (document.readyState === 'loading') {
-        window.addEventListener('DOMContentLoaded', runPass, { once: true });
+        window.addEventListener('DOMContentLoaded', () => setTimeout(runPass, 30), { once: true });
       } else {
-        setTimeout(runPass, 0);
+        setTimeout(runPass, 30);
       }
     });
   }
 
-  /**
-   * Changement de langue instantané, fluide et sans rechargement de page
-   * Compatible Chrome, Firefox, Edge et Safari (Mobile, Tablette, Desktop)
-   */
   setLanguage(lang: Language): void {
     if (typeof window === 'undefined') return;
 
@@ -535,190 +919,102 @@ export class TranslationService {
       document.documentElement.lang = lang.code;
     }
 
-    // Appliquer immédiatement la traduction (Dictionnaire + DOM + Widget Google hors NgZone)
     this.triggerGoogleTranslate(lang.code);
   }
 
-  /**
-   * Purge tous les cookies googtrans sur tous les niveaux de domaine
-   * (host, .host, domaine parent ex: .economestore.com) pour éviter tout blocage sur Chrome/Firefox/Edge
-   */
   public clearGoogTransCookies(): void {
     if (typeof document === 'undefined' || typeof window === 'undefined') return;
+    try {
+      const hostname = window.location.hostname || '';
+      const parts = hostname.split('.');
+      const rootDomain = parts.length >= 2 ? parts.slice(-2).join('.') : hostname;
+      const domains = Array.from(new Set(['', hostname, `.${hostname}`, rootDomain, `.${rootDomain}`]));
+      const exp = 'expires=Thu, 01 Jan 1970 00:00:00 GMT';
 
-    const hostname = window.location.hostname || '';
-    const parts = hostname.split('.');
-    const rootDomain = parts.length >= 2 ? parts.slice(-2).join('.') : hostname;
-    const domains = Array.from(new Set(['', hostname, `.${hostname}`, rootDomain, `.${rootDomain}`]));
-    const exp = 'expires=Thu, 01 Jan 1970 00:00:00 GMT';
-
-    for (const d of domains) {
-      if (d === '.' || !d && d !== '') continue;
-      const domAttr = d ? `; domain=${d}` : '';
-      document.cookie = `googtrans=; ${exp}${domAttr}; path=/`;
-      document.cookie = `googtrans=; ${exp}${domAttr}`;
-    }
+      for (const d of domains) {
+        if (d === '.') continue;
+        const domAttr = d ? `; domain=${d}` : '';
+        document.cookie = `googtrans=; ${exp}${domAttr}; path=/`;
+        document.cookie = `googtrans=; ${exp}${domAttr}`;
+      }
+    } catch {}
   }
 
-  /**
-   * Déclenche la traduction instantanée du DOM sans jamais bloquer le navigateur ni recharger la page
-   */
+  private abortAllInFlight(): void {
+    for (const c of this.activeAbortControllers) {
+      try {
+        c.abort();
+      } catch {}
+    }
+    this.activeAbortControllers = [];
+  }
+
   public triggerGoogleTranslate(targetCode: string): void {
     if (typeof window === 'undefined' || typeof document === 'undefined') return;
 
-    if (this.comboRetryTimer) {
-      clearTimeout(this.comboRetryTimer);
-      this.comboRetryTimer = null;
-    }
+    this.activeRunId++;
+    const runId = this.activeRunId;
+    this.abortAllInFlight();
 
-    // 1. Toujours purger d'abord les anciens cookies multi-domaines
-    this.clearGoogTransCookies();
-
-    // 2. Si une langue autre que le français est sélectionnée, poser un unique cookie propre
-    if (targetCode !== 'fr') {
-      const cookieValue = `/fr/${targetCode}`;
-      document.cookie = `googtrans=${cookieValue}; path=/; SameSite=Lax`;
-    }
-
-    // 3. Exécuter les opérations DOM & Google Translate en dehors de NgZone pour 0 ralentissement
     this.ngZone.runOutsideAngular(() => {
-      if (targetCode === 'fr') {
-        this.disconnectDomObserver();
-        this.restoreGoogleTranslateToFrench();
-        this.unwrapGoogleFontNodes();
-        this.applyInstantDomTranslation('fr');
-      } else {
-        this.unwrapGoogleFontNodes();
-        this.applyInstantDomTranslation(targetCode);
-        this.setupDomObserver();
-        this.syncGoogleTranslateCombo(targetCode, 0);
+      if (document.body) {
+        this.applyInstantDomTranslation(targetCode, document.body, runId);
       }
     });
   }
 
-  /**
-   * Pilote le sélecteur .goog-te-combo de Google Translate avec retry non-bloquant
-   */
-  private syncGoogleTranslateCombo(targetCode: string, attempt: number): void {
-    if (typeof document === 'undefined') return;
-
-    const select = document.querySelector('select.goog-te-combo') as HTMLSelectElement | null;
-    if (select) {
-      // S'assurer que l'option cible existe dans le select
-      let hasOption = false;
-      for (let i = 0; i < select.options.length; i++) {
-        if (select.options[i].value === targetCode) {
-          hasOption = true;
-          break;
-        }
-      }
-      if (!hasOption && targetCode) {
-        const opt = document.createElement('option');
-        opt.value = targetCode;
-        opt.text = targetCode;
-        select.appendChild(opt);
-      }
-
-      if (select.value !== targetCode) {
-        select.value = targetCode;
-      }
-      select.dispatchEvent(new Event('input', { bubbles: true, cancelable: true }));
-      select.dispatchEvent(new Event('change', { bubbles: true, cancelable: true }));
-      return;
+  private isTranslatableText(norm: string): boolean {
+    if (!norm || norm.length < 2) return false;
+    if (!/[a-zA-ZÀ-ÿ]/.test(norm)) return false;
+    if (
+      norm.startsWith('http://') ||
+      norm.startsWith('https://') ||
+      norm.startsWith('git commit') ||
+      norm.startsWith('const ') ||
+      norm.startsWith('docker ') ||
+      norm.startsWith('<FullStack') ||
+      norm.startsWith('peerReview.') ||
+      norm.startsWith('//')
+    ) {
+      return false;
     }
-
-    // Si element.js est encore en cours de chargement asynchrone, réessayer sans bloquer
-    if (attempt < 15) {
-      this.comboRetryTimer = setTimeout(() => {
-        if (this.currentLang().code === targetCode) {
-          this.syncGoogleTranslateCombo(targetCode, attempt + 1);
-        }
-      }, 160);
-    }
+    return true;
   }
 
-  /**
-   * Restaure nativement Google Translate vers le Français sans recharger la page
-   */
-  private restoreGoogleTranslateToFrench(): void {
-    if (typeof document === 'undefined') return;
-
-    try {
-      // 1. Cliquer sur le bouton de restauration interne des iframes Google Translate si présent
-      const iframes = document.querySelectorAll<HTMLIFrameElement>(
-        'iframe.goog-te-banner-frame, iframe.skiptranslate, iframe[id*=":1.container"], iframe[id*=":2.container"]'
-      );
-      iframes.forEach(iframe => {
-        try {
-          const doc = iframe.contentDocument || iframe.contentWindow?.document;
-          if (doc) {
-            const restoreBtn = doc.querySelector<HTMLElement>(
-              '[id*=".restore"], button[id*=".restore"], a.goog-close-link, .goog-close-link'
-            );
-            if (restoreBtn) {
-              restoreBtn.click();
-            }
-          }
-        } catch {}
-      });
-
-      // 2. Réinitialiser le sélecteur .goog-te-combo
-      const select = document.querySelector('select.goog-te-combo') as HTMLSelectElement | null;
-      if (select) {
-        select.value = '';
-        select.dispatchEvent(new Event('change', { bubbles: true, cancelable: true }));
-      }
-
-      // 3. Nettoyer les classes d'état Google Translate sur <html> et <body>
-      document.documentElement.classList.remove('translated-ltr', 'translated-rtl');
-      document.body?.classList.remove('translated-ltr', 'translated-rtl');
-      if (document.body) {
-        document.body.style.top = '0px';
-      }
-    } catch {}
-  }
-
-  /**
-   * Désencapsule proprement les balises <font> injectées par Google Translate
-   * pour éviter toute corruption DOM lors du passage d'une langue à une autre
-   */
-  private unwrapGoogleFontNodes(): void {
-    if (typeof document === 'undefined' || !document.body) return;
-    try {
-      const fonts = document.body.querySelectorAll('font');
-      // Parcourir de l'intérieur vers l'extérieur (ordre inverse)
-      for (let i = fonts.length - 1; i >= 0; i--) {
-        const fontEl = fonts[i];
-        const parent = fontEl.parentNode;
-        if (!parent) continue;
-        while (fontEl.firstChild) {
-          parent.insertBefore(fontEl.firstChild, fontEl);
-        }
-        parent.removeChild(fontEl);
-      }
-    } catch {}
-  }
-
-  /**
-   * Traduit instantanément (< 2ms) tous les textes et attributs connus du DOM
-   * et restaure immédiatement le français original quand targetCode === 'fr'
-   */
-  public applyInstantDomTranslation(targetCode: string, root: Node = document.body): void {
+  public applyInstantDomTranslation(
+    targetCode: string,
+    root: Node = document.body,
+    runId: number = this.activeRunId
+  ): void {
     if (typeof document === 'undefined' || !root) return;
 
-    const targetDict = DICTIONARIES[targetCode] || DICTIONARIES['fr'];
     const frDict = DICTIONARIES['fr'];
+    const targetDict = DICTIONARIES[targetCode] || frDict;
+    const langCache = this.dynamicCache[targetCode];
 
-    // 1. Traduction / Restauration des noeuds Text
+    const pendingNodesByPhrase = new Map<string, Array<{ node: Text; rawFr: string }>>();
+
     const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
       acceptNode: (node: Node) => {
         const parent = node.parentElement;
         if (!parent) return NodeFilter.FILTER_REJECT;
-        const tag = parent.tagName;
-        if (tag === 'SCRIPT' || tag === 'STYLE' || tag === 'NOSCRIPT' || tag === 'CODE' || tag === 'PRE' || tag === 'TEXTAREA') {
+        const tag = parent.tagName.toUpperCase();
+        if (
+          tag === 'SCRIPT' ||
+          tag === 'STYLE' ||
+          tag === 'NOSCRIPT' ||
+          tag === 'CODE' ||
+          tag === 'PRE' ||
+          tag === 'TEXTAREA' ||
+          tag === 'SVG'
+        ) {
           return NodeFilter.FILTER_REJECT;
         }
-        if (parent.closest('.lang-dropdown-container, .lang-dropdown-wrapper, #google_translate_element')) {
+        if (
+          parent.closest(
+            'svg, code, pre, .notranslate, [translate="no"], .lang-dropdown-container, .lang-dropdown-wrapper'
+          )
+        ) {
           return NodeFilter.FILTER_REJECT;
         }
         return NodeFilter.FILTER_ACCEPT;
@@ -727,56 +1023,72 @@ export class TranslationService {
 
     let currentNode = walker.nextNode() as Text | null;
     while (currentNode) {
-      const raw = currentNode.nodeValue || '';
-      const trimmed = this.normalizePhrase(raw);
+      const currentRaw = currentNode.nodeValue || '';
+      const currentNorm = this.normalizePhrase(currentRaw);
 
-      if (trimmed.length > 0) {
-        if (targetCode === 'fr') {
-          // Restauration immédiate du français original
-          const savedOriginal = this.originalTextMap.get(currentNode);
-          if (savedOriginal !== undefined && currentNode.nodeValue !== savedOriginal) {
-            currentNode.nodeValue = savedOriginal;
+      if (currentNorm.length > 0) {
+        let rawFr = this.originalTextMap.get(currentNode);
+        if (rawFr === undefined) {
+          const matchedKey = this.phraseToKeyMap.get(currentNorm);
+          if (matchedKey && frDict[matchedKey]) {
+            rawFr = this.preserveWhitespace(currentRaw, frDict[matchedKey]);
           } else {
-            const matchedKey = this.phraseToKeyMap.get(trimmed);
-            if (matchedKey && frDict[matchedKey]) {
-              currentNode.nodeValue = this.preserveWhitespace(raw, frDict[matchedKey]);
-            }
+            rawFr = currentRaw;
           }
+          this.originalTextMap.set(currentNode, rawFr);
         } else {
-          // Sauvegarder la référence française initiale si pas encore enregistrée
-          const matchedKey = this.phraseToKeyMap.get(trimmed);
-          if (matchedKey) {
-            if (!this.originalTextMap.has(currentNode)) {
-              this.originalTextMap.set(currentNode, this.preserveWhitespace(raw, frDict[matchedKey] || trimmed));
+          const matchedKey = this.phraseToKeyMap.get(currentNorm);
+          if (matchedKey && frDict[matchedKey]) {
+            rawFr = this.preserveWhitespace(currentRaw, frDict[matchedKey]);
+            this.originalTextMap.set(currentNode, rawFr);
+          }
+        }
+
+        const normFr = this.normalizePhrase(rawFr);
+
+        if (targetCode === 'fr') {
+          if (currentNode.nodeValue !== rawFr) {
+            currentNode.nodeValue = rawFr;
+          }
+        } else if (this.isTranslatableText(normFr)) {
+          const matchedKey = this.phraseToKeyMap.get(normFr);
+          const cachedTranslation =
+            (matchedKey ? targetDict[matchedKey] : undefined) || langCache?.get(normFr);
+
+          if (cachedTranslation) {
+            const nextVal = this.preserveWhitespace(rawFr, cachedTranslation);
+            if (currentNode.nodeValue !== nextVal) {
+              currentNode.nodeValue = nextVal;
             }
-            const translated = targetDict[matchedKey];
-            if (translated) {
-              const nextVal = this.preserveWhitespace(raw, translated);
-              if (currentNode.nodeValue !== nextVal) {
-                currentNode.nodeValue = nextVal;
-              }
+          } else {
+            // Remettre la base propre pendant la requête pour ne jamais laisser une ancienne langue affichée
+            if (currentNode.nodeValue !== rawFr) {
+              currentNode.nodeValue = rawFr;
             }
-          } else if (!this.originalTextMap.has(currentNode)) {
-            this.originalTextMap.set(currentNode, raw);
+            let list = pendingNodesByPhrase.get(normFr);
+            if (!list) {
+              list = [];
+              pendingNodesByPhrase.set(normFr, list);
+            }
+            list.push({ node: currentNode, rawFr });
           }
         }
       }
+
       currentNode = walker.nextNode() as Text | null;
     }
 
-    // 2. Traduction / Restauration des attributs placeholder et title
     if (root instanceof Element || root instanceof Document) {
       const elements = (root as Element).querySelectorAll
         ? (root as Element).querySelectorAll('[placeholder], [title]')
         : [];
       elements.forEach(el => {
-        if (el.closest('.lang-dropdown-container, .lang-dropdown-wrapper')) return;
+        if (el.closest('.notranslate, [translate="no"], .lang-dropdown-container, .lang-dropdown-wrapper')) {
+          return;
+        }
         for (const attr of ['placeholder', 'title']) {
           const val = el.getAttribute(attr);
           if (!val) continue;
-          const norm = this.normalizePhrase(val);
-          const key = this.phraseToKeyMap.get(norm);
-          if (!key) continue;
 
           let savedAttrs = this.originalAttrMap.get(el);
           if (!savedAttrs) {
@@ -784,16 +1096,100 @@ export class TranslationService {
             this.originalAttrMap.set(el, savedAttrs);
           }
           if (!savedAttrs[attr]) {
-            savedAttrs[attr] = frDict[key] || val;
+            const norm = this.normalizePhrase(val);
+            const key = this.phraseToKeyMap.get(norm);
+            savedAttrs[attr] = (key && frDict[key]) ? frDict[key] : val;
           }
 
-          const nextAttrVal = targetCode === 'fr' ? savedAttrs[attr] : (targetDict[key] || val);
-          if (nextAttrVal && el.getAttribute(attr) !== nextAttrVal) {
-            el.setAttribute(attr, nextAttrVal);
+          const rawFrAttr = savedAttrs[attr];
+          const normFrAttr = this.normalizePhrase(rawFrAttr);
+
+          if (targetCode === 'fr') {
+            if (el.getAttribute(attr) !== rawFrAttr) {
+              el.setAttribute(attr, rawFrAttr);
+            }
+          } else {
+            const key = this.phraseToKeyMap.get(normFrAttr);
+            const translatedAttr = (key ? targetDict[key] : undefined) || langCache?.get(normFrAttr);
+            if (translatedAttr && el.getAttribute(attr) !== translatedAttr) {
+              el.setAttribute(attr, translatedAttr);
+            }
           }
         }
       });
     }
+
+    if (targetCode !== 'fr' && pendingNodesByPhrase.size > 0) {
+      this.fetchDynamicTranslations(targetCode, pendingNodesByPhrase, runId);
+    }
+  }
+
+  /**
+   * Traduit chaque phrase dynamique non cachée via requêtes HTTP/2 parallèles (1 phrase = 1 réponse garantie)
+   * Évite tout bug de fusion de lignes en Wolof / Swahili
+   */
+  private fetchDynamicTranslations(
+    targetCode: string,
+    pendingNodesByPhrase: Map<string, Array<{ node: Text; rawFr: string }>>,
+    runId: number
+  ): void {
+    if (typeof fetch === 'undefined') return;
+
+    const controller = new AbortController();
+    this.activeAbortControllers.push(controller);
+    const phrases = Array.from(pendingNodesByPhrase.keys());
+    const langCache = this.dynamicCache[targetCode];
+    if (!langCache) return;
+
+    const concurrency = 8;
+    let cursor = 0;
+
+    const worker = async () => {
+      while (cursor < phrases.length) {
+        if (controller.signal.aborted || runId !== this.activeRunId || this.currentLang().code !== targetCode) {
+          return;
+        }
+        const origNorm = phrases[cursor++];
+        if (!origNorm) continue;
+
+        const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=fr&tl=${encodeURIComponent(
+          targetCode
+        )}&dt=t&q=${encodeURIComponent(origNorm)}`;
+
+        try {
+          const res = await fetch(url, { signal: controller.signal });
+          if (!res.ok) continue;
+          const data = await res.json();
+          if (controller.signal.aborted || runId !== this.activeRunId || this.currentLang().code !== targetCode) {
+            return;
+          }
+          if (!Array.isArray(data) || !Array.isArray(data[0])) continue;
+
+          const transText = data[0]
+            .map((seg: unknown[]) => (seg && seg[0] ? String(seg[0]) : ''))
+            .join('')
+            .trim();
+          if (!transText) continue;
+
+          langCache.set(origNorm, transText);
+          const targets = pendingNodesByPhrase.get(origNorm);
+          if (targets) {
+            for (const item of targets) {
+              if (item.node.isConnected) {
+                item.node.nodeValue = this.preserveWhitespace(item.rawFr, transText);
+              }
+            }
+          }
+        } catch {}
+      }
+    };
+
+    const workers = Array.from({ length: Math.min(concurrency, phrases.length) }, () => worker());
+    Promise.allSettled(workers).then(() => {
+      if (runId === this.activeRunId) {
+        this.savePersistentCache();
+      }
+    });
   }
 
   private preserveWhitespace(originalRaw: string, replacement: string): string {
@@ -804,26 +1200,35 @@ export class TranslationService {
     return `${leading}${replacement}${trailing}`;
   }
 
-  /**
-   * Observe uniquement l'ajout de nouveaux éléments DOM (changement de page Angular)
-   * hors NgZone et sans jamais observer les attributs/styles (0 boucle infinie, 0 lag)
-   */
   private setupDomObserver(): void {
     if (typeof window === 'undefined' || typeof MutationObserver === 'undefined' || !document.body) return;
     if (this.domObserver) return;
 
     this.ngZone.runOutsideAngular(() => {
-      this.domObserver = new MutationObserver(() => {
-        const code = this.currentLang().code;
-        if (code === 'fr' || this.rafPending) return;
-        this.rafPending = true;
-        requestAnimationFrame(() => {
-          this.rafPending = false;
-          const activeCode = this.currentLang().code;
-          if (activeCode !== 'fr' && document.body) {
-            this.applyInstantDomTranslation(activeCode, document.body);
+      this.domObserver = new MutationObserver((mutations) => {
+        const activeCode = this.currentLang().code;
+        if (activeCode === 'fr') return;
+
+        let hasRelevantAddedNodes = false;
+        for (const m of mutations) {
+          if (m.addedNodes.length > 0) {
+            const targetEl = m.target as Element;
+            if (targetEl && targetEl.closest && targetEl.closest('svg, .notranslate, [translate="no"]')) {
+              continue;
+            }
+            hasRelevantAddedNodes = true;
+            break;
           }
-        });
+        }
+        if (!hasRelevantAddedNodes) return;
+
+        if (this.observerTimer) clearTimeout(this.observerTimer);
+        this.observerTimer = setTimeout(() => {
+          const code = this.currentLang().code;
+          if (code !== 'fr' && document.body) {
+            this.applyInstantDomTranslation(code, document.body, this.activeRunId);
+          }
+        }, 50);
       });
 
       this.domObserver.observe(document.body, {
@@ -833,25 +1238,11 @@ export class TranslationService {
     });
   }
 
-  private disconnectDomObserver(): void {
-    if (this.domObserver) {
-      this.domObserver.disconnect();
-      this.domObserver = null;
-    }
-    this.rafPending = false;
-  }
-
-  /**
-   * Traduire une clé dans la langue active
-   */
   t(key: string, fallback?: string): string {
     const dict = this.activeDictionary();
     return dict[key] || DICTIONARIES['fr'][key] || fallback || key;
   }
 
-  /**
-   * Synthèse vocale non-bloquante (Prononciation africaine & internationale)
-   */
   speakGreeting(lang?: Language): void {
     if (typeof window === 'undefined' || !('speechSynthesis' in window)) return;
 
@@ -881,7 +1272,7 @@ export class TranslationService {
           utterance.pitch = 1.0;
           window.speechSynthesis.speak(utterance);
         } catch {}
-      }, 15);
+      }, 10);
     });
   }
 }

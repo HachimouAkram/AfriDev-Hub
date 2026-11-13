@@ -14,48 +14,26 @@
   <link href="https://cdn.jsdelivr.net/npm/remixicon@4.2.0/fonts/remixicon.css" rel="stylesheet" />
   <script src="https://accounts.google.com/gsi/client" async defer></script>
 
-  <!-- Script d'initialisation propre du cookie de langue (multi-domaines sans conflit) -->
+  <!-- Purge unique des anciens cookies Google Translate résiduels -->
   <script type="text/javascript">
     (function() {
       try {
-        var saved = localStorage.getItem('afridev_lang');
         var host = window.location.hostname || '';
         var parts = host.split('.');
         var rootDomain = parts.length >= 2 ? parts.slice(-2).join('.') : host;
         var domains = ['', host, '.' + host, rootDomain, '.' + rootDomain];
         var exp = 'expires=Thu, 01 Jan 1970 00:00:00 GMT';
-
         for (var i = 0; i < domains.length; i++) {
           var d = domains[i];
           var domAttr = d ? '; domain=' + d : '';
           document.cookie = 'googtrans=; ' + exp + domAttr + '; path=/';
           document.cookie = 'googtrans=; ' + exp + domAttr;
         }
-
-        if (saved && saved !== 'fr') {
-          var val = '/fr/' + saved;
-          document.cookie = 'googtrans=' + val + '; path=/; SameSite=Lax';
-        }
       } catch (e) {}
     })();
   </script>
 </head>
 <body class="bg-dark text-light antialiased font-sans">
-  <div id="google_translate_element" class="notranslate" translate="no" aria-hidden="true"></div>
-  <script type="text/javascript">
-    function googleTranslateElementInit() {
-      try {
-        if (window.google && window.google.translate && window.google.translate.TranslateElement) {
-          new window.google.translate.TranslateElement({
-            pageLanguage: 'fr',
-            includedLanguages: 'fr,en,sw,wo',
-            autoDisplay: false
-          }, 'google_translate_element');
-        }
-      } catch (e) {}
-    }
-  </script>
-  <script type="text/javascript" src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit" async defer></script>
   <app-root></app-root>
 </body>
 </html>

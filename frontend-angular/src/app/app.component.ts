@@ -2083,7 +2083,6 @@ export class AppComponent implements OnDestroy {
     if (event) event.stopPropagation();
     this.isLangMenuOpen = false;
     this.translationService.setLanguage(lang);
-    this.translationService.speakGreeting(lang);
   }
 
   speakVoice(lang: Language, event: Event): void {
