@@ -360,6 +360,63 @@
 }
 
 /* Light Theme Overrides for Admin Moderation Page */
+:host-context(body.light-theme) .page-header,
+:host-context(body.light-theme) .status-toolbar,
+:host-context(body.light-theme) .empty-card,
+body.light-theme .page-header,
+body.light-theme .status-toolbar,
+body.light-theme .empty-card {
+  background: #FFFFFF !important;
+  border-color: rgba(15, 23, 42, 0.08) !important;
+}
+
+:host-context(body.light-theme) .header-content h2,
+:host-context(body.light-theme) .empty-card h3,
+body.light-theme .header-content h2,
+body.light-theme .empty-card h3 {
+  color: #0F172A !important;
+}
+
+:host-context(body.light-theme) .header-content p,
+:host-context(body.light-theme) .empty-card p,
+body.light-theme .header-content p,
+body.light-theme .empty-card p {
+  color: #64748B !important;
+}
+
+:host-context(body.light-theme) .status-tab-btn,
+body.light-theme .status-tab-btn {
+  background: #F1F5F9 !important;
+  color: #64748B !important;
+  border-color: rgba(15, 23, 42, 0.08) !important;
+}
+
+:host-context(body.light-theme) .status-tab-btn.active,
+body.light-theme .status-tab-btn.active {
+  background: #059669 !important;
+  color: #FFFFFF !important;
+}
+
+:host-context(body.light-theme) .report-desc,
+body.light-theme .report-desc {
+  color: #1E293B !important;
+}
+
+:host-context(body.light-theme) .meta-label,
+body.light-theme .meta-label {
+  color: #64748B !important;
+}
+
+:host-context(body.light-theme) .meta-val,
+body.light-theme .meta-val {
+  color: #0F172A !important;
+}
+
+:host-context(body.light-theme) .report-date,
+body.light-theme .report-date {
+  color: #64748B !important;
+}
+
 :host-context(body.light-theme) .report-card,
 :host-context(body.light-theme) .moderation-card,
 :host-context(body.light-theme) .filters-card {

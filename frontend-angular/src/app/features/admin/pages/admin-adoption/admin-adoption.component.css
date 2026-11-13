@@ -733,40 +733,174 @@ body.light-theme .progress-track {
 }
 
 /* Light Theme Overrides for Admin Adoption Page */
-:host-context(body.light-theme) .search-input {
+:host-context(body.light-theme) .page-header,
+body.light-theme .page-header {
   background: #FFFFFF !important;
-  border-color: rgba(0, 0, 0, 0.15) !important;
+  border-color: rgba(15, 23, 42, 0.08) !important;
+}
+
+:host-context(body.light-theme) .header-content h2,
+body.light-theme .header-content h2 {
   color: #0F172A !important;
 }
 
-:host-context(body.light-theme) .search-input::placeholder {
+:host-context(body.light-theme) .header-content p,
+body.light-theme .header-content p {
+  color: #64748B !important;
+}
+
+:host-context(body.light-theme) .kpi-card,
+body.light-theme .kpi-card {
+  background: #FFFFFF !important;
+  border-color: rgba(15, 23, 42, 0.08) !important;
+}
+
+:host-context(body.light-theme) .kpi-title,
+body.light-theme .kpi-title {
+  color: #64748B !important;
+}
+
+:host-context(body.light-theme) .kpi-value,
+body.light-theme .kpi-value {
+  color: #0F172A !important;
+}
+
+:host-context(body.light-theme) .kpi-sub,
+body.light-theme .kpi-sub {
+  color: #64748B !important;
+}
+
+:host-context(body.light-theme) .pillar-tabs,
+body.light-theme .pillar-tabs {
+  background: #F1F5F9 !important;
+  border-color: rgba(15, 23, 42, 0.1) !important;
+}
+
+:host-context(body.light-theme) .pillar-tab,
+body.light-theme .pillar-tab {
+  color: #64748B !important;
+}
+
+:host-context(body.light-theme) .pillar-tab:hover,
+body.light-theme .pillar-tab:hover {
+  color: #0F172A !important;
+}
+
+:host-context(body.light-theme) .pillar-tab.active,
+body.light-theme .pillar-tab.active {
+  background: #059669 !important;
+  color: #FFFFFF !important;
+}
+
+:host-context(body.light-theme) .search-input,
+body.light-theme .search-input {
+  background: #FFFFFF !important;
+  border-color: rgba(15, 23, 42, 0.15) !important;
+  color: #0F172A !important;
+}
+
+:host-context(body.light-theme) .search-input::placeholder,
+body.light-theme .search-input::placeholder {
   color: #94A3B8 !important;
 }
 
-:host-context(body.light-theme) .search-icon {
-  color: #64748B;
+:host-context(body.light-theme) .search-icon,
+body.light-theme .search-icon {
+  color: #64748B !important;
 }
 
-:host-context(body.light-theme) .country-name {
+:host-context(body.light-theme) .country-name,
+body.light-theme .country-name {
   color: #0F172A !important;
 }
 
-:host-context(body.light-theme) .data-table th {
-  color: #64748B;
-  border-bottom-color: rgba(0, 0, 0, 0.06);
+:host-context(body.light-theme) .data-table,
+body.light-theme .data-table {
+  background: #FFFFFF !important;
 }
 
-:host-context(body.light-theme) .data-table td {
-  color: #1E293B;
-  border-bottom-color: rgba(0, 0, 0, 0.05);
+:host-context(body.light-theme) .data-table th,
+body.light-theme .data-table th {
+  color: #64748B !important;
+  border-bottom-color: rgba(15, 23, 42, 0.08) !important;
+  background: #F8FAFC !important;
 }
 
-:host-context(body.light-theme) .adoption-pct {
+:host-context(body.light-theme) .data-table td,
+body.light-theme .data-table td {
+  color: #1E293B !important;
+  border-bottom-color: rgba(15, 23, 42, 0.06) !important;
+}
+
+:host-context(body.light-theme) .data-table tr:hover td,
+body.light-theme .data-table tr:hover td {
+  background: #F8FAFC !important;
+}
+
+:host-context(body.light-theme) .stat-pill,
+body.light-theme .stat-pill {
+  background: #F1F5F9 !important;
+  border-color: rgba(15, 23, 42, 0.08) !important;
+}
+
+:host-context(body.light-theme) .stat-pill strong,
+body.light-theme .stat-pill strong {
+  color: #0F172A !important;
+}
+
+:host-context(body.light-theme) .perf-score-bar,
+:host-context(body.light-theme) .adoption-meter-bar,
+body.light-theme .perf-score-bar,
+body.light-theme .adoption-meter-bar {
+  background: rgba(15, 23, 42, 0.08) !important;
+}
+
+:host-context(body.light-theme) .perf-value,
+body.light-theme .perf-value {
+  color: #0F172A !important;
+}
+
+:host-context(body.light-theme) .adoption-pct,
+body.light-theme .adoption-pct {
   color: #059669 !important;
 }
 
-:host-context(body.light-theme) .rank-pill:not(.rank-gold):not(.rank-silver):not(.rank-bronze) {
-  background: rgba(0, 0, 0, 0.05);
-  color: #64748B;
+:host-context(body.light-theme) .rank-pill:not(.rank-gold):not(.rank-silver):not(.rank-bronze),
+body.light-theme .rank-pill:not(.rank-gold):not(.rank-silver):not(.rank-bronze) {
+  background: rgba(15, 23, 42, 0.06) !important;
+  color: #475569 !important;
+}
+
+:host-context(body.light-theme) .mobile-country-card,
+body.light-theme .mobile-country-card {
+  background: #FFFFFF !important;
+  border-color: rgba(15, 23, 42, 0.08) !important;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.04) !important;
+}
+
+:host-context(body.light-theme) .mobile-country-name,
+body.light-theme .mobile-country-name {
+  color: #0F172A !important;
+}
+
+:host-context(body.light-theme) .mobile-metric-item,
+body.light-theme .mobile-metric-item {
+  background: #F8FAFC !important;
+  border-color: rgba(15, 23, 42, 0.08) !important;
+}
+
+:host-context(body.light-theme) .metric-item-label,
+body.light-theme .metric-item-label {
+  color: #64748B !important;
+}
+
+:host-context(body.light-theme) .metric-item-val,
+body.light-theme .metric-item-val {
+  color: #0F172A !important;
+}
+
+:host-context(body.light-theme) .mobile-card-footer,
+body.light-theme .mobile-card-footer {
+  border-top-color: rgba(15, 23, 42, 0.08) !important;
 }
 

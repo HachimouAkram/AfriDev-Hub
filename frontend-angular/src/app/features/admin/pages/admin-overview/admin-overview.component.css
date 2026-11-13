@@ -1730,5 +1730,239 @@
   white-space: nowrap;
 }
 
+/* ==========================================================================
+   LIGHT THEME ADAPTATION (TABLEAU DE BORD ADMIN / ANALYTICS)
+   ========================================================================== */
+:host-context(body.light-theme) .chart-card,
+:host-context(body.light-theme) .spline-chart-section,
+:host-context(body.light-theme) .grouped-bars-full-section,
+:host-context(body.light-theme) .analyst-pillars-section,
+:host-context(body.light-theme) .radial-gauges-section,
+:host-context(body.light-theme) .system-health-section,
+body.light-theme .chart-card,
+body.light-theme .spline-chart-section,
+body.light-theme .grouped-bars-full-section,
+body.light-theme .analyst-pillars-section,
+body.light-theme .radial-gauges-section,
+body.light-theme .system-health-section {
+  background: #FFFFFF !important;
+  border-color: rgba(15, 23, 42, 0.08) !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04) !important;
+}
+
+:host-context(body.light-theme) .chart-header h3,
+:host-context(body.light-theme) .chart-main-title,
+:host-context(body.light-theme) .section-title,
+body.light-theme .chart-header h3,
+body.light-theme .chart-main-title,
+body.light-theme .section-title {
+  color: #0F172A !important;
+}
+
+:host-context(body.light-theme) .chart-desc,
+:host-context(body.light-theme) .chart-main-desc,
+:host-context(body.light-theme) .section-desc,
+body.light-theme .chart-desc,
+body.light-theme .chart-main-desc,
+body.light-theme .section-desc {
+  color: #64748B !important;
+}
+
+:host-context(body.light-theme) .time-range-group,
+body.light-theme .time-range-group {
+  background: #F1F5F9 !important;
+  border-color: rgba(15, 23, 42, 0.08) !important;
+}
+
+:host-context(body.light-theme) .time-btn,
+body.light-theme .time-btn {
+  color: #64748B !important;
+}
+
+:host-context(body.light-theme) .time-btn:hover,
+body.light-theme .time-btn:hover {
+  color: #0F172A !important;
+}
+
+:host-context(body.light-theme) .mini-metrics-ribbon,
+body.light-theme .mini-metrics-ribbon {
+  background: #F8FAFC !important;
+  border-color: rgba(15, 23, 42, 0.08) !important;
+}
+
+:host-context(body.light-theme) .mini-lbl,
+body.light-theme .mini-lbl {
+  color: #64748B !important;
+}
+
+:host-context(body.light-theme) .mini-val,
+body.light-theme .mini-val {
+  color: #0F172A !important;
+}
+
+:host-context(body.light-theme) .spline-svg line,
+body.light-theme .spline-svg line {
+  stroke: rgba(15, 23, 42, 0.08) !important;
+}
+
+:host-context(body.light-theme) .spline-svg text,
+body.light-theme .spline-svg text {
+  fill: #64748B !important;
+}
+
+:host-context(body.light-theme) .donut-track,
+body.light-theme .donut-track {
+  stroke: rgba(15, 23, 42, 0.08) !important;
+}
+
+:host-context(body.light-theme) .donut-center-val,
+body.light-theme .donut-center-val {
+  color: #0F172A !important;
+}
+
+:host-context(body.light-theme) .donut-center-sub,
+body.light-theme .donut-center-sub {
+  color: #64748B !important;
+}
+
+:host-context(body.light-theme) .donut-legend-item,
+body.light-theme .donut-legend-item {
+  background: #F8FAFC !important;
+  border-color: rgba(15, 23, 42, 0.08) !important;
+}
+
+:host-context(body.light-theme) .legend-name,
+body.light-theme .legend-name {
+  color: #0F172A !important;
+}
+
+:host-context(body.light-theme) .legend-count,
+body.light-theme .legend-count {
+  color: #0F172A !important;
+}
+
+:host-context(body.light-theme) .legend-pct,
+body.light-theme .legend-pct {
+  color: #64748B !important;
+}
+
+:host-context(body.light-theme) .dist-country-name,
+body.light-theme .dist-country-name {
+  color: #0F172A !important;
+}
+
+:host-context(body.light-theme) .dist-count,
+body.light-theme .dist-count {
+  color: #64748B !important;
+}
+
+:host-context(body.light-theme) .dist-pct,
+body.light-theme .dist-pct {
+  color: #0F172A !important;
+}
+
+:host-context(body.light-theme) .dist-meter-track,
+body.light-theme .dist-meter-track {
+  background: rgba(15, 23, 42, 0.08) !important;
+}
+
+:host-context(body.light-theme) .grid-step,
+body.light-theme .grid-step {
+  border-bottom-color: rgba(15, 23, 42, 0.08) !important;
+}
+
+:host-context(body.light-theme) .grid-step span,
+body.light-theme .grid-step span {
+  color: #64748B !important;
+}
+
+:host-context(body.light-theme) .bar-value-top,
+body.light-theme .bar-value-top {
+  color: #0F172A !important;
+}
+
+:host-context(body.light-theme) .bar-group-month,
+body.light-theme .bar-group-month {
+  color: #64748B !important;
+}
+
+:host-context(body.light-theme) .radial-gauge-item,
+body.light-theme .radial-gauge-item {
+  background: #F8FAFC !important;
+  border-color: rgba(15, 23, 42, 0.08) !important;
+}
+
+:host-context(body.light-theme) .gauge-track,
+body.light-theme .gauge-track {
+  stroke: rgba(15, 23, 42, 0.08) !important;
+}
+
+:host-context(body.light-theme) .gauge-val,
+body.light-theme .gauge-val {
+  color: #0F172A !important;
+}
+
+:host-context(body.light-theme) .gauge-info strong,
+body.light-theme .gauge-info strong {
+  color: #0F172A !important;
+}
+
+:host-context(body.light-theme) .gauge-info span,
+body.light-theme .gauge-info span {
+  color: #64748B !important;
+}
+
+:host-context(body.light-theme) .pillar-analyst-card,
+body.light-theme .pillar-analyst-card {
+  background: #F8FAFC !important;
+  border-color: rgba(15, 23, 42, 0.08) !important;
+}
+
+:host-context(body.light-theme) .pillar-label,
+body.light-theme .pillar-label {
+  color: #64748B !important;
+}
+
+:host-context(body.light-theme) .pillar-count,
+body.light-theme .pillar-count {
+  color: #0F172A !important;
+}
+
+:host-context(body.light-theme) .pillar-desc,
+body.light-theme .pillar-desc {
+  color: #475569 !important;
+}
+
+:host-context(body.light-theme) .pillar-bar-track,
+body.light-theme .pillar-bar-track {
+  background: rgba(15, 23, 42, 0.08) !important;
+}
+
+:host-context(body.light-theme) .card-footer,
+body.light-theme .card-footer {
+  border-top-color: rgba(15, 23, 42, 0.08) !important;
+}
+
+:host-context(body.light-theme) .health-card,
+body.light-theme .health-card {
+  background: #F8FAFC !important;
+  border-color: rgba(15, 23, 42, 0.08) !important;
+}
+
+:host-context(body.light-theme) .health-name,
+body.light-theme .health-name {
+  color: #0F172A !important;
+}
+
+:host-context(body.light-theme) .health-latency,
+body.light-theme .health-latency {
+  color: #64748B !important;
+}
+
+:host-context(body.light-theme) .spline-chart-footer,
+body.light-theme .spline-chart-footer {
+  border-top-color: rgba(15, 23, 42, 0.08) !important;
+}
+
 
 

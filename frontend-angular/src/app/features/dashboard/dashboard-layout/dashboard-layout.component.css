@@ -1402,3 +1402,162 @@ body.light-theme .dashboard-body::-webkit-scrollbar-thumb:hover {
 .highlight-admin-link:hover {
   background: rgba(255, 255, 255, 0.06) !important;
 }
+
+/* ==========================================================================
+   LIGHT THEME ADAPTATION (COCKPIT & NAVIGATION)
+   ========================================================================== */
+:host-context(body.light-theme) .dashboard-sidebar,
+body.light-theme .dashboard-sidebar {
+  background: #FFFFFF !important;
+  border-right: 1px solid rgba(15, 23, 42, 0.08) !important;
+}
+
+:host-context(body.light-theme) .sidebar-header,
+body.light-theme .sidebar-header {
+  border-bottom: 1px solid rgba(15, 23, 42, 0.08) !important;
+}
+
+:host-context(body.light-theme) .sidebar-logo .logo-text,
+body.light-theme .sidebar-logo .logo-text {
+  color: #0F172A !important;
+}
+
+:host-context(body.light-theme) .logo-subtitle,
+body.light-theme .logo-subtitle {
+  color: #64748B !important;
+}
+
+:host-context(body.light-theme) .sidebar-section-header,
+body.light-theme .sidebar-section-header {
+  color: #64748B !important;
+}
+
+:host-context(body.light-theme) .nav-item,
+body.light-theme .nav-item {
+  color: #475569 !important;
+}
+
+:host-context(body.light-theme) .nav-item:hover,
+body.light-theme .nav-item:hover {
+  background: #F1F5F9 !important;
+  color: #0F172A !important;
+}
+
+:host-context(body.light-theme) .nav-item.active,
+body.light-theme .nav-item.active {
+  background: rgba(5, 150, 105, 0.1) !important;
+  color: #059669 !important;
+}
+
+:host-context(body.light-theme) .sidebar-footer,
+body.light-theme .sidebar-footer {
+  border-top: 1px solid rgba(15, 23, 42, 0.08) !important;
+}
+
+:host-context(body.light-theme) .dashboard-topbar,
+body.light-theme .dashboard-topbar {
+  background: #FFFFFF !important;
+  border-bottom: 1px solid rgba(15, 23, 42, 0.08) !important;
+}
+
+:host-context(body.light-theme) .page-title,
+body.light-theme .page-title {
+  color: #0F172A !important;
+}
+
+:host-context(body.light-theme) .topbar-icon-btn,
+body.light-theme .topbar-icon-btn {
+  background: #F1F5F9 !important;
+  border: 1px solid rgba(15, 23, 42, 0.1) !important;
+  color: #334155 !important;
+}
+
+:host-context(body.light-theme) .topbar-icon-btn:hover,
+body.light-theme .topbar-icon-btn:hover {
+  background: #E2E8F0 !important;
+  color: #0F172A !important;
+}
+
+:host-context(body.light-theme) .profile-user-pill,
+body.light-theme .profile-user-pill {
+  background: #F8FAFC !important;
+  border: 1px solid rgba(15, 23, 42, 0.12) !important;
+}
+
+:host-context(body.light-theme) .profile-user-pill:hover,
+body.light-theme .profile-user-pill:hover {
+  background: #F1F5F9 !important;
+  border-color: rgba(15, 23, 42, 0.22) !important;
+}
+
+:host-context(body.light-theme) .user-pill-name,
+body.light-theme .user-pill-name {
+  color: #0F172A !important;
+}
+
+:host-context(body.light-theme) .user-pill-subtitle,
+body.light-theme .user-pill-subtitle {
+  color: #64748B !important;
+}
+
+:host-context(body.light-theme) .profile-dropdown-menu,
+:host-context(body.light-theme) .notif-dropdown-menu,
+:host-context(body.light-theme) .lang-dropdown-menu,
+body.light-theme .profile-dropdown-menu,
+body.light-theme .notif-dropdown-menu,
+body.light-theme .lang-dropdown-menu {
+  background: #FFFFFF !important;
+  border: 1px solid rgba(15, 23, 42, 0.12) !important;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.12) !important;
+}
+
+:host-context(body.light-theme) .dropdown-user-details .d-name,
+body.light-theme .dropdown-user-details .d-name {
+  color: #0F172A !important;
+}
+
+:host-context(body.light-theme) .dropdown-user-details .d-email,
+body.light-theme .dropdown-user-details .d-email {
+  color: #64748B !important;
+}
+
+:host-context(body.light-theme) .dropdown-link-item,
+body.light-theme .dropdown-link-item {
+  color: #334155 !important;
+}
+
+:host-context(body.light-theme) .dropdown-link-item:hover,
+body.light-theme .dropdown-link-item:hover {
+  background: #F1F5F9 !important;
+  color: #0F172A !important;
+}
+
+:host-context(body.light-theme) .dropdown-divider,
+body.light-theme .dropdown-divider {
+  background: rgba(15, 23, 42, 0.08) !important;
+}
+
+:host-context(body.light-theme) .notif-item,
+body.light-theme .notif-item {
+  border-bottom: 1px solid rgba(15, 23, 42, 0.06) !important;
+}
+
+:host-context(body.light-theme) .notif-item:hover,
+body.light-theme .notif-item:hover {
+  background: #F8FAFC !important;
+}
+
+:host-context(body.light-theme) .notif-item-title,
+body.light-theme .notif-item-title {
+  color: #0F172A !important;
+}
+
+:host-context(body.light-theme) .notif-item-body,
+body.light-theme .notif-item-body {
+  color: #64748B !important;
+}
+
+:host-context(body.light-theme) .notif-icon-circle,
+body.light-theme .notif-icon-circle {
+  background: #F1F5F9 !important;
+}
