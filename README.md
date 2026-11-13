@@ -492,8 +492,7 @@ AfriDev-Hub/
 ├── docker/                    # init.sql, nginx.conf, scripts d'entrée
 ├── .github/workflows/         # Pipeline CI/CD (ci-tests.yml)
 ├── docker-compose.yml         # PostgreSQL 16 + Redis 7 pour le développement local
-├── Dockerfile                 # Image de production du frontend
-└── DEPLOYMENT_GUIDE.md        # Guide de déploiement détaillé
+└── Dockerfile                 # Image de production du frontend
 ```
 
 ### Prérequis Système
@@ -929,8 +928,6 @@ Checklist de mise en production :
 - [ ] `APP_FRONTEND_URL` pointant vers le domaine public (liens des emails, CORS)
 - [ ] Compte Super Admin initial : changer le mot de passe dès la première connexion
 - [ ] Sauvegardes PostgreSQL planifiées
-
-Le guide complet est disponible dans [DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md).
 
 ---
 
