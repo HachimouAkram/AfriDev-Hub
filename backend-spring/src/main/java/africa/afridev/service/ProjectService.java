@@ -143,8 +143,14 @@ public class ProjectService {
                     dtoList.sort(Comparator.comparing(ProjectDto::getMatchPercentage, Comparator.nullsLast(Comparator.reverseOrder())));
                 }
             }
+            case "MOST_VIEWED" -> dtoList.sort(
+                    Comparator.comparing(ProjectDto::getViewsCount, Comparator.nullsLast(Comparator.reverseOrder()))
+                            .thenComparing(ProjectDto::getRecognitionsCount, Comparator.nullsLast(Comparator.reverseOrder()))
+                            .thenComparing(ProjectDto::getCreatedAt, Comparator.nullsLast(Comparator.reverseOrder()))
+            );
             case "POPULAR" -> dtoList.sort(
                     Comparator.comparing(ProjectDto::getRecognitionsCount, Comparator.nullsLast(Comparator.reverseOrder()))
+                            .thenComparing(ProjectDto::getViewsCount, Comparator.nullsLast(Comparator.reverseOrder()))
                             .thenComparing(ProjectDto::getCreatedAt, Comparator.nullsLast(Comparator.reverseOrder()))
             );
             case "SAME_COUNTRY" -> dtoList.sort((a, b) -> {

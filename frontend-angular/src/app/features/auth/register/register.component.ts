@@ -267,7 +267,7 @@ export class RegisterComponent implements AfterViewInit {
     });
   }
 
-  private readonly githubClientId = 'Ov23liThxmOjC0n7pOW3';
+  private readonly githubClientId = 'Ov23liThxmOjc0n7p0W3';
 
   ngAfterViewInit(): void {
     this.initGoogleSignIn();

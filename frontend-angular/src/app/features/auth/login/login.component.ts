@@ -18,7 +18,7 @@ export class LoginComponent implements OnInit, AfterViewInit, OnDestroy {
   private router = inject(Router);
   private route = inject(ActivatedRoute);
   protected readonly Math = Math;
-  private readonly githubClientId = 'Ov23liThxmOjC0n7pOW3';
+  private readonly githubClientId = 'Ov23liThxmOjc0n7p0W3';
 
   activeTab: 'password' | 'otp' = 'password';
 
