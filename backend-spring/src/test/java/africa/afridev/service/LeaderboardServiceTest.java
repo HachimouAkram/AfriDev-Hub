@@ -4,6 +4,7 @@ import africa.afridev.dto.leaderboard.LeaderboardEntryDto;
 import africa.afridev.dto.leaderboard.LeaderboardResponse;
 import africa.afridev.model.entity.ProfileEntity;
 import africa.afridev.model.entity.UserEntity;
+import africa.afridev.model.enums.Role;
 import africa.afridev.repository.ProfileRepository;
 import africa.afridev.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -16,6 +17,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
@@ -45,6 +47,7 @@ class LeaderboardServiceTest {
             UserEntity user = UserEntity.builder()
                     .id("user-" + i)
                     .email("dev" + i + "@afridev.africa")
+                    .role(Role.DEVELOPER)
                     .build();
 
             ProfileEntity profile = ProfileEntity.builder()
@@ -213,5 +216,24 @@ class LeaderboardServiceTest {
         assertNull(res.getUserRank());
         assertEquals(5, res.getTop5().size());
         assertEquals(0, res.getSurroundingNeighborhood().size());
+    }
+
+    @Test
+    @DisplayName("Rôle Recruteur : Un recruteur connecté voit la liste publique comme un visiteur non connecté")
+    void testGetLeaderboardForUser_RecruiterSeesPublicLeaderboard() {
+        when(profileRepository.findAllByUser_RoleOrderByXpPointsDescCreatedAtAsc(Role.DEVELOPER)).thenReturn(mockProfiles);
+        UserEntity recruiter = UserEntity.builder()
+                .id("recruiter-1")
+                .email("recruiter@afridev.africa")
+                .role(Role.RECRUITER)
+                .build();
+        when(userRepository.findByEmail("recruiter@afridev.africa")).thenReturn(Optional.of(recruiter));
+
+        LeaderboardResponse res = leaderboardService.getLeaderboardForUser("recruiter@afridev.africa");
+
+        assertNotNull(res);
+        assertFalse(res.getIsAuthenticated());
+        assertNull(res.getUserRank());
+        assertEquals(10, res.getPublicTop10().size());
     }
 }

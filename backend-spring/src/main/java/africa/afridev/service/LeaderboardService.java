@@ -36,14 +36,37 @@ public class LeaderboardService {
      * Les RECRUITER, ADMIN et SUPER_ADMIN sont exclus du classement des développeurs.
      */
     private List<ProfileEntity> getDeveloperProfilesOrdered() {
-        return profileRepository.findAllByUser_RoleOrderByXpPointsDescCreatedAtAsc(Role.DEVELOPER);
+        List<ProfileEntity> devs = profileRepository.findAllByUser_RoleOrderByXpPointsDescCreatedAtAsc(Role.DEVELOPER);
+        if (devs == null || devs.isEmpty()) {
+            List<ProfileEntity> all = profileRepository.findAllByOrderByXpPointsDescCreatedAtAsc();
+            if (all != null && !all.isEmpty()) {
+                return all.stream()
+                        .filter(p -> p.getUser() == null || p.getUser().getRole() == null || p.getUser().getRole() == Role.DEVELOPER)
+                        .toList();
+            }
+        }
+        return devs != null ? devs : new ArrayList<>();
     }
 
     /**
-     * Vérifie si l'identifiant correspond à un utilisateur ayant le rôle DEVELOPER.
+     * Vérifie si l'identifiant correspond explicitement à un compte non-développeur (RECRUITER, ADMIN, SUPER_ADMIN).
      */
-    private boolean isDeveloperUser(String userIdentifier) {
+    private boolean isExplicitNonDeveloper(String userIdentifier) {
+        if (userIdentifier == null || userIdentifier.isBlank()) return true;
+        Optional<UserEntity> userOpt = userRepository.findByEmail(userIdentifier)
+                .or(() -> userRepository.findById(userIdentifier));
+        return userOpt.map(u -> u.getRole() != null && u.getRole() != Role.DEVELOPER).orElse(false);
+    }
+
+    /**
+     * Vérifie si l'utilisateur courant fait partie des développeurs classés.
+     */
+    private boolean isDeveloperViewer(String userIdentifier, List<ProfileEntity> devProfiles) {
         if (userIdentifier == null || userIdentifier.isBlank()) return false;
+        if (isExplicitNonDeveloper(userIdentifier)) return false;
+        if (devProfiles != null && devProfiles.stream().anyMatch(p -> matchesIdentifier(p, userIdentifier))) {
+            return true;
+        }
         Optional<UserEntity> userOpt = userRepository.findByEmail(userIdentifier)
                 .or(() -> userRepository.findById(userIdentifier));
         return userOpt.map(u -> u.getRole() == Role.DEVELOPER).orElse(false);
@@ -104,7 +127,7 @@ public class LeaderboardService {
      */
     @Transactional(readOnly = true)
     public LeaderboardResponse getLeaderboardForUser(String userIdentifier) {
-        if (userIdentifier == null || userIdentifier.isBlank() || !isDeveloperUser(userIdentifier)) {
+        if (userIdentifier == null || userIdentifier.isBlank() || isExplicitNonDeveloper(userIdentifier)) {
             return getPublicLeaderboard();
         }
 
@@ -211,7 +234,10 @@ public class LeaderboardService {
             return getLeaderboardForUser(currentIdentifier);
         }
 
-        boolean isDevViewer = isDeveloperUser(currentIdentifier);
+        List<ProfileEntity> allProfiles = getDeveloperProfilesOrdered();
+        long totalDevelopers = allProfiles.size();
+
+        boolean isDevViewer = isDeveloperViewer(currentIdentifier, allProfiles);
         String effectiveIdentifier = isDevViewer ? currentIdentifier : null;
 
         String cacheKey = CACHE_PREFIX + "search:" + query.trim().toLowerCase() + ":" + (effectiveIdentifier != null ? effectiveIdentifier : "anon");
@@ -224,9 +250,6 @@ public class LeaderboardService {
         } catch (Exception e) {
             log.warn("Erreur lecture cache Redis leaderboard search: {}", e.getMessage());
         }
-
-        List<ProfileEntity> allProfiles = getDeveloperProfilesOrdered();
-        long totalDevelopers = allProfiles.size();
 
         String q = query.trim().toLowerCase();
         int targetIndex = -1;
