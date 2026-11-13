@@ -525,44 +525,56 @@
 
   <!-- 0. MODAL DE CRÉATION D'UNE OFFRE -->
   <div class="modal-overlay" *ngIf="showCreateModal" (click)="closeCreateModal()">
-    <div class="app-card modal-card" (click)="$event.stopPropagation()">
+    <div class="app-card modal-card modal-card-wide" (click)="$event.stopPropagation()">
       <div class="modal-header">
         <h3>Publier une Opportunité</h3>
-        <button (click)="closeCreateModal()" class="close-btn">&times;</button>
+        <button (click)="closeCreateModal()" class="btn-icon" title="Fermer">
+          <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
       </div>
 
       <div class="modal-body">
-        <div class="form-group">
-          <label class="form-label">Titre de l'offre *</label>
-          <input type="text" [(ngModel)]="offerForm.title" placeholder="Ex: Lead Développeur Full-Stack" class="form-input">
-        </div>
+        <div class="form-grid-2">
+          <div class="form-group">
+            <label class="form-label">Titre du poste ou de la mission *</label>
+            <input type="text" [(ngModel)]="offerForm.title" placeholder="Ex: Lead Développeur Full-Stack" class="form-input" required>
+          </div>
 
-        <div class="form-row-2">
           <div class="form-group">
             <label class="form-label">Type d'opportunité *</label>
-            <select [(ngModel)]="offerForm.type" class="form-input">
-              <option value="JOB">Emploi (Job)</option>
-              <option value="FREELANCE">Freelance / Mission</option>
-              <option value="INTERNSHIP">Stage</option>
+            <select [(ngModel)]="offerForm.type" class="form-select">
+              <option value="JOB">Emploi (CDI / CDD)</option>
+              <option value="FREELANCE">Mission Freelance</option>
               <option value="COLLABORATION">Collaboration Open Source</option>
+              <option value="INTERNSHIP">Stage</option>
             </select>
           </div>
 
           <div class="form-group">
-            <label class="form-label">Nombre de personnes cherchées (Quota) *</label>
-            <input type="number" [(ngModel)]="offerForm.maxApplicants" min="1" max="100" class="form-input">
-            <small class="field-hint">Dès que ce quota de candidats est accepté, l'offre passera en clôturée.</small>
+            <label class="form-label">Localisation / Pays *</label>
+            <input type="text" [(ngModel)]="offerForm.location" placeholder="Ex: Sénégal (Dakar)" class="form-input" required>
           </div>
-        </div>
 
-        <!-- Si Stage : Choix Rémunéré ou Non -->
-        <div class="form-row-2" *ngIf="offerForm.type === 'INTERNSHIP'">
           <div class="form-group">
-            <label class="form-label">Rémunération du Stage *</label>
+            <label class="form-label">
+              <svg class="icon-svg icon-svg-xs" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
+              </svg>
+              Personnes cherchées (postes) *
+            </label>
+            <input type="number" [(ngModel)]="offerForm.maxApplicants" min="1" max="100" class="form-input" required placeholder="1">
+            <small class="field-hint">Dès l'atteinte de ce quota, l'offre passera en clôturée.</small>
+          </div>
+
+          <!-- Si STAGE : Option Rémunéré ou Non -->
+          <div class="form-group col-span-full" *ngIf="offerForm.type === 'INTERNSHIP'">
+            <label class="form-label">Rémunération du stage *</label>
             <div class="radio-pill-group">
               <label class="radio-pill" [class.selected]="offerForm.isPaid">
                 <input type="radio" [value]="true" [(ngModel)]="offerForm.isPaid" name="createIsPaid">
-                <span>Stage Rémunéré</span>
+                <span>Rémunéré</span>
               </label>
               <label class="radio-pill" [class.selected]="!offerForm.isPaid">
                 <input type="radio" [value]="false" [(ngModel)]="offerForm.isPaid" name="createIsPaid">
@@ -570,36 +582,29 @@
               </label>
             </div>
           </div>
-        </div>
 
-        <div class="form-row-2">
-          <!-- Montant : Affiché uniquement si rémunéré ou pas un stage -->
+          <!-- Budget / Rémunération -->
           <div class="form-group" *ngIf="offerForm.type !== 'INTERNSHIP' || offerForm.isPaid">
             <label class="form-label">Budget / Rémunération</label>
-            <input type="text" [(ngModel)]="offerForm.budget" placeholder="Ex: 500 000 FCFA / mois, 500$, ..." class="form-input">
+            <input type="text" [(ngModel)]="offerForm.budget" placeholder="1 500 000 FCFA / mois" class="form-input">
           </div>
 
-          <div class="form-group">
-            <label class="form-label">Localisation (Ville, Pays) *</label>
-            <input type="text" [(ngModel)]="offerForm.location" placeholder="Ex: Dakar, Sénégal / Abidjan, Côte d'Ivoire" class="form-input">
+          <div class="form-group" [class.col-span-full]="offerForm.type === 'INTERNSHIP' && !offerForm.isPaid">
+            <label class="form-label">Stack requise</label>
+            <input type="text" [(ngModel)]="offerForm.stackInput" placeholder="Angular, Spring Boot" class="form-input">
           </div>
-        </div>
 
-        <div class="form-group checkbox-align">
-          <label class="custom-checkbox-label">
-            <input type="checkbox" [(ngModel)]="offerForm.isRemote">
-            <span>Poste ouvert en Télétravail (Full Remote)</span>
-          </label>
-        </div>
+          <div class="form-group col-span-full">
+            <label class="custom-checkbox-label">
+              <input type="checkbox" [(ngModel)]="offerForm.isRemote">
+              <span>Poste ouvert en Télétravail (Full Remote)</span>
+            </label>
+          </div>
 
-        <div class="form-group">
-          <label class="form-label">Technologies (séparées par une virgule)</label>
-          <input type="text" [(ngModel)]="offerForm.stackInput" placeholder="Ex: React, Node.js, Spring Boot, PostgreSQL" class="form-input">
-        </div>
-
-        <div class="form-group">
-          <label class="form-label">Description détaillée *</label>
-          <textarea [(ngModel)]="offerForm.description" rows="5" placeholder="Présentez la mission, les responsabilités et les compétences clés attendues..." class="form-textarea"></textarea>
+          <div class="form-group col-span-full">
+            <label class="form-label">Description détaillée *</label>
+            <textarea [(ngModel)]="offerForm.description" rows="3" placeholder="Présentez la mission, les responsabilités et les livrables attendus..." class="form-textarea" required></textarea>
+          </div>
         </div>
 
         <div *ngIf="createErrorMessage" class="error-box">{{ createErrorMessage }}</div>
@@ -617,44 +622,56 @@
 
   <!-- 2. MODAL DE MODIFICATION D'UNE OFFRE -->
   <div class="modal-overlay" *ngIf="showEditModal && selectedOpportunity" (click)="closeEditModal()">
-    <div class="app-card modal-card" (click)="$event.stopPropagation()">
+    <div class="app-card modal-card modal-card-wide" (click)="$event.stopPropagation()">
       <div class="modal-header">
-        <h3>Modifier l'Offre</h3>
-        <button (click)="closeEditModal()" class="close-btn">&times;</button>
+        <h3>Modifier l'Opportunité</h3>
+        <button (click)="closeEditModal()" class="btn-icon" title="Fermer">
+          <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
       </div>
 
       <div class="modal-body">
-        <div class="form-group">
-          <label class="form-label">Titre de l'offre *</label>
-          <input type="text" [(ngModel)]="offerForm.title" class="form-input">
-        </div>
+        <div class="form-grid-2">
+          <div class="form-group">
+            <label class="form-label">Titre du poste ou de la mission *</label>
+            <input type="text" [(ngModel)]="offerForm.title" class="form-input" required>
+          </div>
 
-        <div class="form-row-2">
           <div class="form-group">
             <label class="form-label">Type d'opportunité *</label>
-            <select [(ngModel)]="offerForm.type" class="form-input">
-              <option value="JOB">Emploi (Job)</option>
-              <option value="FREELANCE">Freelance / Mission</option>
+            <select [(ngModel)]="offerForm.type" class="form-select">
+              <option value="JOB">Emploi (CDI / CDD)</option>
+              <option value="FREELANCE">Mission Freelance</option>
+              <option value="COLLABORATION">Collaboration Open Source</option>
               <option value="INTERNSHIP">Stage</option>
-              <option value="COLLABORATION">Collaboration</option>
             </select>
           </div>
 
           <div class="form-group">
-            <label class="form-label">Nombre de personnes cherchées (Quota) *</label>
-            <input type="number" [(ngModel)]="offerForm.maxApplicants" min="1" max="100" class="form-input">
-            <small class="field-hint">Dès que ce quota de candidats est accepté, l'offre devient grisée/fermée.</small>
+            <label class="form-label">Localisation / Pays *</label>
+            <input type="text" [(ngModel)]="offerForm.location" class="form-input" required>
           </div>
-        </div>
 
-        <!-- Si Stage : Choix Rémunéré ou Non -->
-        <div class="form-row-2" *ngIf="offerForm.type === 'INTERNSHIP'">
           <div class="form-group">
+            <label class="form-label">
+              <svg class="icon-svg icon-svg-xs" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
+              </svg>
+              Personnes cherchées (postes) *
+            </label>
+            <input type="number" [(ngModel)]="offerForm.maxApplicants" min="1" max="100" class="form-input" required>
+            <small class="field-hint">Dès l'atteinte de ce quota, l'offre passera en clôturée.</small>
+          </div>
+
+          <!-- Si Stage : Choix Rémunéré ou Non -->
+          <div class="form-group col-span-full" *ngIf="offerForm.type === 'INTERNSHIP'">
             <label class="form-label">Rémunération du Stage *</label>
             <div class="radio-pill-group">
               <label class="radio-pill" [class.selected]="offerForm.isPaid">
                 <input type="radio" [value]="true" [(ngModel)]="offerForm.isPaid" name="editIsPaid">
-                <span>Stage Rémunéré</span>
+                <span>Rémunéré</span>
               </label>
               <label class="radio-pill" [class.selected]="!offerForm.isPaid">
                 <input type="radio" [value]="false" [(ngModel)]="offerForm.isPaid" name="editIsPaid">
@@ -662,36 +679,28 @@
               </label>
             </div>
           </div>
-        </div>
 
-        <div class="form-row-2">
-          <!-- Montant : Affiché uniquement si rémunéré ou pas un stage -->
           <div class="form-group" *ngIf="offerForm.type !== 'INTERNSHIP' || offerForm.isPaid">
             <label class="form-label">Budget / Rémunération</label>
-            <input type="text" [(ngModel)]="offerForm.budget" placeholder="Ex: 500 000 FCFA / mois" class="form-input">
+            <input type="text" [(ngModel)]="offerForm.budget" placeholder="Ex: 1 500 000 FCFA / mois" class="form-input">
           </div>
 
-          <div class="form-group">
-            <label class="form-label">Localisation (Ville, Pays)</label>
-            <input type="text" [(ngModel)]="offerForm.location" class="form-input">
+          <div class="form-group" [class.col-span-full]="offerForm.type === 'INTERNSHIP' && !offerForm.isPaid">
+            <label class="form-label">Stack requise</label>
+            <input type="text" [(ngModel)]="offerForm.stackInput" placeholder="Ex: Angular, Spring Boot" class="form-input">
           </div>
-        </div>
 
-        <div class="form-group checkbox-align">
-          <label class="custom-checkbox-label">
-            <input type="checkbox" [(ngModel)]="offerForm.isRemote">
-            <span>Poste en Télétravail (Remote)</span>
-          </label>
-        </div>
+          <div class="form-group col-span-full">
+            <label class="custom-checkbox-label">
+              <input type="checkbox" [(ngModel)]="offerForm.isRemote">
+              <span>Poste ouvert en Télétravail (Full Remote)</span>
+            </label>
+          </div>
 
-        <div class="form-group">
-          <label class="form-label">Technologies (séparées par une virgule)</label>
-          <input type="text" [(ngModel)]="offerForm.stackInput" placeholder="React, Node.js, Spring Boot" class="form-input">
-        </div>
-
-        <div class="form-group">
-          <label class="form-label">Description détaillée *</label>
-          <textarea [(ngModel)]="offerForm.description" rows="5" class="form-textarea"></textarea>
+          <div class="form-group col-span-full">
+            <label class="form-label">Description détaillée *</label>
+            <textarea [(ngModel)]="offerForm.description" rows="3" class="form-textarea" required></textarea>
+          </div>
         </div>
 
         <div *ngIf="editErrorMessage" class="error-box">{{ editErrorMessage }}</div>

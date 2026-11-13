@@ -532,7 +532,14 @@
 
           <div class="form-group" [class.col-span-full]="optType === 'INTERNSHIP' && !optIsPaid">
             <label for="oStack" class="form-label">Stack requise</label>
-            <input type="text" id="oStack" [(ngModel)]="optStack" name="optStack" placeholder="Ex: React, Node.js, PostgreSQL" class="form-input">
+            <input type="text" id="oStack" [(ngModel)]="optStack" name="optStack" placeholder="Ex: Angular, Spring Boot" class="form-input">
+          </div>
+
+          <div class="form-group col-span-full">
+            <label class="custom-checkbox-label">
+              <input type="checkbox" [(ngModel)]="optIsRemote" name="optIsRemote">
+              <span>Poste ouvert en Télétravail (Full Remote)</span>
+            </label>
           </div>
 
           <div class="form-group col-span-full">

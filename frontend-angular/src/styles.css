@@ -938,6 +938,33 @@ svg {
     display: inline-flex !important;
     align-items: center !important;
   }
+
+  .form-input,
+  .form-select,
+  .form-textarea {
+    font-size: 16px !important; /* Prevents auto-zoom on iOS Safari */
+    min-height: 44px; /* Accessible mobile touch target */
+  }
+
+  .form-textarea {
+    min-height: 80px;
+  }
+}
+
+.custom-checkbox-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  cursor: pointer;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-heading);
+}
+
+.custom-checkbox-label input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--emerald-500);
 }
 
 .logo-img {
