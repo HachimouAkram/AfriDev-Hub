@@ -122,7 +122,11 @@
               </span>
             </td>
             <td>
-              <span class="flag-text">{{ getCountryFlag(user.country) }} {{ user.country || 'Non renseigné' }}</span>
+              <span class="flag-text">
+                <img *ngIf="getCountryFlagUrl(user.country)" [src]="getCountryFlagUrl(user.country)" [alt]="user.country" class="inline-flag-img" loading="lazy" />
+                <span *ngIf="!getCountryFlagUrl(user.country)">{{ getCountryFlag(user.country) }}</span>
+                <span>{{ user.country || 'Non renseigné' }}</span>
+              </span>
               <small *ngIf="user.city" class="city-text">({{ user.city }})</small>
             </td>
             <td>
@@ -242,7 +246,11 @@
         <div class="detail-kpi-grid">
           <div class="detail-kpi-item">
             <span class="detail-kpi-label">Localisation</span>
-            <span class="detail-kpi-val">{{ getCountryFlag(selectedUserDetail.country) }} {{ selectedUserDetail.country || 'Non renseigné' }}</span>
+            <span class="detail-kpi-val">
+              <img *ngIf="getCountryFlagUrl(selectedUserDetail.country)" [src]="getCountryFlagUrl(selectedUserDetail.country)" [alt]="selectedUserDetail.country" class="inline-flag-img" loading="lazy" />
+              <span *ngIf="!getCountryFlagUrl(selectedUserDetail.country)">{{ getCountryFlag(selectedUserDetail.country) }}</span>
+              <span>{{ selectedUserDetail.country || 'Non renseigné' }}</span>
+            </span>
             <small *ngIf="selectedUserDetail.city" class="text-muted">{{ selectedUserDetail.city }}</small>
           </div>
 

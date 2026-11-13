@@ -115,8 +115,8 @@ export class LeaderboardService {
     const map: { [key: string]: string } = {
       'senegal': 'sn', 'sénégal': 'sn',
       'ghana': 'gh',
-      'algeria': 'dz', 'algérie': 'dz',
-      'cote d\'ivoire': 'ci', 'côte d\'ivoire': 'ci', 'ivory coast': 'ci',
+      'algeria': 'dz', 'algérie': 'dz', 'algerie': 'dz',
+      'cote d\'ivoire': 'ci', 'côte d\'ivoire': 'ci', 'ivory coast': 'ci', 'cote d’ivoire': 'ci', 'côte d’ivoire': 'ci',
       'nigeria': 'ng',
       'kenya': 'ke',
       'rwanda': 'rw',
@@ -130,11 +130,11 @@ export class LeaderboardService {
       'niger': 'ne',
       'gabon': 'ga',
       'congo': 'cg',
-      'rdc': 'cd', 'democratic republic of the congo': 'cd', 'congo-kinshasa': 'cd',
+      'rdc': 'cd', 'democratic republic of the congo': 'cd', 'congo-kinshasa': 'cd', 'drc': 'cd', 'république démocratique du congo': 'cd',
       'morocco': 'ma', 'maroc': 'ma',
       'tunisia': 'tn', 'tunisie': 'tn',
       'egypt': 'eg', 'égypte': 'eg',
-      'south africa': 'za', 'afrique du sud': 'za',
+      'south africa': 'za', 'afrique du sud': 'za', 'rsa': 'za',
       'madagascar': 'mg',
       'tanzania': 'tz', 'tanzanie': 'tz',
       'uganda': 'ug', 'ouganda': 'ug',
@@ -167,7 +167,9 @@ export class LeaderboardService {
       'libya': 'ly', 'libye': 'ly'
     };
 
-    return map[c] || null;
+    if (map[c]) return map[c];
+    if (c.length === 2 && /^[a-z]{2}$/.test(c)) return c;
+    return null;
   }
 
   /**

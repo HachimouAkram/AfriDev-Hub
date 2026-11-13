@@ -203,12 +203,19 @@
                   <svg *ngIf="country.rank <= 3" class="rank-svg-trophy" viewBox="0 0 24 24" fill="currentColor">
                     <path fill-rule="evenodd" d="M5.166 2.621v.858c-1.035.148-2.059.33-3.071.543a.75.75 0 00-.584.859 6.753 6.753 0 006.138 5.6 6.73 6.73 0 002.743 1.346A4.494 4.494 0 0110.5 15v1.272a3.75 3.75 0 00-.75 2.228H9a.75.75 0 000 1.5h6a.75.75 0 000-1.5h-.75a3.75 3.75 0 00-.75-2.228V15a4.494 4.494 0 01.122-3.176 6.73 6.73 0 002.744-1.346 6.753 6.753 0 006.137-5.6.75.75 0 00-.583-.859 47.962 47.962 0 00-3.072-.543v-.858A.75.75 0 0018.166 2h-12.332a.75.75 0 00-.668.621zM6.666 4.606c1.77.202 3.563.308 5.334.308s3.564-.106 5.334-.308v3.52c0 2.296-1.574 4.25-3.743 4.636a4.497 4.497 0 01-3.182 0C8.24 12.376 6.666 10.422 6.666 8.126V4.606z" clip-rule="evenodd" />
                   </svg>
-                  <span class="rank-num">#{{ country.rank }}</span>
+                  <span class="rank-num">{{ country.rank }}</span>
                 </span>
               </td>
               <td>
                 <div class="country-cell">
-                  <span class="flag-icon">{{ getCountryFlag(country.country) }}</span>
+                  <span class="flag-icon country-flag-wrap" [title]="country.country">
+                    <img *ngIf="getCountryFlagUrl(country.country)" 
+                         [src]="getCountryFlagUrl(country.country)" 
+                         [alt]="country.country" 
+                         class="country-flag-img" 
+                         loading="lazy" />
+                    <span *ngIf="!getCountryFlagUrl(country.country)" class="flag-fallback">🌍</span>
+                  </span>
                   <div class="country-name-col">
                     <span class="country-name">{{ country.country }}</span>
                     <span class="country-badge-vitality" [ngClass]="getVitalityBadgeClass(country.performanceScore)">
@@ -302,9 +309,16 @@
                 <svg *ngIf="country.rank <= 3" class="rank-svg-trophy" viewBox="0 0 24 24" fill="currentColor">
                   <path fill-rule="evenodd" d="M5.166 2.621v.858c-1.035.148-2.059.33-3.071.543a.75.75 0 00-.584.859 6.753 6.753 0 006.138 5.6 6.73 6.73 0 002.743 1.346A4.494 4.494 0 0110.5 15v1.272a3.75 3.75 0 00-.75 2.228H9a.75.75 0 000 1.5h6a.75.75 0 000-1.5h-.75a3.75 3.75 0 00-.75-2.228V15a4.494 4.494 0 01.122-3.176 6.73 6.73 0 002.744-1.346 6.753 6.753 0 006.137-5.6.75.75 0 00-.583-.859 47.962 47.962 0 00-3.072-.543v-.858A.75.75 0 0018.166 2h-12.332a.75.75 0 00-.668.621zM6.666 4.606c1.77.202 3.563.308 5.334.308s3.564-.106 5.334-.308v3.52c0 2.296-1.574 4.25-3.743 4.636a4.497 4.497 0 01-3.182 0C8.24 12.376 6.666 10.422 6.666 8.126V4.606z" clip-rule="evenodd" />
                 </svg>
-                <span class="rank-num">#{{ country.rank }}</span>
+                <span class="rank-num">{{ country.rank }}</span>
               </span>
-              <span class="flag-icon">{{ getCountryFlag(country.country) }}</span>
+              <span class="flag-icon country-flag-wrap" [title]="country.country">
+                <img *ngIf="getCountryFlagUrl(country.country)" 
+                     [src]="getCountryFlagUrl(country.country)" 
+                     [alt]="country.country" 
+                     class="country-flag-img" 
+                     loading="lazy" />
+                <span *ngIf="!getCountryFlagUrl(country.country)" class="flag-fallback">🌍</span>
+              </span>
               <strong class="mobile-country-name">{{ country.country }}</strong>
             </div>
 

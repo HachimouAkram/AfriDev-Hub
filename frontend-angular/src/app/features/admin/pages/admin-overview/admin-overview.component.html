@@ -389,7 +389,14 @@
       <div class="country-distribution-list">
         <div class="country-dist-item" *ngFor="let c of (adoptionSummary()?.countries || []).slice(0, 5)">
           <div class="dist-left">
-            <span class="dist-flag">{{ getCountryFlag(c.country) }}</span>
+            <span class="dist-flag" [title]="c.country">
+              <img *ngIf="getCountryFlagUrl(c.country)" 
+                   [src]="getCountryFlagUrl(c.country)" 
+                   [alt]="c.country" 
+                   class="country-flag-img" 
+                   loading="lazy" />
+              <span *ngIf="!getCountryFlagUrl(c.country)">🌍</span>
+            </span>
             <div class="dist-info">
               <span class="dist-country-name">{{ c.country }}</span>
               <span class="dist-count">

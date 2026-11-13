@@ -5,6 +5,7 @@ import { Subject, Subscription } from 'rxjs';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { AdminService, UserAdmin } from '../../../../core/services/admin.service';
 import { AuthService } from '../../../../core/services/auth.service';
+import { LeaderboardService } from '../../../../core/services/leaderboard.service';
 
 @Component({
   selector: 'app-admin-users',
@@ -15,6 +16,7 @@ import { AuthService } from '../../../../core/services/auth.service';
 })
 export class AdminUsersComponent implements OnInit, OnDestroy {
   private adminService = inject(AdminService);
+  private leaderboardService = inject(LeaderboardService);
   authService = inject(AuthService);
 
   users: UserAdmin[] = [];
@@ -316,5 +318,9 @@ export class AdminUsersComponent implements OnInit, OnDestroy {
   getCountryFlag(countryName?: string): string {
     if (!countryName) return '🌍';
     return this.countryFlags[countryName] || '🌍';
+  }
+
+  getCountryFlagUrl(countryName?: string): string | null {
+    return this.leaderboardService.getCountryFlagUrl(countryName);
   }
 }

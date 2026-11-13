@@ -852,4 +852,16 @@ body.light-theme .auto-password-notice {
   color: #047857;
 }
 
+.inline-flag-img {
+  width: 20px;
+  height: 14px;
+  border-radius: 2px;
+  object-fit: cover;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  vertical-align: middle;
+  margin-right: 0.35rem;
+  display: inline-block;
+}
+
 

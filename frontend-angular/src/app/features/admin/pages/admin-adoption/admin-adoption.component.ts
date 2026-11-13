@@ -2,6 +2,7 @@ import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AdminService, PlatformAdoptionSummary, CountryAdoptionStats } from '../../../../core/services/admin.service';
+import { LeaderboardService } from '../../../../core/services/leaderboard.service';
 
 @Component({
   selector: 'app-admin-adoption',
@@ -12,6 +13,7 @@ import { AdminService, PlatformAdoptionSummary, CountryAdoptionStats } from '../
 })
 export class AdminAdoptionComponent implements OnInit {
   private adminService = inject(AdminService);
+  private leaderboardService = inject(LeaderboardService);
 
   isLoading = true;
   adoptionSummary: PlatformAdoptionSummary | null = null;
@@ -151,6 +153,10 @@ export class AdminAdoptionComponent implements OnInit {
 
   getCountryFlag(countryName: string): string {
     return this.countryFlags[countryName] || '🌍';
+  }
+
+  getCountryFlagUrl(countryName?: string): string | null {
+    return this.leaderboardService.getCountryFlagUrl(countryName);
   }
 
   getVitalityBadgeClass(score?: number): string {

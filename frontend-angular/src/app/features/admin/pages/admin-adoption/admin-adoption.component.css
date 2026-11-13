@@ -443,6 +443,35 @@
 
 .flag-icon {
   font-size: 1.35rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.country-flag-wrap {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 28px;
+  height: 20px;
+}
+
+.country-flag-img {
+  width: 26px;
+  height: 18px;
+  border-radius: 3px;
+  object-fit: cover;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  flex-shrink: 0;
+  display: inline-block;
+  vertical-align: middle;
+}
+
+.flag-fallback {
+  font-size: 1.3rem;
+  line-height: 1;
 }
 
 .country-name {

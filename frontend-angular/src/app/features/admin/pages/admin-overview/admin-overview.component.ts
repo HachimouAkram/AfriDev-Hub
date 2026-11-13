@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { AdminService, AdminStats, PlatformAdoptionSummary, AuditLog } from '../../../../core/services/admin.service';
 import { AuthService } from '../../../../core/services/auth.service';
+import { LeaderboardService } from '../../../../core/services/leaderboard.service';
 
 export interface MonthlyActivityData {
   month: string;
@@ -75,6 +76,7 @@ export interface ActivityMatrixItem {
 export class AdminOverviewComponent implements OnInit {
   private adminService = inject(AdminService);
   private authService = inject(AuthService);
+  private leaderboardService = inject(LeaderboardService);
 
   user = this.authService.currentUser;
 
@@ -448,6 +450,10 @@ export class AdminOverviewComponent implements OnInit {
       'Cameroun': '🇨🇲'
     };
     return flags[countryName] || '🌍';
+  }
+
+  getCountryFlagUrl(countryName?: string): string | null {
+    return this.leaderboardService.getCountryFlagUrl(countryName);
   }
 
   getActionBadgeClass(action: string): string {
