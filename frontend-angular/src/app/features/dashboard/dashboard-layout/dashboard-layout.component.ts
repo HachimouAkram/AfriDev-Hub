@@ -229,6 +229,36 @@ export class DashboardLayoutComponent implements OnInit {
     return this.router.url.includes('/messages');
   }
 
+  getFormattedUserName(u: any): string {
+    if (!u) return '';
+    const fullName = u.profile?.fullName?.trim() || '';
+
+    // Si c'est le libellé par défaut du compte administrateur / super administrateur
+    if (/super\s*administrateur(\s+afridev)?/i.test(fullName)) {
+      return 'Super Admin';
+    }
+    if (/administrateur(\s+afridev)?/i.test(fullName)) {
+      return 'Admin';
+    }
+
+    if (!fullName) {
+      if (this.isSuperAdmin()) return 'Super Admin';
+      if (this.isAdmin()) return 'Admin';
+      return u.email ? u.email.split('@')[0] : 'Utilisateur';
+    }
+
+    // Raccourcir les noms trop longs pour éviter tout dépassement
+    if (fullName.length > 18) {
+      const parts = fullName.split(/\s+/);
+      if (parts.length >= 2) {
+        return `${parts[0]} ${parts[parts.length - 1]}`;
+      }
+      return fullName.substring(0, 16) + '...';
+    }
+
+    return fullName;
+  }
+
   getLevelBadge(levelNumber?: number): string {
     switch (levelNumber) {
       case 5: return '👑';

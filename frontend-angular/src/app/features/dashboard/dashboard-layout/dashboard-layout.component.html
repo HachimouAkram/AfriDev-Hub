@@ -395,10 +395,10 @@
         <div class="profile-dropdown-wrapper">
           <button (click)="toggleProfileMenu($event)" class="profile-user-pill">
             <div class="user-avatar-circle">
-              {{ u.profile.fullName ? u.profile.fullName.charAt(0).toUpperCase() : 'A' }}
+              {{ getFormattedUserName(u).charAt(0).toUpperCase() }}
             </div>
             <div class="user-pill-text">
-              <span class="user-pill-name">{{ u.profile?.fullName || u.email }}</span>
+              <span class="user-pill-name">{{ getFormattedUserName(u) }}</span>
               <span class="user-pill-subtitle">{{ isSuperAdmin() ? '👑 Super Administrateur' : (isAdmin() ? '🛡️ Administrateur' : (u.profile?.title || (u.role === 'RECRUITER' ? 'Recruteur' : 'Développeur'))) }}</span>
             </div>
             <svg class="chevron-icon" [class.rotated]="isProfileMenuOpen" viewBox="0 0 24 24" fill="none" stroke="currentColor">
@@ -410,10 +410,10 @@
           <div class="profile-dropdown-menu app-card" *ngIf="isProfileMenuOpen" (click)="$event.stopPropagation()">
             <div class="dropdown-header-box" [routerLink]="isAdmin() ? '/admin/profile' : '/dashboard/profile'" (click)="closeProfileMenu()" style="cursor: pointer;" title="Accéder à mon profil">
               <div class="dropdown-avatar-circle">
-                {{ u.profile?.fullName ? u.profile.fullName.charAt(0).toUpperCase() : 'A' }}
+                {{ getFormattedUserName(u).charAt(0).toUpperCase() }}
               </div>
               <div class="dropdown-user-details">
-                <span class="d-name">{{ u.profile?.fullName || 'Utilisateur AfriDev' }}</span>
+                <span class="d-name">{{ getFormattedUserName(u) }}</span>
                 <span class="d-email">{{ u.email }}</span>
                 <div class="d-gamification-row" *ngIf="u.role === 'DEVELOPER'">
                   <span class="d-level-badge level-tag-{{ u.profile?.levelNumber || 1 }}">
@@ -431,39 +431,39 @@
             <div class="dropdown-links">
               <!-- 1. LIENS COCKPIT SUPER ADMIN (SI ADMIN/SUPER_ADMIN) -->
               <ng-container *ngIf="isAdmin()">
-                <a [routerLink]="isAdmin() ? '/admin/profile' : '/dashboard/profile'" (click)="closeProfileMenu()" class="dropdown-link-item highlight-admin-link">
-                  <svg class="icon-svg icon-svg-sm text-emerald" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <a [routerLink]="isAdmin() ? '/admin/profile' : '/dashboard/profile'" (click)="closeProfileMenu()" class="dropdown-link-item">
+                  <svg class="icon-svg icon-svg-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
                   </svg>
-                  <span><strong>{{ isSuperAdmin() ? '👑 Mon Profil Super Admin' : '🛡️ Mon Profil Admin' }}</strong></span>
+                  <span>{{ isSuperAdmin() ? '👑 Mon Profil Super Admin' : '🛡️ Mon Profil Admin' }}</span>
                 </a>
 
-                <a routerLink="/admin/adoption" (click)="closeProfileMenu()" class="dropdown-link-item highlight-admin-link">
-                  <svg class="icon-svg icon-svg-sm text-emerald" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <a routerLink="/admin/adoption" (click)="closeProfileMenu()" class="dropdown-link-item">
+                  <svg class="icon-svg icon-svg-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 21a9.004 9.004 0 008.716-6.747M12 21a9.004 9.004 0 01-8.716-6.747M12 21c2.485 0 4.5-4.03 4.5-9S14.485 3 12 3" />
                   </svg>
-                  <span><strong>Adoption 54 Pays</strong></span>
+                  <span>Adoption 54 Pays</span>
                 </a>
 
-                <a routerLink="/admin/users" (click)="closeProfileMenu()" class="dropdown-link-item highlight-admin-link">
-                  <svg class="icon-svg icon-svg-sm text-emerald" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <a routerLink="/admin/users" (click)="closeProfileMenu()" class="dropdown-link-item">
+                  <svg class="icon-svg icon-svg-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493" />
                   </svg>
-                  <span><strong>Gestion Utilisateurs</strong></span>
+                  <span>Gestion Utilisateurs</span>
                 </a>
 
-                <a routerLink="/admin/moderation" (click)="closeProfileMenu()" class="dropdown-link-item highlight-admin-link">
-                  <svg class="icon-svg icon-svg-sm text-emerald" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <a routerLink="/admin/moderation" (click)="closeProfileMenu()" class="dropdown-link-item">
+                  <svg class="icon-svg icon-svg-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
                   </svg>
-                  <span><strong>Modération & Litiges</strong></span>
+                  <span>Modération & Litiges</span>
                 </a>
 
-                <a routerLink="/admin/audit" (click)="closeProfileMenu()" class="dropdown-link-item highlight-admin-link">
-                  <svg class="icon-svg icon-svg-sm text-emerald" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <a routerLink="/admin/audit" (click)="closeProfileMenu()" class="dropdown-link-item">
+                  <svg class="icon-svg icon-svg-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
                   </svg>
-                  <span><strong>Registre d'Audit</strong></span>
+                  <span>Registre d'Audit</span>
                 </a>
               </ng-container>
 

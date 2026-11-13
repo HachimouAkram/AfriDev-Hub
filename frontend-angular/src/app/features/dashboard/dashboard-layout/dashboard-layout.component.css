@@ -720,18 +720,18 @@ body.light-theme .nav-item .nav-badge.badge-event {
 
 .profile-user-pill:hover {
   background: var(--bg-surface-hover);
-  border-color: var(--emerald-500);
+  border-color: rgba(255, 255, 255, 0.22);
 }
 
 .user-avatar-circle {
   width: 36px;
   height: 36px;
   border-radius: 50%;
-  background: linear-gradient(135deg, var(--emerald-500) 0%, var(--emerald-700) 100%);
-  color: #022C22;
+  background: linear-gradient(135deg, #6366F1 0%, #4338CA 100%);
+  color: #FFFFFF;
   font-family: var(--font-heading);
   font-weight: 800;
-  font-size: 1rem;
+  font-size: 0.95rem;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -846,11 +846,11 @@ body.light-theme .nav-item .nav-badge.badge-event {
   width: 44px;
   height: 44px;
   border-radius: 50%;
-  background: linear-gradient(135deg, var(--emerald-500) 0%, var(--emerald-700) 100%);
-  color: #022C22;
+  background: linear-gradient(135deg, #6366F1 0%, #4338CA 100%);
+  color: #FFFFFF;
   font-family: var(--font-heading);
   font-weight: 800;
-  font-size: 1.25rem;
+  font-size: 1.15rem;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -940,9 +940,9 @@ body.light-theme .nav-item .nav-badge.badge-event {
 
 .dropdown-user-details .d-badge {
   font-size: 0.7rem;
-  color: var(--emerald-500);
+  color: #F59E0B;
   font-weight: 700;
-  margin-top: 0.1rem;
+  margin-top: 0.15rem;
 }
 
 .highlight-leaderboard-link {
@@ -986,8 +986,8 @@ body.light-theme .nav-item .nav-badge.badge-event {
 }
 
 .dropdown-link-item:hover {
-  background: var(--bg-surface-hover);
-  color: var(--emerald-500);
+  background: rgba(255, 255, 255, 0.06);
+  color: #FFFFFF;
 }
 
 .dropdown-link-item.logout-red {
@@ -1395,11 +1395,10 @@ body.light-theme .dashboard-body::-webkit-scrollbar-thumb:hover {
 }
 
 .highlight-admin-link {
-  background: rgba(16, 185, 129, 0.08);
-  border-radius: var(--radius-sm, 8px);
-  color: var(--emerald-400, #34d399) !important;
+  background: transparent;
+  color: var(--text-heading) !important;
 }
 
 .highlight-admin-link:hover {
-  background: rgba(16, 185, 129, 0.16) !important;
+  background: rgba(255, 255, 255, 0.06) !important;
 }
