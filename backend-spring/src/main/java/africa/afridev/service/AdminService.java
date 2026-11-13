@@ -40,6 +40,11 @@ public class AdminService {
     private final EvaluationRepository evaluationRepository;
     private final AuditLogRepository auditLogRepository;
     private final ReportRepository reportRepository;
+    private final CompanyRepository companyRepository;
+    private final GroupRepository groupRepository;
+    private final ResourceRepository resourceRepository;
+    private final TechEventRepository techEventRepository;
+    private final ApplicationRepository applicationRepository;
     private final AuthService authService;
     private final ProjectService projectService;
     private final RedisCacheService redisCacheService;
@@ -58,20 +63,112 @@ public class AdminService {
         long totalProjects = projectRepository.count();
         long totalOpportunities = opportunityRepository.count();
         long totalEvaluations = evaluationRepository.count();
+        long totalCompanies = companyRepository.count();
+        long totalResources = resourceRepository.count();
+        long totalGroups = groupRepository.count();
+        long totalEvents = techEventRepository.count();
+        long totalApplications = applicationRepository.count();
+
+        List<ProfileEntity> allProfiles = profileRepository.findAll();
+        List<CompanyEntity> allCompanies = companyRepository.findAll();
+        List<OpportunityEntity> allOpportunities = opportunityRepository.findAll();
+        List<ResourceEntity> allResources = resourceRepository.findAll();
+        List<GroupEntity> allGroups = groupRepository.findAll();
+
+        long totalDevelopers = allProfiles.stream()
+                .filter(p -> p.getUser() != null && p.getUser().getRole() == Role.DEVELOPER)
+                .count();
+
+        long totalRecruiters = allProfiles.stream()
+                .filter(p -> p.getUser() != null && p.getUser().getRole() == Role.RECRUITER)
+                .count();
+
+        long totalVerifiedUsers = allProfiles.stream()
+                .filter(p -> Boolean.TRUE.equals(p.getMobileMoneyVerified()))
+                .count();
+
+        long totalVerifiedCompanies = allCompanies.stream()
+                .filter(c -> Boolean.TRUE.equals(c.getVerified()))
+                .count();
+
+        long activeCompanies = allCompanies.stream()
+                .filter(c -> c.getStatus() == ContentStatus.PUBLISHED)
+                .count();
+
+        long activeOpportunities = allOpportunities.stream()
+                .filter(o -> o.getStatus() == ContentStatus.PUBLISHED)
+                .count();
+
+        long totalTrainingsCompleted = allResources.stream()
+                .mapToLong(r -> r.getCompletionsCount() != null ? r.getCompletionsCount() : 0)
+                .sum();
+
+        long totalGroupMembers = allGroups.stream()
+                .mapToLong(g -> g.getMemberCount() != null ? g.getMemberCount() : 1)
+                .sum();
+
+        Map<String, Long> opportunitiesByType = allOpportunities.stream()
+                .filter(o -> o.getType() != null)
+                .collect(Collectors.groupingBy(o -> o.getType().name(), Collectors.counting()));
 
         Map<String, Long> usersByCountry = new HashMap<>();
-        profileRepository.findAll().forEach(profile -> {
-            String country = profile.getCountry() != null ? profile.getCountry() : "Non spécifié";
+        allProfiles.forEach(profile -> {
+            String country = profile.getCountry() != null && !profile.getCountry().isBlank() ? profile.getCountry() : "Non spécifié";
             usersByCountry.put(country, usersByCountry.getOrDefault(country, 0L) + 1);
         });
+
+        Map<String, Long> companiesByCountry = new HashMap<>();
+        allCompanies.forEach(comp -> {
+            String country = comp.getCountry() != null && !comp.getCountry().isBlank() ? comp.getCountry() : "Non spécifié";
+            companiesByCountry.put(country, companiesByCountry.getOrDefault(country, 0L) + 1);
+        });
+
+        Map<String, Long> ecosystemDistribution = new LinkedHashMap<>();
+        ecosystemDistribution.put("Développeurs", totalDevelopers);
+        ecosystemDistribution.put("Entreprises", totalCompanies);
+        ecosystemDistribution.put("Offres", totalOpportunities);
+        ecosystemDistribution.put("Formations", totalResources);
+        ecosystemDistribution.put("Groupes", totalGroups);
+        ecosystemDistribution.put("Projets", totalProjects);
+
+        // Top pays classés par volume de talents & entreprises
+        List<Map<String, Object>> topCountriesPerformance = usersByCountry.entrySet().stream()
+                .filter(e -> !"Non spécifié".equals(e.getKey()))
+                .sorted(Map.Entry.<String, Long>comparingByValue().reversed())
+                .limit(5)
+                .map(e -> {
+                    Map<String, Object> item = new HashMap<>();
+                    item.put("country", e.getKey());
+                    item.put("users", e.getValue());
+                    item.put("companies", companiesByCountry.getOrDefault(e.getKey(), 0L));
+                    return item;
+                })
+                .collect(Collectors.toList());
 
         return AdminStatsDto.builder()
                 .totalUsers(totalUsers)
                 .totalProfiles(totalProfiles)
-                .totalProjects(totalProjects)
+                .totalDevelopers(totalDevelopers)
+                .totalRecruiters(totalRecruiters)
+                .totalVerifiedUsers(totalVerifiedUsers)
+                .totalCompanies(totalCompanies)
+                .totalVerifiedCompanies(totalVerifiedCompanies)
+                .activeCompanies(activeCompanies)
                 .totalOpportunities(totalOpportunities)
+                .activeOpportunities(activeOpportunities)
+                .totalApplications(totalApplications)
+                .opportunitiesByType(opportunitiesByType)
+                .totalResources(totalResources)
+                .totalTrainingsCompleted(totalTrainingsCompleted)
+                .totalGroups(totalGroups)
+                .totalGroupMembers(totalGroupMembers)
+                .totalProjects(totalProjects)
                 .totalEvaluations(totalEvaluations)
+                .totalEvents(totalEvents)
                 .usersByCountry(usersByCountry)
+                .companiesByCountry(companiesByCountry)
+                .ecosystemDistribution(ecosystemDistribution)
+                .topCountriesPerformance(topCountriesPerformance)
                 .build();
     }
 
@@ -83,19 +180,68 @@ public class AdminService {
         }
 
         List<ProfileEntity> allProfiles = profileRepository.findAll();
+        List<CompanyEntity> allCompanies = companyRepository.findAll();
+        List<GroupEntity> allGroups = groupRepository.findAll();
+        List<OpportunityEntity> allOpportunities = opportunityRepository.findAll();
+        List<ResourceEntity> allResources = resourceRepository.findAll();
+
         long totalUsers = userRepository.count();
         long totalProjects = projectRepository.count();
         long totalOpportunities = opportunityRepository.count();
+        long totalCompanies = allCompanies.size();
+        long totalGroups = allGroups.size();
+        long totalTrainings = allResources.size();
 
-        Map<String, List<ProfileEntity>> byCountry = allProfiles.stream()
+        long totalContinentalDevelopers = allProfiles.stream()
+                .filter(p -> p.getUser() != null && p.getUser().getRole() == Role.DEVELOPER)
+                .count();
+
+        long totalContinentalRecruiters = allProfiles.stream()
+                .filter(p -> p.getUser() != null && p.getUser().getRole() == Role.RECRUITER)
+                .count();
+
+        long totalContinentalVerifiedUsers = allProfiles.stream()
+                .filter(p -> Boolean.TRUE.equals(p.getMobileMoneyVerified()))
+                .count();
+
+        // Réunir tous les pays uniques représentés sur la plateforme
+        Set<String> uniqueCountries = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
+        allProfiles.stream()
+                .map(ProfileEntity::getCountry)
+                .filter(c -> c != null && !c.isBlank())
+                .forEach(uniqueCountries::add);
+
+        allCompanies.stream()
+                .map(CompanyEntity::getCountry)
+                .filter(c -> c != null && !c.isBlank())
+                .forEach(uniqueCountries::add);
+
+        allGroups.stream()
+                .map(GroupEntity::getCountry)
+                .filter(c -> c != null && !c.isBlank())
+                .forEach(uniqueCountries::add);
+
+        // Profils indexés par pays
+        Map<String, List<ProfileEntity>> profilesByCountry = allProfiles.stream()
                 .filter(p -> p.getCountry() != null && !p.getCountry().isBlank())
-                .collect(Collectors.groupingBy(ProfileEntity::getCountry));
+                .collect(Collectors.groupingBy(p -> p.getCountry().trim()));
+
+        // Entreprises indexées par pays
+        Map<String, List<CompanyEntity>> companiesByCountry = allCompanies.stream()
+                .filter(c -> c.getCountry() != null && !c.getCountry().isBlank())
+                .collect(Collectors.groupingBy(c -> c.getCountry().trim()));
+
+        // Groupes indexés par pays
+        Map<String, List<GroupEntity>> groupsByCountry = allGroups.stream()
+                .filter(g -> g.getCountry() != null && !g.getCountry().isBlank())
+                .collect(Collectors.groupingBy(g -> g.getCountry().trim()));
 
         List<CountryAdoptionStatsDto> countryStats = new ArrayList<>();
 
-        for (Map.Entry<String, List<ProfileEntity>> entry : byCountry.entrySet()) {
-            String country = entry.getKey();
-            List<ProfileEntity> profiles = entry.getValue();
+        for (String country : uniqueCountries) {
+            List<ProfileEntity> profiles = profilesByCountry.getOrDefault(country, Collections.emptyList());
+            List<CompanyEntity> companies = companiesByCountry.getOrDefault(country, Collections.emptyList());
+            List<GroupEntity> groups = groupsByCountry.getOrDefault(country, Collections.emptyList());
 
             long userCount = profiles.size();
             long devCount = profiles.stream()
@@ -104,47 +250,108 @@ public class AdminService {
             long recruiterCount = profiles.stream()
                     .filter(p -> p.getUser() != null && p.getUser().getRole() == Role.RECRUITER)
                     .count();
-            long verifiedCount = profiles.stream()
+            long verifiedUsersCount = profiles.stream()
                     .filter(p -> Boolean.TRUE.equals(p.getMobileMoneyVerified()))
                     .count();
+
+            long companyCount = companies.size();
+            long verifiedCompanyCount = companies.stream()
+                    .filter(c -> Boolean.TRUE.equals(c.getVerified()))
+                    .count();
+
+            long groupCount = groups.size();
 
             long projectCount = profiles.stream()
                     .mapToLong(p -> p.getUser() != null ? projectRepository.countByAuthorId(p.getUser().getId()) : 0L)
                     .sum();
 
-            long opportunityCount = profiles.stream()
-                    .mapToLong(p -> p.getUser() != null ? opportunityRepository.countByPublisherId(p.getUser().getId()) : 0L)
-                    .sum();
+            long opportunityCount = allOpportunities.stream()
+                    .filter(o -> (o.getLocation() != null && o.getLocation().toLowerCase().contains(country.toLowerCase()))
+                            || (o.getCompany() != null && country.equalsIgnoreCase(o.getCompany().getCountry())))
+                    .count();
+
+            long trainingCount = allResources.stream()
+                    .filter(r -> (r.getCompany() != null && country.equalsIgnoreCase(r.getCompany().getCountry()))
+                            || (r.getAuthor() != null && r.getAuthor().getProfile() != null && country.equalsIgnoreCase(r.getAuthor().getProfile().getCountry())))
+                    .count();
 
             double percentage = totalUsers > 0
                     ? Math.round((userCount * 100.0 / totalUsers) * 10.0) / 10.0
                     : 0.0;
+
+            // Score composite de vitalité technologique & économique (max 100)
+            double rawScore = (devCount * 2.5)
+                    + (companyCount * 5.0)
+                    + (opportunityCount * 3.5)
+                    + (projectCount * 2.5)
+                    + (trainingCount * 2.0)
+                    + (groupCount * 3.0)
+                    + (verifiedUsersCount * 2.0);
 
             countryStats.add(CountryAdoptionStatsDto.builder()
                     .country(country)
                     .userCount(userCount)
                     .developerCount(devCount)
                     .recruiterCount(recruiterCount)
-                    .verifiedUsersCount(verifiedCount)
+                    .verifiedUsersCount(verifiedUsersCount)
+                    .companyCount(companyCount)
+                    .verifiedCompanyCount(verifiedCompanyCount)
                     .projectCount(projectCount)
                     .opportunityCount(opportunityCount)
+                    .groupCount(groupCount)
+                    .trainingCount(trainingCount)
                     .adoptionPercentage(percentage)
+                    .performanceScore(rawScore)
                     .build());
         }
 
-        countryStats.sort(Comparator.comparingLong(CountryAdoptionStatsDto::getUserCount)
-                .thenComparingLong(CountryAdoptionStatsDto::getProjectCount)
+        // Normalisation du performanceScore sur 0 - 100 par rapport au score maximum
+        double maxRawScore = countryStats.stream()
+                .mapToDouble(CountryAdoptionStatsDto::getPerformanceScore)
+                .max()
+                .orElse(1.0);
+
+        for (CountryAdoptionStatsDto cs : countryStats) {
+            double normalizedScore = maxRawScore > 0
+                    ? Math.round((cs.getPerformanceScore() / maxRawScore * 100.0) * 10.0) / 10.0
+                    : 0.0;
+            cs.setPerformanceScore(normalizedScore);
+
+            if (normalizedScore >= 75.0) {
+                cs.setVitalityLevel("Élite Panafricaine");
+            } else if (normalizedScore >= 45.0) {
+                cs.setVitalityLevel("Moteur Régional");
+            } else if (normalizedScore >= 20.0) {
+                cs.setVitalityLevel("En Forte Croissance");
+            } else {
+                cs.setVitalityLevel("Hub Émergent");
+            }
+        }
+
+        // Tri par score de performance décroissant puis utilisateurs
+        countryStats.sort(Comparator.comparingDouble(CountryAdoptionStatsDto::getPerformanceScore)
+                .thenComparingLong(CountryAdoptionStatsDto::getUserCount)
                 .reversed());
 
         for (int i = 0; i < countryStats.size(); i++) {
             countryStats.get(i).setRank(i + 1);
         }
 
+        double avgPerformance = countryStats.isEmpty() ? 0.0 :
+                Math.round((countryStats.stream().mapToDouble(CountryAdoptionStatsDto::getPerformanceScore).average().orElse(0.0)) * 10.0) / 10.0;
+
         PlatformAdoptionSummaryDto summary = PlatformAdoptionSummaryDto.builder()
                 .totalContinentalUsers(totalUsers)
-                .totalContinentalProjects(totalProjects)
+                .totalContinentalDevelopers(totalContinentalDevelopers)
+                .totalContinentalRecruiters(totalContinentalRecruiters)
+                .totalContinentalCompanies(totalCompanies)
+                .totalContinentalGroups(totalGroups)
+                .totalContinentalTrainings(totalTrainings)
                 .totalContinentalOpportunities(totalOpportunities)
+                .totalContinentalProjects(totalProjects)
+                .totalContinentalVerifiedUsers(totalContinentalVerifiedUsers)
                 .activeCountriesCount(countryStats.size())
+                .averageContinentalPerformanceScore(avgPerformance)
                 .countries(countryStats)
                 .build();
 

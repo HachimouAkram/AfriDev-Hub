@@ -6,10 +6,27 @@ import { ApiResponse, User } from './auth.service';
 export interface AdminStats {
   totalUsers: number;
   totalProfiles: number;
-  totalProjects: number;
+  totalDevelopers?: number;
+  totalRecruiters?: number;
+  totalVerifiedUsers?: number;
+  totalCompanies?: number;
+  totalVerifiedCompanies?: number;
+  activeCompanies?: number;
   totalOpportunities: number;
+  activeOpportunities?: number;
+  totalApplications?: number;
+  opportunitiesByType?: { [key: string]: number };
+  totalResources?: number;
+  totalTrainingsCompleted?: number;
+  totalGroups?: number;
+  totalGroupMembers?: number;
+  totalProjects: number;
   totalEvaluations: number;
+  totalEvents?: number;
   usersByCountry: { [key: string]: number };
+  companiesByCountry?: { [key: string]: number };
+  ecosystemDistribution?: { [key: string]: number };
+  topCountriesPerformance?: Array<{ country: string; users: number; companies: number }>;
 }
 
 export interface CountryAdoptionStats {
@@ -18,17 +35,30 @@ export interface CountryAdoptionStats {
   developerCount: number;
   recruiterCount: number;
   verifiedUsersCount: number;
+  companyCount?: number;
+  verifiedCompanyCount?: number;
   projectCount: number;
   opportunityCount: number;
+  groupCount?: number;
+  trainingCount?: number;
   adoptionPercentage: number;
+  performanceScore?: number;
+  vitalityLevel?: string;
   rank: number;
 }
 
 export interface PlatformAdoptionSummary {
   totalContinentalUsers: number;
-  totalContinentalProjects: number;
+  totalContinentalDevelopers?: number;
+  totalContinentalRecruiters?: number;
+  totalContinentalCompanies?: number;
+  totalContinentalGroups?: number;
+  totalContinentalTrainings?: number;
   totalContinentalOpportunities: number;
+  totalContinentalProjects: number;
+  totalContinentalVerifiedUsers?: number;
   activeCountriesCount: number;
+  averageContinentalPerformanceScore?: number;
   countries: CountryAdoptionStats[];
 }
 

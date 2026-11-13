@@ -752,3 +752,197 @@
   color: #0F172A;
 }
 
+/* Nouvelles Couleurs et Éléments de l'Écosystème Entreprises & Piliers */
+.bg-cyan {
+  background: rgba(6, 182, 212, 0.15) !important;
+  color: #06B6D4 !important;
+}
+
+.progress-bar-fill.cyan {
+  background: linear-gradient(90deg, #06B6D4, #3B82F6);
+}
+
+.bg-emerald-subtle {
+  background: rgba(16, 185, 129, 0.12);
+  color: #10B981;
+}
+
+/* Graphique Panafricain de l'Écosystème */
+.ecosystem-card {
+  display: flex;
+  flex-direction: column;
+}
+
+.ecosystem-bars-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-top: 0.85rem;
+  flex: 1;
+}
+
+.eco-bar-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+
+.eco-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.eco-title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.eco-icon {
+  font-size: 1.05rem;
+}
+
+.eco-name {
+  font-size: 0.86rem;
+  font-weight: 700;
+  color: var(--text-heading, #F8FAFC);
+}
+
+.eco-values {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.eco-count {
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: #F8FAFC;
+}
+
+.eco-pct {
+  font-size: 0.78rem;
+  color: var(--text-muted, #94A3B8);
+  font-weight: 600;
+}
+
+.eco-track {
+  width: 100%;
+  height: 8px;
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.eco-fill {
+  height: 100%;
+  border-radius: 999px;
+  transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.chart-footer-note {
+  margin-top: 1.25rem;
+  padding: 0.65rem 0.85rem;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 8px;
+  font-size: 0.78rem;
+  color: var(--text-muted, #94A3B8);
+  border: 1px dashed rgba(255, 255, 255, 0.08);
+}
+
+/* 4. Matrice Panoramique Synthétique 360° */
+.activity-matrix-section {
+  padding: 1.35rem;
+  border-radius: var(--radius-lg, 14px);
+  background: var(--bg-surface-card, #0F172A);
+  border: 1px solid var(--border-light, rgba(255, 255, 255, 0.08));
+}
+
+.matrix-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.15rem;
+}
+
+.matrix-header h3 {
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: var(--text-heading, #F8FAFC);
+  margin: 0 0 0.2rem 0;
+}
+
+.matrix-desc {
+  font-size: 0.82rem;
+  color: var(--text-muted, #94A3B8);
+  margin: 0;
+}
+
+.matrix-table {
+  width: 100%;
+}
+
+.pillar-cell {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+}
+
+.pillar-icon {
+  font-size: 1.15rem;
+}
+
+.pillar-title {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--text-heading, #F8FAFC);
+}
+
+.volume-num {
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: #10B981;
+}
+
+.secondary-info {
+  font-size: 0.8rem;
+  color: var(--text-muted, #94A3B8);
+}
+
+.trend-badge {
+  display: inline-block;
+  padding: 0.2rem 0.55rem;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  background: rgba(16, 185, 129, 0.12);
+  color: #10B981;
+}
+
+.status-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.25rem 0.65rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  background: rgba(16, 185, 129, 0.1);
+  color: #34D399;
+}
+
+.status-chip .dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #10B981;
+}
+
+.btn-xs {
+  padding: 0.25rem 0.65rem;
+  font-size: 0.75rem;
+  border-radius: 6px;
+}
+
+

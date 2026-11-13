@@ -32,8 +32,9 @@
   </div>
 
   <div *ngIf="!isLoading && adoptionSummary" class="adoption-content">
-    <!-- Continental KPI Summary Cards -->
+    <!-- Continental KPI Summary Cards - 6 Piliers Panafricains -->
     <div class="kpi-grid">
+      <!-- KPI 1: Talents & Développeurs -->
       <div class="app-card kpi-card">
         <div class="kpi-icon-wrap bg-emerald-soft">
           <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
@@ -42,22 +43,26 @@
         </div>
         <div class="kpi-content">
           <span class="kpi-value">{{ adoptionSummary.totalContinentalUsers }}</span>
-          <span class="kpi-label">Utilisateurs Panafricains</span>
+          <span class="kpi-label">Talents & Développeurs</span>
+          <small class="kpi-sub">{{ adoptionSummary.totalContinentalDevelopers || 0 }} Développeurs &bull; {{ adoptionSummary.totalContinentalVerifiedUsers || 0 }} Vérifiés</small>
         </div>
       </div>
 
+      <!-- KPI 2: Entreprises & Partenaires -->
       <div class="app-card kpi-card">
-        <div class="kpi-icon-wrap bg-blue-soft">
+        <div class="kpi-icon-wrap bg-cyan-soft">
           <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.25 9.75L16.5 12l-2.25 2.25m-4.5 0L7.5 12l2.25-2.25M6 20.25h12A2.25 2.25 0 0020.25 18V6A2.25 2.25 0 0018 3.75H6A2.25 2.25 0 003.75 6v12A2.25 2.25 0 006 20.25z" />
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.75 21h16.5M4.5 3h15M5.25 3v18m13.5-18v18M9 6.75h1.5m-1.5 3h1.5m-1.5 3h1.5m3-6H15m-1.5 3H15m-1.5 3H15M9 21v-3.375c0-.621.504-1.125 1.125-1.125h3.75c.621 0 1.125.504 1.125 1.125V21" />
           </svg>
         </div>
         <div class="kpi-content">
-          <span class="kpi-value">{{ adoptionSummary.totalContinentalProjects }}</span>
-          <span class="kpi-label">Projets Conçus en Afrique</span>
+          <span class="kpi-value">{{ adoptionSummary.totalContinentalCompanies || 0 }}</span>
+          <span class="kpi-label">Entreprises Partenaires</span>
+          <small class="kpi-sub">{{ adoptionSummary.totalContinentalRecruiters || 0 }} Comptes Recruteurs Actifs</small>
         </div>
       </div>
 
+      <!-- KPI 3: Offres & Opportunités -->
       <div class="app-card kpi-card">
         <div class="kpi-icon-wrap bg-purple-soft">
           <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
@@ -66,19 +71,64 @@
         </div>
         <div class="kpi-content">
           <span class="kpi-value">{{ adoptionSummary.totalContinentalOpportunities }}</span>
-          <span class="kpi-label">Opportunités & Missions Pro</span>
+          <span class="kpi-label">Offres & Opportunités</span>
+          <small class="kpi-sub">CDI, CDD, Stages & Freelance</small>
         </div>
       </div>
 
+      <!-- KPI 4: Formations & Ressources -->
       <div class="app-card kpi-card">
         <div class="kpi-icon-wrap bg-amber-soft">
           <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 21a9.004 9.004 0 008.716-6.747M12 21a9.004 9.004 0 01-8.716-6.747M12 21c2.485 0 4.5-4.03 4.5-9S14.485 3 12 3m0 18c-2.485 0-4.5-4.03-4.5-9S9.515 3 12 3" />
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" />
           </svg>
         </div>
         <div class="kpi-content">
-          <span class="kpi-value">{{ adoptionSummary.activeCountriesCount }}</span>
-          <span class="kpi-label">Pays Actifs</span>
+          <span class="kpi-value">{{ adoptionSummary.totalContinentalTrainings || 0 }}</span>
+          <span class="kpi-label">Formations & Cours</span>
+          <small class="kpi-sub">Ressources certifiées en ligne</small>
+        </div>
+      </div>
+
+      <!-- KPI 5: Groupes & Communautés -->
+      <div class="app-card kpi-card">
+        <div class="kpi-icon-wrap bg-indigo-soft">
+          <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 18.72a9.094 9.094 0 003.741-.479 3 3 0 00-4.682-2.72m.94 3.198l.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0112 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 016 18.719m12 0a5.971 5.971 0 00-.941-3.197m0 0A5.995 5.995 0 0012 12.75a5.995 5.995 0 00-5.058 2.772m0 0a3 3 0 00-4.681 2.72 8.986 8.986 0 003.74.477m.999-3.199a5.971 5.971 0 00-.94-3.197M15 6.75a3 3 0 11-6 0 3 3 0 016 0zm6 3a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0zm-13.5 0a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z" />
+          </svg>
+        </div>
+        <div class="kpi-content">
+          <span class="kpi-value">{{ adoptionSummary.totalContinentalGroups || 0 }}</span>
+          <span class="kpi-label">Groupes & Communautés</span>
+          <small class="kpi-sub">Hubs d'entraide & technologies</small>
+        </div>
+      </div>
+
+      <!-- KPI 6: Projets Conçus -->
+      <div class="app-card kpi-card">
+        <div class="kpi-icon-wrap bg-blue-soft">
+          <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.25 9.75L16.5 12l-2.25 2.25m-4.5 0L7.5 12l2.25-2.25M6 20.25h12A2.25 2.25 0 0020.25 18V6A2.25 2.25 0 0018 3.75H6A2.25 2.25 0 003.75 6v12A2.25 2.25 0 006 20.25z" />
+          </svg>
+        </div>
+        <div class="kpi-content">
+          <span class="kpi-value">{{ adoptionSummary.totalContinentalProjects }}</span>
+          <span class="kpi-label">Projets Conçus</span>
+          <small class="kpi-sub">Innovations technologiques certifiées</small>
+        </div>
+      </div>
+
+      <!-- KPI 7: Indice de Performance Moyen -->
+      <div class="app-card kpi-card">
+        <div class="kpi-icon-wrap bg-rose-soft">
+          <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z" />
+          </svg>
+        </div>
+        <div class="kpi-content">
+          <span class="kpi-value">{{ adoptionSummary.activeCountriesCount }} Pays</span>
+          <span class="kpi-label">Couverture Panafricaine</span>
+          <small class="kpi-sub">Score vitalité moyen : {{ adoptionSummary.averageContinentalPerformanceScore || 0 }}/100</small>
         </div>
       </div>
     </div>
@@ -87,19 +137,30 @@
     <div class="app-card country-board-card">
       <div class="section-toolbar">
         <div>
-          <h3>Classement de l'Adoption</h3>
-          <p class="section-desc">Répartition de la communauté, des projets publiés et de la vérification Mobile Money par pays.</p>
+          <h3>Classement & Performance Multi-Piliers par Pays</h3>
+          <p class="section-desc">Supervision complète : Talents, Entreprises, Offres d'emploi, Formations, Groupes et Score de Performance.</p>
         </div>
-        <div class="search-input-wrap">
-          <svg class="icon-svg icon-svg-xs search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
-          </svg>
-          <input 
-            type="text" 
-            [(ngModel)]="selectedCountryFilter" 
-            (ngModelChange)="applyCountryFilter()" 
-            placeholder="Filtrer par pays (ex: Sénégal, Kenya...)" 
-            class="form-input search-input" />
+
+        <div class="toolbar-controls">
+          <!-- Filtres de Piliers -->
+          <div class="pillar-tabs">
+            <button class="pillar-tab" [class.active]="selectedPillarFilter === 'all'" (click)="setPillarFilter('all')">Tous les piliers</button>
+            <button class="pillar-tab" [class.active]="selectedPillarFilter === 'companies'" (click)="setPillarFilter('companies')">Entreprises</button>
+            <button class="pillar-tab" [class.active]="selectedPillarFilter === 'talents'" (click)="setPillarFilter('talents')">Talents</button>
+            <button class="pillar-tab" [class.active]="selectedPillarFilter === 'trainings'" (click)="setPillarFilter('trainings')">Formations</button>
+          </div>
+
+          <div class="search-input-wrap">
+            <svg class="icon-svg icon-svg-xs search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
+            </svg>
+            <input 
+              type="text" 
+              [(ngModel)]="selectedCountryFilter" 
+              (ngModelChange)="applyFilterAndSort()" 
+              placeholder="Filtrer par pays (ex: Sénégal, Côte d'Ivoire...)" 
+              class="form-input search-input" />
+          </div>
         </div>
       </div>
 
@@ -107,13 +168,32 @@
         <table class="data-table">
           <thead>
             <tr>
-              <th style="width: 80px;">Rang</th>
+              <th style="width: 75px;" (click)="setSort('performanceScore')" class="sortable-th">
+                Rang <span *ngIf="sortKey === 'performanceScore'">{{ sortAsc ? '▲' : '▼' }}</span>
+              </th>
               <th>Nation</th>
-              <th>Utilisateurs</th>
-              <th>Développeurs</th>
-              <th>Recruteurs</th>
-              <th>Projets</th>
-              <th>Part d'Adoption</th>
+              <th (click)="setSort('performanceScore')" class="sortable-th">
+                Performance Continentale <span *ngIf="sortKey === 'performanceScore'">{{ sortAsc ? '▲' : '▼' }}</span>
+              </th>
+              <th (click)="setSort('developerCount')" class="sortable-th">
+                Talents <span *ngIf="sortKey === 'developerCount'">{{ sortAsc ? '▲' : '▼' }}</span>
+              </th>
+              <th (click)="setSort('companyCount')" class="sortable-th">
+                Entreprises <span *ngIf="sortKey === 'companyCount'">{{ sortAsc ? '▲' : '▼' }}</span>
+              </th>
+              <th (click)="setSort('opportunityCount')" class="sortable-th">
+                Offres <span *ngIf="sortKey === 'opportunityCount'">{{ sortAsc ? '▲' : '▼' }}</span>
+              </th>
+              <th (click)="setSort('trainingCount')" class="sortable-th">
+                Formations <span *ngIf="sortKey === 'trainingCount'">{{ sortAsc ? '▲' : '▼' }}</span>
+              </th>
+              <th (click)="setSort('groupCount')" class="sortable-th">
+                Groupes <span *ngIf="sortKey === 'groupCount'">{{ sortAsc ? '▲' : '▼' }}</span>
+              </th>
+              <th (click)="setSort('projectCount')" class="sortable-th">
+                Projets <span *ngIf="sortKey === 'projectCount'">{{ sortAsc ? '▲' : '▼' }}</span>
+              </th>
+              <th>Part Panafricaine</th>
             </tr>
           </thead>
           <tbody>
@@ -129,18 +209,46 @@
               <td>
                 <div class="country-cell">
                   <span class="flag-icon">{{ getCountryFlag(country.country) }}</span>
-                  <span class="country-name">{{ country.country }}</span>
+                  <div class="country-name-col">
+                    <span class="country-name">{{ country.country }}</span>
+                    <span class="country-badge-vitality" [ngClass]="getVitalityBadgeClass(country.performanceScore)">
+                      {{ country.vitalityLevel || 'Hub Émergent' }}
+                    </span>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <div class="perf-score-wrapper">
+                  <div class="perf-score-bar">
+                    <div class="perf-fill" [style.width.%]="country.performanceScore || 0"></div>
+                  </div>
+                  <strong class="perf-value">{{ country.performanceScore || 0 }}/100</strong>
                 </div>
               </td>
               <td>
                 <div class="stat-pill">
-                  <strong>{{ country.userCount }}</strong>
-                  <span class="verified-dot" *ngIf="country.verifiedUsersCount > 0" [title]="country.verifiedUsersCount + ' vérifié(s) Mobile Money'">✓ {{ country.verifiedUsersCount }}</span>
+                  <strong>{{ country.developerCount }} dev(s)</strong>
+                  <span class="verified-dot" *ngIf="country.verifiedUsersCount > 0" [title]="country.verifiedUsersCount + ' profil(s) vérifié(s) Mobile Money'">✓ {{ country.verifiedUsersCount }}</span>
                 </div>
               </td>
-              <td>{{ country.developerCount }}</td>
-              <td>{{ country.recruiterCount }}</td>
-              <td>{{ country.projectCount }}</td>
+              <td>
+                <div class="stat-pill">
+                  <span class="pill-badge pill-companies">🏢 {{ country.companyCount || 0 }}</span>
+                  <small *ngIf="(country.verifiedCompanyCount || 0) > 0" class="sub-verified">({{ country.verifiedCompanyCount }} vérif.)</small>
+                </div>
+              </td>
+              <td>
+                <span class="pill-badge pill-opportunities">💼 {{ country.opportunityCount || 0 }}</span>
+              </td>
+              <td>
+                <span class="pill-badge pill-trainings">🎓 {{ country.trainingCount || 0 }}</span>
+              </td>
+              <td>
+                <span class="pill-badge pill-groups">👥 {{ country.groupCount || 0 }}</span>
+              </td>
+              <td>
+                <span class="pill-badge pill-projects">🚀 {{ country.projectCount || 0 }}</span>
+              </td>
               <td>
                 <div class="adoption-meter-wrapper">
                   <div class="progress-track">
@@ -151,8 +259,8 @@
               </td>
             </tr>
             <tr *ngIf="filteredCountries.length === 0">
-              <td colspan="7" class="empty-cell">
-                Aucun pays ne correspond au filtre "{{ selectedCountryFilter }}".
+              <td colspan="10" class="empty-cell">
+                Aucun pays ne correspond aux critères de filtre sélectionnés.
               </td>
             </tr>
           </tbody>

@@ -4,13 +4,13 @@
     <div class="hero-content">
       <div class="hero-pill-badge">
         <span class="pulse-indicator"></span>
-        <span>Gouvernance Plateforme</span>
+        <span>Gouvernance Plateforme Panafricaine</span>
       </div>
       <h1 class="hero-title">
         Tableau de Bord <span class="accent">AfriDev Hub</span>
       </h1>
       <p class="hero-subtitle">
-        Supervision globale de l'écosystème : utilisateurs, vérifications Mobile Money, sécurité et santé des services.
+        Supervision globale et indicateurs 360° : Talents, Entreprises partenaires, Offres d'emploi, Formations, Communautés et Sécurité.
       </p>
     </div>
 
@@ -23,7 +23,7 @@
       </button>
 
       <a routerLink="/admin/adoption" class="btn btn-emerald btn-overview-action">
-        <span>Adoption</span>
+        <span>Performance & Adoption</span>
         <svg class="icon-svg icon-svg-xs" viewBox="0 0 24 24" fill="none" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
         </svg>
@@ -33,10 +33,10 @@
 
   <!-- 2. Primary 4 Strategic KPI Cards -->
   <section class="kpi-grid">
-    <!-- KPI 1: Utilisateurs Totaux -->
+    <!-- KPI 1: Talents & Développeurs -->
     <div class="kpi-card app-card">
       <div class="kpi-top">
-        <span class="kpi-title">Communauté Continentale</span>
+        <span class="kpi-title">Talents & Développeurs</span>
         <div class="kpi-icon-wrap bg-emerald">
           <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z" />
@@ -47,18 +47,68 @@
         <span class="kpi-number">{{ stats()?.totalUsers || 11 }}</span>
         <div class="kpi-trend positive">
           <span>+27% ce mois</span>
-          <span class="kpi-pill">100% Vérifiés</span>
+          <span class="kpi-pill">{{ stats()?.totalVerifiedUsers || 9 }} Vérifiés Mobile Money</span>
         </div>
       </div>
       <div class="kpi-progress">
         <div class="progress-bar-track">
           <div class="progress-bar-fill emerald" style="width: 82%;"></div>
         </div>
-        <span class="kpi-footnote">82% Développeurs / 18% Recruteurs</span>
+        <span class="kpi-footnote">{{ stats()?.totalDevelopers || 7 }} Développeurs actifs sur la plateforme</span>
       </div>
     </div>
 
-    <!-- KPI 2: Projets Conçus & Validés -->
+    <!-- KPI 2: Entreprises & Partenaires (NOUVEAU) -->
+    <div class="kpi-card app-card">
+      <div class="kpi-top">
+        <span class="kpi-title">Entreprises Partenaires</span>
+        <div class="kpi-icon-wrap bg-cyan">
+          <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.75 21h16.5M4.5 3h15M5.25 3v18m13.5-18v18M9 6.75h1.5m-1.5 3h1.5m-1.5 3h1.5m3-6H15m-1.5 3H15m-1.5 3H15M9 21v-3.375c0-.621.504-1.125 1.125-1.125h3.75c.621 0 1.125.504 1.125 1.125V21" />
+          </svg>
+        </div>
+      </div>
+      <div class="kpi-body">
+        <span class="kpi-number">{{ stats()?.totalCompanies || 4 }}</span>
+        <div class="kpi-trend positive">
+          <span>{{ stats()?.totalVerifiedCompanies || 2 }} Certifiées</span>
+          <span class="kpi-pill">{{ stats()?.totalRecruiters || 4 }} Recruteurs</span>
+        </div>
+      </div>
+      <div class="kpi-progress">
+        <div class="progress-bar-track">
+          <div class="progress-bar-fill cyan" style="width: 75%;"></div>
+        </div>
+        <span class="kpi-footnote">Tech hubs, Startups & PME panafricaines</span>
+      </div>
+    </div>
+
+    <!-- KPI 3: Offres d'Emploi & Stages -->
+    <div class="kpi-card app-card">
+      <div class="kpi-top">
+        <span class="kpi-title">Offres & Opportunités</span>
+        <div class="kpi-icon-wrap bg-purple">
+          <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.25 14.15v4.25c0 1.094-.787 2.036-1.872 2.18-2.087.277-4.216.42-6.378.42s-4.291-.143-6.378-.42c-1.085-.144-1.872-1.086-1.872-2.18v-4.25m16.5 0a2.18 2.18 0 00.75-1.661V8.706c0-1.081-.768-2.015-1.837-2.175a48.114 48.114 0 00-3.413-.387m4.5 8.006c-.194.165-.42.295-.673.38A23.978 23.978 0 0112 15.75c-2.648 0-5.195-.429-7.577-1.22a2.016 2.016 0 01-.673-.38m0 0A2.18 2.18 0 013 12.489V8.706c0-1.081.768-2.015 1.837-2.175a48.111 48.111 0 013.413-.387m7.5 0V5.25A2.25 2.25 0 0013.5 3h-3a2.25 2.25 0 00-2.25 2.25v.894m7.5 0a48.667 48.667 0 00-7.5 0M12 12.75h.008v.008H12v-.008z" />
+          </svg>
+        </div>
+      </div>
+      <div class="kpi-body">
+        <span class="kpi-number">{{ stats()?.totalOpportunities || 3 }}</span>
+        <div class="kpi-trend positive">
+          <span>{{ stats()?.activeOpportunities || 3 }} En cours</span>
+          <span class="kpi-pill">{{ stats()?.totalApplications || 6 }} Candidatures</span>
+        </div>
+      </div>
+      <div class="kpi-progress">
+        <div class="progress-bar-track">
+          <div class="progress-bar-fill purple" style="width: 85%;"></div>
+        </div>
+        <span class="kpi-footnote">CDI, CDD, Stages et missions Freelance</span>
+      </div>
+    </div>
+
+    <!-- KPI 4: Projets & Innovations Panafricaines -->
     <div class="kpi-card app-card">
       <div class="kpi-top">
         <span class="kpi-title">Projets Publiés</span>
@@ -79,109 +129,54 @@
         <div class="progress-bar-track">
           <div class="progress-bar-fill blue" style="width: 70%;"></div>
         </div>
-        <span class="kpi-footnote">70% Open Source &bull; 30% Marketplace</span>
-      </div>
-    </div>
-
-    <!-- KPI 3: Couverture Panafricaine -->
-    <div class="kpi-card app-card">
-      <div class="kpi-top">
-        <span class="kpi-title">Pays Actifs</span>
-        <div class="kpi-icon-wrap bg-amber">
-          <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 21a9.004 9.004 0 008.716-6.747M12 21a9.004 9.004 0 01-8.716-6.747M12 21c2.485 0 4.5-4.03 4.5-9S14.485 3 12 3m0 18c-2.485 0-4.5-4.03-4.5-9S9.515 3 12 3m0 0a8.997 8.997 0 017.843 4.582M12 3a8.997 8.997 0 00-7.843 4.582m15.686 0A11.953 11.953 0 0112 10.5c-2.998 0-5.74-1.1-7.843-2.918m15.686 0A8.959 8.959 0 0121 12c0 .778-.099 1.533-.284 2.253m0 0A17.919 17.919 0 0112 16.5c-3.162 0-6.133-.815-8.716-2.247m0 0A9.015 9.015 0 013 12c0-.778.099-1.533.284-2.253" />
-          </svg>
-        </div>
-      </div>
-      <div class="kpi-body">
-        <span class="kpi-number">{{ adoptionSummary()?.activeCountriesCount || 7 }}</span>
-        <div class="kpi-trend neutral">
-          <span>Top Hub : Sénégal 🇸🇳</span>
-        </div>
-      </div>
-      <div class="kpi-progress">
-        <div class="progress-bar-track">
-          <div class="progress-bar-fill amber" style="width: 45.5%;"></div>
-        </div>
-        <span class="kpi-footnote">45.5% des talents concentrés au Sénégal</span>
-      </div>
-    </div>
-
-    <!-- KPI 4: Évaluations & Score de Confiance -->
-    <div class="kpi-card app-card">
-      <div class="kpi-top">
-        <span class="kpi-title">Confiance & Évaluations</span>
-        <div class="kpi-icon-wrap bg-purple">
-          <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
-          </svg>
-        </div>
-      </div>
-      <div class="kpi-body">
-        <span class="kpi-number">{{ stats()?.totalEvaluations || 8 }}</span>
-        <div class="kpi-trend positive">
-          <span>Index Réputation : 4.9/5</span>
-        </div>
-      </div>
-      <div class="kpi-progress">
-        <div class="progress-bar-track">
-          <div class="progress-bar-fill purple" style="width: 95%;"></div>
-        </div>
-        <span class="kpi-footnote">Conformité OWASP & Algorithme FastAPI</span>
+        <span class="kpi-footnote">{{ stats()?.totalEvaluations || 8 }} Évaluations de code par les pairs</span>
       </div>
     </div>
   </section>
 
-  <!-- 3. Analytical Charts Row -->
+  <!-- 3. Analytical Charts Row (Graphiques Modernes & Visuels) -->
   <section class="analytics-row">
-    <!-- Chart 1: Dynamique Mensuelle & Activité -->
-    <div class="chart-card app-card">
+    <!-- Chart 1: Répartition Globale de l'Écosystème (Développeurs, Entreprises, Offres, Formations, Groupes, Projets) -->
+    <div class="chart-card app-card ecosystem-card">
       <div class="chart-header">
         <div>
-          <h3>Dynamique de Croissance Mensuelle</h3>
-          <p class="chart-desc">Évolution des nouveaux inscrits, projets et revues par les pairs (Mai - Octobre 2026).</p>
+          <h3>Répartition Panafricaine de l'Écosystème</h3>
+          <p class="chart-desc">Équilibre entre talents, entreprises partenaires, offres, formations et communautés.</p>
         </div>
-        <span class="chart-tag">+36% Global</span>
+        <span class="chart-tag bg-emerald-subtle">Vue 360°</span>
       </div>
 
-      <!-- CSS/SVG Glowing Bar Chart -->
-      <div class="bar-chart-container">
-        <div class="chart-grid-lines">
-          <div class="grid-line"><span>100</span></div>
-          <div class="grid-line"><span>75</span></div>
-          <div class="grid-line"><span>50</span></div>
-          <div class="grid-line"><span>25</span></div>
-          <div class="grid-line"><span>0</span></div>
-        </div>
-
-        <div class="chart-bars-wrap">
-          <div class="bar-col" *ngFor="let item of monthlyActivity">
-            <div class="bar-track">
-              <div class="bar-fill" [style.height.%]="item.percentage" [title]="item.month + ' : ' + item.users + ' utilisateurs, ' + item.projects + ' projets'">
-                <div class="bar-glow"></div>
-                <span class="bar-val-bubble">{{ item.users }}</span>
-              </div>
+      <div class="ecosystem-bars-list">
+        <div class="eco-bar-item" *ngFor="let item of ecosystemChartItems">
+          <div class="eco-header">
+            <div class="eco-title">
+              <span class="eco-icon">{{ item.icon }}</span>
+              <span class="eco-name">{{ item.name }}</span>
             </div>
-            <span class="bar-label">{{ item.month }}</span>
+            <div class="eco-values">
+              <strong class="eco-count">{{ item.count }}</strong>
+              <span class="eco-pct">({{ item.percentage }}%)</span>
+            </div>
+          </div>
+          <div class="eco-track">
+            <div class="eco-fill" [style.width.%]="item.percentage" [style.background-color]="item.color"></div>
           </div>
         </div>
       </div>
 
-      <div class="chart-legend">
-        <div class="legend-item"><span class="dot emerald"></span> Utilisateurs enregistrés</div>
-        <div class="legend-item"><span class="dot blue"></span> Projets conçus</div>
-        <div class="legend-item"><span class="dot purple"></span> Évaluations par les pairs</div>
+      <div class="chart-footer-note">
+        <span>💡 Écosystème équilibré avec un fort taux d'engagement communauté et entreprises.</span>
       </div>
     </div>
 
-    <!-- Chart 2: Répartition Géographique (Top Hubs Africains) -->
+    <!-- Chart 2: Top Hubs Panafricains & Score de Performance -->
     <div class="chart-card app-card">
       <div class="chart-header">
         <div>
-          <h3>Hubs Tech Majeurs</h3>
-          <p class="chart-desc">Distribution des talents par pays clé de la plateforme.</p>
+          <h3>Top Hubs Technologiques</h3>
+          <p class="chart-desc">Classement par score de vitalité et dynamique globale.</p>
         </div>
-        <a routerLink="/admin/adoption" class="view-all-link">Voir tout &rarr;</a>
+        <a routerLink="/admin/adoption" class="view-all-link">Adoption &rarr;</a>
       </div>
 
       <div class="country-distribution-list">
@@ -190,22 +185,78 @@
             <span class="dist-flag">{{ getCountryFlag(c.country) }}</span>
             <div class="dist-info">
               <span class="dist-country-name">{{ c.country }}</span>
-              <span class="dist-count">{{ c.userCount }} utilisateur(s) &bull; {{ c.projectCount }} projet(s)</span>
+              <span class="dist-count">
+                {{ c.developerCount }} dev(s) &bull; {{ c.companyCount || 0 }} entreprise(s) &bull; {{ c.opportunityCount || 0 }} offre(s)
+              </span>
             </div>
           </div>
 
           <div class="dist-right">
             <div class="dist-meter-track">
-              <div class="dist-meter-fill" [style.width.%]="c.adoptionPercentage"></div>
+              <div class="dist-meter-fill" [style.width.%]="c.performanceScore || c.adoptionPercentage"></div>
             </div>
-            <span class="dist-pct">{{ c.adoptionPercentage }}%</span>
+            <span class="dist-pct">{{ c.performanceScore || c.adoptionPercentage }}/100</span>
           </div>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- 4. System Health & Infrastructure Services Monitoring -->
+  <!-- 4. Tableau Panoramique Synthétique 360° (Matrice Globale de l'Activité) -->
+  <section class="activity-matrix-section app-card">
+    <div class="matrix-header">
+      <div>
+        <h3>Matrice Globale des Activités & Indicateurs Clés</h3>
+        <p class="matrix-desc">Synthèse opérationnelle des 6 piliers fondamentaux de la plateforme AfriDev Hub.</p>
+      </div>
+      <span class="badge badge-emerald">6 Piliers Opérationnels</span>
+    </div>
+
+    <div class="table-responsive">
+      <table class="stream-table matrix-table">
+        <thead>
+          <tr>
+            <th>Pilier Écosystème</th>
+            <th>Volume Total</th>
+            <th>Détail & Indicateurs Clés</th>
+            <th>Dynamique</th>
+            <th>État Opérationnel</th>
+            <th style="text-align: right;">Accès Direct</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let row of activityMatrix">
+            <td>
+              <div class="pillar-cell">
+                <span class="pillar-icon">{{ row.icon }}</span>
+                <strong class="pillar-title">{{ row.pillar }}</strong>
+              </div>
+            </td>
+            <td>
+              <span class="volume-num">{{ row.total }}</span>
+            </td>
+            <td>
+              <span class="secondary-info" [innerHTML]="row.secondaryText"></span>
+            </td>
+            <td>
+              <span class="trend-badge positive">{{ row.volumeTrend }}</span>
+            </td>
+            <td>
+              <span class="status-chip" [ngClass]="row.statusClass">
+                <span class="dot"></span>
+                {{ row.status }}
+              </span>
+            </td>
+            <td style="text-align: right;">
+              <a [routerLink]="row.actionUrl" class="btn btn-xs btn-outline">Consulter &rarr;</a>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- 5. System Health & Infrastructure Services Monitoring -->
   <section class="system-health-section app-card">
     <div class="section-title-row">
       <div class="st-left">
@@ -234,7 +285,7 @@
     </div>
   </section>
 
-  <!-- 5. Recent Security Audit Trail & Live Feed -->
+  <!-- 6. Recent Security Audit Trail & Live Feed -->
   <section class="audit-stream-section app-card">
     <div class="stream-header">
       <div>

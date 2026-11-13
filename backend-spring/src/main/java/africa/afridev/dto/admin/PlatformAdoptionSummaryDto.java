@@ -13,11 +13,18 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class PlatformAdoptionSummaryDto implements Serializable {
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 2L;
 
     private long totalContinentalUsers;
-    private long totalContinentalProjects;
+    private long totalContinentalDevelopers;
+    private long totalContinentalRecruiters;
+    private long totalContinentalCompanies;
+    private long totalContinentalGroups;
+    private long totalContinentalTrainings;
     private long totalContinentalOpportunities;
+    private long totalContinentalProjects;
+    private long totalContinentalVerifiedUsers;
     private int activeCountriesCount;
+    private double averageContinentalPerformanceScore;
     private List<CountryAdoptionStatsDto> countries;
 }
