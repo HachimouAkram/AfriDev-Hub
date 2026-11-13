@@ -69,6 +69,7 @@ export interface User {
   id: string;
   email: string;
   emailVerified: boolean;
+  mustChangePassword?: boolean;
   twoFactorEnabled?: boolean;
   githubId?: string;
   role: string;
@@ -80,6 +81,7 @@ export interface AuthResponse {
   token?: string;
   tokenType?: string;
   user?: User;
+  mustChangePassword?: boolean;
   twoFactorRequired?: boolean;
   message?: string;
   email?: string;
@@ -294,6 +296,22 @@ export class AuthService {
       this.token.set(authData.token);
       this.currentUser.set(authData.user);
     }
+  }
+
+  changeInitialPassword(currentPassword: string, newPassword: string): Observable<ApiResponse<{ message: string }>> {
+    return this.http.post<ApiResponse<{ message: string }>>(`${this.apiUrl}/change-initial-password`, {
+      currentPassword,
+      newPassword
+    }).pipe(
+      tap(() => {
+        const user = this.currentUser();
+        if (user) {
+          user.mustChangePassword = false;
+          localStorage.setItem('afridev_user', JSON.stringify(user));
+          this.currentUser.set({ ...user });
+        }
+      })
+    );
   }
 
   updateProfileInUser(profile: Profile): void {

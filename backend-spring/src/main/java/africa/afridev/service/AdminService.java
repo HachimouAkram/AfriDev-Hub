@@ -406,12 +406,16 @@ public class AdminService {
             throw new IllegalArgumentException("Un compte avec cet email existe déjà : " + request.getEmail());
         }
 
+        // Génération d'un mot de passe aléatoire fort (ex: Aa3#kL9$mQ2!)
+        String tempPassword = generateSecureRandomPassword();
+
         UserEntity newAdmin = UserEntity.builder()
                 .email(request.getEmail().trim().toLowerCase())
-                .passwordHash(passwordEncoder.encode(request.getPassword()))
+                .passwordHash(passwordEncoder.encode(tempPassword))
                 .role(request.getRole())
                 .status(UserStatus.ACTIVE)
                 .emailVerified(true)
+                .mustChangePassword(true) // Forcer le changement de mot de passe à la première connexion
                 .twoFactorEnabled(false)
                 .build();
 
@@ -433,6 +437,18 @@ public class AdminService {
         ProfileEntity savedProfile = profileRepository.save(profile);
         savedUser.setProfile(savedProfile);
 
+        // Envoi automatique de l'email officiel avec les identifiants et le mot de passe temporaire
+        try {
+            emailService.sendAdminWelcomeEmail(
+                    savedUser.getEmail(),
+                    profile.getFullName(),
+                    request.getRole() == Role.SUPER_ADMIN ? "Super Administrateur" : "Administrateur",
+                    tempPassword
+            );
+        } catch (Exception e) {
+            log.error("[ADMIN] Erreur lors de l'envoi de l'email de bienvenue admin à {} : {}", savedUser.getEmail(), e.getMessage());
+        }
+
         AuditLogEntity auditLog = AuditLogEntity.builder()
                 .user(actor)
                 .action("CREATE_ADMIN_ACCOUNT")
@@ -444,6 +460,35 @@ public class AdminService {
 
         redisCacheService.evictAdminUsersCache();
         return authService.mapToUserDto(savedUser);
+    }
+
+    private String generateSecureRandomPassword() {
+        String upper = "ABCDEFGHJKLMNPQRSTUVWXYZ";
+        String lower = "abcdefghijkmnpqrstuvwxyz";
+        String digits = "23456789";
+        String special = "@#$%&*!";
+        String all = upper + lower + digits + special;
+        java.security.SecureRandom random = new java.security.SecureRandom();
+
+        StringBuilder sb = new StringBuilder(12);
+        sb.append(upper.charAt(random.nextInt(upper.length())));
+        sb.append(lower.charAt(random.nextInt(lower.length())));
+        sb.append(digits.charAt(random.nextInt(digits.length())));
+        sb.append(special.charAt(random.nextInt(special.length())));
+
+        for (int i = 4; i < 12; i++) {
+            sb.append(all.charAt(random.nextInt(all.length())));
+        }
+
+        // Mélanger les caractères
+        char[] chars = sb.toString().toCharArray();
+        for (int i = chars.length - 1; i > 0; i--) {
+            int j = random.nextInt(i + 1);
+            char temp = chars[i];
+            chars[i] = chars[j];
+            chars[j] = temp;
+        }
+        return new String(chars);
     }
 
     @Transactional

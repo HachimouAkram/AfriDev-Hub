@@ -12,14 +12,16 @@ spring:
   application:
     name: afridev-hub-backend
   datasource:
-    url: ${SPRING_DATASOURCE_URL:${DB_URL:jdbc:postgresql://${DB_HOST:postgres-dbaas-postgres-afridev-db-afridev-db.systalinkdatabases.com}:${DB_PORT:33041}/${DB_NAME:afridev_db}${DB_PARAMS:?sslmode=require&sslfactory=org.postgresql.ssl.NonValidatingFactory}}}
+    url: ${SPRING_DATASOURCE_URL:${DB_URL:jdbc:postgresql://${DB_HOST:postgres-dbaas-postgres-afridev-db-afridev-db.systalinkdatabases.com}:${DB_PORT:33041}/${DB_NAME:afridev_db}${DB_PARAMS:?sslmode=require&sslfactory=org.postgresql.ssl.NonValidatingFactory&tcpKeepAlive=true}}}
     username: ${DB_USER:afridev_db_u}
     password: ${DB_PASSWORD:yUcVbDGuDoXuzAAWeKYkXy4P}
     driver-class-name: org.postgresql.Driver
     hikari:
+      connection-test-query: SELECT 1
+      validation-timeout: 3000
       max-lifetime: 45000 # 45s (évite la coupure du proxy cloud Systalink fixé à 60s)
       idle-timeout: 30000 # 30s
-      keepalive-time: 20000 # 20s (ping régulier pour maintenir la session TCP active)
+      keepalive-time: 15000 # 15s (ping régulier pour maintenir la session TCP active)
       connection-timeout: 30000
       minimum-idle: 1
       maximum-pool-size: 10

@@ -333,6 +333,44 @@ public class EmailService {
         sendHtmlEmail(toEmail, subject, body);
     }
 
+    public void sendAdminWelcomeEmail(String toEmail, String fullName, String roleName, String tempPassword) {
+        String subject = "\uD83D\uDD11 Vos accès d'administrateur AfriDev Hub";
+        String body = """
+            <div style="font-family: Inter, Arial, sans-serif; max-width: 520px; margin: auto; background: #0F1828; color: #E2E8F0; border-radius: 16px; overflow: hidden;">
+              <div style="background: linear-gradient(135deg, #10B981, #059669); padding: 32px; text-align: center;">
+                <h1 style="margin: 0; color: #fff; font-size: 24px; font-weight: 800;">AfriDev Hub</h1>
+                <p style="margin: 8px 0 0; color: rgba(255,255,255,0.85); font-size: 14px;">Gouvernance & Administration Panafricaine</p>
+              </div>
+              <div style="padding: 32px;">
+                <h2 style="font-size: 20px; color: #F8FAFC; margin-bottom: 8px;">Bienvenue dans l'équipe, %s !</h2>
+                <p style="color: #94A3B8; font-size: 14px; line-height: 1.6; margin-bottom: 20px;">
+                  Un compte avec les privilèges <strong style="color: #34D399;">%s</strong> vient de vous être attribué sur la plateforme officielle AfriDev Hub.
+                </p>
+                <div style="background: #1E293B; border-radius: 12px; padding: 20px; margin-bottom: 24px; border: 1px solid #334155;">
+                  <p style="margin: 0 0 10px 0; color: #94A3B8; font-size: 13px;">Identifiant de connexion : <strong style="color: #FFFFFF;">%s</strong></p>
+                  <p style="margin: 0 0 12px 0; color: #94A3B8; font-size: 13px;">Mot de passe temporaire :</p>
+                  <div style="background: #0F172A; padding: 12px; border-radius: 8px; text-align: center; border: 1px dashed #10B981;">
+                    <span style="font-size: 20px; font-weight: 800; letter-spacing: 2px; color: #10B981; font-family: monospace;">%s</span>
+                  </div>
+                </div>
+                <div style="background: rgba(245, 158, 11, 0.1); border: 1px solid rgba(245, 158, 11, 0.3); border-radius: 8px; padding: 14px; margin-bottom: 24px; color: #FBBF24; font-size: 13px;">
+                  ⚠️ <strong>Sécurité obligatoire :</strong> Il vous sera immédiatement demandé de définir votre propre mot de passe personnel dès votre première connexion.
+                </div>
+                <div style="text-align: center;">
+                  <a href="https://afridev.africa/login" style="background: #10B981; color: #064E3B; padding: 12px 28px; border-radius: 8px; text-decoration: none; font-weight: 700; font-size: 14px; display: inline-block;">
+                    Se connecter à AfriDev Hub →
+                  </a>
+                </div>
+              </div>
+              <div style="background: #0B1120; padding: 16px; text-align: center;">
+                <p style="margin: 0; color: #475569; font-size: 12px;">© 2026 AfriDev Hub · Plateforme Panafricaine des Développeurs</p>
+              </div>
+            </div>
+            """.formatted(fullName, roleName, toEmail, tempPassword);
+
+        sendHtmlEmail(toEmail, subject, body);
+    }
+
     // ── Generic fire-and-forget (errors logged, not propagated) ───────────────
     private void sendHtmlEmail(String to, String subject, String htmlBody) {
         try {

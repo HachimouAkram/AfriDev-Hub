@@ -211,8 +211,29 @@ public class AuthService {
         String token = tokenProvider.generateToken(user.getEmail());
         return AuthResponse.builder()
                 .token(token)
+                .mustChangePassword(Boolean.TRUE.equals(user.getMustChangePassword()))
                 .user(mapToUserDto(user))
                 .build();
+    }
+
+    @Transactional
+    public void changeInitialPassword(String email, ChangeInitialPasswordRequest request) {
+        UserEntity user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new IllegalArgumentException("Utilisateur introuvable."));
+
+        if (!passwordEncoder.matches(request.getCurrentPassword(), user.getPasswordHash())) {
+            throw new IllegalArgumentException("Le mot de passe actuel est incorrect.");
+        }
+
+        if (request.getNewPassword().length() < 8) {
+            throw new IllegalArgumentException("Le nouveau mot de passe doit comporter au moins 8 caractères.");
+        }
+
+        user.setPasswordHash(passwordEncoder.encode(request.getNewPassword()));
+        user.setMustChangePassword(false);
+        userRepository.save(user);
+
+        log.info("[AUTH] Mot de passe initial mis à jour avec succès pour {}", email);
     }
 
     @Transactional
@@ -239,6 +260,7 @@ public class AuthService {
         String token = tokenProvider.generateToken(user.getEmail());
         return AuthResponse.builder()
                 .token(token)
+                .mustChangePassword(Boolean.TRUE.equals(user.getMustChangePassword()))
                 .user(mapToUserDto(user))
                 .build();
     }
@@ -371,6 +393,7 @@ public class AuthService {
         String token = tokenProvider.generateToken(user.getEmail());
         return AuthResponse.builder()
                 .token(token)
+                .mustChangePassword(Boolean.TRUE.equals(user.getMustChangePassword()))
                 .user(mapToUserDto(user))
                 .build();
     }
@@ -671,6 +694,7 @@ public class AuthService {
                 .id(user.getId())
                 .email(user.getEmail())
                 .emailVerified(user.getEmailVerified())
+                .mustChangePassword(Boolean.TRUE.equals(user.getMustChangePassword()))
                 .twoFactorEnabled(Boolean.TRUE.equals(user.getTwoFactorEnabled()))
                 .githubId(user.getGithubId())
                 .role(user.getRole())

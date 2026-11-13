@@ -165,7 +165,6 @@ export class AdminService {
 
   createAdminAccount(data: {
     email: string;
-    password: string;
     fullName: string;
     title?: string;
     country?: string;

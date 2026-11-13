@@ -37,6 +37,14 @@ export class LoginComponent implements OnInit, AfterViewInit, OnDestroy {
   is2faRequired = false;
   twoFactorMessage = '';
 
+  // Initial Password Change State
+  isChangeInitialPasswordRequired = false;
+  currentPassword = '';
+  newPassword = '';
+  confirmNewPassword = '';
+  showNewPassword = false;
+  tempUser: any = null;
+
   // Rate limiting / Lockout state
   isLocked = false;
   lockRemainingSeconds = 0;
@@ -65,6 +73,12 @@ export class LoginComponent implements OnInit, AfterViewInit, OnDestroy {
             this.is2faRequired = true;
             this.twoFactorMessage = res.data.message || 'Un code de sécurité a été envoyé à votre adresse email.';
             this.otpCode = '';
+            return;
+          }
+          if (res.data?.mustChangePassword || res.data?.user?.mustChangePassword) {
+            this.isChangeInitialPasswordRequired = true;
+            this.currentPassword = this.password;
+            this.tempUser = res.data?.user;
             return;
           }
           this.navigateByRole(res.data?.user);
@@ -127,12 +141,52 @@ export class LoginComponent implements OnInit, AfterViewInit, OnDestroy {
       next: (res) => {
         this.isLoading = false;
         if (res.success && res.data?.token) {
+          if (res.data?.mustChangePassword || res.data?.user?.mustChangePassword) {
+            this.isChangeInitialPasswordRequired = true;
+            this.currentPassword = this.password;
+            this.tempUser = res.data?.user;
+            return;
+          }
           this.navigateByRole(res.data?.user);
         }
       },
       error: (err) => {
         this.isLoading = false;
         this.errorMessage = err.error?.error?.message || 'Code de sécurité invalide ou expiré.';
+      }
+    });
+  }
+
+  onSubmitChangeInitialPassword(): void {
+    if (!this.currentPassword) {
+      this.errorMessage = 'Veuillez renseigner votre mot de passe temporaire actuel.';
+      return;
+    }
+    if (!this.newPassword || this.newPassword.length < 8) {
+      this.errorMessage = 'Le nouveau mot de passe doit comporter au moins 8 caractères.';
+      return;
+    }
+    if (this.newPassword !== this.confirmNewPassword) {
+      this.errorMessage = 'Les deux nouveaux mots de passe ne correspondent pas.';
+      return;
+    }
+    if (this.newPassword === this.currentPassword) {
+      this.errorMessage = 'Le nouveau mot de passe doit être différent du mot de passe temporaire.';
+      return;
+    }
+
+    this.isLoading = true;
+    this.errorMessage = '';
+
+    this.authService.changeInitialPassword(this.currentPassword, this.newPassword).subscribe({
+      next: () => {
+        this.isLoading = false;
+        this.isChangeInitialPasswordRequired = false;
+        this.navigateByRole(this.tempUser);
+      },
+      error: (err) => {
+        this.isLoading = false;
+        this.errorMessage = err.error?.error?.message || err.error?.message || 'Erreur lors du changement de mot de passe.';
       }
     });
   }

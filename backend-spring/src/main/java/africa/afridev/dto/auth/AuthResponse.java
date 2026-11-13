@@ -14,6 +14,7 @@ public class AuthResponse {
     @Builder.Default
     private String tokenType = "Bearer";
     private UserDto user;
+    private Boolean mustChangePassword;
     private Boolean twoFactorRequired;
     private String message;
     private String email;

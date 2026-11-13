@@ -47,7 +47,6 @@ export class AdminUsersComponent implements OnInit, OnDestroy {
   showCreateAdminModal = false;
   newAdmin = {
     email: '',
-    password: '',
     fullName: '',
     title: '',
     country: 'Sénégal',
@@ -229,7 +228,6 @@ export class AdminUsersComponent implements OnInit, OnDestroy {
   openCreateAdminModal(): void {
     this.newAdmin = {
       email: '',
-      password: '',
       fullName: '',
       title: '',
       country: 'Sénégal',
@@ -246,12 +244,8 @@ export class AdminUsersComponent implements OnInit, OnDestroy {
   }
 
   submitCreateAdmin(): void {
-    if (!this.newAdmin.email || !this.newAdmin.password || !this.newAdmin.fullName) {
-      this.createAdminFeedback = 'Veuillez remplir tous les champs obligatoires (*).';
-      return;
-    }
-    if (this.newAdmin.password.length < 8) {
-      this.createAdminFeedback = 'Le mot de passe doit comporter au moins 8 caractères.';
+    if (!this.newAdmin.email || !this.newAdmin.fullName) {
+      this.createAdminFeedback = 'Veuillez renseigner le nom complet et l\'adresse email professionnelle.';
       return;
     }
 
@@ -260,7 +254,6 @@ export class AdminUsersComponent implements OnInit, OnDestroy {
 
     this.adminService.createAdminAccount({
       email: this.newAdmin.email.trim(),
-      password: this.newAdmin.password,
       fullName: this.newAdmin.fullName.trim(),
       title: this.newAdmin.title.trim() || undefined,
       country: this.newAdmin.country,

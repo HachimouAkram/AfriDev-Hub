@@ -89,4 +89,17 @@ public class AuthController {
         UserDto currentUser = authService.getCurrentUser(authentication.getName());
         return ResponseEntity.ok(ApiResponse.ok(currentUser));
     }
+
+    @PostMapping("/change-initial-password")
+    public ResponseEntity<ApiResponse<Map<String, String>>> changeInitialPassword(
+            Authentication authentication,
+            @Valid @RequestBody ChangeInitialPasswordRequest request
+    ) {
+        if (authentication == null || !authentication.isAuthenticated()) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(ApiResponse.error("UNAUTHORIZED", "Non authentifié."));
+        }
+        authService.changeInitialPassword(authentication.getName(), request);
+        return ResponseEntity.ok(ApiResponse.ok(Map.of("message", "Mot de passe mis à jour avec succès.")));
+    }
 }
