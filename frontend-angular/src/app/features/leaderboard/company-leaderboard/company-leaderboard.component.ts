@@ -547,16 +547,24 @@ export class CompanyLeaderboardComponent implements OnInit {
     this.companyService.getCompanyLeaderboard(0, 50, undefined, this.selectedSector || undefined, this.searchQuery.trim() || undefined).subscribe({
       next: (res) => {
         if (res.success && res.data) {
-          this.companies.set(res.data.items);
-          if (!this.searchQuery && !this.selectedSector && res.data.items.length >= 3) {
-            this.podium.set(res.data.items.slice(0, 3));
+          const list = res.data.topCompanies ?? [];
+          this.companies.set(list);
+          if (!this.searchQuery && !this.selectedSector && list.length >= 3) {
+            this.podium.set(list.slice(0, 3));
           } else {
             this.podium.set([]);
           }
+        } else {
+          this.companies.set([]);
+          this.podium.set([]);
         }
         this.isLoading.set(false);
       },
-      error: () => this.isLoading.set(false)
+      error: () => {
+        this.companies.set([]);
+        this.podium.set([]);
+        this.isLoading.set(false);
+      }
     });
   }
 }

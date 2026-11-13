@@ -90,12 +90,9 @@ export interface CompanyLeaderboardItem {
 }
 
 export interface CompanyLeaderboardResponse {
-  items: CompanyLeaderboardItem[];
-  totalElements: number;
-  totalPages: number;
-  currentPage: number;
-  pageSize: number;
-  myCompanyRank?: number;
+  topCompanies: CompanyLeaderboardItem[];
+  myCompany?: CompanyLeaderboardItem;
+  totalCompanies: number;
 }
 
 export interface PagedData<T> {

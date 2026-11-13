@@ -546,12 +546,17 @@ export class RecruiterOverviewComponent implements OnInit {
           this.loadStats(res.data.id);
           this.loadActivities(res.data.id);
         } else {
-          this.errorMessage.set('Aucune entreprise associée ou erreur de chargement.');
+          this.errorMessage.set('Aucune entreprise associée. Créez votre fiche entreprise.');
         }
       },
       error: (err) => {
+        const msg = err?.error?.error?.message || err?.message || '';
+        if (err?.status === 404 || msg.toLowerCase().includes('entreprise')) {
+          this.errorMessage.set('Aucune entreprise associée. Créez votre fiche entreprise.');
+        } else {
+          this.errorMessage.set('Impossible de charger votre entreprise. Vérifiez que le serveur est bien démarré.');
+        }
         console.error('Erreur chargement entreprise:', err);
-        this.errorMessage.set('Impossible de charger votre entreprise. Vérifiez que le serveur est bien démarré.');
       }
     });
   }

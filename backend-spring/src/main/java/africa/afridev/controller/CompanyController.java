@@ -45,8 +45,13 @@ public class CompanyController {
     @GetMapping("/me")
     public ResponseEntity<ApiResponse<CompanyDto>> getMyCompany(Authentication authentication) {
         UserEntity user = getAuthenticatedUser(authentication);
-        CompanyDto company = companyService.getMyCompany(user);
-        return ResponseEntity.ok(ApiResponse.ok(company));
+        try {
+            CompanyDto company = companyService.getMyCompany(user);
+            return ResponseEntity.ok(ApiResponse.ok(company));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(ApiResponse.error("NOT_FOUND", e.getMessage()));
+        }
     }
 
     @GetMapping("/{slug}")
