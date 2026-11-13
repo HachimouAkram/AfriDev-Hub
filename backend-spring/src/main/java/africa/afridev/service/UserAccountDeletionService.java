@@ -180,8 +180,13 @@ public class UserAccountDeletionService {
                 .setParameter("uId", userId).executeUpdate();
 
         // 6. Événements et votes
+        // a. Supprimer d'abord les votes sur les événements organisés par cet utilisateur
+        entityManager.createQuery("DELETE FROM EventVoteEntity ev WHERE ev.event.id IN (SELECT te.id FROM TechEventEntity te WHERE te.organizer.id = :uId)")
+                .setParameter("uId", userId).executeUpdate();
+        // b. Supprimer les votes que cet utilisateur a émis sur d'autres événements
         entityManager.createQuery("DELETE FROM EventVoteEntity ev WHERE ev.user.id = :uId")
                 .setParameter("uId", userId).executeUpdate();
+        // c. Supprimer les événements organisés par l'utilisateur
         entityManager.createQuery("DELETE FROM TechEventEntity te WHERE te.organizer.id = :uId")
                 .setParameter("uId", userId).executeUpdate();
 
