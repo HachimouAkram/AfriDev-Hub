@@ -2,6 +2,7 @@ import { Component, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { CompanyService, Company, CompanyLeaderboardItem } from '../../../core/services/company.service';
+import { resolveUploadedMediaUrl } from '../../../core/utils/upload-helper';
 import { CompanyBadgeComponent } from '../../../shared/components/company-badge/company-badge.component';
 import { OpportunityService, Opportunity } from '../../../core/services/opportunity.service';
 
@@ -12,7 +13,7 @@ import { OpportunityService, Opportunity } from '../../../core/services/opportun
   template: `
     <div class="company-public-wrapper" *ngIf="company(); else loadingTpl">
       <!-- Cover Banner -->
-      <div class="company-cover" [style.background-image]="company()?.coverUrl ? 'url(' + company()?.coverUrl + ')' : ''">
+      <div class="company-cover" [style.background-image]="company()?.coverUrl ? 'url(' + resolveUrl(company()?.coverUrl) + ')' : ''">
         <div class="cover-overlay"></div>
       </div>
 
@@ -20,7 +21,7 @@ import { OpportunityService, Opportunity } from '../../../core/services/opportun
       <div class="company-header-container">
         <div class="header-card">
           <div class="logo-box">
-            <img *ngIf="company()?.logoUrl; else letterLogo" [src]="company()?.logoUrl" [alt]="company()?.name" />
+            <img *ngIf="company()?.logoUrl; else letterLogo" [src]="resolveUrl(company()?.logoUrl)" [alt]="company()?.name" />
             <ng-template #letterLogo>
               <svg viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="1.8" style="width: 48px; height: 48px;">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 21h16.5M4.5 3h15M5.25 3v18m13.5-18v18M9 6.75h1.5m-1.5 3h1.5m-1.5 3h1.5m3-6H15m-1.5 3H15m-1.5 3H15M9 21v-3.375c0-.621.504-1.125 1.125-1.125h3.75c.621 0 1.125.504 1.125 1.125V21" />
@@ -462,6 +463,10 @@ export class CompanyPublicPageComponent implements OnInit {
 
   company = signal<Company | null>(null);
   opportunities = signal<Opportunity[]>([]);
+
+  resolveUrl(url?: string | null): string {
+    return resolveUploadedMediaUrl(url);
+  }
 
   ngOnInit(): void {
     this.route.paramMap.subscribe((params) => {

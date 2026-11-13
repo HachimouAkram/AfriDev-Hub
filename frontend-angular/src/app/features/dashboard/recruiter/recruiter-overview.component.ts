@@ -2,6 +2,7 @@ import { Component, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { CompanyService, Company, CompanyStats, CompanyActivityLog } from '../../../core/services/company.service';
+import { resolveUploadedMediaUrl } from '../../../core/utils/upload-helper';
 import { CompanyBadgeComponent } from '../../../shared/components/company-badge/company-badge.component';
 
 @Component({
@@ -14,7 +15,7 @@ import { CompanyBadgeComponent } from '../../../shared/components/company-badge/
       <div class="company-hero-card">
         <div class="company-hero-content">
           <div class="company-logo-badge">
-            <img *ngIf="company()?.logoUrl; else placeholderLogo" [src]="company()?.logoUrl" [alt]="company()?.name" />
+            <img *ngIf="company()?.logoUrl; else placeholderLogo" [src]="resolveUrl(company()?.logoUrl)" [alt]="company()?.name" />
             <ng-template #placeholderLogo>
               <svg class="logo-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 21h16.5M4.5 3h15M5.25 3v18m13.5-18v18M9 6.75h1.5m-1.5 3h1.5m-1.5 3h1.5m3-6H15m-1.5 3H15m-1.5 3H15M9 21v-3.375c0-.621.504-1.125 1.125-1.125h3.75c.621 0 1.125.504 1.125 1.125V21" />
@@ -645,6 +646,10 @@ export class RecruiterOverviewComponent implements OnInit {
   stats = signal<CompanyStats | null>(null);
   recentActivities = signal<CompanyActivityLog[]>([]);
   errorMessage = signal<string>('');
+
+  resolveUrl(url?: string | null): string {
+    return resolveUploadedMediaUrl(url);
+  }
 
   ngOnInit(): void {
     this.companyService.getMyCompany().subscribe({
