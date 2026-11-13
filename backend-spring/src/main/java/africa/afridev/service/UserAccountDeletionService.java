@@ -168,6 +168,8 @@ public class UserAccountDeletionService {
                 .setParameter("uId", userId).executeUpdate();
 
         // Dépendances des projets dont il est l'auteur
+        entityManager.createQuery("DELETE FROM RecognitionEntity r WHERE r.project.id IN (SELECT p.id FROM ProjectEntity p WHERE p.author.id = :uId)")
+                .setParameter("uId", userId).executeUpdate();
         entityManager.createQuery("DELETE FROM ProjectTaskEntity t WHERE t.project.id IN (SELECT p.id FROM ProjectEntity p WHERE p.author.id = :uId)")
                 .setParameter("uId", userId).executeUpdate();
         entityManager.createQuery("DELETE FROM ProjectMemberEntity pm WHERE pm.project.id IN (SELECT p.id FROM ProjectEntity p WHERE p.author.id = :uId)")
