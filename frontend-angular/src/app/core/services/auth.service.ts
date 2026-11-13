@@ -51,6 +51,19 @@ export interface LoginSession {
   isCurrent?: boolean;
 }
 
+export interface AccountDeletionImpact {
+  userEmail: string;
+  userRole: string;
+  isCompanyOwner: boolean;
+  companyId?: string;
+  companyName?: string;
+  companySlug?: string;
+  publishedOpportunitiesCount: number;
+  teamMembersCount: number;
+  isCompanyMember: boolean;
+  memberCompanyName?: string;
+}
+
 export interface User {
   id: string;
   email: string;
@@ -215,6 +228,14 @@ export class AuthService {
 
   requestOtp(email: string): Observable<ApiResponse<any>> {
     return this.http.post<ApiResponse<any>>(`${this.apiUrl}/email/request-otp`, { email });
+  }
+
+  getDeletionImpact(): Observable<ApiResponse<AccountDeletionImpact>> {
+    return this.http.get<ApiResponse<AccountDeletionImpact>>(`${this.profileUrl}/me/deletion-impact`);
+  }
+
+  deleteAccount(confirmation: string, password?: string): Observable<ApiResponse<any>> {
+    return this.http.post<ApiResponse<any>>(`${this.profileUrl}/me/delete-account`, { confirmation, password });
   }
 
   verifyOtp(email: string, otpCode: string): Observable<ApiResponse<AuthResponse>> {

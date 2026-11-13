@@ -4,11 +4,12 @@ import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { CompanyService, Company } from '../../../core/services/company.service';
 import { CompanyBadgeComponent } from '../../../shared/components/company-badge/company-badge.component';
+import { DeleteAccountModalComponent } from '../../../shared/components/delete-account-modal/delete-account-modal.component';
 
 @Component({
   selector: 'app-recruiter-company-profile',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, CompanyBadgeComponent],
+  imports: [CommonModule, FormsModule, RouterLink, CompanyBadgeComponent, DeleteAccountModalComponent],
   template: `
     <div class="company-profile-container" *ngIf="company(); else loadingTpl">
       <!-- Header -->
@@ -108,6 +109,29 @@ import { CompanyBadgeComponent } from '../../../shared/components/company-badge/
           </div>
         </div>
       </form>
+
+      <!-- Zone de Danger : Suppression du Compte & de l'Entreprise -->
+      <div class="danger-zone-card">
+        <div class="danger-info">
+          <div class="danger-title-row">
+            <span class="danger-badge">Zone de Danger</span>
+            <h3>Suppression du Compte & de l'Entreprise</h3>
+          </div>
+          <p>
+            Vous êtes le responsable de cette entreprise. La suppression de votre compte entraînera la 
+            <strong>suppression définitive et irréversible de l'entreprise {{ company()?.name }}</strong>, de toutes ses offres d'emploi publiées, ainsi que l'accès de toute votre équipe recruteur.
+          </p>
+        </div>
+        <button type="button" class="btn btn-danger" (click)="showDeleteAccountModal = true">
+          Supprimer mon compte et l'entreprise...
+        </button>
+      </div>
+
+      <!-- Modal de Suppression -->
+      <app-delete-account-modal 
+        [isOpen]="showDeleteAccountModal" 
+        (closed)="showDeleteAccountModal = false">
+      </app-delete-account-modal>
     </div>
 
     <ng-template #loadingTpl>
@@ -283,6 +307,69 @@ import { CompanyBadgeComponent } from '../../../shared/components/company-badge/
       border: 1px solid rgba(255, 255, 255, 0.2);
     }
 
+    .danger-zone-card {
+      background: rgba(239, 68, 68, 0.06);
+      border: 1px solid rgba(239, 68, 68, 0.35);
+      border-radius: 16px;
+      padding: 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1.25rem;
+      margin-top: 1rem;
+    }
+
+    .danger-title-row {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 0.4rem;
+    }
+
+    .danger-badge {
+      background: rgba(239, 68, 68, 0.2);
+      border: 1px solid rgba(239, 68, 68, 0.4);
+      color: #ef4444;
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      padding: 2px 8px;
+      border-radius: 6px;
+    }
+
+    .danger-info h3 {
+      margin: 0;
+      font-size: 1.15rem;
+      color: #fca5a5;
+    }
+
+    .danger-info p {
+      margin: 0;
+      font-size: 0.88rem;
+      color: #cbd5e1;
+      max-width: 600px;
+      line-height: 1.4;
+    }
+
+    .btn-danger {
+      background: #dc2626;
+      color: #ffffff;
+      padding: 0.75rem 1.4rem;
+      border-radius: 10px;
+      font-weight: 600;
+      font-size: 0.9rem;
+      border: none;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
+      transition: all 0.2s;
+    }
+
+    .btn-danger:hover {
+      background: #b91c1c;
+      box-shadow: 0 4px 16px rgba(220, 38, 38, 0.5);
+    }
+
     .loading-state {
       text-align: center;
       padding: 3rem 1rem;
@@ -312,6 +399,7 @@ export class RecruiterCompanyProfileComponent implements OnInit {
   isSaving = false;
   successMsg = '';
   errorMsg = '';
+  showDeleteAccountModal = false;
 
   ngOnInit(): void {
     this.companyService.getMyCompany().subscribe({

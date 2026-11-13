@@ -24,6 +24,7 @@ public class ProfileController {
 
     private final ProfileService profileService;
     private final AuthService authService;
+    private final africa.afridev.service.UserAccountDeletionService userAccountDeletionService;
 
     @GetMapping
     public ResponseEntity<ApiResponse<Page<ProfileDto>>> getAllProfiles(
@@ -103,5 +104,33 @@ public class ProfileController {
     ) {
         africa.afridev.dto.auth.UserDto updatedUser = authService.toggleTwoFactor(authentication.getName(), request.getEnabled());
         return ResponseEntity.ok(ApiResponse.ok(updatedUser));
+    }
+
+    // ── SUPPRESSION DU COMPTE (ZONE DE DANGER) ──
+
+    @GetMapping("/me/deletion-impact")
+    public ResponseEntity<ApiResponse<africa.afridev.dto.auth.AccountDeletionImpactDto>> getDeletionImpact(
+            Authentication authentication
+    ) {
+        africa.afridev.dto.auth.AccountDeletionImpactDto impact = userAccountDeletionService.getDeletionImpact(authentication.getName());
+        return ResponseEntity.ok(ApiResponse.ok(impact));
+    }
+
+    @PostMapping("/me/delete-account")
+    public ResponseEntity<ApiResponse<Map<String, String>>> deleteAccountPost(
+            Authentication authentication,
+            @RequestBody(required = false) africa.afridev.dto.auth.DeleteAccountRequest request
+    ) {
+        userAccountDeletionService.deleteAccount(authentication.getName(), request);
+        return ResponseEntity.ok(ApiResponse.ok(Map.of("message", "Votre compte et toutes les données associées ont été supprimés avec succès.")));
+    }
+
+    @DeleteMapping("/me")
+    public ResponseEntity<ApiResponse<Map<String, String>>> deleteAccount(
+            Authentication authentication,
+            @RequestBody(required = false) africa.afridev.dto.auth.DeleteAccountRequest request
+    ) {
+        userAccountDeletionService.deleteAccount(authentication.getName(), request);
+        return ResponseEntity.ok(ApiResponse.ok(Map.of("message", "Votre compte et toutes les données associées ont été supprimés avec succès.")));
     }
 }

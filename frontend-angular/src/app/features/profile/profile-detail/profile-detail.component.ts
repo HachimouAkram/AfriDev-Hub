@@ -13,11 +13,12 @@ import { EvaluationService, Evaluation, ReputationScore } from '../../../core/se
 import { MentorService } from '../../../core/services/mentor.service';
 import { ThemeService, ThemeMode } from '../../../core/services/theme.service';
 import { TranslationService, Language } from '../../../core/services/translation.service';
+import { DeleteAccountModalComponent } from '../../../shared/components/delete-account-modal/delete-account-modal.component';
 
 @Component({
   selector: 'app-profile-detail',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink],
+  imports: [CommonModule, FormsModule, RouterLink, DeleteAccountModalComponent],
   templateUrl: './profile-detail.component.html',
   styleUrl: './profile-detail.component.css'
 })
@@ -70,6 +71,9 @@ export class ProfileDetailComponent implements OnInit {
   sessionActionMessage = '';
   sessionErrorMessage = '';
   isUpdating2fa = false;
+
+  // Account Deletion State
+  showDeleteAccountModal = false;
 
   // Follow State
   followStats: FollowStats | null = null;
