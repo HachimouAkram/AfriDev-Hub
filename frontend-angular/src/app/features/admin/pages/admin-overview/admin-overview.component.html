@@ -335,20 +335,20 @@
       </div>
 
       <div class="donut-chart-container">
-        <!-- SVG Donut Chart -->
+        <!-- SVG Donut Chart Agrandie & Vectorielle -->
         <div class="donut-svg-wrap">
-          <svg class="donut-svg" viewBox="0 0 200 200" width="180" height="180">
+          <svg class="donut-svg" viewBox="0 0 200 200" width="220" height="220">
             <!-- Cercle de fond -->
-            <circle cx="100" cy="100" r="68" class="donut-track" fill="transparent" stroke="rgba(255, 255, 255, 0.06)" stroke-width="22" />
+            <circle cx="100" cy="100" r="70" class="donut-track" fill="transparent" stroke="rgba(255, 255, 255, 0.06)" stroke-width="24" />
             <!-- Segments colorés -->
             <circle 
               *ngFor="let seg of donutSegments" 
               cx="100" 
               cy="100" 
-              r="68" 
+              r="70" 
               fill="transparent" 
               [attr.stroke]="seg.color" 
-              stroke-width="22" 
+              stroke-width="24" 
               [attr.stroke-dasharray]="seg.dashArray" 
               [attr.stroke-dashoffset]="seg.dashOffset"
               stroke-linecap="round"
