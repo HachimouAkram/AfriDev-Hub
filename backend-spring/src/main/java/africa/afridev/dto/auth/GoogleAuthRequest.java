@@ -1,5 +1,6 @@
 package africa.afridev.dto.auth;
 
+import africa.afridev.model.enums.Role;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -14,4 +15,6 @@ public class GoogleAuthRequest {
 
     @NotBlank(message = "Le token Google ID est requis")
     private String idToken;
+
+    private Role role;
 }

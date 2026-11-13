@@ -43,6 +43,12 @@ public class AuthService {
     @Value("${app.google.client-id:}")
     private String googleClientId;
 
+    @Value("${app.github.client-id:}")
+    private String githubClientId;
+
+    @Value("${app.github.client-secret:}")
+    private String githubClientSecret;
+
     private final RestTemplate restTemplate = new RestTemplate();
 
     @Transactional
@@ -414,10 +420,11 @@ public class AuthService {
                     return existingUser;
                 })
                 .orElseGet(() -> {
+                    Role targetRole = request.getRole() != null ? request.getRole() : Role.DEVELOPER;
                     UserEntity newUser = UserEntity.builder()
                             .email(email)
                             .emailVerified(true)
-                            .role(Role.DEVELOPER)
+                            .role(targetRole)
                             .status(UserStatus.ACTIVE)
                             .build();
 
@@ -427,7 +434,7 @@ public class AuthService {
                             .avatarUrl(picture)
                             .country("Sénégal")
                             .city("Dakar")
-                            .title("Développeur")
+                            .title(targetRole == Role.RECRUITER ? "Tech Recruiter" : "Développeur")
                             .availability(Availability.OPEN)
                             .skills(new ArrayList<>())
                             .completionScore(60)
@@ -435,7 +442,13 @@ public class AuthService {
                             .build();
 
                     newUser.setProfile(newProfile);
-                    return userRepository.save(newUser);
+                    UserEntity savedUser = userRepository.save(newUser);
+                    if (targetRole == Role.RECRUITER) {
+                        try {
+                            companyService.autoCreateCompanyForRecruiter(savedUser, newProfile.getFullName() + " Tech", "Sénégal", "Dakar", "", "Tech Recruiter");
+                        } catch (Exception ignored) {}
+                    }
+                    return savedUser;
                 });
 
         if (user.getStatus() == UserStatus.SUSPENDED || user.getStatus() == UserStatus.BANNED) {
@@ -444,6 +457,201 @@ public class AuthService {
 
         String token = tokenProvider.generateToken(user.getEmail());
         log.info("[AUTH GOOGLE] Connexion Google réussie pour {}", email);
+
+        return AuthResponse.builder()
+                .token(token)
+                .user(mapToUserDto(user))
+                .build();
+    }
+
+    @Transactional
+    @SuppressWarnings("unchecked")
+    public AuthResponse loginWithGithub(GithubAuthRequest request) {
+        if (githubClientId == null || githubClientId.isBlank() || githubClientSecret == null || githubClientSecret.isBlank()) {
+            throw new IllegalStateException("L'authentification GitHub n'est pas configurée sur le serveur.");
+        }
+
+        // 1. Échanger le code OAuth contre un access_token GitHub
+        org.springframework.http.HttpHeaders tokenHeaders = new org.springframework.http.HttpHeaders();
+        tokenHeaders.setContentType(org.springframework.http.MediaType.APPLICATION_JSON);
+        tokenHeaders.setAccept(List.of(org.springframework.http.MediaType.APPLICATION_JSON));
+
+        Map<String, String> tokenBody = Map.of(
+                "client_id", githubClientId,
+                "client_secret", githubClientSecret,
+                "code", request.getCode()
+        );
+
+        org.springframework.http.HttpEntity<Map<String, String>> tokenEntity = new org.springframework.http.HttpEntity<>(tokenBody, tokenHeaders);
+        Map<String, Object> tokenResponse;
+        try {
+            tokenResponse = restTemplate.postForObject("https://github.com/login/oauth/access_token", tokenEntity, Map.class);
+        } catch (Exception e) {
+            log.error("[AUTH GITHUB] Échec échange code OAuth GitHub : {}", e.getMessage());
+            throw new IllegalArgumentException("Impossible de valider le code d'autorisation GitHub.");
+        }
+
+        if (tokenResponse == null || !tokenResponse.containsKey("access_token")) {
+            String errDesc = tokenResponse != null && tokenResponse.get("error_description") != null
+                    ? String.valueOf(tokenResponse.get("error_description"))
+                    : "Code GitHub invalide ou expiré.";
+            log.warn("[AUTH GITHUB] Pas d'access_token reçu : {}", errDesc);
+            throw new IllegalArgumentException(errDesc);
+        }
+
+        String accessToken = String.valueOf(tokenResponse.get("access_token"));
+
+        // 2. Récupérer le profil utilisateur GitHub
+        org.springframework.http.HttpHeaders apiHeaders = new org.springframework.http.HttpHeaders();
+        apiHeaders.setBearerAuth(accessToken);
+        apiHeaders.setAccept(List.of(org.springframework.http.MediaType.APPLICATION_JSON));
+        org.springframework.http.HttpEntity<Void> apiEntity = new org.springframework.http.HttpEntity<>(apiHeaders);
+
+        Map<String, Object> ghUser;
+        try {
+            org.springframework.http.ResponseEntity<Map> resp = restTemplate.exchange(
+                    "https://api.github.com/user",
+                    org.springframework.http.HttpMethod.GET,
+                    apiEntity,
+                    Map.class
+            );
+            ghUser = resp.getBody();
+        } catch (Exception e) {
+            log.error("[AUTH GITHUB] Échec récupération profil GitHub : {}", e.getMessage());
+            throw new IllegalArgumentException("Impossible de récupérer votre profil depuis GitHub.");
+        }
+
+        if (ghUser == null || ghUser.get("id") == null) {
+            throw new IllegalArgumentException("Profil GitHub invalide.");
+        }
+
+        String githubId = String.valueOf(ghUser.get("id"));
+        String login = ghUser.get("login") != null ? String.valueOf(ghUser.get("login")) : "github_dev";
+        String name = ghUser.get("name") != null && !String.valueOf(ghUser.get("name")).isBlank()
+                ? String.valueOf(ghUser.get("name"))
+                : login;
+        String avatarUrl = ghUser.get("avatar_url") != null ? String.valueOf(ghUser.get("avatar_url")) : null;
+        String htmlUrl = ghUser.get("html_url") != null ? String.valueOf(ghUser.get("html_url")) : ("https://github.com/" + login);
+        String bio = ghUser.get("bio") != null ? String.valueOf(ghUser.get("bio")) : null;
+        String email = ghUser.get("email") != null && !String.valueOf(ghUser.get("email")).isBlank()
+                ? String.valueOf(ghUser.get("email"))
+                : null;
+
+        // 3. Si l'email est privé sur GitHub, interroger /user/emails
+        if (email == null) {
+            try {
+                org.springframework.http.ResponseEntity<List> emailsResp = restTemplate.exchange(
+                        "https://api.github.com/user/emails",
+                        org.springframework.http.HttpMethod.GET,
+                        apiEntity,
+                        List.class
+                );
+                List<Map<String, Object>> emails = emailsResp.getBody();
+                if (emails != null && !emails.isEmpty()) {
+                    for (Map<String, Object> eObj : emails) {
+                        if (Boolean.TRUE.equals(eObj.get("primary")) && Boolean.TRUE.equals(eObj.get("verified")) && eObj.get("email") != null) {
+                            email = String.valueOf(eObj.get("email"));
+                            break;
+                        }
+                    }
+                    if (email == null) {
+                        for (Map<String, Object> eObj : emails) {
+                            if (Boolean.TRUE.equals(eObj.get("verified")) && eObj.get("email") != null) {
+                                email = String.valueOf(eObj.get("email"));
+                                break;
+                            }
+                        }
+                    }
+                    if (email == null && emails.get(0).get("email") != null) {
+                        email = String.valueOf(emails.get(0).get("email"));
+                    }
+                }
+            } catch (Exception e) {
+                log.warn("[AUTH GITHUB] Impossible de lire /user/emails : {}", e.getMessage());
+            }
+        }
+
+        if (email == null || email.isBlank()) {
+            email = login.toLowerCase() + "@users.noreply.github.com";
+        }
+
+        final String finalEmail = email;
+        final String finalName = name;
+        final String finalAvatar = avatarUrl;
+        final String finalGithubUrl = htmlUrl;
+        final String finalBio = bio;
+
+        // 4. Chercher par githubId ou par email
+        UserEntity user = userRepository.findByGithubId(githubId)
+                .or(() -> userRepository.findByEmail(finalEmail))
+                .map(existingUser -> {
+                    boolean modified = false;
+                    if (existingUser.getGithubId() == null || !existingUser.getGithubId().equals(githubId)) {
+                        existingUser.setGithubId(githubId);
+                        modified = true;
+                    }
+                    if (!Boolean.TRUE.equals(existingUser.getEmailVerified())) {
+                        existingUser.setEmailVerified(true);
+                        modified = true;
+                    }
+                    ProfileEntity prof = existingUser.getProfile();
+                    if (prof != null) {
+                        if ((prof.getAvatarUrl() == null || prof.getAvatarUrl().isBlank()) && finalAvatar != null) {
+                            prof.setAvatarUrl(finalAvatar);
+                            modified = true;
+                        }
+                        if ((prof.getGithubUrl() == null || prof.getGithubUrl().isBlank()) && finalGithubUrl != null) {
+                            prof.setGithubUrl(finalGithubUrl);
+                            modified = true;
+                        }
+                        if ((prof.getBio() == null || prof.getBio().isBlank()) && finalBio != null) {
+                            prof.setBio(finalBio);
+                            modified = true;
+                        }
+                    }
+                    return modified ? userRepository.save(existingUser) : existingUser;
+                })
+                .orElseGet(() -> {
+                    Role targetRole = request.getRole() != null ? request.getRole() : Role.DEVELOPER;
+                    UserEntity newUser = UserEntity.builder()
+                            .email(finalEmail)
+                            .githubId(githubId)
+                            .emailVerified(true)
+                            .role(targetRole)
+                            .status(UserStatus.ACTIVE)
+                            .build();
+
+                    ProfileEntity newProfile = ProfileEntity.builder()
+                            .user(newUser)
+                            .fullName(finalName)
+                            .avatarUrl(finalAvatar)
+                            .githubUrl(finalGithubUrl)
+                            .bio(finalBio)
+                            .country("Sénégal")
+                            .city("Dakar")
+                            .title(targetRole == Role.RECRUITER ? "Tech Recruiter" : "Développeur Full-Stack")
+                            .availability(Availability.OPEN)
+                            .skills(new ArrayList<>())
+                            .completionScore(70)
+                            .mobileMoneyVerified(false)
+                            .build();
+
+                    newUser.setProfile(newProfile);
+                    UserEntity savedUser = userRepository.save(newUser);
+                    if (targetRole == Role.RECRUITER) {
+                        try {
+                            companyService.autoCreateCompanyForRecruiter(savedUser, finalName + " Tech", "Sénégal", "Dakar", finalBio != null ? finalBio : "", "Tech Recruiter");
+                        } catch (Exception ignored) {}
+                    }
+                    return savedUser;
+                });
+
+        if (user.getStatus() == UserStatus.SUSPENDED || user.getStatus() == UserStatus.BANNED) {
+            throw new IllegalStateException("Ce compte est suspendu ou banni.");
+        }
+
+        String token = tokenProvider.generateToken(user.getEmail());
+        log.info("[AUTH GITHUB] Connexion GitHub réussie pour {} (github={})", user.getEmail(), login);
 
         return AuthResponse.builder()
                 .token(token)

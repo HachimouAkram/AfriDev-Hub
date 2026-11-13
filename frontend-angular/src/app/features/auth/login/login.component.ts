@@ -1,7 +1,7 @@
-import { Component, inject, AfterViewInit, OnDestroy } from '@angular/core';
+import { Component, inject, AfterViewInit, OnDestroy, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
 
 declare const google: any;
@@ -13,10 +13,12 @@ declare const google: any;
   templateUrl: './login.component.html',
   styleUrl: './login.component.css'
 })
-export class LoginComponent implements AfterViewInit, OnDestroy {
+export class LoginComponent implements OnInit, AfterViewInit, OnDestroy {
   private authService = inject(AuthService);
   private router = inject(Router);
+  private route = inject(ActivatedRoute);
   protected readonly Math = Math;
+  private readonly githubClientId = 'Ov23liThxmOjC0n7pOW3';
 
   activeTab: 'password' | 'otp' = 'password';
 
@@ -204,19 +206,55 @@ export class LoginComponent implements AfterViewInit, OnDestroy {
     this.successMessage = '';
   }
 
+  ngOnInit(): void {
+    const code = this.route.snapshot.queryParamMap.get('code');
+    const state = this.route.snapshot.queryParamMap.get('state');
+    if (code) {
+      this.handleGithubCode(code, state);
+    }
+  }
+
   ngAfterViewInit(): void {
     this.initGoogleSignIn();
   }
 
   ngOnDestroy(): void {
     this.clearLockTimer();
-    if (this.resizeHandler) {
-      window.removeEventListener('resize', this.resizeHandler);
-    }
   }
 
-  private resizeHandler?: () => void;
-  private resizeTimeout: any;
+  onLoginWithGithub(): void {
+    const redirectUri = `${window.location.origin}/login`;
+    const state = 'login_DEVELOPER';
+    const githubAuthUrl = `https://github.com/login/oauth/authorize?client_id=${this.githubClientId}&redirect_uri=${encodeURIComponent(redirectUri)}&scope=read:user%20user:email&state=${encodeURIComponent(state)}`;
+    window.location.href = githubAuthUrl;
+  }
+
+  private handleGithubCode(code: string, state: string | null): void {
+    this.isLoading = true;
+    this.errorMessage = '';
+    const role = state && state.includes('RECRUITER') ? 'RECRUITER' : 'DEVELOPER';
+
+    // Nettoyer l'URL immédiatement pour éviter un double appel au rafraîchissement
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: { code: null, state: null },
+      queryParamsHandling: 'merge',
+      replaceUrl: true
+    });
+
+    this.authService.loginWithGithub(code, role).subscribe({
+      next: (res) => {
+        this.isLoading = false;
+        if (res.success) {
+          this.navigateByRole(res.data?.user);
+        }
+      },
+      error: (err) => {
+        this.isLoading = false;
+        this.errorMessage = err.error?.error?.message || 'Erreur lors de la connexion avec GitHub.';
+      }
+    });
+  }
 
   private initGoogleSignIn(): void {
     const checkGoogle = () => {
@@ -227,33 +265,15 @@ export class LoginComponent implements AfterViewInit, OnDestroy {
             callback: (response: any) => this.handleGoogleCredential(response)
           });
 
-          const renderBtn = () => {
-            const btnElement = document.getElementById('google-btn-login');
-            if (btnElement) {
-              btnElement.innerHTML = '';
-              const parentWidth = btnElement.parentElement?.clientWidth || (window.innerWidth - 48);
-              // Largeur fluide bornée entre 200px et 360px selon l'écran mobile
-              const targetWidth = Math.max(200, Math.min(360, Math.floor(parentWidth)));
-
-              google.accounts.id.renderButton(btnElement, {
-                theme: 'filled_black',
-                size: 'large',
-                width: targetWidth,
-                text: 'continue_with',
-                shape: 'rectangular',
-                logo_alignment: 'left'
-              });
-            }
-          };
-
-          renderBtn();
-
-          if (!this.resizeHandler) {
-            this.resizeHandler = () => {
-              clearTimeout(this.resizeTimeout);
-              this.resizeTimeout = setTimeout(renderBtn, 200);
-            };
-            window.addEventListener('resize', this.resizeHandler);
+          const btnElement = document.getElementById('google-btn-login');
+          if (btnElement) {
+            btnElement.innerHTML = '';
+            google.accounts.id.renderButton(btnElement, {
+              type: 'icon',
+              theme: 'outline',
+              size: 'large',
+              shape: 'circle'
+            });
           }
         } catch (e) {
           console.warn('Google Identity initialization error', e);
@@ -273,7 +293,7 @@ export class LoginComponent implements AfterViewInit, OnDestroy {
         next: (res) => {
           this.isLoading = false;
           if (res.success) {
-            this.router.navigate(['/dashboard']);
+            this.navigateByRole(res.data?.user);
           }
         },
         error: (err) => {

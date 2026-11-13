@@ -248,8 +248,18 @@ export class AuthService {
     );
   }
 
-  loginWithGoogle(idToken: string): Observable<ApiResponse<AuthResponse>> {
-    return this.http.post<ApiResponse<AuthResponse>>(`${this.apiUrl}/google`, { idToken }).pipe(
+  loginWithGoogle(idToken: string, role?: string): Observable<ApiResponse<AuthResponse>> {
+    return this.http.post<ApiResponse<AuthResponse>>(`${this.apiUrl}/google`, { idToken, role }).pipe(
+      tap(res => {
+        if (res.success && res.data) {
+          this.handleAuthSuccess(res.data);
+        }
+      })
+    );
+  }
+
+  loginWithGithub(code: string, role?: string): Observable<ApiResponse<AuthResponse>> {
+    return this.http.post<ApiResponse<AuthResponse>>(`${this.apiUrl}/github`, { code, role }).pipe(
       tap(res => {
         if (res.success && res.data) {
           this.handleAuthSuccess(res.data);

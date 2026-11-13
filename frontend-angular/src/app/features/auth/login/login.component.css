@@ -287,27 +287,95 @@
   color: var(--text-muted);
 }
 
-.google-btn-wrapper {
+.social-oauth-icons {
   display: flex;
   justify-content: center;
   align-items: center;
+  gap: 1.35rem;
   width: 100%;
-  max-width: 100%;
-  overflow: hidden;
-  min-height: 44px;
+  margin: 0.35rem 0 0.5rem;
 }
 
-#google-btn-login {
+.oauth-icon-slot {
+  position: relative;
+  width: 58px;
+  height: 58px;
   display: flex;
+  align-items: center;
   justify-content: center;
-  width: 100%;
-  max-width: 100%;
-  overflow: hidden;
 }
 
-#google-btn-login iframe {
-  max-width: 100% !important;
-  margin: 0 auto !important;
+.oauth-icon-btn {
+  width: 58px;
+  height: 58px;
+  border-radius: 16px;
+  border: 1.5px solid var(--border-color, rgba(255, 255, 255, 0.14));
+  background: var(--bg-card-hover, rgba(255, 255, 255, 0.04));
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 0;
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12);
+}
+
+.oauth-icon-btn:hover:not(:disabled),
+.oauth-icon-slot:hover .oauth-icon-btn {
+  transform: translateY(-3px) scale(1.04);
+  border-color: var(--emerald, #10B981);
+  box-shadow: 0 10px 24px -6px rgba(16, 185, 129, 0.28);
+  background: rgba(16, 185, 129, 0.06);
+}
+
+.oauth-icon-btn:active:not(:disabled),
+.oauth-icon-slot:active .oauth-icon-btn {
+  transform: translateY(0) scale(0.98);
+}
+
+.oauth-icon-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.oauth-svg-logo {
+  width: 28px;
+  height: 28px;
+  display: block;
+  flex-shrink: 0;
+}
+
+.github-octocat {
+  color: var(--text-heading, #F8FAFC);
+}
+
+:host-context([data-theme="light"]) .oauth-icon-btn {
+  background: #ffffff;
+  border-color: #E2E8F0;
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.06);
+}
+
+:host-context([data-theme="light"]) .github-octocat {
+  color: #0F172A;
+}
+
+.google-hidden-overlay {
+  position: absolute;
+  inset: 0;
+  width: 58px;
+  height: 58px;
+  opacity: 0.01;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2;
+  cursor: pointer;
+}
+
+.google-hidden-overlay iframe {
+  transform: scale(1.5);
+  cursor: pointer !important;
 }
 
 /* 2FA / New Device Box */

@@ -267,12 +267,18 @@ export class RegisterComponent implements AfterViewInit {
     });
   }
 
+  private readonly githubClientId = 'Ov23liThxmOjC0n7pOW3';
+
   ngAfterViewInit(): void {
     this.initGoogleSignIn();
   }
 
-  private resizeHandler?: () => void;
-  private resizeTimeout: any;
+  onRegisterWithGithub(): void {
+    const redirectUri = `${window.location.origin}/login`;
+    const state = `register_${this.role}`;
+    const githubAuthUrl = `https://github.com/login/oauth/authorize?client_id=${this.githubClientId}&redirect_uri=${encodeURIComponent(redirectUri)}&scope=read:user%20user:email&state=${encodeURIComponent(state)}`;
+    window.location.href = githubAuthUrl;
+  }
 
   private initGoogleSignIn(): void {
     const checkGoogle = () => {
@@ -283,33 +289,15 @@ export class RegisterComponent implements AfterViewInit {
             callback: (response: any) => this.handleGoogleCredential(response)
           });
 
-          const renderBtn = () => {
-            const btnElement = document.getElementById('google-btn-register');
-            if (btnElement) {
-              btnElement.innerHTML = '';
-              const parentWidth = btnElement.parentElement?.clientWidth || (window.innerWidth - 48);
-              // Largeur fluide bornée entre 200px et 360px selon l'écran mobile
-              const targetWidth = Math.max(200, Math.min(360, Math.floor(parentWidth)));
-
-              google.accounts.id.renderButton(btnElement, {
-                theme: 'filled_black',
-                size: 'large',
-                width: targetWidth,
-                text: 'signup_with',
-                shape: 'rectangular',
-                logo_alignment: 'left'
-              });
-            }
-          };
-
-          renderBtn();
-
-          if (!this.resizeHandler) {
-            this.resizeHandler = () => {
-              clearTimeout(this.resizeTimeout);
-              this.resizeTimeout = setTimeout(renderBtn, 200);
-            };
-            window.addEventListener('resize', this.resizeHandler);
+          const btnElement = document.getElementById('google-btn-register');
+          if (btnElement) {
+            btnElement.innerHTML = '';
+            google.accounts.id.renderButton(btnElement, {
+              type: 'icon',
+              theme: 'outline',
+              size: 'large',
+              shape: 'circle'
+            });
           }
         } catch (e) {
           console.warn('Google Identity initialization error', e);
@@ -325,11 +313,16 @@ export class RegisterComponent implements AfterViewInit {
     if (response?.credential) {
       this.isLoading = true;
       this.errorMessage = '';
-      this.authService.loginWithGoogle(response.credential).subscribe({
+      this.authService.loginWithGoogle(response.credential, this.role).subscribe({
         next: (res) => {
           this.isLoading = false;
           if (res.success) {
-            this.router.navigate(['/dashboard']);
+            const userRole = res.data?.user?.role || this.role;
+            if (userRole === 'RECRUITER') {
+              this.router.navigate(['/dashboard/recruiter']);
+            } else {
+              this.router.navigate(['/dashboard']);
+            }
           }
         },
         error: (err) => {

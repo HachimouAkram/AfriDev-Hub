@@ -74,6 +74,12 @@ public class AuthController {
         return ResponseEntity.ok(ApiResponse.ok(response));
     }
 
+    @PostMapping("/github")
+    public ResponseEntity<ApiResponse<AuthResponse>> loginWithGithub(@Valid @RequestBody GithubAuthRequest request) {
+        AuthResponse response = authService.loginWithGithub(request);
+        return ResponseEntity.ok(ApiResponse.ok(response));
+    }
+
     @GetMapping("/me")
     public ResponseEntity<ApiResponse<UserDto>> getCurrentUser(Authentication authentication) {
         if (authentication == null || !authentication.isAuthenticated()) {
