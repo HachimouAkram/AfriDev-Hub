@@ -207,16 +207,17 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
 
 
   /**
-   * Moteur d'animation Canvas 60 FPS 3D Cyber Plexus Constellation.
-   * Reproduction fidèle du rendu Pinterest (m3u8 0f8856bc8561c9018d93e4cdd560df11) :
-   * - Espace cosmique 3D avec nébuleuses dynamiques (émeraude, cyan, bleu nuit)
-   * - Constellation de nœuds cyber en 3D projetés en perspective réelle
-   * - Lignes de maillage géométriques et triangulation scintillante (faces cristallines 3D)
-   * - Cristaux polyèdres 3D flottants (octaèdres sombres avec arêtes néon en rotation)
-   * - Colonne de flux d'énergie ascensionnel au centre (particules et filaments de lumière)
-   * - Réactivité dynamique et inertie fluide au défilement (scroll warp, rotation 3D et propulsion Z)
-   * - Parallaxe douce au mouvement de la souris
-   * - Plein écran 100% garanti de l'en-tête jusqu'au pied de page, sans aucun fichier vidéo
+   * Moteur d'animation Canvas 60 FPS 3D Cyber Plexus & Réseau Panafricain de Collaborateurs.
+   * Reproduction et enrichissement du rendu Pinterest "Networking: It's About Giving" :
+   * - Constellation de profils développeurs en 3D avec avatars silhouettes humaines lumineuses
+   * - Hubs de talents panafricains identifiés (pays, rôles Tech : Lead Dev, Full-Stack, IA, DevOps, etc.)
+   * - Ondes sonar / pings de connexion en direct sur les nœuds communautaires
+   * - Signaux de collaboration en temps réel (photons/paquets de code voyageant le long des liaisons)
+   * - Maillage géométrique et triangulation cristalline 3D
+   * - Cristaux polyèdres (octaèdres sombres à arêtes néon) en rotation continue
+   * - Colonne de flux d'énergie ascensionnel
+   * - Réactivité au scroll ultra-fluide et tranquille avec inertie amortie
+   * - Adaptabilité parfaite aux modes sombre et clair
    */
   private initCyberPlexusAnimation(): void {
     if (typeof window === 'undefined' || !this.stageCanvasRef) return;
@@ -250,6 +251,9 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
         r: number;
         colorIdx: number;
         phase: number;
+        isHub: boolean;
+        badgeText?: string;
+        pingPhase: number;
       }
 
       interface Star3D {
@@ -283,51 +287,80 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
         len: number;
         width: number;
         alpha: number;
-        hueOffset: number;
+      }
+
+      interface CollabSignal {
+        fromIdx: number;
+        toIdx: number;
+        progress: number;
+        speed: number;
+        colorIdx: number;
       }
 
       const isMobile = width < 768;
-      const nodeCount = isMobile ? 42 : 75;
-      const starCount = isMobile ? 50 : 95;
+      const nodeCount = isMobile ? 42 : 78;
+      const starCount = isMobile ? 45 : 90;
       const polyCount = isMobile ? 3 : 5;
-      const beamParticleCount = isMobile ? 14 : 24;
+      const beamParticleCount = isMobile ? 12 : 22;
+      const signalCount = isMobile ? 12 : 26;
 
-      const focalLength = 480;
-      const boundsX = width * 0.9;
-      const boundsY = height * 0.9;
+      const focalLength = 500;
+      const boundsX = width * 0.95;
+      const boundsY = height * 0.95;
       const minZ = 40;
       const maxZ = 1050;
 
-      // 1. Initialisation des nœuds 3D
+      const HUB_BADGES = [
+        '🇸🇳 Sénégal',
+        '🇰🇪 Kenya',
+        '🇳🇬 Nigeria',
+        '🇰🇲 Comores',
+        '🇨🇮 Côte d\'Ivoire',
+        '🇲🇦 Maroc',
+        '🇷🇼 Rwanda',
+        '🇨🇲 Cameroun',
+        '🇩🇿 Algérie',
+        'Lead Dev',
+        'Full-Stack',
+        'DevOps',
+        'IA & Data',
+        'Mobile'
+      ];
+
+      // 1. Initialisation des Nœuds Collaborateurs
       const nodes: Node3D[] = [];
       for (let i = 0; i < nodeCount; i++) {
+        const isHub = i < HUB_BADGES.length;
         nodes.push({
           x: (Math.random() - 0.5) * boundsX * 2,
           y: (Math.random() - 0.5) * boundsY * 2,
           z: minZ + Math.random() * (maxZ - minZ),
-          vx: (Math.random() - 0.5) * 0.35,
-          vy: (Math.random() - 0.5) * 0.35,
-          vz: (Math.random() - 0.5) * 0.25,
-          r: 2.0 + Math.random() * 2.2,
+          vx: (Math.random() - 0.5) * 0.3,
+          vy: (Math.random() - 0.5) * 0.3,
+          vz: (Math.random() - 0.5) * 0.2,
+          r: isHub ? 3.8 + Math.random() * 1.6 : 2.4 + Math.random() * 2.0,
           colorIdx: i % 3,
-          phase: Math.random() * Math.PI * 2
+          phase: Math.random() * Math.PI * 2,
+          isHub,
+          badgeText: isHub ? HUB_BADGES[i] : undefined,
+          pingPhase: Math.random()
         });
       }
 
-      // 2. Initialisation des micro-étoiles cosmiques (dust)
+      // 2. Micro-étoiles
       const stars: Star3D[] = [];
       for (let i = 0; i < starCount; i++) {
         stars.push({
           x: (Math.random() - 0.5) * width * 2.2,
           y: (Math.random() - 0.5) * height * 2.2,
           z: 100 + Math.random() * 1400,
-          r: 0.8 + Math.random() * 1.4,
+          r: 0.8 + Math.random() * 1.3,
           phase: Math.random() * Math.PI * 2,
-          speed: 1.2 + Math.random() * 2.5
+          speed: 1.2 + Math.random() * 2.4
         });
       }
 
-      // 3. Sommets unitaires d'un octaèdre 3D et ses 8 faces triangulaires
+      // 3. Octaèdres Crystalline 3D
       const octaUnitVertices = [
         { x: 1, y: 0, z: 0 },
         { x: -1, y: 0, z: 0 },
@@ -347,29 +380,42 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
           x: (Math.random() - 0.5) * boundsX * 1.5,
           y: (Math.random() - 0.5) * boundsY * 1.5,
           z: 180 + Math.random() * 700,
-          size: 26 + Math.random() * 22,
+          size: 26 + Math.random() * 20,
           rotX: Math.random() * Math.PI,
           rotY: Math.random() * Math.PI,
           rotZ: Math.random() * Math.PI,
-          vRotX: (Math.random() - 0.5) * 0.012,
-          vRotY: (Math.random() - 0.5) * 0.014,
-          vRotZ: (Math.random() - 0.5) * 0.01,
-          vz: -0.2 - Math.random() * 0.3
+          vRotX: (Math.random() - 0.5) * 0.01,
+          vRotY: (Math.random() - 0.5) * 0.012,
+          vRotZ: (Math.random() - 0.5) * 0.008,
+          vz: -0.2 - Math.random() * 0.25
         });
       }
 
-      // 4. Initialisation du flux ascensionnel d'énergie
+      // 4. Colonne de flux ascensionnel
       const beamParticles: EnergyBeamParticle[] = [];
       for (let i = 0; i < beamParticleCount; i++) {
         beamParticles.push({
           x: (Math.random() - 0.5) * (width * 0.35),
           y: Math.random() * height,
           z: 80 + Math.random() * 500,
-          vy: - (2.6 + Math.random() * 3.5),
-          len: 25 + Math.random() * 45,
-          width: 1.2 + Math.random() * 1.8,
-          alpha: 0.35 + Math.random() * 0.5,
-          hueOffset: (Math.random() - 0.5) * 20
+          vy: - (2.4 + Math.random() * 3.2),
+          len: 24 + Math.random() * 42,
+          width: 1.2 + Math.random() * 1.6,
+          alpha: 0.35 + Math.random() * 0.45
+        });
+      }
+
+      // 5. Signaux de Collaboration Réseau (paquets de données voyageant entre développeurs)
+      const collabSignals: CollabSignal[] = [];
+      for (let s = 0; s < signalCount; s++) {
+        const fromIdx = Math.floor(Math.random() * nodeCount);
+        let toIdx = (fromIdx + 1 + Math.floor(Math.random() * 6)) % nodeCount;
+        collabSignals.push({
+          fromIdx,
+          toIdx,
+          progress: Math.random(),
+          speed: 0.006 + Math.random() * 0.012,
+          colorIdx: s % 3
         });
       }
 
@@ -385,8 +431,8 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
         const currentY = window.scrollY || window.pageYOffset || 0;
         const delta = currentY - lastScrollY;
         lastScrollY = currentY;
-        targetVelocity += delta * 0.55;
-        targetVelocity = Math.max(-45, Math.min(45, targetVelocity));
+        targetVelocity += delta * 0.48;
+        targetVelocity = Math.max(-40, Math.min(40, targetVelocity));
       };
 
       const onMouseMove = (e: MouseEvent) => {
@@ -400,15 +446,16 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
       const animate = (now: number) => {
         const t = now * 0.001;
 
-        scrollVelocity += (targetVelocity - scrollVelocity) * 0.12;
-        targetVelocity *= 0.88;
+        // Amorti d'inertie physique doux pour le scroll
+        scrollVelocity += (targetVelocity - scrollVelocity) * 0.1;
+        targetVelocity *= 0.89;
 
-        mouseX += (targetMouseX - mouseX) * 0.06;
-        mouseY += (targetMouseY - mouseY) * 0.06;
+        mouseX += (targetMouseX - mouseX) * 0.05;
+        mouseY += (targetMouseY - mouseY) * 0.05;
 
         const absVel = Math.abs(scrollVelocity);
-        const velocityRatio = Math.min(absVel / 25, 1);
-        const zStep = (0.55 + scrollVelocity * 0.35);
+        const velocityRatio = Math.min(absVel / 24, 1);
+        const zStep = (0.5 + scrollVelocity * 0.32);
 
         const isLight = document.body.classList.contains('light-theme') || document.documentElement.getAttribute('data-theme') === 'light';
         const themeAlpha = isLight ? 0.65 : 1.0;
@@ -418,40 +465,40 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
         const cx = width * 0.5;
         const cy = height * 0.5;
 
-        // A. Nébuleuses Cosmiques
-        const neb1X = cx * (1 + Math.sin(t * 0.3) * 0.28) + mouseX * 25;
-        const neb1Y = cy * (0.8 + Math.cos(t * 0.25) * 0.22);
-        const nebGrad1 = ctx.createRadialGradient(neb1X, neb1Y, 10, neb1X, neb1Y, width * 0.45);
+        // A. Nébuleuses d'Arrière-Plan
+        const neb1X = cx * (1 + Math.sin(t * 0.28) * 0.25) + mouseX * 22;
+        const neb1Y = cy * (0.8 + Math.cos(t * 0.22) * 0.2);
+        const nebGrad1 = ctx.createRadialGradient(neb1X, neb1Y, 10, neb1X, neb1Y, width * 0.46);
         if (isLight) {
           nebGrad1.addColorStop(0, 'rgba(16, 185, 129, 0.09)');
           nebGrad1.addColorStop(0.6, 'rgba(6, 182, 212, 0.04)');
           nebGrad1.addColorStop(1, 'rgba(248, 250, 252, 0)');
         } else {
-          nebGrad1.addColorStop(0, `rgba(16, 185, 129, ${(0.14 + velocityRatio * 0.08).toFixed(3)})`);
+          nebGrad1.addColorStop(0, `rgba(16, 185, 129, ${(0.14 + velocityRatio * 0.07).toFixed(3)})`);
           nebGrad1.addColorStop(0.55, `rgba(6, 182, 212, ${(0.09 + velocityRatio * 0.05).toFixed(3)})`);
           nebGrad1.addColorStop(1, 'rgba(3, 7, 18, 0)');
         }
         ctx.fillStyle = nebGrad1;
         ctx.fillRect(0, 0, width, height);
 
-        const neb2X = cx * (0.8 - Math.sin(t * 0.35) * 0.25);
-        const neb2Y = cy * (1.2 + Math.sin(t * 0.2) * 0.2);
-        const nebGrad2 = ctx.createRadialGradient(neb2X, neb2Y, 15, neb2X, neb2Y, width * 0.38);
+        const neb2X = cx * (0.8 - Math.sin(t * 0.32) * 0.22);
+        const neb2Y = cy * (1.2 + Math.sin(t * 0.18) * 0.18);
+        const nebGrad2 = ctx.createRadialGradient(neb2X, neb2Y, 15, neb2X, neb2Y, width * 0.39);
         if (isLight) {
           nebGrad2.addColorStop(0, 'rgba(56, 189, 248, 0.07)');
           nebGrad2.addColorStop(1, 'rgba(248, 250, 252, 0)');
         } else {
-          nebGrad2.addColorStop(0, `rgba(59, 130, 246, ${(0.11 + velocityRatio * 0.06).toFixed(3)})`);
+          nebGrad2.addColorStop(0, `rgba(59, 130, 246, ${(0.11 + velocityRatio * 0.05).toFixed(3)})`);
           nebGrad2.addColorStop(0.6, 'rgba(16, 185, 129, 0.04)');
           nebGrad2.addColorStop(1, 'rgba(3, 7, 18, 0)');
         }
         ctx.fillStyle = nebGrad2;
         ctx.fillRect(0, 0, width, height);
 
-        // B. Micro-Étoiles & Poussière Cosmique
+        // B. Micro-Étoiles
         for (let i = 0; i < stars.length; i++) {
           const s = stars[i];
-          s.z -= zStep * 0.65;
+          s.z -= zStep * 0.6;
           if (s.z < 60) s.z = 1400;
           if (s.z > 1450) s.z = 80;
 
@@ -461,16 +508,16 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
 
           if (px >= 0 && px <= width && py >= 0 && py <= height) {
             const twinkle = 0.35 + 0.65 * Math.sin(t * s.speed + s.phase);
-            const starAlpha = (1 - s.z / 1450) * twinkle * (isLight ? 0.38 : 0.75);
+            const starAlpha = (1 - s.z / 1450) * twinkle * (isLight ? 0.38 : 0.72);
             ctx.beginPath();
-            ctx.arc(px, py, Math.max(0.6, s.r * scale * 1.5), 0, Math.PI * 2);
+            ctx.arc(px, py, Math.max(0.6, s.r * scale * 1.4), 0, Math.PI * 2);
             ctx.fillStyle = isLight ? `rgba(16, 185, 129, ${starAlpha})` : `rgba(255, 255, 255, ${starAlpha})`;
             ctx.fill();
           }
         }
 
-        // C. Colonne de Flux Ascensionnel de Lumière
-        const beamSpeedMult = 1.0 + velocityRatio * 2.8;
+        // C. Colonne de Flux Ascensionnel
+        const beamSpeedMult = 1.0 + velocityRatio * 2.6;
         for (let i = 0; i < beamParticles.length; i++) {
           const bp = beamParticles[i];
           bp.y += bp.vy * beamSpeedMult;
@@ -483,7 +530,7 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
           const scale = focalLength / (focalLength + bp.z);
           const bx = cx + (bp.x + Math.sin(t * 1.5 + i) * 18) * scale + mouseX * 18 * scale;
           const by = bp.y;
-          const blen = bp.len * scale * (1 + velocityRatio * 0.7);
+          const blen = bp.len * scale * (1 + velocityRatio * 0.65);
 
           const grad = ctx.createLinearGradient(bx, by, bx, by + blen);
           const coreAlpha = bp.alpha * (0.7 + velocityRatio * 0.5) * (isLight ? 0.5 : 0.95);
@@ -505,19 +552,19 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
           ctx.stroke();
         }
 
-        // D. Cristaux Polyèdres 3D Flottants (Octaèdres Crystalline du Pin)
-        const rotTiltY = mouseX * 0.25 + scrollVelocity * 0.015;
-        const rotTiltX = mouseY * 0.25;
+        // D. Cristaux Polyèdres 3D Flottants (Octaèdres)
+        const rotTiltY = mouseX * 0.22 + scrollVelocity * 0.014;
+        const rotTiltX = mouseY * 0.22;
 
         for (let pIdx = 0; pIdx < polyhedra.length; pIdx++) {
           const poly = polyhedra[pIdx];
-          poly.z += poly.vz - zStep * 0.85;
+          poly.z += poly.vz - zStep * 0.8;
           if (poly.z < 80) poly.z = 850;
           if (poly.z > 950) poly.z = 100;
 
-          poly.rotX += poly.vRotX * (1 + velocityRatio * 2.5);
-          poly.rotY += poly.vRotY * (1 + velocityRatio * 2.5);
-          poly.rotZ += poly.vRotZ * (1 + velocityRatio * 2.5);
+          poly.rotX += poly.vRotX * (1 + velocityRatio * 2.2);
+          poly.rotY += poly.vRotY * (1 + velocityRatio * 2.2);
+          poly.rotZ += poly.vRotZ * (1 + velocityRatio * 2.2);
 
           const transformedVertices: { x: number; y: number; z: number; px: number; py: number }[] = [];
           const cosX = Math.cos(poly.rotX);
@@ -529,9 +576,9 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
 
           for (let v = 0; v < octaUnitVertices.length; v++) {
             const vUnit = octaUnitVertices[v];
-            const vx = vUnit.x * poly.size;
-            const vy = vUnit.y * poly.size;
-            const vz = vUnit.z * poly.size;
+            let vx = vUnit.x * poly.size;
+            let vy = vUnit.y * poly.size;
+            let vz = vUnit.z * poly.size;
 
             const x1 = vx * cosY - vz * sinY;
             const z1 = vx * sinY + vz * cosY;
@@ -545,8 +592,8 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
             const finalZ = poly.z + z2;
 
             const scale = focalLength / (focalLength + finalZ);
-            const px = cx + finalX * scale + mouseX * 22 * scale;
-            const py = cy + finalY * scale + mouseY * 22 * scale;
+            const px = cx + finalX * scale + mouseX * 20 * scale;
+            const py = cy + finalY * scale + mouseY * 20 * scale;
 
             transformedVertices.push({ x: finalX, y: finalY, z: finalZ, px, py });
           }
@@ -568,12 +615,12 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
 
               ctx.fillStyle = isLight
                 ? `rgba(16, 185, 129, ${(0.05 * polyAlpha).toFixed(3)})`
-                : `rgba(2, 22, 30, ${(0.48 * polyAlpha).toFixed(3)})`;
+                : `rgba(2, 22, 30, ${(0.46 * polyAlpha).toFixed(3)})`;
               ctx.fill();
 
               ctx.strokeStyle = isLight
                 ? `rgba(16, 185, 129, ${(0.42 * polyAlpha).toFixed(3)})`
-                : `rgba(0, 245, 212, ${(0.55 * polyAlpha).toFixed(3)})`;
+                : `rgba(0, 245, 212, ${(0.52 * polyAlpha).toFixed(3)})`;
               ctx.lineWidth = 1.0;
               ctx.stroke();
             }
@@ -588,7 +635,7 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
           }
         }
 
-        // E. Constellation 3D Plexus (Nœuds, Lignes & Triangulation)
+        // E. Projection des Nœuds Développeurs & Collaborateurs
         const projectedNodes: { px: number; py: number; scale: number; node: Node3D; alpha: number }[] = [];
 
         for (let i = 0; i < nodes.length; i++) {
@@ -609,25 +656,29 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
           const xRot = n.x * Math.cos(rotTiltY) - n.z * Math.sin(rotTiltY) * 0.15;
           const yRot = n.y * Math.cos(rotTiltX);
 
-          const px = cx + xRot * scale + mouseX * 30 * scale;
-          const py = cy + yRot * scale + mouseY * 30 * scale;
+          const px = cx + xRot * scale + mouseX * 28 * scale;
+          const py = cy + yRot * scale + mouseY * 28 * scale;
 
           const depthAlpha = (1 - (n.z - minZ) / (maxZ - minZ));
-          const pulse = 0.75 + 0.25 * Math.sin(t * 2.0 + n.phase);
-          const nodeAlpha = Math.max(0.1, depthAlpha * pulse * themeAlpha);
+          const pulse = 0.75 + 0.25 * Math.sin(t * 1.9 + n.phase);
+          const nodeAlpha = Math.max(0.12, depthAlpha * pulse * themeAlpha);
 
           projectedNodes.push({ px, py, scale, node: n, alpha: nodeAlpha });
         }
 
-        const maxDist2D = isMobile ? 120 : 165;
+        // F. Maillage Géométrique de Réseau & Triangles Cristallins
+        const maxDist2D = isMobile ? 125 : 170;
         const maxDist2DSq = maxDist2D * maxDist2D;
         const colorStops = isLight
           ? ['rgba(16, 185, 129, ', 'rgba(6, 182, 212, ', 'rgba(56, 189, 248, ']
           : ['rgba(0, 229, 153, ', 'rgba(0, 245, 212, ', 'rgba(56, 189, 248, '];
 
+        // Stocker les connexions valides pour les signaux de données
+        const activeLinks: { p1: typeof projectedNodes[0]; p2: typeof projectedNodes[0] }[] = [];
+
         for (let i = 0; i < projectedNodes.length; i++) {
           const p1 = projectedNodes[i];
-          if (p1.px < -50 || p1.px > width + 50 || p1.py < -50 || p1.py > height + 50) continue;
+          if (p1.px < -60 || p1.px > width + 60 || p1.py < -60 || p1.py > height + 60) continue;
 
           for (let j = i + 1; j < projectedNodes.length; j++) {
             const p2 = projectedNodes[j];
@@ -646,22 +697,25 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
               ctx.lineWidth = Math.max(0.65, 1.25 * ((p1.scale + p2.scale) * 0.5));
               ctx.stroke();
 
-              if (j < i + 18) {
-                for (let k = j + 1; k < Math.min(projectedNodes.length, j + 8); k++) {
+              activeLinks.push({ p1, p2 });
+
+              // Triangulation Shimmering
+              if (j < i + 16) {
+                for (let k = j + 1; k < Math.min(projectedNodes.length, j + 7); k++) {
                   const p3 = projectedNodes[k];
                   const dx2 = p1.px - p3.px;
                   const dy2 = p1.py - p3.py;
                   const dx3 = p2.px - p3.px;
                   const dy3 = p2.py - p3.py;
-                  if (dx2 * dx2 + dy2 * dy2 < maxDist2DSq * 0.7 && dx3 * dx3 + dy3 * dy3 < maxDist2DSq * 0.7) {
+                  if (dx2 * dx2 + dy2 * dy2 < maxDist2DSq * 0.65 && dx3 * dx3 + dy3 * dy3 < maxDist2DSq * 0.65) {
                     ctx.beginPath();
                     ctx.moveTo(p1.px, p1.py);
                     ctx.lineTo(p2.px, p2.py);
                     ctx.lineTo(p3.px, p3.py);
                     ctx.closePath();
                     ctx.fillStyle = isLight
-                      ? `rgba(16, 185, 129, ${(0.025 * linkAlpha).toFixed(4)})`
-                      : `rgba(0, 245, 212, ${(0.045 * linkAlpha).toFixed(4)})`;
+                      ? `rgba(16, 185, 129, ${(0.024 * linkAlpha).toFixed(4)})`
+                      : `rgba(0, 245, 212, ${(0.042 * linkAlpha).toFixed(4)})`;
                     ctx.fill();
                     break;
                   }
@@ -671,29 +725,159 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
           }
         }
 
-        // Dessin des Nœuds Lumineux
+        // G. Signaux de Collaboration Réseau (Data Pulses en Transit)
+        if (activeLinks.length > 0) {
+          const pulseSpeedMult = 1.0 + velocityRatio * 2.2;
+          for (let s = 0; s < collabSignals.length; s++) {
+            const sig = collabSignals[s];
+            const link = activeLinks[s % activeLinks.length];
+            sig.progress += sig.speed * pulseSpeedMult;
+            if (sig.progress >= 1) {
+              sig.progress = 0;
+            }
+
+            const p1 = link.p1;
+            const p2 = link.p2;
+            const px = p1.px + (p2.px - p1.px) * sig.progress;
+            const py = p1.py + (p2.py - p1.py) * sig.progress;
+            const pulseScale = (p1.scale + p2.scale) * 0.5;
+            const pulseR = Math.max(1.8, 3.2 * pulseScale);
+
+            // Traînée du paquet de données
+            const tailLen = 0.12;
+            const tailX = p1.px + (p2.px - p1.px) * Math.max(0, sig.progress - tailLen);
+            const tailY = p1.py + (p2.py - p1.py) * Math.max(0, sig.progress - tailLen);
+            const sigGrad = ctx.createLinearGradient(tailX, tailY, px, py);
+            sigGrad.addColorStop(0, `${colorStops[sig.colorIdx]}0)`);
+            sigGrad.addColorStop(1, `${colorStops[sig.colorIdx]}0.85)`);
+
+            ctx.beginPath();
+            ctx.moveTo(tailX, tailY);
+            ctx.lineTo(px, py);
+            ctx.strokeStyle = sigGrad;
+            ctx.lineWidth = Math.max(1.2, 2.2 * pulseScale);
+            ctx.stroke();
+
+            // Tête lumineuse du signal
+            ctx.beginPath();
+            ctx.arc(px, py, pulseR, 0, Math.PI * 2);
+            ctx.fillStyle = isLight ? '#047857' : '#ffffff';
+            ctx.fill();
+          }
+        }
+
+        // H. Dessin des Nœuds Collaborateurs (Avatars Silhouettes & Badges Panafricains)
         for (let i = 0; i < projectedNodes.length; i++) {
           const p = projectedNodes[i];
-          const pr = Math.max(1.5, p.node.r * p.scale * (1 + velocityRatio * 0.2));
+          const pr = Math.max(1.6, p.node.r * p.scale * (1 + velocityRatio * 0.18));
+          const px = p.px;
+          const py = p.py;
+          const alpha = p.alpha;
+          const colorStr = colorStops[p.node.colorIdx];
 
-          const haloR = pr * 3.4;
-          const haloGrad = ctx.createRadialGradient(p.px, p.py, pr * 0.5, p.px, p.py, haloR);
+          // 1. Onde Sonar / Ping de Connexion (pour les Hubs de talent)
+          if (p.node.isHub) {
+            p.node.pingPhase = (p.node.pingPhase + 0.007) % 1;
+            const pingR = pr * (1.1 + p.node.pingPhase * 3.6);
+            const pingAlpha = (1 - p.node.pingPhase) * 0.45 * alpha * themeAlpha;
+            ctx.beginPath();
+            ctx.arc(px, py, pingR, 0, Math.PI * 2);
+            ctx.strokeStyle = `${colorStr}${pingAlpha.toFixed(3)})`;
+            ctx.lineWidth = 1.0;
+            ctx.stroke();
+          }
+
+          // 2. Halo lumineux externe
+          const haloR = pr * 3.2;
+          const haloGrad = ctx.createRadialGradient(px, py, pr * 0.3, px, py, haloR);
           if (isLight) {
-            haloGrad.addColorStop(0, `rgba(16, 185, 129, ${(0.55 * p.alpha).toFixed(3)})`);
+            haloGrad.addColorStop(0, `rgba(16, 185, 129, ${(0.55 * alpha).toFixed(3)})`);
             haloGrad.addColorStop(1, 'rgba(16, 185, 129, 0)');
           } else {
-            haloGrad.addColorStop(0, `${colorStops[p.node.colorIdx]}${(0.75 * p.alpha).toFixed(3)})`);
-            haloGrad.addColorStop(1, `${colorStops[p.node.colorIdx]}0)`);
+            haloGrad.addColorStop(0, `${colorStr}${(0.72 * alpha).toFixed(3)})`);
+            haloGrad.addColorStop(1, `${colorStr}0)`);
           }
           ctx.beginPath();
-          ctx.arc(p.px, p.py, haloR, 0, Math.PI * 2);
+          ctx.arc(px, py, haloR, 0, Math.PI * 2);
           ctx.fillStyle = haloGrad;
           ctx.fill();
 
-          ctx.beginPath();
-          ctx.arc(p.px, p.py, pr, 0, Math.PI * 2);
-          ctx.fillStyle = isLight ? '#059669' : (p.node.colorIdx === 0 ? '#00e599' : (p.node.colorIdx === 1 ? '#00f5d4' : '#38bdf8'));
-          ctx.fill();
+          // 3. Silhouette Humaine / Avatar Développeur (Inspiré du pin "Networking: It's About Giving")
+          // Dessinée dès que le nœud est dans le plan intermédiaire ou en avant-plan
+          if (pr >= 3.0) {
+            ctx.save();
+            ctx.beginPath();
+            ctx.arc(px, py, pr * 1.5, 0, Math.PI * 2);
+            ctx.fillStyle = isLight
+              ? `rgba(255, 255, 255, ${(0.92 * alpha).toFixed(3)})`
+              : `rgba(6, 18, 30, ${(0.88 * alpha).toFixed(3)})`;
+            ctx.fill();
+            ctx.strokeStyle = `${colorStr}${(0.85 * alpha).toFixed(3)})`;
+            ctx.lineWidth = 1.2;
+            ctx.stroke();
+
+            // Clip au disque de l'avatar pour arrondir la silhouette
+            ctx.clip();
+
+            const silhouetteColor = isLight ? '#047857' : '#ffffff';
+
+            // Tête du profil (cercle)
+            const headR = pr * 0.44;
+            const headY = py - pr * 0.32;
+            ctx.beginPath();
+            ctx.arc(px, headY, headR, 0, Math.PI * 2);
+            ctx.fillStyle = silhouetteColor;
+            ctx.fill();
+
+            // Épaules / Buste (arc de cercle doux)
+            const bodyR = pr * 1.05;
+            const bodyY = py + pr * 1.12;
+            ctx.beginPath();
+            ctx.arc(px, bodyY, bodyR, Math.PI, 0, false);
+            ctx.fillStyle = silhouetteColor;
+            ctx.fill();
+
+            ctx.restore();
+
+            // 4. Micro-Badge Panafricain ou Rôle Tech pour les Hubs
+            if (p.node.isHub && p.node.badgeText && p.scale > 0.44 && pr >= 3.8) {
+              ctx.save();
+              ctx.font = '600 10px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+              const text = p.node.badgeText;
+              const textWidth = ctx.measureText(text).width;
+              const badgeX = px + pr * 1.6;
+              const badgeY = py - 7;
+              const padX = 6;
+              const bx = badgeX - padX;
+              const by = badgeY - 9;
+              const bw = textWidth + padX * 2;
+              const bh = 15;
+
+              ctx.beginPath();
+              if (typeof ctx.roundRect === 'function') {
+                ctx.roundRect(bx, by, bw, bh, 4);
+              } else {
+                ctx.rect(bx, by, bw, bh);
+              }
+              ctx.fillStyle = isLight
+                ? `rgba(255, 255, 255, ${(0.94 * alpha).toFixed(3)})`
+                : `rgba(3, 10, 20, ${(0.86 * alpha).toFixed(3)})`;
+              ctx.fill();
+              ctx.strokeStyle = `${colorStr}${(0.75 * alpha).toFixed(3)})`;
+              ctx.lineWidth = 0.85;
+              ctx.stroke();
+
+              ctx.fillStyle = isLight ? '#065f46' : '#ecfdf5';
+              ctx.fillText(text, badgeX, badgeY + 2);
+              ctx.restore();
+            }
+          } else {
+            // Nœud lointain : point étincelant net
+            ctx.beginPath();
+            ctx.arc(px, py, Math.max(1.4, pr), 0, Math.PI * 2);
+            ctx.fillStyle = isLight ? '#059669' : (p.node.colorIdx === 0 ? '#00e599' : (p.node.colorIdx === 1 ? '#00f5d4' : '#38bdf8'));
+            ctx.fill();
+          }
         }
 
         this.stageAnimId = requestAnimationFrame(animate);
