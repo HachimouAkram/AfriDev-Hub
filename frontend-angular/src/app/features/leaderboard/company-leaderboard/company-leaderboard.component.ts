@@ -377,11 +377,11 @@ import { CompanyBadgeComponent } from '../../../shared/components/company-badge/
           </div>
         </section>
 
-        <!-- 7. XP Rules & Level Guide (Spécifique aux Entreprises) -->
+        <!-- 7. Engagement Guide (Spécifique aux Entreprises - sans barème chiffré) -->
         <section class="rules-guide-section">
           <div class="guide-header">
-            <h3 class="guide-title">Comment fonctionne le calcul des points XP Entreprise ?</h3>
-            <p class="guide-subtitle">Le barème valorise l'engagement réel auprès des développeurs africains.</p>
+            <h3 class="guide-title">Comment évolue le statut d'une Entreprise ?</h3>
+            <p class="guide-subtitle">La progression est évaluée automatiquement par la plateforme selon l'impact réel auprès des talents africains.</p>
           </div>
 
           <div class="rules-grid">
@@ -393,9 +393,8 @@ import { CompanyBadgeComponent } from '../../../shared/components/company-badge/
                 </svg>
               </div>
               <div class="rule-info">
-                <h4>Profil Entreprise Complété</h4>
-                <p>Créez et renseignez la fiche officielle de votre entreprise.</p>
-                <span class="rule-xp">+50 XP</span>
+                <h4>Identité & Transparence</h4>
+                <p>Présentez la fiche officielle, la mission et l'équipe de votre entreprise.</p>
               </div>
             </div>
 
@@ -407,9 +406,8 @@ import { CompanyBadgeComponent } from '../../../shared/components/company-badge/
                 </svg>
               </div>
               <div class="rule-info">
-                <h4>Offre d'Emploi / Stage Publiée</h4>
-                <p>Publiez une opportunité ouverte aux développeurs de la plateforme.</p>
-                <span class="rule-xp">+30 XP</span>
+                <h4>Opportunités Ouvertes</h4>
+                <p>Proposez des emplois, stages et missions aux développeurs de la plateforme.</p>
               </div>
             </div>
 
@@ -421,9 +419,8 @@ import { CompanyBadgeComponent } from '../../../shared/components/company-badge/
                 </svg>
               </div>
               <div class="rule-info">
-                <h4>Événement ou Formation</h4>
-                <p>Organisez un événement tech (+40 XP) ou partagez une ressource (+35 XP).</p>
-                <span class="rule-xp">+40 XP</span>
+                <h4>Événements & Partage</h4>
+                <p>Animez des événements tech et partagez des ressources avec la communauté.</p>
               </div>
             </div>
 
@@ -435,9 +432,8 @@ import { CompanyBadgeComponent } from '../../../shared/components/company-badge/
                 </svg>
               </div>
               <div class="rule-info">
-                <h4>Recrutement Confirmé</h4>
-                <p>Recrutez un talent via AfriDev Hub et validez son embauche.</p>
-                <span class="rule-xp">+100 XP</span>
+                <h4>Recrutements Confirmés</h4>
+                <p>Intégrez des talents tech au sein de vos équipes via AfriDev Hub.</p>
               </div>
             </div>
           </div>
@@ -446,23 +442,18 @@ import { CompanyBadgeComponent } from '../../../shared/components/company-badge/
           <div class="levels-recap-bar">
             <div class="level-chip">
               <span class="lvl-label"><span class="lvl-dot lvl-junior"></span>Startup</span>
-              <small>0 - 499 XP</small>
             </div>
             <div class="level-chip">
               <span class="lvl-label"><span class="lvl-dot lvl-senior"></span>Reconnue</span>
-              <small>500 - 1 999 XP</small>
             </div>
             <div class="level-chip">
               <span class="lvl-label"><span class="lvl-dot lvl-expert"></span>Certifiée</span>
-              <small>2 000 - 4 999 XP</small>
             </div>
             <div class="level-chip">
               <span class="lvl-label"><span class="lvl-dot lvl-tech"></span>Partenaire</span>
-              <small>5 000 - 9 999 XP</small>
             </div>
             <div class="level-chip">
               <span class="lvl-label"><span class="lvl-dot lvl-leader"></span>Élite Afrique</span>
-              <small>10 000+ XP</small>
             </div>
           </div>
         </section>

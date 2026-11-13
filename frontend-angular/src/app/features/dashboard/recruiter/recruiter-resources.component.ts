@@ -10,7 +10,7 @@ import { DashboardResourcesComponent } from '../pages/dashboard-resources/dashbo
     <div class="recruiter-subpage-wrapper">
       <div class="page-notice">
         <span class="notice-badge">Savoir & Formations</span>
-        <p>Partagez les cours, frameworks et guides techniques de votre entreprise (+40 XP par publication).</p>
+        <p>Partagez les cours, frameworks et guides techniques de votre entreprise avec la communauté.</p>
       </div>
       <app-dashboard-resources></app-dashboard-resources>
     </div>

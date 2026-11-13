@@ -10,7 +10,7 @@ import { DashboardOffersComponent } from '../pages/dashboard-offers/dashboard-of
     <div class="recruiter-subpage-wrapper">
       <div class="page-notice">
         <span class="notice-badge">Entreprise</span>
-        <p>Toutes les offres créées depuis cette interface portent automatiquement le nom et le badge de votre entreprise (+50 XP par offre publiée).</p>
+        <p>Toutes les offres créées depuis cette interface portent automatiquement le nom et le badge de votre entreprise.</p>
       </div>
       <app-dashboard-offers></app-dashboard-offers>
     </div>

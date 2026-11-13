@@ -10,7 +10,7 @@ import { DashboardApplicationsComponent } from '../pages/dashboard-applications/
     <div class="recruiter-subpage-wrapper">
       <div class="page-notice">
         <span class="notice-badge">Recrutement</span>
-        <p>Gérez les candidatures reçues pour votre entreprise. L'acceptation d'un candidat finalise le recrutement et rapporte +80 XP à l'entreprise.</p>
+        <p>Gérez les candidatures reçues pour votre entreprise et suivez vos recrutements en cours.</p>
       </div>
       <app-dashboard-applications></app-dashboard-applications>
     </div>

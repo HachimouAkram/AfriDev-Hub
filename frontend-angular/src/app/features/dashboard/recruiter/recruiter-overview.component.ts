@@ -143,7 +143,7 @@ import { CompanyBadgeComponent } from '../../../shared/components/company-badge/
             </div>
             <div class="quick-text">
               <span class="quick-title">Publier une offre</span>
-              <span class="quick-desc">+30 XP pour l'entreprise</span>
+              <span class="quick-desc">Emploi, stage ou mission</span>
             </div>
           </a>
           <a routerLink="/dashboard/recruiter/events" class="quick-btn">
@@ -154,7 +154,7 @@ import { CompanyBadgeComponent } from '../../../shared/components/company-badge/
             </div>
             <div class="quick-text">
               <span class="quick-title">Organiser un événement tech</span>
-              <span class="quick-desc">Webinaire, hackathon (+40 XP)</span>
+              <span class="quick-desc">Webinaire, hackathon, meetup</span>
             </div>
           </a>
           <a routerLink="/dashboard/recruiter/resources" class="quick-btn">
@@ -165,7 +165,7 @@ import { CompanyBadgeComponent } from '../../../shared/components/company-badge/
             </div>
             <div class="quick-text">
               <span class="quick-title">Partager une formation</span>
-              <span class="quick-desc">Tutoriel ou ressource (+35 XP)</span>
+              <span class="quick-desc">Tutoriel, cours ou ressource</span>
             </div>
           </a>
           <a routerLink="/dashboard/recruiter/team" class="quick-btn">

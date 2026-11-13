@@ -10,7 +10,7 @@ import { DashboardEventsComponent } from '../pages/dashboard-events/dashboard-ev
     <div class="recruiter-subpage-wrapper">
       <div class="page-notice">
         <span class="notice-badge">Marque Employeur</span>
-        <p>Les webinaires, hackathons et meetups tech organisés ici renforcent la visibilité de votre entreprise et rapportent +75 XP.</p>
+        <p>Les webinaires, hackathons et meetups tech organisés ici renforcent la visibilité de votre entreprise auprès de la communauté.</p>
       </div>
       <app-dashboard-events></app-dashboard-events>
     </div>
