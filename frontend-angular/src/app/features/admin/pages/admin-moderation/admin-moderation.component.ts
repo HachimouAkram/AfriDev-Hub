@@ -28,11 +28,18 @@ export class AdminModerationComponent implements OnInit {
   projectActionFeedback = '';
 
   ngOnInit(): void {
+    const cached = this.adminService.getCachedReports(this.reportStatusFilter || undefined);
+    if (cached) {
+      this.reports = cached.content;
+      this.isLoadingReports = false;
+    }
     this.loadReports();
   }
 
   loadReports(): void {
-    this.isLoadingReports = true;
+    if (this.reports.length === 0) {
+      this.isLoadingReports = true;
+    }
     this.adminService.getReports(this.reportStatusFilter || undefined).subscribe({
       next: (res) => {
         this.isLoadingReports = false;

@@ -63,11 +63,19 @@ export class AdminAdoptionComponent implements OnInit {
   };
 
   ngOnInit(): void {
+    const cached = this.adminService.getCachedCountryAdoptionStats();
+    if (cached) {
+      this.adoptionSummary = cached;
+      this.applyFilterAndSort();
+      this.isLoading = false;
+    }
     this.loadAdoptionStats();
   }
 
   loadAdoptionStats(): void {
-    this.isLoading = true;
+    if (!this.adoptionSummary) {
+      this.isLoading = true;
+    }
     this.adminService.getCountryAdoptionStats().subscribe({
       next: (res) => {
         this.isLoading = false;

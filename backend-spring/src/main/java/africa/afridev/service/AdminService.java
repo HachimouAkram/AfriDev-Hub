@@ -54,12 +54,18 @@ public class AdminService {
     private final UserAccountDeletionService userAccountDeletionService;
     private final org.springframework.security.crypto.password.PasswordEncoder passwordEncoder;
 
+    private static final String PLATFORM_STATS_CACHE_KEY = "admin:analytics:platform-stats";
     private static final String ADOPTION_CACHE_KEY = "admin:analytics:countries";
     private static final String ADMIN_USERS_CACHE_PREFIX = "cache:admin:users:";
 
 
     @Transactional(readOnly = true)
     public AdminStatsDto getPlatformStats() {
+        AdminStatsDto cached = redisCacheService.get(PLATFORM_STATS_CACHE_KEY, AdminStatsDto.class);
+        if (cached != null) {
+            return cached;
+        }
+
         long totalUsers = userRepository.count();
         long totalProfiles = profileRepository.count();
         long totalProjects = projectRepository.count();
@@ -184,7 +190,7 @@ public class AdminService {
             monthlyTrends.add(point);
         }
 
-        return AdminStatsDto.builder()
+        AdminStatsDto stats = AdminStatsDto.builder()
                 .totalUsers(totalUsers)
                 .totalProfiles(totalProfiles)
                 .totalDevelopers(totalDevelopers)
@@ -210,6 +216,9 @@ public class AdminService {
                 .topCountriesPerformance(topCountriesPerformance)
                 .monthlyTrends(monthlyTrends)
                 .build();
+
+        redisCacheService.set(PLATFORM_STATS_CACHE_KEY, stats, Duration.ofMinutes(10));
+        return stats;
     }
 
     @Transactional(readOnly = true)
@@ -494,10 +503,10 @@ public class AdminService {
             log.warn("[ADMIN] Échec de l'envoi d'email de sanction à {} : {}", savedUser.getEmail(), e.getMessage());
         }
 
-        // Invalidation des caches liés aux utilisateurs
+        // Invalidation des caches liés aux utilisateurs et aux analytics admin
         redisCacheService.evictAdminUsersCache();
         redisCacheService.evictNetworkCache();
-        redisCacheService.evictByPrefix(ADOPTION_CACHE_KEY);
+        evictAdminAnalyticsCaches();
 
         return authService.mapToUserDto(savedUser);
     }
@@ -524,8 +533,9 @@ public class AdminService {
                 .build();
         auditLogRepository.save(auditLog);
 
-        // Purge du cache des projets
+        // Purge du cache des projets et analytics
         redisCacheService.evictProjectsCache();
+        evictAdminAnalyticsCaches();
 
         // Notification par email à l'auteur si demandé
         if (Boolean.TRUE.equals(request.getNotifyAuthor()) && project.getAuthor() != null) {
@@ -706,6 +716,7 @@ public class AdminService {
         auditLogRepository.save(auditLog);
 
         redisCacheService.evictAdminUsersCache();
+        evictAdminAnalyticsCaches();
         return authService.mapToUserDto(savedUser);
     }
 
@@ -773,6 +784,12 @@ public class AdminService {
         redisCacheService.evictAdminUsersCache();
         redisCacheService.evictLeaderboardCache();
         redisCacheService.evictNetworkCache();
+        evictAdminAnalyticsCaches();
+    }
+
+    private void evictAdminAnalyticsCaches() {
+        redisCacheService.evictByPrefix(PLATFORM_STATS_CACHE_KEY);
+        redisCacheService.evictByPrefix(ADOPTION_CACHE_KEY);
     }
 
     private AuditLogDto mapToAuditLogDto(AuditLogEntity a) {

@@ -21,11 +21,20 @@ export class AdminAuditComponent implements OnInit {
   isLoadingAudit = false;
 
   ngOnInit(): void {
+    const cached = this.adminService.getCachedAuditLogs(this.auditPage, 15, this.auditSearchTerm || undefined);
+    if (cached) {
+      this.auditLogs = cached.content;
+      this.auditTotalPages = cached.totalPages;
+      this.auditTotalElements = cached.totalElements;
+      this.isLoadingAudit = false;
+    }
     this.loadAuditLogs();
   }
 
   loadAuditLogs(): void {
-    this.isLoadingAudit = true;
+    if (this.auditLogs.length === 0) {
+      this.isLoadingAudit = true;
+    }
     this.adminService.getAuditLogs(
       this.auditPage,
       15,

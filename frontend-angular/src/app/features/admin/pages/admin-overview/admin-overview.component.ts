@@ -178,6 +178,28 @@ export class AdminOverviewComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    // 0 ms: Chargement instantané depuis le cache local (mémoire / session)
+    const cachedStats = this.adminService.getCachedStats();
+    const cachedAdoption = this.adminService.getCachedCountryAdoptionStats();
+    const cachedAudit = this.adminService.getCachedAuditLogs(0, 5);
+
+    if (cachedStats) {
+      this.stats.set(cachedStats);
+      if (cachedStats.monthlyTrends && cachedStats.monthlyTrends.length > 0) {
+        this.updateDynamicCharts(cachedStats.monthlyTrends);
+      }
+    }
+    if (cachedAdoption) {
+      this.adoptionSummary.set(cachedAdoption);
+    }
+    if (cachedAudit) {
+      this.recentAuditLogs.set(cachedAudit.content);
+    }
+
+    if (cachedStats || cachedAdoption) {
+      this.isLoading.set(false);
+    }
+
     this.loadOverviewData();
   }
 
@@ -219,11 +241,14 @@ export class AdminOverviewComponent implements OnInit {
   }
 
   loadOverviewData(): void {
-    this.isLoading.set(true);
+    if (!this.stats() && !this.adoptionSummary()) {
+      this.isLoading.set(true);
+    }
 
     // 1. Charger les statistiques globales
     this.adminService.getStats().subscribe({
       next: (res) => {
+        this.isLoading.set(false);
         if (res.success && res.data) {
           this.stats.set(res.data);
           if (res.data.monthlyTrends && res.data.monthlyTrends.length > 0) {
