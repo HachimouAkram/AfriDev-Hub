@@ -5,6 +5,7 @@ import { Observable, tap, of } from 'rxjs';
 export interface Profile {
   id: string;
   userId?: string;
+  userRole?: string;
   fullName: string;
   country: string;
   city: string;

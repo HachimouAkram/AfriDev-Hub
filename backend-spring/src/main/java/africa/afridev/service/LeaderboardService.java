@@ -3,8 +3,11 @@ package africa.afridev.service;
 import africa.afridev.dto.leaderboard.LeaderboardEntryDto;
 import africa.afridev.dto.leaderboard.LeaderboardResponse;
 import africa.afridev.model.entity.ProfileEntity;
+import africa.afridev.model.entity.UserEntity;
 import africa.afridev.model.enums.DeveloperLevel;
+import africa.afridev.model.enums.Role;
 import africa.afridev.repository.ProfileRepository;
+import africa.afridev.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -13,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -20,14 +24,33 @@ import java.util.List;
 public class LeaderboardService {
 
     private final ProfileRepository profileRepository;
+    private final UserRepository userRepository;
     private final RedisCacheService redisCacheService;
 
-    private static final String CACHE_PREFIX = "cache:leaderboard:";
+    private static final String CACHE_PREFIX = "cache:leaderboard:v2:";
     private static final Duration CACHE_TTL_PUBLIC = Duration.ofMinutes(10);
     private static final Duration CACHE_TTL_USER = Duration.ofMinutes(5);
 
     /**
-     * Classement public pour les visiteurs non connectés (Top 10)
+     * Retourne uniquement les profils dont le compte utilisateur a le rôle officiel DEVELOPER.
+     * Les RECRUITER, ADMIN et SUPER_ADMIN sont exclus du classement des développeurs.
+     */
+    private List<ProfileEntity> getDeveloperProfilesOrdered() {
+        return profileRepository.findAllByUser_RoleOrderByXpPointsDescCreatedAtAsc(Role.DEVELOPER);
+    }
+
+    /**
+     * Vérifie si l'identifiant correspond à un utilisateur ayant le rôle DEVELOPER.
+     */
+    private boolean isDeveloperUser(String userIdentifier) {
+        if (userIdentifier == null || userIdentifier.isBlank()) return false;
+        Optional<UserEntity> userOpt = userRepository.findByEmail(userIdentifier)
+                .or(() -> userRepository.findById(userIdentifier));
+        return userOpt.map(u -> u.getRole() == Role.DEVELOPER).orElse(false);
+    }
+
+    /**
+     * Classement public pour les visiteurs non connectés (ou les recruteurs / admins) (Top 10)
      */
     @Transactional(readOnly = true)
     public LeaderboardResponse getPublicLeaderboard() {
@@ -43,7 +66,7 @@ public class LeaderboardService {
             log.warn("Erreur lecture cache Redis leaderboard public: {}", e.getMessage());
         }
 
-        List<ProfileEntity> allProfiles = profileRepository.findAllByOrderByXpPointsDescCreatedAtAsc();
+        List<ProfileEntity> allProfiles = getDeveloperProfilesOrdered();
         long totalDevelopers = allProfiles.size();
 
         int topCount = Math.min(10, allProfiles.size());
@@ -75,12 +98,13 @@ public class LeaderboardService {
 
     /**
      * Classement contextuel pour l'utilisateur connecté :
-     * - Top 5 général (podium)
-     * - Voisinage direct de 11 profils (5 au-dessus, l'utilisateur au milieu, 5 en-dessous)
+     * - Si l'utilisateur est RECRUITER, ADMIN ou SUPER_ADMIN (ou non connecté), il voit la liste publique
+     *   exactement comme un visiteur non connecté (sans position personnelle).
+     * - Si c'est un DEVELOPER : Top 5 général + Voisinage direct de 11 profils.
      */
     @Transactional(readOnly = true)
     public LeaderboardResponse getLeaderboardForUser(String userIdentifier) {
-        if (userIdentifier == null || userIdentifier.isBlank()) {
+        if (userIdentifier == null || userIdentifier.isBlank() || !isDeveloperUser(userIdentifier)) {
             return getPublicLeaderboard();
         }
 
@@ -96,7 +120,7 @@ public class LeaderboardService {
             log.warn("Erreur lecture cache Redis leaderboard user {}: {}", userIdentifier, e.getMessage());
         }
 
-        List<ProfileEntity> allProfiles = profileRepository.findAllByOrderByXpPointsDescCreatedAtAsc();
+        List<ProfileEntity> allProfiles = getDeveloperProfilesOrdered();
         long totalDevelopers = allProfiles.size();
 
         if (allProfiles.isEmpty()) {
@@ -130,11 +154,9 @@ public class LeaderboardService {
             }
         }
 
-        // Si l'utilisateur n'a pas encore de profil
+        // Si l'utilisateur n'est pas dans la liste des développeurs classés
         if (targetIndex == -1) {
-            LeaderboardResponse publicResponse = getPublicLeaderboard();
-            publicResponse.setIsAuthenticated(true);
-            return publicResponse;
+            return getPublicLeaderboard();
         }
 
         long userRank = targetIndex + 1L;
@@ -189,7 +211,10 @@ public class LeaderboardService {
             return getLeaderboardForUser(currentIdentifier);
         }
 
-        String cacheKey = CACHE_PREFIX + "search:" + query.trim().toLowerCase() + ":" + (currentIdentifier != null ? currentIdentifier : "anon");
+        boolean isDevViewer = isDeveloperUser(currentIdentifier);
+        String effectiveIdentifier = isDevViewer ? currentIdentifier : null;
+
+        String cacheKey = CACHE_PREFIX + "search:" + query.trim().toLowerCase() + ":" + (effectiveIdentifier != null ? effectiveIdentifier : "anon");
         try {
             LeaderboardResponse cached = redisCacheService.get(cacheKey, LeaderboardResponse.class);
             if (cached != null) {
@@ -200,7 +225,7 @@ public class LeaderboardService {
             log.warn("Erreur lecture cache Redis leaderboard search: {}", e.getMessage());
         }
 
-        List<ProfileEntity> allProfiles = profileRepository.findAllByOrderByXpPointsDescCreatedAtAsc();
+        List<ProfileEntity> allProfiles = getDeveloperProfilesOrdered();
         long totalDevelopers = allProfiles.size();
 
         String q = query.trim().toLowerCase();
@@ -224,14 +249,14 @@ public class LeaderboardService {
             int top5Count = Math.min(5, allProfiles.size());
             List<LeaderboardEntryDto> top5 = new ArrayList<>();
             for (int i = 0; i < top5Count; i++) {
-                boolean isCur = matchesIdentifier(allProfiles.get(i), currentIdentifier);
+                boolean isCur = matchesIdentifier(allProfiles.get(i), effectiveIdentifier);
                 top5.add(toEntryDto(allProfiles.get(i), (long) (i + 1), isCur, allProfiles, i));
             }
 
             LeaderboardResponse noMatchRes = LeaderboardResponse.builder()
                     .userRank(null)
                     .totalDevelopers(totalDevelopers)
-                    .isAuthenticated(currentIdentifier != null)
+                    .isAuthenticated(isDevViewer)
                     .top5(top5)
                     .surroundingNeighborhood(new ArrayList<>())
                     .publicTop10(new ArrayList<>())
@@ -252,7 +277,7 @@ public class LeaderboardService {
         int top5Count = Math.min(5, allProfiles.size());
         List<LeaderboardEntryDto> top5 = new ArrayList<>();
         for (int i = 0; i < top5Count; i++) {
-            boolean isCur = matchesIdentifier(allProfiles.get(i), currentIdentifier);
+            boolean isCur = matchesIdentifier(allProfiles.get(i), effectiveIdentifier);
             top5.add(toEntryDto(allProfiles.get(i), (long) (i + 1), isCur, allProfiles, i));
         }
 
@@ -262,17 +287,17 @@ public class LeaderboardService {
 
         List<LeaderboardEntryDto> surrounding = new ArrayList<>();
         for (int i = startIndex; i < endIndex; i++) {
-            boolean isCur = matchesIdentifier(allProfiles.get(i), currentIdentifier);
+            boolean isCur = matchesIdentifier(allProfiles.get(i), effectiveIdentifier);
             surrounding.add(toEntryDto(allProfiles.get(i), (long) (i + 1), isCur, allProfiles, i));
         }
 
-        boolean isCurrentTarget = matchesIdentifier(allProfiles.get(targetIndex), currentIdentifier);
+        boolean isCurrentTarget = matchesIdentifier(allProfiles.get(targetIndex), effectiveIdentifier);
         LeaderboardEntryDto targetEntry = toEntryDto(allProfiles.get(targetIndex), targetRank, isCurrentTarget, allProfiles, targetIndex);
 
         LeaderboardResponse response = LeaderboardResponse.builder()
                 .userRank(targetRank)
                 .totalDevelopers(totalDevelopers)
-                .isAuthenticated(currentIdentifier != null)
+                .isAuthenticated(isDevViewer)
                 .targetDeveloper(targetEntry)
                 .top5(top5)
                 .surroundingNeighborhood(surrounding)

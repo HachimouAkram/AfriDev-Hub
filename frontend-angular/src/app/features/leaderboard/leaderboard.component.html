@@ -355,8 +355,8 @@
         </table>
       </div>
 
-      <!-- Guest CTA Banner -->
-      <div class="guest-cta-banner">
+      <!-- Guest CTA Banner (Uniquement pour les visiteurs non connectés) -->
+      <div class="guest-cta-banner" *ngIf="!currentUser()">
         <div class="cta-text">
           <h3>Vous êtes développeur en Afrique ?</h3>
           <p>Créez votre profil, publiez vos projets et recevez des points XP pour rejoindre le classement panafricain.

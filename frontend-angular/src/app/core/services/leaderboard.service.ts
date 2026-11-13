@@ -38,7 +38,7 @@ export interface LeaderboardResponse {
 export class LeaderboardService {
   private http = inject(HttpClient);
   private apiUrl = '/api/v1/leaderboard';
-  private readonly CACHE_STORAGE_KEY_PREFIX = 'afridev_leaderboard_cache_';
+  private readonly CACHE_STORAGE_KEY_PREFIX = 'afridev_leaderboard_cache_v2_';
   private memoryCache = new Map<string, { data: LeaderboardResponse; timestamp: number }>();
 
   /**

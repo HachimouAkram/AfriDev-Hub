@@ -79,8 +79,8 @@
             </svg>
             {{ profile.country }} ({{ profile.city }})
           </span>
-          <!-- Level Badge and Current XP -->
-          <a routerLink="/leaderboard" class="badge badge-level" [ngClass]="getLevelClass(profile.levelNumber || 1)" [title]="'Voir le classement panafricain'">
+          <!-- Level Badge and Current XP (Uniquement pour les Développeurs) -->
+          <a *ngIf="isDeveloperProfile()" routerLink="/leaderboard" class="badge badge-level" [ngClass]="getLevelClass(profile.levelNumber || 1)" [title]="'Voir le classement panafricain'">
             <span class="level-badge-icon">{{ getLevelBadge(profile.levelNumber || 1) }}</span>
             <span class="level-badge-title">{{ profile.levelTitle || 'Junior' }}</span>
             <span class="level-badge-xp">{{ profile.xpPoints || 0 }} XP</span>
@@ -273,8 +273,8 @@
     </div>
   </div>
 
-  <!-- Gamification Level & Progression Banner -->
-  <div class="app-card gamification-progress-card">
+  <!-- Gamification Level & Progression Banner (Uniquement pour les Développeurs) -->
+  <div class="app-card gamification-progress-card" *ngIf="isDeveloperProfile()">
     <div class="gamification-header">
       <div class="gamification-title-col">
         <div class="gamification-badge-chip" [ngClass]="getLevelClass(profile.levelNumber || 1)">
@@ -316,8 +316,8 @@
 
   <!-- Activity & Info Summary Bar -->
   <div class="stats-overview-bar">
-    <!-- Stat 1: XP & Leaderboard -->
-    <a routerLink="/leaderboard" class="app-card stat-card stat-card-xp" title="Cliquer pour voir mon classement sur le Leaderboard">
+    <!-- Stat 1: XP & Leaderboard (Uniquement pour les Développeurs) -->
+    <a *ngIf="isDeveloperProfile()" routerLink="/leaderboard" class="app-card stat-card stat-card-xp" title="Cliquer pour voir mon classement sur le Leaderboard">
       <div class="stat-icon icon-xp">
         <span class="stat-level-emoji">{{ getLevelBadge(profile.levelNumber || 1) }}</span>
       </div>

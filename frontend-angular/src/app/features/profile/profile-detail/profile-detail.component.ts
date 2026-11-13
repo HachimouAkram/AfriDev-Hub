@@ -135,7 +135,14 @@ export class ProfileDetailComponent implements OnInit {
   }
 
   getUserRole(): string {
-    return this.currentUser()?.role || 'DEVELOPER';
+    if (this.isOwnProfile) {
+      return this.currentUser()?.role || this.profile?.userRole || 'DEVELOPER';
+    }
+    return this.profile?.userRole || 'DEVELOPER';
+  }
+
+  isDeveloperProfile(): boolean {
+    return this.getUserRole() === 'DEVELOPER';
   }
 
   getSystemRoleBadge(): string {

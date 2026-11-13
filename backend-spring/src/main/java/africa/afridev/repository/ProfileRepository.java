@@ -13,6 +13,8 @@ public interface ProfileRepository extends JpaRepository<ProfileEntity, String> 
 
     List<ProfileEntity> findAllByOrderByXpPointsDescCreatedAtAsc();
 
+    List<ProfileEntity> findAllByUser_RoleOrderByXpPointsDescCreatedAtAsc(africa.afridev.model.enums.Role role);
+
     List<ProfileEntity> findTop10ByOrderByXpPointsDescCreatedAtAsc();
 
     List<ProfileEntity> findTop5ByOrderByXpPointsDescCreatedAtAsc();

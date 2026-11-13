@@ -2173,7 +2173,7 @@ export class AppComponent implements OnDestroy {
 
   getUserXp(): number | null {
     const u = this.authService.currentUser();
-    if (!u || u.role === 'RECRUITER') return null;
+    if (!u || u.role !== 'DEVELOPER') return null;
     return u.profile?.xpPoints ?? 0;
   }
 

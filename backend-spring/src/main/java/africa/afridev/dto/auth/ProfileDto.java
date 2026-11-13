@@ -16,6 +16,7 @@ import java.util.List;
 public class ProfileDto {
     private String id;
     private String userId;
+    private String userRole;
     private String fullName;
     private String country;
     private String city;

@@ -683,6 +683,7 @@ public class AuthService {
         return ProfileDto.builder()
                 .id(profile.getId())
                 .userId(profile.getUser() != null ? profile.getUser().getId() : null)
+                .userRole(profile.getUser() != null && profile.getUser().getRole() != null ? profile.getUser().getRole().name() : "DEVELOPER")
                 .fullName(profile.getFullName())
                 .country(profile.getCountry())
                 .city(profile.getCity())
