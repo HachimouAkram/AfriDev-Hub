@@ -471,7 +471,15 @@ export class DeleteAccountModalComponent implements OnChanges {
       },
       error: (err) => {
         this.isLoadingImpact = false;
-        this.errorMessage = 'Impossible de vérifier l\'impact de suppression.';
+        if (err.status === 401) {
+          this.errorMessage = 'Session expirée. Veuillez vous reconnecter.';
+          setTimeout(() => {
+            this.authService.logout();
+            this.router.navigate(['/login']);
+          }, 1500);
+        } else {
+          this.errorMessage = err.error?.message || 'Impossible de vérifier l\'impact de suppression.';
+        }
       }
     });
   }
@@ -513,3 +521,4 @@ export class DeleteAccountModalComponent implements OnChanges {
     });
   }
 }
+

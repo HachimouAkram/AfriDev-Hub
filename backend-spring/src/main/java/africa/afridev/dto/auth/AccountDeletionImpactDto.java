@@ -21,3 +21,4 @@ public class AccountDeletionImpactDto {
     private boolean isCompanyMember;
     private String memberCompanyName;
 }
+

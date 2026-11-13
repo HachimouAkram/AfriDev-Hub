@@ -253,3 +253,4 @@ public class UserAccountDeletionService {
         log.info("Suppression définitive réussie pour le compte {} (ID: {})", userEmail, userId);
     }
 }
+

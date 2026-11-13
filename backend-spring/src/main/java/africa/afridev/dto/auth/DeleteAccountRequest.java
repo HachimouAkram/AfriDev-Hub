@@ -13,3 +13,4 @@ public class DeleteAccountRequest {
     private String confirmation; // e.g. "SUPPRIMER"
     private String password;
 }
+

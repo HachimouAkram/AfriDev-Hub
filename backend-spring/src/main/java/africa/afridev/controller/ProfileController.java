@@ -11,6 +11,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
@@ -112,6 +113,10 @@ public class ProfileController {
     public ResponseEntity<ApiResponse<africa.afridev.dto.auth.AccountDeletionImpactDto>> getDeletionImpact(
             Authentication authentication
     ) {
+        if (authentication == null || authentication.getName() == null || "anonymousUser".equals(authentication.getName())) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(ApiResponse.error("UNAUTHORIZED", "Session expirée ou utilisateur non connecté."));
+        }
         africa.afridev.dto.auth.AccountDeletionImpactDto impact = userAccountDeletionService.getDeletionImpact(authentication.getName());
         return ResponseEntity.ok(ApiResponse.ok(impact));
     }
@@ -121,6 +126,10 @@ public class ProfileController {
             Authentication authentication,
             @RequestBody(required = false) africa.afridev.dto.auth.DeleteAccountRequest request
     ) {
+        if (authentication == null || authentication.getName() == null || "anonymousUser".equals(authentication.getName())) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(ApiResponse.error("UNAUTHORIZED", "Session expirée ou utilisateur non connecté."));
+        }
         userAccountDeletionService.deleteAccount(authentication.getName(), request);
         return ResponseEntity.ok(ApiResponse.ok(Map.of("message", "Votre compte et toutes les données associées ont été supprimés avec succès.")));
     }
@@ -130,6 +139,10 @@ public class ProfileController {
             Authentication authentication,
             @RequestBody(required = false) africa.afridev.dto.auth.DeleteAccountRequest request
     ) {
+        if (authentication == null || authentication.getName() == null || "anonymousUser".equals(authentication.getName())) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(ApiResponse.error("UNAUTHORIZED", "Session expirée ou utilisateur non connecté."));
+        }
         userAccountDeletionService.deleteAccount(authentication.getName(), request);
         return ResponseEntity.ok(ApiResponse.ok(Map.of("message", "Votre compte et toutes les données associées ont été supprimés avec succès.")));
     }
