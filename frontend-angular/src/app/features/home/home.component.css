@@ -57,6 +57,19 @@
   height: 100%;
   overflow: hidden;
   will-change: transform;
+  opacity: 0;
+  animation: cinemaReveal 1.2s cubic-bezier(0.16, 1, 0.3, 1) 0.05s forwards;
+}
+
+@keyframes cinemaReveal {
+  0% {
+    opacity: 0;
+    transform: scale(1.04);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 
 .bg-pinterest-motion-video {
@@ -65,15 +78,15 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
-  opacity: 0.92;
-  filter: saturate(1.25) contrast(1.15) brightness(0.98);
+  opacity: 0.94;
+  filter: saturate(1.28) contrast(1.16) brightness(0.98);
   transition: opacity 0.5s ease;
-  will-change: transform;
+  will-change: transform, filter;
 }
 
 :host-context(body.light-theme) .bg-pinterest-motion-video {
-  opacity: 0.85;
-  filter: saturate(1.2) contrast(1.1) brightness(1.02);
+  opacity: 0.86;
+  filter: saturate(1.22) contrast(1.1) brightness(1.02);
 }
 
 .home-backdrop-stage[data-stage="0"] .bg-pinterest-motion-video,
@@ -81,20 +94,44 @@
 .home-backdrop-stage[data-stage="2"] .bg-pinterest-motion-video,
 .home-backdrop-stage[data-stage="3"] .bg-pinterest-motion-video,
 .home-backdrop-stage[data-stage="4"] .bg-pinterest-motion-video {
-  opacity: 0.92;
+  opacity: 0.94;
 }
 
-/* Voile d'ombrage protecteur garantissant une visibilité parfaite du fond ET une lisibilité optimale des textes */
+/* 2. Trame holographique subtile (scanlines haute technologie style motion graphic) */
+.bg-hologram-mesh {
+  position: absolute;
+  inset: 0;
+  background-image: repeating-linear-gradient(
+    0deg,
+    rgba(255, 255, 255, 0.025) 0px,
+    rgba(255, 255, 255, 0.025) 1px,
+    transparent 1px,
+    transparent 3px
+  );
+  pointer-events: none;
+  opacity: 0.55;
+  mix-blend-mode: overlay;
+}
+
+:host-context(body.light-theme) .bg-hologram-mesh {
+  opacity: 0.2;
+}
+
+/* 3. Voile cinématique immersif protégeant la lisibilité tout en sublimant les contrastes */
 .bg-cinema-scrim {
   position: absolute;
   inset: 0;
-  background: radial-gradient(circle at 50% 30%, rgba(7, 11, 20, 0.25) 0%, rgba(7, 11, 20, 0.55) 60%, rgba(5, 8, 16, 0.82) 100%);
+  background: 
+    radial-gradient(ellipse at 50% 30%, rgba(7, 11, 20, 0.12) 0%, rgba(7, 11, 20, 0.48) 65%, rgba(5, 8, 16, 0.82) 100%),
+    linear-gradient(180deg, rgba(7, 11, 20, 0.25) 0%, transparent 22%, transparent 78%, rgba(7, 11, 20, 0.55) 100%);
   transition: background 0.6s ease;
   pointer-events: none;
 }
 
 :host-context(body.light-theme) .bg-cinema-scrim {
-  background: radial-gradient(circle at 50% 30%, rgba(248, 250, 252, 0.35) 0%, rgba(241, 245, 249, 0.58) 60%, rgba(226, 232, 240, 0.78) 100%);
+  background: 
+    radial-gradient(ellipse at 50% 30%, rgba(248, 250, 252, 0.25) 0%, rgba(241, 245, 249, 0.5) 65%, rgba(226, 232, 240, 0.75) 100%),
+    linear-gradient(180deg, rgba(248, 250, 252, 0.25) 0%, transparent 22%, transparent 78%, rgba(248, 250, 252, 0.45) 100%);
 }
 
 /* 2. Couche Projecteurs Aurora & Beams Morphing selon la Section */
