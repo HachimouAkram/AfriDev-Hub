@@ -769,3 +769,59 @@ body.light-theme .btn-action-warn {
   color: #0F172A;
 }
 
+/* Super Admin actions & buttons */
+.btn-primary-action {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.65rem 1.15rem;
+  background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+  color: #FFFFFF;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: var(--radius-md, 10px);
+  font-size: 0.88rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.25);
+}
+
+.btn-primary-action:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(16, 185, 129, 0.35);
+  filter: brightness(1.05);
+}
+
+.btn-action-danger {
+  color: #EF4444;
+  background: rgba(239, 68, 68, 0.08);
+  border: 1px solid rgba(239, 68, 68, 0.25);
+}
+
+.btn-action-danger:hover {
+  background: rgba(239, 68, 68, 0.18);
+  border-color: #EF4444;
+}
+
+.form-row {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 0.85rem;
+}
+
+.flex-1 {
+  flex: 1;
+}
+
+.badge-primary {
+  background: rgba(16, 185, 129, 0.15);
+  color: #10B981;
+}
+
+:host-context(body.light-theme) .btn-action-danger,
+body.light-theme .btn-action-danger {
+  color: #DC2626;
+  background: rgba(220, 38, 38, 0.08);
+  border-color: rgba(220, 38, 38, 0.25);
+}
+

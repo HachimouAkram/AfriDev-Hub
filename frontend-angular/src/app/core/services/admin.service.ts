@@ -163,6 +163,26 @@ export class AdminService {
     );
   }
 
+  createAdminAccount(data: {
+    email: string;
+    password: string;
+    fullName: string;
+    title?: string;
+    country?: string;
+    city?: string;
+    role: 'ADMIN' | 'SUPER_ADMIN';
+  }): Observable<ApiResponse<User>> {
+    return this.http.post<ApiResponse<User>>(`${this.apiUrl}/admins`, data).pipe(
+      tap(() => this.clearUsersCache())
+    );
+  }
+
+  deleteUserPermanently(userId: string): Observable<ApiResponse<{ message: string }>> {
+    return this.http.delete<ApiResponse<{ message: string }>>(`${this.apiUrl}/users/${userId}`).pipe(
+      tap(() => this.clearUsersCache())
+    );
+  }
+
 
   moderateProject(projectId: string, request: ProjectModerateRequest): Observable<ApiResponse<any>> {
     return this.http.patch<ApiResponse<any>>(`${this.apiUrl}/projects/${projectId}/moderate`, request);

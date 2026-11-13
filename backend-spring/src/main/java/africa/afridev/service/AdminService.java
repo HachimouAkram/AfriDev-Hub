@@ -44,6 +44,8 @@ public class AdminService {
     private final ProjectService projectService;
     private final RedisCacheService redisCacheService;
     private final EmailService emailService;
+    private final UserAccountDeletionService userAccountDeletionService;
+    private final org.springframework.security.crypto.password.PasswordEncoder passwordEncoder;
 
     private static final String ADOPTION_CACHE_KEY = "admin:analytics:countries";
     private static final String ADMIN_USERS_CACHE_PREFIX = "cache:admin:users:";
@@ -385,6 +387,100 @@ public class AdminService {
                 .handledAt(r.getHandledAt())
                 .createdAt(r.getCreatedAt())
                 .build();
+    }
+
+    @Transactional
+    public UserDto createAdminAccount(String superAdminEmail, CreateAdminRequest request) {
+        UserEntity actor = userRepository.findByEmail(superAdminEmail)
+                .orElseThrow(() -> new IllegalArgumentException("Super Admin non trouvé"));
+
+        if (actor.getRole() != Role.SUPER_ADMIN) {
+            throw new org.springframework.security.access.AccessDeniedException("Seul un Super Administrateur peut créer des comptes administrateurs.");
+        }
+
+        if (request.getRole() != Role.ADMIN && request.getRole() != Role.SUPER_ADMIN) {
+            throw new IllegalArgumentException("Le rôle doit être ADMIN ou SUPER_ADMIN.");
+        }
+
+        if (userRepository.existsByEmail(request.getEmail().trim().toLowerCase())) {
+            throw new IllegalArgumentException("Un compte avec cet email existe déjà : " + request.getEmail());
+        }
+
+        UserEntity newAdmin = UserEntity.builder()
+                .email(request.getEmail().trim().toLowerCase())
+                .passwordHash(passwordEncoder.encode(request.getPassword()))
+                .role(request.getRole())
+                .status(UserStatus.ACTIVE)
+                .emailVerified(true)
+                .twoFactorEnabled(false)
+                .build();
+
+        UserEntity savedUser = userRepository.save(newAdmin);
+
+        ProfileEntity profile = ProfileEntity.builder()
+                .user(savedUser)
+                .fullName(request.getFullName().trim())
+                .title(request.getTitle() != null && !request.getTitle().isBlank() 
+                        ? request.getTitle().trim() 
+                        : (request.getRole() == Role.SUPER_ADMIN ? "Super Administrateur AfriDev" : "Administrateur AfriDev"))
+                .country(request.getCountry() != null ? request.getCountry() : "Sénégal")
+                .city(request.getCity() != null ? request.getCity() : "Dakar")
+                .completionScore(100)
+                .availability(africa.afridev.model.enums.Availability.FULL_TIME)
+                .mobileMoneyVerified(true)
+                .build();
+
+        ProfileEntity savedProfile = profileRepository.save(profile);
+        savedUser.setProfile(savedProfile);
+
+        AuditLogEntity auditLog = AuditLogEntity.builder()
+                .user(actor)
+                .action("CREATE_ADMIN_ACCOUNT")
+                .resource("USER")
+                .resourceId(savedUser.getId())
+                .metadataJson("{\"created_role\":\"" + request.getRole().name() + "\", \"created_email\":\"" + savedUser.getEmail() + "\"}")
+                .build();
+        auditLogRepository.save(auditLog);
+
+        redisCacheService.evictAdminUsersCache();
+        return authService.mapToUserDto(savedUser);
+    }
+
+    @Transactional
+    public void deleteUserPermanently(String superAdminEmail, String targetUserId) {
+        UserEntity actor = userRepository.findByEmail(superAdminEmail)
+                .orElseThrow(() -> new IllegalArgumentException("Super Admin non trouvé"));
+
+        if (actor.getRole() != Role.SUPER_ADMIN) {
+            throw new org.springframework.security.access.AccessDeniedException("Seul un Super Administrateur peut supprimer définitivement un compte.");
+        }
+
+        if (actor.getId().equals(targetUserId)) {
+            throw new IllegalStateException("Vous ne pouvez pas supprimer votre propre compte Super Administrateur.");
+        }
+
+        UserEntity targetUser = userRepository.findById(targetUserId)
+                .orElseThrow(() -> new IllegalArgumentException("Utilisateur non trouvé avec l'id: " + targetUserId));
+
+        String targetEmail = targetUser.getEmail();
+        Role targetRole = targetUser.getRole();
+
+        // Trace dans l'audit avant suppression
+        AuditLogEntity auditLog = AuditLogEntity.builder()
+                .user(actor)
+                .action("PERMANENT_USER_DELETION")
+                .resource("USER")
+                .resourceId(targetUserId)
+                .metadataJson("{\"deleted_email\":\"" + targetEmail + "\", \"deleted_role\":\"" + targetRole.name() + "\"}")
+                .build();
+        auditLogRepository.save(auditLog);
+
+        // Suppression en cascade complète (projets, commentaires, tâches, offres, candidatures, formations, etc.)
+        userAccountDeletionService.deleteUserPermanentlyBySuperAdmin(targetUserId);
+
+        redisCacheService.evictAdminUsersCache();
+        redisCacheService.evictLeaderboardCache();
+        redisCacheService.evictNetworkCache();
     }
 
     private AuditLogDto mapToAuditLogDto(AuditLogEntity a) {

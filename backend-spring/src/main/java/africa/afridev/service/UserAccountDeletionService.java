@@ -80,6 +80,17 @@ public class UserAccountDeletionService {
 
     @Transactional
     public void deleteAccount(String userEmail, DeleteAccountRequest request) {
+        deleteAccountInternal(userEmail);
+    }
+
+    @Transactional
+    public void deleteUserPermanentlyBySuperAdmin(String targetUserId) {
+        UserEntity user = userRepository.findById(targetUserId)
+                .orElseThrow(() -> new EntityNotFoundException("Utilisateur introuvable avec l'ID: " + targetUserId));
+        deleteAccountInternal(user.getEmail());
+    }
+
+    private void deleteAccountInternal(String userEmail) {
         UserEntity user = userRepository.findByEmail(userEmail)
                 .orElseThrow(() -> new EntityNotFoundException("Utilisateur introuvable: " + userEmail));
 

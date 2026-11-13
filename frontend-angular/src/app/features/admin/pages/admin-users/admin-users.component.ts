@@ -43,6 +43,27 @@ export class AdminUsersComponent implements OnInit, OnDestroy {
   showUserDetailModal = false;
   selectedUserDetail: UserAdmin | null = null;
 
+  // Super Admin: Ajout d'administrateur
+  showCreateAdminModal = false;
+  newAdmin = {
+    email: '',
+    password: '',
+    fullName: '',
+    title: '',
+    country: 'Sénégal',
+    city: 'Dakar',
+    role: 'ADMIN' as 'ADMIN' | 'SUPER_ADMIN'
+  };
+  isSubmittingCreateAdmin = false;
+  createAdminFeedback = '';
+
+  // Super Admin: Suppression définitive
+  showDeleteUserModal = false;
+  userToDelete: UserAdmin | null = null;
+  isSubmittingDeleteUser = false;
+  deleteUserFeedback = '';
+  deleteConfirmInput = '';
+
   private countryFlags: { [key: string]: string } = {
     'Sénégal': '🇸🇳',
     'Senegal': '🇸🇳',
@@ -196,6 +217,105 @@ export class AdminUsersComponent implements OnInit, OnDestroy {
       error: (err) => {
         this.isSubmittingUserAction = false;
         this.userActionFeedback = err.error?.error?.message || err.error?.message || 'Erreur lors de la mise à jour du statut.';
+      }
+    });
+  }
+
+  get isSuperAdmin(): boolean {
+    const role = this.authService.currentUser()?.role;
+    return role === 'SUPER_ADMIN';
+  }
+
+  openCreateAdminModal(): void {
+    this.newAdmin = {
+      email: '',
+      password: '',
+      fullName: '',
+      title: '',
+      country: 'Sénégal',
+      city: 'Dakar',
+      role: 'ADMIN'
+    };
+    this.createAdminFeedback = '';
+    this.showCreateAdminModal = true;
+  }
+
+  closeCreateAdminModal(): void {
+    this.showCreateAdminModal = false;
+    this.createAdminFeedback = '';
+  }
+
+  submitCreateAdmin(): void {
+    if (!this.newAdmin.email || !this.newAdmin.password || !this.newAdmin.fullName) {
+      this.createAdminFeedback = 'Veuillez remplir tous les champs obligatoires (*).';
+      return;
+    }
+    if (this.newAdmin.password.length < 8) {
+      this.createAdminFeedback = 'Le mot de passe doit comporter au moins 8 caractères.';
+      return;
+    }
+
+    this.isSubmittingCreateAdmin = true;
+    this.createAdminFeedback = '';
+
+    this.adminService.createAdminAccount({
+      email: this.newAdmin.email.trim(),
+      password: this.newAdmin.password,
+      fullName: this.newAdmin.fullName.trim(),
+      title: this.newAdmin.title.trim() || undefined,
+      country: this.newAdmin.country,
+      city: this.newAdmin.city,
+      role: this.newAdmin.role
+    }).subscribe({
+      next: (res) => {
+        this.isSubmittingCreateAdmin = false;
+        if (res.success) {
+          this.closeCreateAdminModal();
+          this.loadUsers();
+        }
+      },
+      error: (err) => {
+        this.isSubmittingCreateAdmin = false;
+        this.createAdminFeedback = err.error?.error?.message || err.error?.message || 'Erreur lors de la création de l\'administrateur.';
+      }
+    });
+  }
+
+  openDeleteUserModal(user: UserAdmin): void {
+    this.userToDelete = user;
+    this.deleteConfirmInput = '';
+    this.deleteUserFeedback = '';
+    this.showDeleteUserModal = true;
+  }
+
+  closeDeleteUserModal(): void {
+    this.showDeleteUserModal = false;
+    this.userToDelete = null;
+    this.deleteConfirmInput = '';
+    this.deleteUserFeedback = '';
+  }
+
+  submitDeleteUser(): void {
+    if (!this.userToDelete) return;
+    if (this.deleteConfirmInput.trim().toUpperCase() !== 'SUPPRIMER') {
+      this.deleteUserFeedback = 'Veuillez saisir exactement le mot "SUPPRIMER" pour confirmer.';
+      return;
+    }
+
+    this.isSubmittingDeleteUser = true;
+    this.deleteUserFeedback = '';
+
+    this.adminService.deleteUserPermanently(this.userToDelete.id).subscribe({
+      next: (res) => {
+        this.isSubmittingDeleteUser = false;
+        if (res.success) {
+          this.closeDeleteUserModal();
+          this.loadUsers();
+        }
+      },
+      error: (err) => {
+        this.isSubmittingDeleteUser = false;
+        this.deleteUserFeedback = err.error?.error?.message || err.error?.message || 'Erreur lors de la suppression définitive du compte.';
       }
     });
   }

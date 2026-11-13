@@ -100,5 +100,25 @@ public class AdminController {
         Page<AuditLogDto> auditLogs = adminService.getAuditLogs(PageRequest.of(page, size));
         return ResponseEntity.ok(ApiResponse.ok(auditLogs, Map.of("page", page, "perPage", size, "total", auditLogs.getTotalElements())));
     }
+
+    @PostMapping("/admins")
+    @PreAuthorize("hasRole('SUPER_ADMIN')")
+    public ResponseEntity<ApiResponse<UserDto>> createAdminAccount(
+            Authentication authentication,
+            @Valid @RequestBody CreateAdminRequest request
+    ) {
+        UserDto createdAdmin = adminService.createAdminAccount(authentication.getName(), request);
+        return ResponseEntity.ok(ApiResponse.ok(createdAdmin));
+    }
+
+    @DeleteMapping("/users/{id}")
+    @PreAuthorize("hasRole('SUPER_ADMIN')")
+    public ResponseEntity<ApiResponse<Map<String, String>>> deleteUserPermanently(
+            @PathVariable String id,
+            Authentication authentication
+    ) {
+        adminService.deleteUserPermanently(authentication.getName(), id);
+        return ResponseEntity.ok(ApiResponse.ok(Map.of("message", "Compte et l'ensemble de ses publications supprimés définitivement avec succès.")));
+    }
 }
 

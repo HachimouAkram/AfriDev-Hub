@@ -18,6 +18,14 @@
         Supervision des talents et gestion des comptes de la plateforme panafricaine.
       </p>
     </div>
+    <div class="header-actions" *ngIf="isSuperAdmin">
+      <button (click)="openCreateAdminModal()" class="btn-primary-action" title="Créer un administrateur">
+        <svg class="icon-svg icon-svg-xs" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.5v15m7.5-7.5h-15" />
+        </svg>
+        <span>Ajouter Administrateur</span>
+      </button>
+    </div>
   </div>
 
   <!-- Filters Toolbar -->
@@ -158,6 +166,18 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
                   <span>Réactiver</span>
+                </button>
+
+                <!-- Bouton Super Admin : Suppression Définitive -->
+                <button 
+                  *ngIf="isSuperAdmin && user.id !== authService.currentUser()?.id" 
+                  (click)="openDeleteUserModal(user)" 
+                  class="btn-action-icon btn-action-danger" 
+                  title="Supprimer définitivement ce compte et toutes ses publications">
+                  <svg class="icon-svg icon-svg-xs" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
+                  </svg>
+                  <span>Supprimer</span>
                 </button>
               </div>
             </td>
@@ -355,6 +375,151 @@
           [disabled]="isSubmittingUserAction">
           <span *ngIf="!isSubmittingUserAction">Confirmer la sanction</span>
           <span *ngIf="isSubmittingUserAction">Traitement en cours...</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Super Admin: Ajouter un Administrateur -->
+  <div class="modal-backdrop" *ngIf="showCreateAdminModal" (click)="closeCreateAdminModal()">
+    <div class="modal-card app-card animate-scale-up" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <div class="modal-title-row">
+          <div class="modal-badge-icon badge-primary">
+            <svg class="icon-svg icon-svg-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7.5v3m0 0v3m0-3h3m-3 0h-3m-2.25-4.125a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zM4 19.235v-.11a6.375 6.375 0 0112.75 0v.109A12.318 12.318 0 0110.374 21c-2.331 0-4.512-.645-6.374-1.765z" />
+            </svg>
+          </div>
+          <div>
+            <h3>Ajouter un Administrateur</h3>
+            <p class="modal-sub">Création d'un accès administratif officiel sur AfriDev Hub</p>
+          </div>
+        </div>
+        <button (click)="closeCreateAdminModal()" class="modal-close-btn">&times;</button>
+      </div>
+
+      <div class="modal-body">
+        <div class="form-row">
+          <div class="form-group flex-1">
+            <label>Rôle Administratif *</label>
+            <select [(ngModel)]="newAdmin.role" class="form-select">
+              <option value="ADMIN">ADMIN (Modération et Support)</option>
+              <option value="SUPER_ADMIN">SUPER_ADMIN (Accès Total & Gouvernance)</option>
+            </select>
+          </div>
+          <div class="form-group flex-1">
+            <label>Nom complet *</label>
+            <input type="text" [(ngModel)]="newAdmin.fullName" placeholder="Ex: Awa Diop" class="form-input" />
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group flex-1">
+            <label>Email professionnel *</label>
+            <input type="email" [(ngModel)]="newAdmin.email" placeholder="admin@afridev.africa" class="form-input" />
+          </div>
+          <div class="form-group flex-1">
+            <label>Mot de passe initial *</label>
+            <input type="password" [(ngModel)]="newAdmin.password" placeholder="Min. 8 caractères" class="form-input" />
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group flex-1">
+            <label>Titre / Fonction</label>
+            <input type="text" [(ngModel)]="newAdmin.title" placeholder="Ex: Responsable Modération Panafricaine" class="form-input" />
+          </div>
+          <div class="form-group flex-1">
+            <label>Pays</label>
+            <select [(ngModel)]="newAdmin.country" class="form-select">
+              <option value="Sénégal">🇸🇳 Sénégal</option>
+              <option value="Côte d'Ivoire">🇨🇮 Côte d'Ivoire</option>
+              <option value="Nigeria">🇳🇬 Nigeria</option>
+              <option value="Ghana">🇬🇭 Ghana</option>
+              <option value="Kenya">🇰🇪 Kenya</option>
+              <option value="Rwanda">🇷🇼 Rwanda</option>
+              <option value="Cameroun">🇨🇲 Cameroun</option>
+              <option value="Algérie">🇩🇿 Algérie</option>
+              <option value="Maroc">🇲🇦 Maroc</option>
+              <option value="Comores">🇰🇲 Comores</option>
+            </select>
+          </div>
+        </div>
+
+        <div *ngIf="createAdminFeedback" class="error-msg">
+          {{ createAdminFeedback }}
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button (click)="closeCreateAdminModal()" class="btn btn-outline" [disabled]="isSubmittingCreateAdmin">
+          Annuler
+        </button>
+        <button (click)="submitCreateAdmin()" class="btn btn-primary" [disabled]="isSubmittingCreateAdmin">
+          <span *ngIf="!isSubmittingCreateAdmin">Créer le compte</span>
+          <span *ngIf="isSubmittingCreateAdmin">Création en cours...</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Super Admin: Suppression Définitive -->
+  <div class="modal-backdrop" *ngIf="showDeleteUserModal" (click)="closeDeleteUserModal()">
+    <div class="modal-card app-card animate-scale-up" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <div class="modal-title-row">
+          <div class="modal-badge-icon badge-danger">
+            <svg class="icon-svg icon-svg-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
+            </svg>
+          </div>
+          <div>
+            <h3 style="color: #ef4444;">Suppression Définitive du Compte</h3>
+            <p class="modal-sub">Action irréversible &ndash; Données et publications supprimées</p>
+          </div>
+        </div>
+        <button (click)="closeDeleteUserModal()" class="modal-close-btn">&times;</button>
+      </div>
+
+      <div class="modal-body">
+        <div class="alert-box alert-danger">
+          <strong>Attention !</strong> Vous êtes sur le point de supprimer définitivement le compte de 
+          <strong>{{ userToDelete?.fullName || userToDelete?.email }}</strong> ({{ userToDelete?.email }}).
+          <br><br>
+          Cette action effacera en cascade :
+          <ul style="margin: 0.5rem 0 0 1.25rem; font-size: 0.85rem; line-height: 1.5;">
+            <li>Tous les projets, tâches et commentaires publiés par cet utilisateur</li>
+            <li>Toutes les offres d'emploi, candidatures et entreprises qu'il possédait</li>
+            <li>Tous ses articles, ressources pédagogiques et événements organisés</li>
+            <li>Ses canaux et messages de communauté, évaluations et points XP</li>
+          </ul>
+        </div>
+
+        <div class="form-group" style="margin-top: 1rem;">
+          <label>Tapez <strong>SUPPRIMER</strong> ci-dessous pour confirmer la suppression définitive :</label>
+          <input 
+            type="text" 
+            [(ngModel)]="deleteConfirmInput" 
+            placeholder="SUPPRIMER" 
+            class="form-input" 
+            style="border-color: rgba(239, 68, 68, 0.4); text-transform: uppercase;" />
+        </div>
+
+        <div *ngIf="deleteUserFeedback" class="error-msg">
+          {{ deleteUserFeedback }}
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button (click)="closeDeleteUserModal()" class="btn btn-outline" [disabled]="isSubmittingDeleteUser">
+          Annuler
+        </button>
+        <button 
+          (click)="submitDeleteUser()" 
+          class="btn btn-danger" 
+          [disabled]="isSubmittingDeleteUser || deleteConfirmInput.trim().toUpperCase() !== 'SUPPRIMER'">
+          <span *ngIf="!isSubmittingDeleteUser">Supprimer définitivement</span>
+          <span *ngIf="isSubmittingDeleteUser">Suppression en cours...</span>
         </button>
       </div>
     </div>
