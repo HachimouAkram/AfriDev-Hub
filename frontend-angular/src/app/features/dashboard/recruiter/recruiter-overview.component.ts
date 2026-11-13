@@ -214,9 +214,17 @@ import { CompanyBadgeComponent } from '../../../shared/components/company-badge/
     </div>
 
     <ng-template #loadingTpl>
-      <div class="loading-state" *ngIf="!errorMessage(); else errorTpl">
-        <div class="spinner"></div>
-        <p>Chargement de votre espace entreprise...</p>
+      <div class="recruiter-overview" *ngIf="!errorMessage(); else errorTpl">
+        <!-- Skeleton Hero -->
+        <div class="company-hero-card sk-shimmer" style="height: 140px;"></div>
+        <!-- Skeleton Metrics -->
+        <div class="metrics-grid">
+          <div class="metric-card sk-shimmer" *ngFor="let i of [1,2,3,4]" style="height: 100px;"></div>
+        </div>
+        <!-- Skeleton Quick Actions -->
+        <div class="quick-actions-bar sk-shimmer" style="height: 120px;"></div>
+        <!-- Skeleton Activities -->
+        <div class="recent-activities-card sk-shimmer" style="height: 160px;"></div>
       </div>
       <ng-template #errorTpl>
         <div class="loading-state" style="color: #ef4444;">
@@ -632,6 +640,66 @@ import { CompanyBadgeComponent } from '../../../shared/components/company-badge/
       border-radius: 50%;
       animation: spin 0.8s linear infinite;
       margin: 0 auto 1rem auto;
+    }
+
+    /* Skeletons */
+    .sk-shimmer {
+      background: linear-gradient(90deg, rgba(255, 255, 255, 0.04) 25%, rgba(255, 255, 255, 0.12) 50%, rgba(255, 255, 255, 0.04) 75%);
+      background-size: 200% 100%;
+      animation: skShimmer 1.5s infinite;
+      border-radius: 16px;
+    }
+    :host-context(body.light-theme) .sk-shimmer {
+      background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%);
+      background-size: 200% 100%;
+    }
+    @keyframes skShimmer {
+      0% { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+
+    /* Light Theme Contrast Enhancements */
+    :host-context(body.light-theme) .metric-card,
+    :host-context(body.light-theme) .quick-actions-bar,
+    :host-context(body.light-theme) .recent-activities-card {
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      box-shadow: 0 4px 18px rgba(0, 0, 0, 0.04);
+    }
+    :host-context(body.light-theme) .company-hero-card {
+      background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(16, 185, 129, 0.2));
+      border: 1px solid rgba(16, 185, 129, 0.3);
+    }
+    :host-context(body.light-theme) .company-title h1,
+    :host-context(body.light-theme) .metric-value,
+    :host-context(body.light-theme) .quick-actions-bar h3,
+    :host-context(body.light-theme) .header-title h3,
+    :host-context(body.light-theme) .quick-title {
+      color: #0f172a;
+    }
+    :host-context(body.light-theme) .tagline {
+      color: #475569;
+    }
+    :host-context(body.light-theme) .metric-label,
+    :host-context(body.light-theme) .metric-sub,
+    :host-context(body.light-theme) .header-title p,
+    :host-context(body.light-theme) .act-time {
+      color: #64748b;
+    }
+    :host-context(body.light-theme) .quick-btn {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+    }
+    :host-context(body.light-theme) .quick-btn:hover {
+      background: #f1f5f9;
+      border-color: #10b981;
+    }
+    :host-context(body.light-theme) .activity-row {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+    }
+    :host-context(body.light-theme) .act-main {
+      color: #1e293b;
     }
 
     @keyframes spin {

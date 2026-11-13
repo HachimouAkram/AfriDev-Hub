@@ -1,5 +1,5 @@
-import { Component, inject, HostListener, OnDestroy } from '@angular/core';
-import { RouterOutlet, RouterLink, RouterLinkActive, Router } from '@angular/router';
+import { Component, inject, HostListener, OnInit, OnDestroy } from '@angular/core';
+import { RouterOutlet, RouterLink, RouterLinkActive, Router, NavigationEnd } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AuthService } from './core/services/auth.service';
@@ -9,6 +9,8 @@ import { OfflineSyncService } from './core/services/offline-sync.service';
 import { GlobalSearchService, GlobalSearchResults } from './core/services/global-search.service';
 import { AiAssistantComponent } from './shared/components/ai-assistant/ai-assistant.component';
 import { Subscription } from 'rxjs';
+import { filter } from 'rxjs/operators';
+import { resolveUploadedMediaUrl } from './core/utils/upload-helper';
 
 @Component({
   selector: 'app-root',
@@ -104,11 +106,31 @@ import { Subscription } from 'rxjs';
                 </button>
               </div>
 
+              <!-- Entreprises & Recruteurs -->
+              <div *ngIf="searchResults.companies && searchResults.companies.length > 0" class="search-section">
+                <div class="search-section-label">Entreprises & Recruteurs</div>
+                <button *ngFor="let comp of searchResults.companies" (click)="goToCompany(comp.slug)" class="search-result-item">
+                  <div class="res-avatar comp-av">
+                    <img *ngIf="comp.logoUrl" [src]="resolveMediaUrl(comp.logoUrl)" [alt]="comp.name" style="width: 100%; height: 100%; object-fit: cover; border-radius: 6px;" />
+                    <span *ngIf="!comp.logoUrl">{{ comp.name.charAt(0).toUpperCase() }}</span>
+                  </div>
+                  <div class="res-info">
+                    <div class="res-title">{{ comp.name }}</div>
+                    <div class="res-sub">{{ comp.sector || 'Entreprise Tech' }} <span *ngIf="comp.country">• {{ comp.country }}</span></div>
+                  </div>
+                  <span class="res-type-badge badge-comp">Entreprise</span>
+                </button>
+              </div>
+
               <!-- Événements & Hackathons -->
               <div *ngIf="searchResults.events.length > 0" class="search-section">
                 <div class="search-section-label">Événements & Hackathons</div>
                 <button *ngFor="let ev of searchResults.events" (click)="goToEvents(ev.title)" class="search-result-item">
-                  <div class="res-avatar ev-av">📅</div>
+                  <div class="res-avatar ev-av">
+                    <svg class="icon-svg icon-svg-xs" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" />
+                    </svg>
+                  </div>
                   <div class="res-info">
                     <div class="res-title">{{ ev.title }}</div>
                     <div class="res-sub">{{ ev.location }} • {{ ev.type }}</div>
@@ -121,7 +143,11 @@ import { Subscription } from 'rxjs';
               <div *ngIf="searchResults.opportunities.length > 0" class="search-section">
                 <div class="search-section-label">Opportunités & Offres</div>
                 <button *ngFor="let opp of searchResults.opportunities" (click)="goToOpportunities(opp.title)" class="search-result-item">
-                  <div class="res-avatar opp-av">💼</div>
+                  <div class="res-avatar opp-av">
+                    <svg class="icon-svg icon-svg-xs" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M20.25 14.15v4.25c0 1.094-.787 2.036-1.872 2.18-2.087.277-4.216.42-6.378.42s-4.291-.143-6.378-.42c-1.085-.144-1.872-1.086-1.872-2.18v-4.25m16.5 0a2.18 2.18 0 00.75-1.661V8.706c0-1.081-.768-2.015-1.837-2.175a48.114 48.114 0 00-3.413-.387m4.5 8.006c-.194.165-.42.295-.673.38A23.978 23.978 0 0112 15.75c-2.648 0-5.195-.429-7.577-1.22a2.016 2.016 0 01-.673-.38m0 0A2.18 2.18 0 013 12.489V8.706c0-1.081.768-2.015 1.837-2.175a48.111 48.111 0 013.413-.387m7.5 0V4.5a2.25 2.25 0 00-2.25-2.25h-3a2.25 2.25 0 00-2.25 2.25v1.644m6 0a47.4 47.4 0 01-6 0" />
+                    </svg>
+                  </div>
                   <div class="res-info">
                     <div class="res-title">{{ opp.title }}</div>
                     <div class="res-sub">{{ opp.location }} • {{ opp.type }}</div>
@@ -135,9 +161,24 @@ import { Subscription } from 'rxjs';
                   Projets « {{ searchResults.suggestedCorrection || searchQuery }} » →
                 </button>
                 <div class="search-hub-links">
-                  <button (click)="goToEvents(searchResults.suggestedCorrection || searchQuery)" class="search-hub-pill">📅 Événements</button>
-                  <button (click)="goToNetwork(searchResults.suggestedCorrection || searchQuery)" class="search-hub-pill">👥 Développeurs</button>
-                  <button (click)="goToOpportunities(searchResults.suggestedCorrection || searchQuery)" class="search-hub-pill">💼 Opportunités</button>
+                  <button (click)="goToEvents(searchResults.suggestedCorrection || searchQuery)" class="search-hub-pill">
+                    <svg class="icon-svg icon-svg-xs" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" />
+                    </svg>
+                    <span>Événements</span>
+                  </button>
+                  <button (click)="goToNetwork(searchResults.suggestedCorrection || searchQuery)" class="search-hub-pill">
+                    <svg class="icon-svg icon-svg-xs" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z" />
+                    </svg>
+                    <span>Développeurs</span>
+                  </button>
+                  <button (click)="goToOpportunities(searchResults.suggestedCorrection || searchQuery)" class="search-hub-pill">
+                    <svg class="icon-svg icon-svg-xs" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M20.25 14.15v4.25c0 1.094-.787 2.036-1.872 2.18-2.087.277-4.216.42-6.378.42s-4.291-.143-6.378-.42c-1.085-.144-1.872-1.086-1.872-2.18v-4.25m16.5 0a2.18 2.18 0 00.75-1.661V8.706c0-1.081-.768-2.015-1.837-2.175a48.114 48.114 0 00-3.413-.387m4.5 8.006c-.194.165-.42.295-.673.38A23.978 23.978 0 0112 15.75c-2.648 0-5.195-.429-7.577-1.22a2.016 2.016 0 01-.673-.38m0 0A2.18 2.18 0 013 12.489V8.706c0-1.081.768-2.015 1.837-2.175a48.111 48.111 0 013.413-.387m7.5 0V4.5a2.25 2.25 0 00-2.25-2.25h-3a2.25 2.25 0 00-2.25 2.25v1.644m6 0a47.4 47.4 0 01-6 0" />
+                    </svg>
+                    <span>Opportunités</span>
+                  </button>
                 </div>
               </div>
             </ng-container>
@@ -404,43 +445,87 @@ import { Subscription } from 'rxjs';
                 </button>
               </div>
               <div *ngIf="searchResults.developers.length > 0" class="search-section">
-                <div class="search-section-label">Développeurs</div>
+                <div class="search-section-label">Développeurs & Talents</div>
                 <button *ngFor="let dev of searchResults.developers" (click)="goToProfile(dev.id)" class="search-result-item">
                   <div class="res-avatar dev-av">{{ dev.fullName.charAt(0).toUpperCase() }}</div>
                   <div class="res-info">
                     <div class="res-title">{{ dev.fullName }}</div>
                     <div class="res-sub">{{ dev.title }} <span *ngIf="dev.country">• {{ dev.country }}</span></div>
                   </div>
+                  <span class="res-type-badge badge-dev">Profil</span>
                 </button>
               </div>
+
+              <!-- Entreprises & Recruteurs Mobile -->
+              <div *ngIf="searchResults.companies && searchResults.companies.length > 0" class="search-section">
+                <div class="search-section-label">Entreprises & Recruteurs</div>
+                <button *ngFor="let comp of searchResults.companies" (click)="goToCompany(comp.slug)" class="search-result-item">
+                  <div class="res-avatar comp-av">
+                    <img *ngIf="comp.logoUrl" [src]="resolveMediaUrl(comp.logoUrl)" [alt]="comp.name" style="width: 100%; height: 100%; object-fit: cover; border-radius: 6px;" />
+                    <span *ngIf="!comp.logoUrl">{{ comp.name.charAt(0).toUpperCase() }}</span>
+                  </div>
+                  <div class="res-info">
+                    <div class="res-title">{{ comp.name }}</div>
+                    <div class="res-sub">{{ comp.sector || 'Entreprise Tech' }} <span *ngIf="comp.country">• {{ comp.country }}</span></div>
+                  </div>
+                  <span class="res-type-badge badge-comp">Entreprise</span>
+                </button>
+              </div>
+
               <div *ngIf="searchResults.events.length > 0" class="search-section">
-                <div class="search-section-label">Événements</div>
+                <div class="search-section-label">Événements & Hackathons</div>
                 <button *ngFor="let ev of searchResults.events" (click)="goToEvents(ev.title)" class="search-result-item">
-                  <div class="res-avatar ev-av">📅</div>
+                  <div class="res-avatar ev-av">
+                    <svg class="icon-svg icon-svg-xs" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" />
+                    </svg>
+                  </div>
                   <div class="res-info">
                     <div class="res-title">{{ ev.title }}</div>
                     <div class="res-sub">{{ ev.location }} • {{ ev.type }}</div>
                   </div>
+                  <span class="res-type-badge">Événement</span>
                 </button>
               </div>
+
               <div *ngIf="searchResults.opportunities.length > 0" class="search-section">
-                <div class="search-section-label">Opportunités</div>
+                <div class="search-section-label">Opportunités & Offres</div>
                 <button *ngFor="let opp of searchResults.opportunities" (click)="goToOpportunities(opp.title)" class="search-result-item">
-                  <div class="res-avatar opp-av">💼</div>
+                  <div class="res-avatar opp-av">
+                    <svg class="icon-svg icon-svg-xs" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M20.25 14.15v4.25c0 1.094-.787 2.036-1.872 2.18-2.087.277-4.216.42-6.378.42s-4.291-.143-6.378-.42c-1.085-.144-1.872-1.086-1.872-2.18v-4.25m16.5 0a2.18 2.18 0 00.75-1.661V8.706c0-1.081-.768-2.015-1.837-2.175a48.114 48.114 0 00-3.413-.387m4.5 8.006c-.194.165-.42.295-.673.38A23.978 23.978 0 0112 15.75c-2.648 0-5.195-.429-7.577-1.22a2.016 2.016 0 01-.673-.38m0 0A2.18 2.18 0 013 12.489V8.706c0-1.081.768-2.015 1.837-2.175a48.111 48.111 0 013.413-.387m7.5 0V4.5a2.25 2.25 0 00-2.25-2.25h-3a2.25 2.25 0 00-2.25 2.25v1.644m6 0a47.4 47.4 0 01-6 0" />
+                    </svg>
+                  </div>
                   <div class="res-info">
                     <div class="res-title">{{ opp.title }}</div>
                     <div class="res-sub">{{ opp.location }}</div>
                   </div>
                 </button>
               </div>
+
               <div class="search-quick-hub">
                 <button (click)="goToAllResults()" class="search-explore-all">
                   Voir projets « {{ searchResults.suggestedCorrection || searchQuery }} » →
                 </button>
                 <div class="search-hub-links">
-                  <button (click)="goToEvents(searchResults.suggestedCorrection || searchQuery)" class="search-hub-pill">📅 Événements</button>
-                  <button (click)="goToNetwork(searchResults.suggestedCorrection || searchQuery)" class="search-hub-pill">👥 Réseau</button>
-                  <button (click)="goToOpportunities(searchResults.suggestedCorrection || searchQuery)" class="search-hub-pill">💼 Offres</button>
+                  <button (click)="goToEvents(searchResults.suggestedCorrection || searchQuery)" class="search-hub-pill">
+                    <svg class="icon-svg icon-svg-xs" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" />
+                    </svg>
+                    <span>Événements</span>
+                  </button>
+                  <button (click)="goToNetwork(searchResults.suggestedCorrection || searchQuery)" class="search-hub-pill">
+                    <svg class="icon-svg icon-svg-xs" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z" />
+                    </svg>
+                    <span>Réseau</span>
+                  </button>
+                  <button (click)="goToOpportunities(searchResults.suggestedCorrection || searchQuery)" class="search-hub-pill">
+                    <svg class="icon-svg icon-svg-xs" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M20.25 14.15v4.25c0 1.094-.787 2.036-1.872 2.18-2.087.277-4.216.42-6.378.42s-4.291-.143-6.378-.42c-1.085-.144-1.872-1.086-1.872-2.18v-4.25m16.5 0a2.18 2.18 0 00.75-1.661V8.706c0-1.081-.768-2.015-1.837-2.175a48.114 48.114 0 00-3.413-.387m4.5 8.006c-.194.165-.42.295-.673.38A23.978 23.978 0 0112 15.75c-2.648 0-5.195-.429-7.577-1.22a2.016 2.016 0 01-.673-.38m0 0A2.18 2.18 0 013 12.489V8.706c0-1.081.768-2.015 1.837-2.175a48.111 48.111 0 013.413-.387m7.5 0V4.5a2.25 2.25 0 00-2.25-2.25h-3a2.25 2.25 0 00-2.25 2.25v1.644m6 0a47.4 47.4 0 01-6 0" />
+                    </svg>
+                    <span>Offres</span>
+                  </button>
                 </div>
               </div>
             </ng-container>
@@ -1949,7 +2034,7 @@ import { Subscription } from 'rxjs';
     }
   `]
 })
-export class AppComponent implements OnDestroy {
+export class AppComponent implements OnInit, OnDestroy {
   private authService = inject(AuthService);
   private themeService = inject(ThemeService);
   private translationService = inject(TranslationService);
@@ -1972,6 +2057,21 @@ export class AppComponent implements OnDestroy {
 
   availableLanguages = this.translationService.languages;
   currentLang = this.translationService.currentLang;
+
+  ngOnInit(): void {
+    // 1. Défilement systématique en haut de page à chaque changement d'URL (résout l'affichage prématuré du footer)
+    this.router.events.pipe(
+      filter((e): e is NavigationEnd => e instanceof NavigationEnd)
+    ).subscribe(() => {
+      if (typeof window !== 'undefined') {
+        window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+      }
+    });
+  }
+
+  resolveMediaUrl(url?: string | null): string {
+    return resolveUploadedMediaUrl(url);
+  }
 
   ngOnDestroy(): void {
     clearTimeout(this.searchTimer);
@@ -2005,7 +2105,7 @@ export class AppComponent implements OnDestroy {
           this.isSearching = false;
         }
       });
-    }, 100);
+    }, 220);
   }
 
   onSearchFocus(): void {
@@ -2068,10 +2168,16 @@ export class AppComponent implements OnDestroy {
     this.onSearchChange(term);
   }
 
+  goToCompany(slug: string): void {
+    this.isSearchOpen = false;
+    this.closeAllMenus();
+    this.router.navigate(['/company', slug]);
+  }
+
   goToAllResults(): void {
     const q = (this.searchResults?.suggestedCorrection || this.searchQuery).trim();
     if (!q) return;
-    this.clearSearch();
+    this.isSearchOpen = false;
     this.closeAllMenus();
     this.router.navigate(['/projects'], { queryParams: { q } });
   }

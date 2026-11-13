@@ -13,7 +13,7 @@ import { OpportunityService, Opportunity } from '../../../core/services/opportun
   template: `
     <div class="company-public-wrapper" *ngIf="company(); else loadingTpl">
       <!-- Cover Banner -->
-      <div class="company-cover" [style.background-image]="company()?.coverUrl ? 'url(' + resolveUrl(company()?.coverUrl) + ')' : ''">
+      <div class="company-cover" [style.background-image]="getCoverImage() ? 'url(' + getCoverImage() + ')' : null">
         <div class="cover-overlay"></div>
       </div>
 
@@ -141,9 +141,18 @@ import { OpportunityService, Opportunity } from '../../../core/services/opportun
     </div>
 
     <ng-template #loadingTpl>
-      <div class="page-loading">
-        <div class="spinner"></div>
-        <p>Chargement du profil entreprise...</p>
+      <div class="company-public-wrapper skeleton-state">
+        <div class="company-cover sk-cover sk-shimmer"></div>
+        <div class="company-header-container">
+          <div class="header-card">
+            <div class="logo-box sk-logo sk-shimmer"></div>
+            <div class="info-box">
+              <div class="sk-pill sk-shimmer" style="width: 220px; height: 28px; margin-bottom: 12px;"></div>
+              <div class="sk-pill sk-shimmer" style="width: 320px; height: 16px; margin-bottom: 14px;"></div>
+              <div class="sk-pill sk-shimmer" style="width: 180px; height: 14px;"></div>
+            </div>
+          </div>
+        </div>
       </div>
     </ng-template>
   `,
@@ -451,6 +460,75 @@ import { OpportunityService, Opportunity } from '../../../core/services/opportun
       margin: 0 auto 1rem auto;
     }
 
+    /* Skeletons */
+    .sk-shimmer {
+      background: linear-gradient(90deg, rgba(255, 255, 255, 0.04) 25%, rgba(255, 255, 255, 0.12) 50%, rgba(255, 255, 255, 0.04) 75%);
+      background-size: 200% 100%;
+      animation: skShimmer 1.5s infinite;
+    }
+    :host-context(body.light-theme) .sk-shimmer {
+      background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%);
+      background-size: 200% 100%;
+    }
+    @keyframes skShimmer {
+      0% { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+    .sk-cover {
+      background-color: rgba(15, 23, 42, 0.6);
+    }
+    .sk-logo {
+      background-color: rgba(15, 23, 42, 0.8);
+    }
+    .sk-pill {
+      border-radius: 6px;
+      display: inline-block;
+    }
+
+    /* Light Theme Contrast Enhancements */
+    :host-context(body.light-theme) .company-public-wrapper {
+      background: #f8fafc;
+      color: #0f172a;
+    }
+    :host-context(body.light-theme) .header-card {
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.06);
+    }
+    :host-context(body.light-theme) .company-name {
+      color: #0f172a;
+    }
+    :host-context(body.light-theme) .tagline {
+      color: #475569;
+    }
+    :host-context(body.light-theme) .meta-row,
+    :host-context(body.light-theme) .opt-meta,
+    :host-context(body.light-theme) .level-explain,
+    :host-context(body.light-theme) .side-muted {
+      color: #64748b;
+    }
+    :host-context(body.light-theme) .content-card,
+    :host-context(body.light-theme) .side-card {
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      box-shadow: 0 4px 18px rgba(0, 0, 0, 0.04);
+    }
+    :host-context(body.light-theme) .content-card h2,
+    :host-context(body.light-theme) .side-card h3,
+    :host-context(body.light-theme) .opt-title {
+      color: #0f172a;
+    }
+    :host-context(body.light-theme) .description-text {
+      color: #334155;
+    }
+    :host-context(body.light-theme) .opt-item {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+    }
+    :host-context(body.light-theme) .cover-overlay {
+      background: linear-gradient(to bottom, rgba(248, 250, 252, 0.1) 0%, rgba(248, 250, 252, 0.75) 100%);
+    }
+
     @keyframes spin {
       to { transform: rotate(360deg); }
     }
@@ -466,6 +544,12 @@ export class CompanyPublicPageComponent implements OnInit {
 
   resolveUrl(url?: string | null): string {
     return resolveUploadedMediaUrl(url);
+  }
+
+  getCoverImage(): string {
+    const c = this.company();
+    const raw = c?.bannerUrl || c?.coverUrl;
+    return raw ? this.resolveUrl(raw) : '';
   }
 
   ngOnInit(): void {

@@ -17,9 +17,16 @@ public class UpdateCompanyRequest {
     private String twitterUrl;
     private String logoUrl;
     private String bannerUrl;
+    private String coverUrl;
     private String country;
     private String city;
     private String sector;
     private String companySize;
+
+    public String getEffectiveBannerUrl() {
+        if (bannerUrl != null && !bannerUrl.trim().isEmpty()) return bannerUrl.trim();
+        if (coverUrl != null && !coverUrl.trim().isEmpty()) return coverUrl.trim();
+        return null;
+    }
 }
 
