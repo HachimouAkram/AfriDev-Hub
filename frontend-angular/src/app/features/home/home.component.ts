@@ -122,9 +122,6 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
     this.initScrollReveal();
     this.initStageSectionObserver();
     this.initScrollReactiveVideo();
-    this.ngZone.runOutsideAngular(() => {
-      this.initMultiStageMotionCanvas();
-    });
   }
 
   ngOnDestroy(): void {
@@ -155,35 +152,55 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
    * sa vitesse de lecture, sa parallaxe 3D et son échelle avec le défilement (scroll) de l'utilisateur.
    * Garantit une boucle infinie continue sans aucun blocage ou arrêt soudain.
    */
+  /**
+   * Initialise l'animation cinématique 3D de fond (effet motion design haute fidélité).
+   * - Apparition fluide et progressive à l'ouverture (fade-in cinématique)
+   * - Vitesse ralentie à 0.45x au repos pour une rotation 3D douce et hypnotique
+   * - Réactivité dynamique et fluide au scroll (accélération amortie avec inertie et éclat)
+   * - Verrouillage permanent 100% plein écran du header jusqu'au footer
+   */
   private initScrollReactiveVideo(): void {
     if (typeof window === 'undefined' || !this.bgCinemaVideoRef) return;
     const video = this.bgCinemaVideoRef.nativeElement;
     const layer = this.videoLayerRef?.nativeElement;
     if (!video) return;
 
+    const BASE_PLAYBACK_RATE = 0.45;
+
     video.muted = true;
+    video.defaultMuted = true;
     video.playsInline = true;
     video.loop = true;
+    video.setAttribute('muted', '');
+    video.setAttribute('playsinline', '');
+    video.setAttribute('loop', '');
+    video.setAttribute('autoplay', '');
 
-    // Déclencheur automatique de lecture résistant aux restrictions navigateurs / mobiles
+    // Appliquer immédiatement la vitesse ralentie cinématique
+    video.playbackRate = BASE_PLAYBACK_RATE;
+
     const startPlay = () => {
+      video.playbackRate = BASE_PLAYBACK_RATE;
       if (video.paused) {
         video.play().catch(() => {});
       }
     };
+
     startPlay();
-    document.addEventListener('touchstart', startPlay, { passive: true });
-    document.addEventListener('click', startPlay, { passive: true });
+    video.addEventListener('canplay', startPlay);
+    video.addEventListener('loadeddata', startPlay);
+    document.addEventListener('touchstart', startPlay, { passive: true, once: true });
+    document.addEventListener('click', startPlay, { passive: true, once: true });
     window.addEventListener('focus', startPlay);
 
-    // Watchdogs pour assurer une boucle infinie permanente (ne s'arrête jamais)
+    // Watchdogs pour assurer une boucle infinie continue sans accroc
     video.addEventListener('ended', () => {
       video.currentTime = 0;
+      video.playbackRate = BASE_PLAYBACK_RATE;
       video.play().catch(() => {});
     });
 
     video.addEventListener('pause', () => {
-      // Si la vidéo est mise en pause intempestivement par le navigateur
       setTimeout(() => {
         if (video.paused) {
           video.play().catch(() => {});
@@ -191,25 +208,17 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
       }, 50);
     });
 
-    video.addEventListener('timeupdate', () => {
-      // Prévenir le blocage de fin de fragment en rebouclant sans à-coup 150ms avant la fin
-      if (video.duration && video.duration > 0.5 && video.currentTime >= video.duration - 0.15) {
-        video.currentTime = 0;
-        video.play().catch(() => {});
-      }
-    });
-
     video.addEventListener('error', () => {
-      // Recharger en cas de mini coupure réseau ou erreur de décodage
       setTimeout(() => {
         video.load();
+        video.playbackRate = BASE_PLAYBACK_RATE;
         video.play().catch(() => {});
       }, 300);
     });
 
     let lastScrollY = window.scrollY || 0;
-    let targetPlaybackRate = 1.0;
-    let currentPlaybackRate = 1.0;
+    let targetPlaybackRate = BASE_PLAYBACK_RATE;
+    let currentPlaybackRate = BASE_PLAYBACK_RATE;
     let lastTime = performance.now();
     let isTicking = false;
 
@@ -222,16 +231,15 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
       const deltaY = Math.abs(scrollY - lastScrollY);
       lastScrollY = scrollY;
 
-      // 1. Plus l'utilisateur scrolle, plus l'animation vidéo s'enchaîne et s'accélère
+      // 1. Accélération cinématique réactive au mouvement de scroll (effet motion design interactif)
       const scrollVelocity = deltaY / dt;
-      targetPlaybackRate = Math.min(1.0 + (scrollVelocity / 600) * 1.15, 2.5);
+      targetPlaybackRate = Math.min(BASE_PLAYBACK_RATE + (scrollVelocity / 550) * 0.95, 1.75);
 
-      // Réveiller la lecture au scroll si elle était en attente
       if (video.paused) {
         video.play().catch(() => {});
       }
 
-      // 2. Parallaxe et profondeur 3D douce selon la progression du scroll
+      // 2. Progression continue et zoom 3D doux de l'en-tête jusqu'au pied de page
       const docHeight = Math.max(
         document.body.scrollHeight,
         document.documentElement.scrollHeight
@@ -239,10 +247,15 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
       const progress = docHeight > 0 ? Math.min(Math.max(scrollY / docHeight, 0), 1) : 0;
 
       if (layer) {
-        const translateY = -scrollY * 0.11;
-        const scale = 1.02 + progress * 0.07;
-        layer.style.transform = `translate3d(0, ${translateY.toFixed(1)}px, 0) scale(${scale.toFixed(3)})`;
+        const scale = 1.0 + progress * 0.06;
+        layer.style.transform = `scale(${scale.toFixed(3)})`;
       }
+
+      // 3. Éclat et intensité technologique dynamique pendant le défilement
+      const velocityRatio = Math.min(scrollVelocity / 1000, 1);
+      const dynamicSaturate = 1.28 + velocityRatio * 0.16;
+      const dynamicBrightness = 0.98 + velocityRatio * 0.06;
+      video.style.filter = `saturate(${dynamicSaturate.toFixed(2)}) contrast(1.16) brightness(${dynamicBrightness.toFixed(2)})`;
 
       if (!isTicking) {
         isTicking = true;
@@ -251,18 +264,21 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
     };
 
     const updateMotion = () => {
-      // Amorti fluide de la vitesse de lecture vers 1.0x (inertie naturelle)
-      currentPlaybackRate += (targetPlaybackRate - currentPlaybackRate) * 0.12;
-      targetPlaybackRate += (1.0 - targetPlaybackRate) * 0.06;
+      // Amorti fluide avec inertie naturelle ramenant la vitesse vers son ralenti de base (0.45x)
+      currentPlaybackRate += (targetPlaybackRate - currentPlaybackRate) * 0.09;
+      targetPlaybackRate += (BASE_PLAYBACK_RATE - targetPlaybackRate) * 0.05;
 
       if (video && !isNaN(currentPlaybackRate)) {
-        video.playbackRate = Math.max(0.85, Math.min(currentPlaybackRate, 2.5));
+        video.playbackRate = Math.max(0.35, Math.min(currentPlaybackRate, 1.75));
       }
 
-      if (Math.abs(targetPlaybackRate - 1.0) > 0.02 || Math.abs(currentPlaybackRate - 1.0) > 0.02) {
+      if (Math.abs(targetPlaybackRate - BASE_PLAYBACK_RATE) > 0.015 || Math.abs(currentPlaybackRate - BASE_PLAYBACK_RATE) > 0.015) {
         requestAnimationFrame(updateMotion);
       } else {
-        if (video) video.playbackRate = 1.0;
+        if (video) {
+          video.playbackRate = BASE_PLAYBACK_RATE;
+          video.style.filter = '';
+        }
         isTicking = false;
       }
     };

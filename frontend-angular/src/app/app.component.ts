@@ -1737,13 +1737,21 @@ import { resolveUploadedMediaUrl } from './core/utils/upload-helper';
        ========================================================================== */
     .app-footer {
       position: relative;
-      background: var(--bg-surface-card);
-      border-top: 1px solid var(--border-subtle);
+      background: rgba(15, 23, 42, 0.75);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
       margin-top: clamp(2.75rem, 5vw, 4rem);
       padding-top: clamp(2.25rem, 4vw, 3.25rem);
       overflow: clip;
       width: 100%;
       box-sizing: border-box;
+      z-index: 1;
+    }
+
+    :host-context(body.light-theme) .app-footer {
+      background: rgba(255, 255, 255, 0.9) !important;
+      border-top: 1px solid #e2e8f0 !important;
     }
 
     .footer-container {

@@ -52,13 +52,24 @@
 /* 1. Couche Vidéo Pleine Page Pinterest Motion Réactive au Scroll */
 .bg-cinema-media-layer {
   position: absolute;
-  inset: -6% -3%;
-  width: 106%;
-  height: 112%;
+  inset: 0;
+  width: 100%;
+  height: 100%;
   overflow: hidden;
   will-change: transform;
-  transform: translate3d(0, 0, 0);
-  transition: transform 0.08s ease-out;
+  opacity: 0;
+  animation: cinemaReveal 1.2s cubic-bezier(0.16, 1, 0.3, 1) 0.05s forwards;
+}
+
+@keyframes cinemaReveal {
+  0% {
+    opacity: 0;
+    transform: scale(1.04);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 
 .bg-pinterest-motion-video {
@@ -67,40 +78,60 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
-  opacity: 0.76;
-  filter: saturate(1.35) contrast(1.18) brightness(0.96);
-  transition: opacity 0.6s ease, filter 0.6s ease;
-  will-change: opacity, transform, filter;
+  opacity: 0.94;
+  filter: saturate(1.28) contrast(1.16) brightness(0.98);
+  transition: opacity 0.5s ease;
+  will-change: transform, filter;
 }
 
 :host-context(body.light-theme) .bg-pinterest-motion-video {
-  opacity: 0.84;
-  filter: saturate(1.4) contrast(1.25) brightness(1.04);
+  opacity: 0.86;
+  filter: saturate(1.22) contrast(1.1) brightness(1.02);
 }
 
-.home-backdrop-stage[data-stage="0"] .bg-pinterest-motion-video { opacity: 0.78; }
-.home-backdrop-stage[data-stage="1"] .bg-pinterest-motion-video { opacity: 0.74; filter: saturate(1.45) contrast(1.22) brightness(0.98); }
-.home-backdrop-stage[data-stage="2"] .bg-pinterest-motion-video { opacity: 0.82; filter: saturate(1.5) contrast(1.26) hue-rotate(-8deg) brightness(1.02); }
-.home-backdrop-stage[data-stage="3"] .bg-pinterest-motion-video { opacity: 0.76; filter: saturate(1.4) contrast(1.2) hue-rotate(12deg) brightness(0.98); }
-.home-backdrop-stage[data-stage="4"] .bg-pinterest-motion-video { opacity: 0.8; filter: saturate(1.55) contrast(1.28) brightness(0.94); }
+.home-backdrop-stage[data-stage="0"] .bg-pinterest-motion-video,
+.home-backdrop-stage[data-stage="1"] .bg-pinterest-motion-video,
+.home-backdrop-stage[data-stage="2"] .bg-pinterest-motion-video,
+.home-backdrop-stage[data-stage="3"] .bg-pinterest-motion-video,
+.home-backdrop-stage[data-stage="4"] .bg-pinterest-motion-video {
+  opacity: 0.94;
+}
 
-:host-context(body.light-theme) .home-backdrop-stage[data-stage="0"] .bg-pinterest-motion-video { opacity: 0.86; }
-:host-context(body.light-theme) .home-backdrop-stage[data-stage="1"] .bg-pinterest-motion-video { opacity: 0.82; }
-:host-context(body.light-theme) .home-backdrop-stage[data-stage="2"] .bg-pinterest-motion-video { opacity: 0.88; }
-:host-context(body.light-theme) .home-backdrop-stage[data-stage="3"] .bg-pinterest-motion-video { opacity: 0.84; }
-:host-context(body.light-theme) .home-backdrop-stage[data-stage="4"] .bg-pinterest-motion-video { opacity: 0.86; }
+/* 2. Trame holographique subtile (scanlines haute technologie style motion graphic) */
+.bg-hologram-mesh {
+  position: absolute;
+  inset: 0;
+  background-image: repeating-linear-gradient(
+    0deg,
+    rgba(255, 255, 255, 0.025) 0px,
+    rgba(255, 255, 255, 0.025) 1px,
+    transparent 1px,
+    transparent 3px
+  );
+  pointer-events: none;
+  opacity: 0.55;
+  mix-blend-mode: overlay;
+}
 
-/* Voile d'ombrage protecteur garantissant une visibilité parfaite du fond ET une lisibilité optimale des textes */
+:host-context(body.light-theme) .bg-hologram-mesh {
+  opacity: 0.2;
+}
+
+/* 3. Voile cinématique immersif protégeant la lisibilité tout en sublimant les contrastes */
 .bg-cinema-scrim {
   position: absolute;
   inset: 0;
-  background: radial-gradient(circle at 50% 28%, rgba(7, 11, 20, 0.22) 0%, rgba(7, 11, 20, 0.52) 55%, rgba(5, 8, 16, 0.82) 100%);
+  background: 
+    radial-gradient(ellipse at 50% 30%, rgba(7, 11, 20, 0.12) 0%, rgba(7, 11, 20, 0.48) 65%, rgba(5, 8, 16, 0.82) 100%),
+    linear-gradient(180deg, rgba(7, 11, 20, 0.25) 0%, transparent 22%, transparent 78%, rgba(7, 11, 20, 0.55) 100%);
   transition: background 0.6s ease;
   pointer-events: none;
 }
 
 :host-context(body.light-theme) .bg-cinema-scrim {
-  background: radial-gradient(circle at 50% 28%, rgba(248, 250, 252, 0.22) 0%, rgba(241, 245, 249, 0.44) 55%, rgba(226, 232, 240, 0.66) 100%);
+  background: 
+    radial-gradient(ellipse at 50% 30%, rgba(248, 250, 252, 0.25) 0%, rgba(241, 245, 249, 0.5) 65%, rgba(226, 232, 240, 0.75) 100%),
+    linear-gradient(180deg, rgba(248, 250, 252, 0.25) 0%, transparent 22%, transparent 78%, rgba(248, 250, 252, 0.45) 100%);
 }
 
 /* 2. Couche Projecteurs Aurora & Beams Morphing selon la Section */
