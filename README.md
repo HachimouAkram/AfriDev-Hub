@@ -54,11 +54,10 @@
 9. [⚙️ Configuration & Variables d'Environnement](#9-️-configuration--variables-denvironnement)
 10. [📡 Spécifications des Endpoints de l'API REST (`/api/v1`)](#10--spécifications-des-endpoints-de-lapi-rest-apiv1)
 11. [🔒 Sécurité, Confidentialité & OWASP](#11--sécurité-confidentialité--owasp)
-12. [🎬 Déroulement de Démonstration (Scénario Concours & Jury)](#12--déroulement-de-démonstration-scénario-concours--jury)
-13. [🧪 Tests Automatisés & Pipeline CI/CD](#13--tests-automatisés--pipeline-cicd)
-14. [☁️ Déploiement en Production](#14-️-déploiement-en-production)
-15. [🩺 Dépannage (FAQ Technique)](#15--dépannage-faq-technique)
-16. [🤝 Contribution & Conventions](#16--contribution--conventions)
+12. [🧪 Tests Automatisés & Pipeline CI/CD](#12--tests-automatisés--pipeline-cicd)
+13. [☁️ Déploiement en Production](#13-️-déploiement-en-production)
+14. [🩺 Dépannage (FAQ Technique)](#14--dépannage-faq-technique)
+15. [🤝 Contribution & Conventions](#15--contribution--conventions)
 
 ---
 
@@ -494,8 +493,7 @@ AfriDev-Hub/
 ├── .github/workflows/         # Pipeline CI/CD (ci-tests.yml)
 ├── docker-compose.yml         # PostgreSQL 16 + Redis 7 pour le développement local
 ├── Dockerfile                 # Image de production du frontend
-├── DEPLOYMENT_GUIDE.md        # Guide de déploiement détaillé
-└── DEMO_SCRIPT.md             # Scénario de démonstration
+└── DEPLOYMENT_GUIDE.md        # Guide de déploiement détaillé
 ```
 
 ### Prérequis Système
@@ -863,26 +861,7 @@ Toutes les routes sont préfixées par `/api/v1`.
 
 ---
 
-## 12. 🎬 Déroulement de Démonstration (Scénario Concours & Jury)
-
-Voici le scénario recommandé en **6 à 8 minutes** pour une soutenance devant un jury :
-
-| Temps | Écran / Action | Ce que le jury voit & retient |
-| :--- | :--- | :--- |
-| **0:00 - 1:00** | **Landing Page & Inscription Panafricaine** | Sélection d'un pays parmi les 54 nations. Choix du rôle (`DEVELOPER`). Connexion instantanée via OTP email Brevo ou Google OAuth. |
-| **1:00 - 2:00** | **Profil Développeur & Visionneuse CV Native** | Synchronisation GitHub temps réel opérée par FastAPI. Clic sur **« Voir mon CV »** : ouverture fluide de la visionneuse PDF in-app sans téléchargement forcé. Affichage du badge de confiance Mobile Money. |
-| **2:00 - 3:00** | **Niveaux XP Rééquilibrés & Leaderboard** | Démonstration du palier **Expert à 2 000 XP** et barre de progression réactive. Consultation du Leaderboard avec filtre par pays africain. |
-| **3:00 - 4:00** | **Évaluation Factuelle par les Pairs** | Tentative de noter un développeur sans preuve : l'API bloque l'action. Déclaration d'une collaboration avec lien de PR, validation croisée bilatérale et calcul du score de réputation sur 5.0. |
-| **4:00 - 5:00** | **Communautés, Chat Direct & Bannissement avec Motif** | Exploration d'un groupe tech avec photo de couverture. Salon de chat textuel en direct. Démonstration de l'option d'exclusion / bannissement de membre avec motif. |
-| **5:00 - 6:00** | **Entraide Tech & Formations Monétisées SasPay** | Publication d'une question d'entraide avec tags technologiques et discussion directe avec l'auteur. Espace « Mes Ressources & Formations » avec attribution logique des XP (+20 / +1 par vue) et intégration de paiement SasPay. |
-| **6:00 - 7:00** | **Vitrine Projets, Kanban & Hub d'Offres** | Collaboration Kanban d'équipe. Publication d'offre in-app depuis le tableau de bord recruteur et examen des candidatures. |
-| **7:00 - 8:00** | **Cockpit Super Admin** | Tableau de bord et graphiques de l'écosystème, classement d'adoption des pays avec drapeaux, modération, journal d'audit. Bascule mode clair / sombre et affichage mobile. |
-
-> Le scénario détaillé est disponible dans [DEMO_SCRIPT.md](DEMO_SCRIPT.md).
-
----
-
-## 13. 🧪 Tests Automatisés & Pipeline CI/CD
+## 12. 🧪 Tests Automatisés & Pipeline CI/CD
 
 ### Lancer les tests en local
 ```bash
@@ -929,7 +908,7 @@ Les déploiements ne s'exécutent que sur `main` / `master` hors pull request. L
 
 ---
 
-## 14. ☁️ Déploiement en Production
+## 13. ☁️ Déploiement en Production
 
 | Composant | Cible | Méthode |
 | :--- | :--- | :--- |
@@ -955,7 +934,7 @@ Le guide complet est disponible dans [DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md).
 
 ---
 
-## 15. 🩺 Dépannage (FAQ Technique)
+## 14. 🩺 Dépannage (FAQ Technique)
 
 | Symptôme | Cause probable | Solution |
 | :--- | :--- | :--- |
@@ -969,7 +948,7 @@ Le guide complet est disponible dans [DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md).
 
 ---
 
-## 16. 🤝 Contribution & Conventions
+## 15. 🤝 Contribution & Conventions
 
 1. Créez une branche depuis `main` : `git checkout -b feat/ma-fonctionnalite`.
 2. Respectez les **Conventional Commits** : `feat(admin): …`, `fix(test): …`, `style(ui): …`, `docs(readme): …`.
@@ -985,7 +964,6 @@ Le guide complet est disponible dans [DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md).
 
 <div align="center">
 
-**AfriDev Hub — Bâti avec rigueur et passion pour l'avenir numérique du continent africain 🌍🚀**  
-*Document soumis dans le cadre du concours panafricain de développement (Version Finale - 2026).*
+**AfriDev Hub — Bâti avec rigueur et passion pour l'avenir numérique du continent africain 🌍🚀**
 
 </div>
