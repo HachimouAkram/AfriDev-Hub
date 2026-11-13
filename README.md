@@ -12,6 +12,7 @@
 [![Cloudinary](https://img.shields.io/badge/Cloudinary-Media_CDN-3448C5?style=for-the-badge&logo=cloudinary&logoColor=white)](https://cloudinary.com/)
 [![SasPay](https://img.shields.io/badge/SasPay-Mobile_Money-10B981?style=for-the-badge)](https://saspay.me/)
 [![Docker](https://img.shields.io/badge/Docker-Enabled-2496ED?style=for-the-badge&logo=docker&logoColor=white)](https://www.docker.com/)
+[![CI/CD](https://img.shields.io/github/actions/workflow/status/HachimouAkram/AfriDev-Hub/ci-tests.yml?branch=main&style=for-the-badge&logo=githubactions&logoColor=white&label=CI%2FCD)](https://github.com/HachimouAkram/AfriDev-Hub/actions)
 
 **« Construite par les devs africains, pour les devs africains & l'écosystème tech mondial »**
 
@@ -38,7 +39,13 @@
    - [3.10 Espace Mentorat & Recommandation IA](#310-espace-mentorat--recommandation-ia)
    - [3.11 Portefeuille Numérique (Wallet) & Paiements Multi-Passerelles](#311-portefeuille-numérique-wallet--paiements-multi-passerelles)
    - [3.12 Messagerie Privée & Centre de Notifications](#312-messagerie-privée--centre-de-notifications)
-   - [3.13 Cockpit d'Administration, Modération & Audit Immuable](#313-cockpit-dadministration-modération--audit-immuable)
+   - [3.13 Cockpit Super Admin, Adoption 54 Pays, Modération & Audit](#313-cockpit-super-admin-adoption-54-pays-modération--audit)
+   - [3.14 Espace Entreprises & Classement des Entreprises](#314-espace-entreprises--classement-des-entreprises)
+   - [3.15 Événements Tech Panafricains](#315-événements-tech-panafricains)
+   - [3.16 Réseau, Abonnements & Suggestions Intelligentes](#316-réseau-abonnements--suggestions-intelligentes)
+   - [3.17 Assistant IA AfriDev](#317-assistant-ia-afridev)
+   - [3.18 Sécurité du Compte : 2FA, Sessions & Suppression](#318-sécurité-du-compte--2fa-sessions--suppression)
+   - [3.19 Expérience Utilisateur : Responsive, Thème Clair/Sombre & Multilingue](#319-expérience-utilisateur--responsive-thème-clairsombre--multilingue)
 4. [🧠 Algorithmes & Modèles d'Intelligence Artificielle (FastAPI)](#4--algorithmes--modèles-dintelligence-artificielle-fastapi)
 5. [⚙️ Comment ça Marche Sous le Capot (Flux Techniques)](#5-️-comment-ça-marche-sous-le-capot-flux-techniques)
 6. [🛠️ Stack Technologique Complète & Matrice des Versions](#6-️-stack-technologique-complète--matrice-des-versions)
@@ -48,6 +55,10 @@
 10. [📡 Spécifications des Endpoints de l'API REST (`/api/v1`)](#10--spécifications-des-endpoints-de-lapi-rest-apiv1)
 11. [🔒 Sécurité, Confidentialité & OWASP](#11--sécurité-confidentialité--owasp)
 12. [🎬 Déroulement de Démonstration (Scénario Concours & Jury)](#12--déroulement-de-démonstration-scénario-concours--jury)
+13. [🧪 Tests Automatisés & Pipeline CI/CD](#13--tests-automatisés--pipeline-cicd)
+14. [☁️ Déploiement en Production](#14-️-déploiement-en-production)
+15. [🩺 Dépannage (FAQ Technique)](#15--dépannage-faq-technique)
+16. [🤝 Contribution & Conventions](#16--contribution--conventions)
 
 ---
 
@@ -107,7 +118,9 @@ AfriDev Hub repose sur une architecture microservices hybride découplée, allia
 │ - Algorithme de Matching Réseau │   │                                                  │
 │   (Jaccard + Synergie + Géo)    │   │  ⚡ Redis 7 (Port 6380)                          │
 │ - Assistant IA Communautaire    │   │     Cache contributions GitHub (TTL 24h),        │
-└───────────────┬─────────────────┘   │     Codes OTP de connexion (TTL 10 min)          │
+│ - Matching Mentors              │   │     Codes OTP de connexion (TTL 10 min),         │
+│                                 │   │     Cache analytics admin (10-15 min),           │
+└───────────────┬─────────────────┘   │     Cache leaderboard, réseau & projets          │
                 │                     └──────────────────────────────────────────────────┘
                 │ Cache Read / Write                    ▲
                 └───────────────────────────────────────┘
@@ -239,11 +252,58 @@ AfriDev Hub repose sur une architecture microservices hybride découplée, allia
 * **Discussions Directes (1-to-1)** : canal de communication fluide entre développeurs et avec les recruteurs.
 * **Centre de Notifications Global** : alertes en temps réel sur les interactions clés (nouveau message, demande d'évaluation, vote sur un projet, statut de candidature).
 
-### 3.13 Cockpit d'Administration, Modération & Audit Immuable
-* **Gestion Globale des Utilisateurs** : consultation des comptes, rôles, statuts et niveaux.
-* **Modération des Signalements (Reports)** : traitement des signalements abusifs sur les profils, offres, projets ou messages de groupe.
-* **Suspension & Bannissement de Comptes** : gel immédiat des accès en cas d'infraction aux conditions d'utilisation.
-* **Journal d'Audit Immuable (`audit_logs`)** : historique horodaté en base de données de toutes les actions administratives sensibles avec traçabilité de l'opérateur et de l'adresse IP.
+### 3.13 Cockpit Super Admin, Adoption 54 Pays, Modération & Audit
+Espace réservé aux rôles `ADMIN` et `SUPER_ADMIN` (route Angular `/admin`, API `/api/v1/admin/**`).
+
+| Page | Contenu |
+| :--- | :--- |
+| **Tableau de bord** (`/admin/overview`) | KPIs globaux (talents, entreprises, offres, candidatures, formations, groupes, projets, événements), courbe spline multi-séries des tendances mensuelles, barres groupées comparatives, anneau de répartition de l'écosystème (6 composantes, légende 3×2), derniers événements d'audit. |
+| **Adoption** (`/admin/adoption`) | Classement multi-piliers des pays (talents, entreprises, offres, formations, groupes, projets), score de performance continental normalisé sur 100, niveau de vitalité (*Élite Panafricaine*, *Moteur Régional*, *En Forte Croissance*, *Hub Émergent*), drapeaux officiels, filtres par pilier et recherche par pays. Tableau à défilement horizontal sur desktop, cartes empilées sur mobile. |
+| **Utilisateurs** (`/admin/users`) | Recherche paginée (nom, pays, rôle, statut), fiche détaillée, suspension / bannissement / réactivation avec motif et email automatique. |
+| **Modération** (`/admin/moderation`) | Traitement des signalements (`PENDING`, `RESOLVED`, `DISMISSED`), masquage / republication / suppression de projets avec notification de l'auteur. |
+| **Audit** (`/admin/audit`) | Journal immuable `audit_logs` : opérateur, action, ressource, métadonnées JSON, IP, horodatage UTC. |
+
+* **Pouvoirs exclusifs du Super Admin** :
+  * Création de comptes `ADMIN` / `SUPER_ADMIN` avec **mot de passe temporaire fort** généré automatiquement et envoyé par email ; changement de mot de passe **obligatoire** à la première connexion (`/auth/change-initial-password`).
+  * **Suppression définitive** d'un compte avec effacement en cascade (projets, offres, candidatures, formations, commentaires…) et trace préalable dans l'audit.
+* **Chargement instantané** : les statistiques sont mises en cache côté serveur (Redis) et côté navigateur ; les pages s'affichent immédiatement puis se rafraîchissent en arrière-plan. Toute action administrative invalide automatiquement les données concernées.
+* **Compatibilité totale mode clair / mode sombre** sur toutes les pages d'administration.
+
+### 3.14 Espace Entreprises & Classement des Entreprises
+* **Fiche entreprise publique** (`/entreprise/:slug`) : logo, description, pays, offres publiées, statut de vérification.
+* **Espace Recruteur** (`/recruiter`) : offres, candidatures reçues, événements, formations, **gestion d'équipe** (ajout / retrait de membres par le propriétaire) et **journal d'activité** de l'entreprise.
+* **Vérification par l'administration** (`PATCH /companies/{id}/admin-status`).
+* **Classement des entreprises** (`/classement/entreprises`) : palmarès des entreprises les plus actives de l'écosystème.
+
+### 3.15 Événements Tech Panafricains
+* Publication de hackathons, meetups, conférences et webinaires (présentiel ou en ligne).
+* Votes d'intérêt, espace « Mes événements », édition et suppression par l'organisateur.
+* Suggestions d'événements personnalisées selon les compétences et le pays.
+
+### 3.16 Réseau, Abonnements & Suggestions Intelligentes
+* **Annuaire réseau** (`/network`) filtrable par pays, compétences et rôle.
+* **Abonnements (Follow)** : suivre un développeur ou un recruteur, listes d'abonnés / abonnements et statistiques.
+* **Suggestions de connexions** calculées par le moteur FastAPI (Jaccard + synergie des rôles + réputation + proximité géographique, voir §4.B), avec explication du score.
+
+### 3.17 Assistant IA AfriDev
+Page dédiée (`/ai-assistant`) et services intégrés dans la plateforme :
+* **Audit de projet** (qualité, stack, pistes d'amélioration) et **génération de pitch**.
+* **Traduction** de contenus techniques (FR ⇄ EN…).
+* **Simulation d'entretien technique** et **matching candidat ⇄ offre**.
+* **Résumé** de discussions, **extraction automatique de tags**, **recommandation de groupes** et **modération automatique** de contenu.
+* **Chat conversationnel** d'assistance aux développeurs.
+
+### 3.18 Sécurité du Compte : 2FA, Sessions & Suppression
+* **Double authentification (2FA)** activable depuis le profil, vérifiée à la connexion (`/auth/login/verify-2fa`).
+* **Gestion des sessions actives** : liste des appareils connectés, révocation d'une session ou de toutes les autres.
+* **Connexion GitHub OAuth** en plus de Google et de l'OTP email.
+* **Suppression de compte en libre-service** avec **aperçu de l'impact** (`/profiles/me/deletion-impact`) avant confirmation.
+
+### 3.19 Expérience Utilisateur : Responsive, Thème Clair/Sombre & Multilingue
+* **Responsive intégral** (mobile, tablette, desktop, grands écrans) : tableaux à défilement horizontal, cartes empilées sur mobile, modales de publication adaptatives (projets, formations, offres).
+* **Thème clair / sombre** commutable depuis la barre supérieure, avec contrastes vérifiés sur l'ensemble des pages (public, tableau de bord, administration).
+* **Sélecteur de langue** (FR / EN) et **drapeaux officiels** des 54 pays africains.
+* **Page d'accueil cinématique** : vidéo holographique de l'Afrique en arrière-plan, vitesse pilotée par le défilement, animations d'entrée.
 
 ---
 
@@ -347,6 +407,8 @@ Membre du Groupe ──[ Message textuel ]──► WebSocket Endpoint /ws/group
 | **Service Email Transactionnel** | Brevo SMTP | `Port 587` | Envoi d'emails transactionnels HTML (codes OTP, alertes de candidatures). |
 | **Passerelles de Paiement** | SasPay / Stripe | `v1` | SasPay pour Mobile Money (Comores / Afrique), Stripe pour cartes bancaires internationales. |
 | **Conteneurs & Déploiement** | Docker & Compose | `v2+` | Déploiement automatisé en une seule commande de l'infrastructure de données. |
+| **Intégration Continue** | GitHub Actions | `v4` | Tests FastAPI (Pytest), Spring Boot (JUnit 5 / Mockito), Angular (Node 22) puis déploiement automatique. |
+| **Tests Backend** | JUnit 5 / Mockito | `5.x` | Tests unitaires des services métier (admin, auth, profils, groupes, entraide, leaderboard…). |
 
 ---
 
@@ -407,11 +469,40 @@ Le schéma relationnel garantit une stricte intégrité référentielle :
 
 ## 8. 🚀 Guide d'Installation & Lancement Pas-à-Pas
 
+### Structure du Dépôt
+```text
+AfriDev-Hub/
+├── backend-spring/            # API principale Spring Boot 3.3 (Java 21) — port 8081, contexte /api/v1
+│   ├── src/main/java/africa/afridev/
+│   │   ├── config/            # Sécurité, CORS, WebSocket, Redis, DataInitializer (données de démo)
+│   │   ├── controller/        # 30 contrôleurs REST (auth, admin, profils, projets, groupes, paiements…)
+│   │   ├── dto/               # Objets de transfert (requêtes / réponses)
+│   │   ├── model/             # Entités JPA & énumérations (Role, UserStatus, ContentStatus…)
+│   │   ├── repository/        # Spring Data JPA
+│   │   └── service/           # Logique métier (AdminService, AuthService, RedisCacheService…)
+│   └── src/test/java/         # Tests JUnit 5 / Mockito
+├── backend-fastapi/           # Microservice IA & analytics (Python 3.12) — port 8000
+│   ├── app/routers/           # github, reputation, suggestions, mentors, ai_community
+│   ├── app/services/          # Algorithmes (réputation, matching, IA communautaire…)
+│   └── tests/                 # Pytest
+├── frontend-angular/          # Application web Angular 18 (standalone + signals)
+│   ├── src/app/core/          # Services, guards, interceptors
+│   ├── src/app/features/      # admin, auth, dashboard, projects, groups, help, resources, events…
+│   ├── server.js              # Serveur Node de production + reverse-proxy /api → Spring Boot
+│   └── proxy.conf.json        # Proxy de développement (ng serve)
+├── docker/                    # init.sql, nginx.conf, scripts d'entrée
+├── .github/workflows/         # Pipeline CI/CD (ci-tests.yml)
+├── docker-compose.yml         # PostgreSQL 16 + Redis 7 pour le développement local
+├── Dockerfile                 # Image de production du frontend
+├── DEPLOYMENT_GUIDE.md        # Guide de déploiement détaillé
+└── DEMO_SCRIPT.md             # Scénario de démonstration
+```
+
 ### Prérequis Système
 * **Java Development Kit (JDK)** : Version 21 (`java -version`)
 * **Apache Maven** : Version 3.8+ (`mvn -version`)
 * **Python** : Version 3.11 ou 3.12 (`python --version`)
-* **Node.js** : Version 18.x ou 20.x et npm (`node -v` / `npm -v`)
+* **Node.js** : Version 20.x ou 22.x et npm (`node -v` / `npm -v`)
 * **Docker & Docker Compose** (`docker compose version`)
 
 ---
@@ -424,7 +515,22 @@ cd AfriDev-Hub
 
 ---
 
-### Étape 2 : Démarrer PostgreSQL & Redis (Docker)
+### Étape 2 : Configurer les Variables d'Environnement
+```bash
+cp .env.example .env            # Linux / macOS
+copy .env.example .env          # Windows
+```
+Renseignez au minimum la base de données, Redis et le `JWT_SECRET` (voir [§9](#9-️-configuration--variables-denvironnement)).
+
+> ⚠️ **Important en local** : sans variables `DB_HOST` / `DB_PORT` / `DB_PARAMS`, Spring Boot utilise la configuration de production. Pour pointer vers le PostgreSQL Docker local, exportez :
+> ```bash
+> DB_HOST=localhost  DB_PORT=15432  DB_USER=afridev  DB_PASSWORD=afridev_secret  DB_PARAMS=
+> REDIS_HOST=localhost  REDIS_PORT=6380  REDIS_PASSWORD=redis_secret
+> ```
+
+---
+
+### Étape 3 : Démarrer PostgreSQL & Redis (Docker)
 Lancez les conteneurs de données en arrière-plan :
 ```bash
 docker compose up -d
@@ -435,7 +541,7 @@ docker compose up -d
 
 ---
 
-### Étape 3 : Démarrer le Microservice IA & Analytics (FastAPI)
+### Étape 4 : Démarrer le Microservice IA & Analytics (FastAPI)
 Dans un premier terminal :
 ```bash
 cd backend-fastapi
@@ -460,7 +566,7 @@ uvicorn app.main:app --reload --port 8000
 
 ---
 
-### Étape 4 : Démarrer le Backend Core (Spring Boot)
+### Étape 5 : Démarrer le Backend Core (Spring Boot)
 Dans un deuxième terminal :
 ```bash
 cd backend-spring
@@ -470,10 +576,11 @@ mvn spring-boot:run
 ```
 * **API Gateway :** `http://localhost:8081/api/v1`
 * **Health Check :** `http://localhost:8081/api/v1/health`
+* Au premier démarrage, `DataInitializer` crée le compte Super Admin et des données de démonstration.
 
 ---
 
-### Étape 5 : Démarrer l'Application Web (Frontend Angular)
+### Étape 6 : Démarrer l'Application Web (Frontend Angular)
 Dans un troisième terminal :
 ```bash
 cd frontend-angular
@@ -481,33 +588,76 @@ cd frontend-angular
 # Installation des modules npm
 npm install
 
-# Lancement du serveur de développement
-npm start
+# Mode développement (rechargement à chaud + proxy /api/v1 → localhost:8081)
+npm run dev
 ```
 * **Application Web AfriDev Hub :** `http://localhost:4200`
-*(Les requêtes `/api/v1/*` sont redirigées automatiquement vers le backend `http://localhost:8081`).*
+
+**Mode production local** (build + serveur Node avec reverse-proxy) :
+```bash
+npm run build
+npm start          # http://localhost:8080 (bascule automatique sur 3000 si 8080 est occupé sous Windows)
+```
+La variable `BACKEND_URL` (défaut `http://localhost:8081`) indique au serveur Node où relayer les appels `/api`.
+
+---
+
+### Récapitulatif des Ports
+
+| Service | Port | URL |
+| :--- | :---: | :--- |
+| Frontend (dev) | `4200` | http://localhost:4200 |
+| Frontend (prod / server.js) | `8080` ou `3000` | http://localhost:8080 |
+| Spring Boot | `8081` | http://localhost:8081/api/v1 |
+| FastAPI | `8000` | http://localhost:8000/docs |
+| PostgreSQL (Docker) | `15432` | `jdbc:postgresql://localhost:15432/afridev_db` |
+| Redis (Docker) | `6380` | `redis://localhost:6380` |
+
+---
+
+### Rôles Disponibles
+
+| Rôle | Accès |
+| :--- | :--- |
+| `DEVELOPER` | Profil, projets, entraide, groupes, formations, candidatures, évaluations, leaderboard. |
+| `RECRUITER` | Espace entreprise, publication d'offres, gestion des candidatures, équipe & journal d'activité. |
+| `ADMIN` | Cockpit d'administration : statistiques, adoption, utilisateurs, modération, audit. |
+| `SUPER_ADMIN` | Tous les droits `ADMIN` + création d'administrateurs et suppression définitive de comptes. |
 
 ---
 
 ## 9. ⚙️ Configuration & Variables d'Environnement
 
-| Variable | Description | Valeur par Défaut |
-| :--- | :--- | :--- |
-| `PORT` | Port d'écoute Spring Boot | `8081` |
-| `DB_HOST` | Hôte PostgreSQL | `localhost` |
-| `DB_PORT` | Port PostgreSQL | `15432` |
-| `DB_NAME` | Nom de la base de données | `afridev_db` |
-| `DB_USER` / `DB_PASSWORD` | Identifiants PostgreSQL | `afridev` / `afridev_secret` |
-| `REDIS_HOST` | Hôte Redis | `localhost` |
-| `REDIS_PORT` | Port Redis | `6380` |
-| `REDIS_PASSWORD` | Mot de passe Redis | `redis_secret` |
-| `FASTAPI_BASE_URL` | URL du microservice FastAPI | `http://localhost:8000` |
-| `JWT_SECRET` | Clé de signature des jetons JWT | *Chaîne cryptographique 256 bits* |
-| `JWT_EXPIRATION_MS` | Validité du jeton JWT | `604800000` (7 jours) |
-| `SPRING_MAIL_HOST` | Serveur SMTP Brevo | `smtp-relay.brevo.com` |
-| `SPRING_MAIL_PORT` | Port SMTP | `587` |
-| `CLOUDINARY_CLOUD_NAME` | Identifiant Cloudinary | Configuré pour le projet |
-| `SASPAY_API_KEY` | Clé API de paiement SasPay | Clé marchand SasPay |
+> 🔐 Ne commitez jamais de vraies clés : placez-les dans `.env` (ignoré par Git) ou dans les secrets de votre hébergeur.
+
+| Catégorie | Variable | Description | Exemple / Défaut local |
+| :--- | :--- | :--- | :--- |
+| **Serveur** | `PORT` | Port d'écoute Spring Boot | `8081` |
+| | `APP_FRONTEND_URL` | URL publique du frontend (liens emails, CORS) | `http://localhost:4200` |
+| **PostgreSQL** | `DB_HOST` / `DB_PORT` | Hôte et port | `localhost` / `15432` |
+| | `DB_NAME` | Nom de la base | `afridev_db` |
+| | `DB_USER` / `DB_PASSWORD` | Identifiants | `afridev` / `afridev_secret` |
+| | `DB_PARAMS` | Paramètres JDBC (SSL…) — laisser vide en local | *(vide)* |
+| | `SPRING_DATASOURCE_URL` | URL JDBC complète (prioritaire sur les précédentes) | — |
+| **Redis** | `REDIS_HOST` / `REDIS_PORT` | Hôte et port | `localhost` / `6380` |
+| | `REDIS_USER` / `REDIS_PASSWORD` | Identifiants | — / `redis_secret` |
+| **Sécurité** | `JWT_SECRET` | Clé de signature HS256 (≥ 256 bits) | *chaîne aléatoire* |
+| | `JWT_EXPIRATION_MS` | Durée de validité du jeton | `604800000` (7 jours) |
+| **Email (Brevo)** | `SPRING_MAIL_HOST` / `SPRING_MAIL_PORT` | Serveur SMTP | `smtp-relay.brevo.com` / `587` |
+| | `SPRING_MAIL_USERNAME` / `SPRING_MAIL_PASSWORD` | Identifiants SMTP | *clé Brevo* |
+| | `MAIL_FROM_ADDRESS` / `MAIL_FROM_NAME` | Expéditeur | `contact@afridev.africa` / `AfriDev Hub` |
+| **OAuth** | `GOOGLE_CLIENT_ID` | Client OAuth Google | *Google Cloud Console* |
+| | `GITHUB_CLIENT_ID` / `GITHUB_CLIENT_SECRET` | Application OAuth GitHub | *GitHub Developer Settings* |
+| **FastAPI** | `FASTAPI_BASE_URL` | URL du microservice IA | `http://localhost:8000` |
+| | `FASTAPI_INTERNAL_KEY` | Clé partagée Spring ⇄ FastAPI | *chaîne aléatoire* |
+| | `GITHUB_TOKEN` | Jeton GitHub (côté FastAPI, limite de taux) | *token personnel* |
+| **Médias** | `CLOUDINARY_CLOUD_NAME` / `CLOUDINARY_API_KEY` / `CLOUDINARY_API_SECRET` | Stockage images, vidéos, PDF | *compte Cloudinary* |
+| **Paiements** | `SASPAY_API_KEY` / `SASPAY_BASE_URL` / `SASPAY_FALLBACK_LINK` | Mobile Money SasPay | `https://api.saspay.me/api/v1` |
+| | `STRIPE_SECRET_KEY` / `STRIPE_PUBLISHABLE_KEY` / `STRIPE_WEBHOOK_SECRET` | Cartes bancaires Stripe | *clés test `sk_test_…`* |
+| | `UNITECH_API_KEY` / `UNITECH_BASE_URL` | Passerelle UnitechPay | — |
+| | `PLATFORM_FEE_PERCENT` | Commission plateforme sur les ventes | `5.0` |
+| **Frontend (Node)** | `BACKEND_URL` | Cible du reverse-proxy `/api` de `server.js` | `http://localhost:8081` |
+| | `PORT` / `HOST` | Port et interface du serveur Node | `8080` / `0.0.0.0` |
 
 ---
 
@@ -523,6 +673,9 @@ Toutes les routes sont préfixées par `/api/v1`.
 | `POST` | `/auth/google` | Connexion / Inscription rapide avec Google Identity | Public |
 | `POST` | `/auth/email/request-otp` | Demande d'un code OTP à usage unique par email (Brevo) | Public |
 | `POST` | `/auth/email/verify-otp` | Validation du code OTP et délivrance du JWT | Public |
+| `POST` | `/auth/github` | Connexion / Inscription via GitHub OAuth | Public |
+| `POST` | `/auth/login/verify-2fa` | Validation du second facteur (2FA) | Public |
+| `POST` | `/auth/change-initial-password` | Changement obligatoire du mot de passe temporaire (nouvel admin) | Authentifié |
 | `GET` | `/auth/me` | Profil et rôle du compte connecté | Authentifié |
 
 ### 👤 Profils & CV (`/profiles`)
@@ -530,9 +683,16 @@ Toutes les routes sont préfixées par `/api/v1`.
 | :--- | :--- | :--- | :--- |
 | `GET` | `/profiles` | Annuaire des développeurs avec filtres (pays, compétences, dispo) | Public |
 | `GET` | `/profiles/{id}` | Détail du profil public d'un développeur | Public |
-| `PUT` | `/profiles/me` | Mise à jour des informations personnelles et liens | Authentifié |
+| `PATCH` | `/profiles/me` | Mise à jour des informations personnelles et liens | Authentifié |
 | `POST` | `/profiles/me/sync-github` | Synchronisation des dépôts et langages GitHub via FastAPI | Authentifié |
 | `POST` | `/profiles/me/verify-mobile-money` | Attribution du badge d'identité vérifiée Mobile Money | Authentifié |
+| `GET` | `/profiles/me/security/sessions` | Sessions actives de l'utilisateur | Authentifié |
+| `DELETE` | `/profiles/me/security/sessions/{sessionId}` | Révoquer une session (ou `/other` pour toutes les autres) | Authentifié |
+| `PUT` | `/profiles/me/security/2fa` | Activer / désactiver la double authentification | Authentifié |
+| `GET` | `/profiles/me/deletion-impact` | Aperçu des données supprimées avec le compte | Authentifié |
+| `POST` | `/profiles/me/delete-account` | Suppression du compte (confirmation par mot de passe) | Authentifié |
+| `POST` / `DELETE` | `/profiles/{userId}/follow` | Suivre / ne plus suivre un utilisateur | Authentifié |
+| `GET` | `/profiles/{userId}/follow/stats` · `/followers` · `/following` | Statistiques et listes d'abonnements | Public |
 
 ### 👥 Communautés & Groupes (`/groups`)
 | Méthode | Route | Description | Accès |
@@ -565,7 +725,7 @@ Toutes les routes sont préfixées par `/api/v1`.
 | `GET` | `/resources/my` | Liste des ressources et formations créées par l'utilisateur | Formateur |
 | `PUT` | `/resources/{id}` | Modifier les détails d'une ressource existante | Créateur |
 | `DELETE` | `/resources/{id}` | Supprimer une ressource ou formation | Créateur |
-| `POST` | `/resources/{id}/view` | Enregistrer une vue unique (+1 XP pour le créateur) | Authentifié |
+| `POST` | `/resources/{id}/complete` | Enregistrer une consultation / complétion unique (+1 XP pour le créateur) | Authentifié |
 
 ### 🚀 Projets & Collaboration Kanban (`/projects`)
 | Méthode | Route | Description | Accès |
@@ -582,8 +742,13 @@ Toutes les routes sont préfixées par `/api/v1`.
 | Méthode | Route | Description | Accès |
 | :--- | :--- | :--- | :--- |
 | `GET` | `/opportunities` | Recherche d'offres (CDI, Freelance, Stages, Open Source) | Public |
+| `GET` | `/opportunities/{id}` | Détail d'une offre | Public |
 | `POST` | `/opportunities` | Publication d'une offre d'emploi (depuis le dashboard) | Recruteur |
+| `PUT` / `DELETE` | `/opportunities/{id}` | Modifier / supprimer une offre | Recruteur |
+| `PATCH` | `/opportunities/{id}/toggle-status` | Ouvrir / clôturer une offre | Recruteur |
 | `POST` | `/opportunities/{id}/apply` | Postuler en 1 clic avec profil et CV rattachés | Développeur |
+| `GET` | `/opportunities/my-applications` | Mes candidatures envoyées | Développeur |
+| `GET` | `/opportunities/my-posted` · `/my-received-applications` | Mes offres publiées et candidatures reçues | Recruteur |
 | `GET` | `/opportunities/{id}/applications` | Liste des candidats reçus pour une offre | Recruteur |
 | `PATCH` | `/opportunities/applications/{appId}/status` | Actualiser le statut d'un candidat (`ACCEPTED`, etc.) | Recruteur |
 
@@ -598,16 +763,87 @@ Toutes les routes sont préfixées par `/api/v1`.
 ### 🏆 Leaderboard & XP (`/leaderboard`)
 | Méthode | Route | Description | Accès |
 | :--- | :--- | :--- | :--- |
-| `GET` | `/leaderboard` | Top développeurs panafricains par XP et réputation | Public |
-| `GET` | `/leaderboard/country/{country}` | Classement spécifique à l'un des 54 pays africains | Public |
+| `GET` | `/leaderboard` | Classement des développeurs (filtres pays, période, pagination) | Authentifié |
+| `GET` | `/leaderboard/public` | Top développeurs panafricains (vitrine publique) | Public |
+| `GET` | `/leaderboard/me` | Rang et XP de l'utilisateur connecté | Authentifié |
+| `GET` | `/leaderboard/search` | Recherche d'un développeur dans le classement | Public |
+| `GET` | `/leaderboard/companies` | Classement des entreprises | Public |
 
 ### 💳 Portefeuille & Paiements (`/wallet` & `/payments`)
 | Méthode | Route | Description | Accès |
 | :--- | :--- | :--- | :--- |
-| `GET` | `/wallet` | Solde actuel et historique des transactions de l'utilisateur | Authentifié |
-| `POST` | `/payments/saspay/initiate` | Initialisation d'un paiement Mobile Money via SasPay | Authentifié |
-| `POST` | `/payments/saspay/webhook` | Webhook de confirmation de transaction SasPay | Passerelle |
-| `POST` | `/wallet/withdraw` | Demande de retrait des gains vers Mobile Money ou Banque | Authentifié |
+| `GET` | `/wallet` | Solde actuel de l'utilisateur | Authentifié |
+| `GET` | `/wallet/transactions` | Historique des transactions | Authentifié |
+| `POST` | `/wallet/payout-accounts` | Enregistrer un compte de retrait (Mobile Money / banque) | Authentifié |
+| `POST` | `/wallet/withdraw` | Demande de retrait des gains | Authentifié |
+| `POST` | `/payments/initiate` | Initier un achat (SasPay, Stripe ou UnitechPay) | Authentifié |
+| `GET` | `/payments/{orderNumber}/status` | Statut d'une commande | Authentifié |
+| `GET` | `/payments/my-purchases` · `/my-sales` | Achats et ventes de l'utilisateur | Authentifié |
+| `POST` | `/payments/webhook/saspay` · `/webhook/stripe` · `/webhook/unitech` | Confirmations des passerelles | Passerelle |
+
+### 🏢 Entreprises (`/companies`)
+| Méthode | Route | Description | Accès |
+| :--- | :--- | :--- | :--- |
+| `GET` | `/companies` | Liste des entreprises | Public |
+| `POST` | `/companies` | Créer la fiche de son entreprise | Recruteur |
+| `GET` | `/companies/me` | Mon entreprise | Recruteur |
+| `GET` | `/companies/{slug}` | Fiche publique | Public |
+| `PUT` | `/companies/{id}` | Modifier la fiche | Membre |
+| `GET` / `POST` | `/companies/{id}/members` | Équipe / ajout d'un membre | Membre / Propriétaire |
+| `DELETE` | `/companies/{id}/members/{userId}` | Retirer un membre | Propriétaire |
+| `GET` | `/companies/{id}/activity-log` · `/stats` | Journal d'activité et statistiques | Membre |
+| `PATCH` | `/companies/{id}/admin-status` | Vérifier / suspendre une entreprise | Admin |
+
+### 📅 Événements, Réseau, Mentors, Messagerie & Notifications
+| Méthode | Route | Description | Accès |
+| :--- | :--- | :--- | :--- |
+| `GET` / `POST` | `/events` | Lister / publier un événement tech | Public / Authentifié |
+| `GET` | `/events/{id}` · `/events/my-events` | Détail / mes événements | Public / Authentifié |
+| `PUT` / `DELETE` | `/events/{id}` | Modifier / supprimer | Organisateur |
+| `POST` | `/events/{id}/vote` | Marquer son intérêt | Authentifié |
+| `GET` | `/network/users` · `/network/suggestions` | Annuaire réseau et suggestions IA | Authentifié |
+| `GET` | `/mentors` · `/mentors/top` · `/mentors/user/{userId}` | Annuaire et meilleurs mentors | Public |
+| `PUT` | `/mentors/status` | Se déclarer disponible comme mentor | Authentifié |
+| `POST` | `/messages` | Envoyer un message privé | Authentifié |
+| `GET` | `/messages/conversations` · `/summaries` · `/with/{userId}` | Conversations et historique | Authentifié |
+| `GET` | `/notifications` | Centre de notifications | Authentifié |
+| `PATCH` / `POST` | `/notifications/{id}/read` · `/notifications/read-all` | Marquer comme lu | Authentifié |
+| `GET` | `/dashboard/kpis` | Indicateurs du tableau de bord personnel | Authentifié |
+| `POST` | `/reports` | Signaler un contenu ou un utilisateur | Authentifié |
+
+### 📤 Fichiers & IA (`/uploads` & `/ai`)
+| Méthode | Route | Description | Accès |
+| :--- | :--- | :--- | :--- |
+| `POST` | `/uploads/image` · `/uploads/pdf` · `/uploads/video` | Téléversement vers Cloudinary | Authentifié |
+| `GET` | `/uploads/view-pdf` | Lecture sécurisée d'un PDF (visionneuse in-app) | Authentifié |
+| `POST` | `/ai/audit-project` · `/ai/project-pitch` | Audit et pitch de projet | Authentifié |
+| `POST` | `/ai/translate` · `/ai/summarize` · `/ai/moderate` | Traduction, résumé, modération | Authentifié |
+| `POST` | `/ai/match` · `/ai/interview` · `/ai/chat` | Matching, simulation d'entretien, chat | Authentifié |
+
+### 🛡️ Administration (`/admin`)
+| Méthode | Route | Description | Accès |
+| :--- | :--- | :--- | :--- |
+| `GET` | `/admin/stats` | KPIs globaux, tendances mensuelles, répartition de l'écosystème | Admin |
+| `GET` | `/admin/analytics/countries` | Adoption & performance multi-piliers par pays | Admin |
+| `GET` | `/admin/users` | Recherche paginée des utilisateurs (q, pays, rôle, statut) | Admin |
+| `PATCH` | `/admin/users/{id}/status` | Suspendre / bannir / réactiver avec motif | Admin |
+| `PATCH` | `/admin/projects/{id}/moderate` | Masquer / republier / supprimer un projet | Admin |
+| `GET` / `PATCH` | `/admin/reports` · `/admin/reports/{id}` | Signalements et traitement | Admin |
+| `GET` | `/admin/audit-logs` | Journal d'audit paginé | Admin |
+| `POST` | `/admin/admins` | Créer un compte administrateur (mot de passe temporaire) | **Super Admin** |
+| `DELETE` | `/admin/users/{id}` | Suppression définitive d'un compte | **Super Admin** |
+
+### 🧠 Microservice FastAPI (port `8000`)
+| Méthode | Route | Description |
+| :--- | :--- | :--- |
+| `GET` | `/health` | État du service |
+| `GET` | `/api/v1/github/stats/{username}` · `/verify/{username}` · `/rate-limit` | Statistiques et vérification GitHub |
+| `POST` | `/api/v1/reputation/calculate` | Calcul du score de réputation pondéré |
+| `POST` | `/api/v1/suggestions/network` | Suggestions de connexions (matching) |
+| `POST` | `/api/v1/recommendations/mentors` | Recommandation de mentors |
+| `POST` | `/api/v1/ai/*` | `summarize`, `recommend-groups`, `moderate`, `extract-tags`, `match`, `audit-project`, `project-pitch`, `translate`, `interview`, `chat` |
+
+> 📘 Documentation interactive : **Swagger UI** FastAPI sur `http://localhost:8000/docs`.
 
 ---
 
@@ -620,12 +856,16 @@ Toutes les routes sont préfixées par `/api/v1`.
    * Côté FastAPI : modèles stricts Pydantic v2 assurant le typage et l'intégrité des payloads.
 4. **Verrouillage Cryptographique des Évaluations** : impossible de fausser le score de réputation sans preuve vérifiable de collaboration commune.
 5. **Journal d'Audit Immuable (`audit_logs`)** : traçabilité complète de chaque action sensible avec horodatage UTC, identifiant de l'opérateur et adresse IP d'origine.
+6. **Contrôle d'accès par rôle (RBAC)** : `@PreAuthorize` sur chaque contrôleur sensible (`ADMIN`, `SUPER_ADMIN`, propriétaire d'entreprise, organisateur d'événement…).
+7. **Comptes administrateurs durcis** : mot de passe temporaire aléatoire (majuscules, minuscules, chiffres, symboles), changement forcé à la première connexion, impossibilité pour un administrateur de modifier son propre statut ou de supprimer son propre compte.
+8. **2FA & gestion des sessions** : second facteur optionnel, révocation des sessions à distance, historique `login_sessions` (IP, User-Agent).
+9. **Secrets hors du code** : toutes les clés (JWT, SMTP, Cloudinary, SasPay, Stripe, OAuth) sont injectées par variables d'environnement.
 
 ---
 
 ## 12. 🎬 Déroulement de Démonstration (Scénario Concours & Jury)
 
-Voici le scénario recommandé en **5 à 7 minutes** pour une soutenance devant un jury :
+Voici le scénario recommandé en **6 à 8 minutes** pour une soutenance devant un jury :
 
 | Temps | Écran / Action | Ce que le jury voit & retient |
 | :--- | :--- | :--- |
@@ -636,6 +876,110 @@ Voici le scénario recommandé en **5 à 7 minutes** pour une soutenance devant 
 | **4:00 - 5:00** | **Communautés, Chat Direct & Bannissement avec Motif** | Exploration d'un groupe tech avec photo de couverture. Salon de chat textuel en direct. Démonstration de l'option d'exclusion / bannissement de membre avec motif. |
 | **5:00 - 6:00** | **Entraide Tech & Formations Monétisées SasPay** | Publication d'une question d'entraide avec tags technologiques et discussion directe avec l'auteur. Espace « Mes Ressources & Formations » avec attribution logique des XP (+20 / +1 par vue) et intégration de paiement SasPay. |
 | **6:00 - 7:00** | **Vitrine Projets, Kanban & Hub d'Offres** | Collaboration Kanban d'équipe. Publication d'offre in-app depuis le tableau de bord recruteur et examen des candidatures. |
+| **7:00 - 8:00** | **Cockpit Super Admin** | Tableau de bord et graphiques de l'écosystème, classement d'adoption des pays avec drapeaux, modération, journal d'audit. Bascule mode clair / sombre et affichage mobile. |
+
+> Le scénario détaillé est disponible dans [DEMO_SCRIPT.md](DEMO_SCRIPT.md).
+
+---
+
+## 13. 🧪 Tests Automatisés & Pipeline CI/CD
+
+### Lancer les tests en local
+```bash
+# Backend Spring Boot (JUnit 5 + Mockito)
+cd backend-spring && mvn test
+
+# Microservice FastAPI (Pytest)
+cd backend-fastapi && pytest -v --asyncio-mode=auto
+
+# Frontend Angular (tests de services + build de production)
+cd frontend-angular && npm test && npm run build
+```
+
+### Couverture des tests backend
+| Classe de test | Périmètre |
+| :--- | :--- |
+| `AdminServiceTest` | Statistiques & adoption (cache présent / absent), recherche d'utilisateurs, sanctions, modération de projets |
+| `AuthServiceTest` | Inscription, connexion, OTP, validations |
+| `ProfileServiceTest` | Mise à jour du profil, complétion, CV |
+| `CommunityGroupServiceTest` · `GroupChatServiceTest` | Groupes, adhésions, chat |
+| `HelpServiceTest` | Entraide : création, commentaires, résolution |
+| `LeaderboardServiceTest` | Niveaux XP et classements |
+| `EvaluationServiceTest` | Verrou anti-fraude des évaluations |
+
+### Pipeline GitHub Actions ([ci-tests.yml](.github/workflows/ci-tests.yml))
+Déclenché à chaque `push` / `pull request` sur `main`, `master`, `dev`, `develop` (ou manuellement) :
+
+```mermaid
+flowchart LR
+    A["Push / PR"] --> B["Test FastAPI (Python 3.12)"]
+    A --> C["Test Spring Boot (Java 21)"]
+    A --> D["Test & Build Angular (Node 22)"]
+    B --> E["Déploiement FastAPI (webhook)"]
+    C --> F["Déploiement Spring Boot (webhook Systalink)"]
+    D --> G["Frontend : Vercel (auto via Git)"]
+    E --> H["Synthèse du pipeline"]
+    F --> H
+    G --> H
+```
+
+Les déploiements ne s'exécutent que sur `main` / `master` hors pull request. Les rapports Surefire sont publiés en artefacts (7 jours).
+
+**Secrets GitHub optionnels** : `SYSTALINK_SPRING_WEBHOOK` (ou `SPRING_DEPLOY_WEBHOOK`), `FASTAPI_DEPLOY_WEBHOOK`, `GH_API_TOKEN`.
+
+---
+
+## 14. ☁️ Déploiement en Production
+
+| Composant | Cible | Méthode |
+| :--- | :--- | :--- |
+| **Frontend Angular** | Vercel / conteneur Node | Build automatique depuis Git, ou image [Dockerfile](Dockerfile) (Node 20, `server.js`, port `8080`) |
+| **Backend Spring Boot** | Systalink / VPS Docker | Webhook déclenché par la CI, `mvn package` puis `java -jar` |
+| **Microservice FastAPI** | Render / Koyeb / Systalink | Webhook `FASTAPI_DEPLOY_WEBHOOK`, `uvicorn app.main:app --host 0.0.0.0 --port 8000` |
+| **PostgreSQL / Redis** | Services managés (DBaaS) | Variables `DB_*` / `REDIS_*` |
+
+Image frontend :
+```bash
+docker build -t afridev-frontend .
+docker run -p 8080:8080 -e BACKEND_URL=http://<ip-backend>:8081 afridev-frontend
+```
+
+Checklist de mise en production :
+- [ ] `JWT_SECRET` unique et robuste
+- [ ] Clés Stripe / SasPay en mode **live** et webhooks configurés vers `/api/v1/payments/webhook/*`
+- [ ] `APP_FRONTEND_URL` pointant vers le domaine public (liens des emails, CORS)
+- [ ] Compte Super Admin initial : changer le mot de passe dès la première connexion
+- [ ] Sauvegardes PostgreSQL planifiées
+
+Le guide complet est disponible dans [DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md).
+
+---
+
+## 15. 🩺 Dépannage (FAQ Technique)
+
+| Symptôme | Cause probable | Solution |
+| :--- | :--- | :--- |
+| Spring Boot ne se connecte pas à la base locale | La configuration par défaut cible la base de production (SSL) | Définir `DB_HOST=localhost`, `DB_PORT=15432`, `DB_PARAMS=` (vide) |
+| `Connection refused` sur Redis | Mauvais port (Docker expose `6380`) | `REDIS_PORT=6380`, `REDIS_PASSWORD=redis_secret` |
+| `npm start` affiche le port 3000 au lieu de 8080 | Port 8080 réservé par Hyper-V / WinNAT sous Windows | Comportement normal ; ou forcer `PORT=xxxx` |
+| Les appels `/api/v1` échouent en `ng serve` | Proxy non chargé | Utiliser `npm run dev` (inclut `--proxy-config proxy.conf.json`) |
+| Emails OTP non reçus | Identifiants Brevo absents ou expéditeur non validé | Vérifier `SPRING_MAIL_*` et `MAIL_FROM_ADDRESS` dans Brevo |
+| Statistiques GitHub vides | Limite de taux de l'API GitHub atteinte | Fournir `GITHUB_TOKEN` au service FastAPI |
+| Avertissement « bundle initial exceeded maximum budget » | Budget Angular de 512 kB dépassé | Avertissement non bloquant ; le build réussit |
+
+---
+
+## 16. 🤝 Contribution & Conventions
+
+1. Créez une branche depuis `main` : `git checkout -b feat/ma-fonctionnalite`.
+2. Respectez les **Conventional Commits** : `feat(admin): …`, `fix(test): …`, `style(ui): …`, `docs(readme): …`.
+3. Vérifiez localement avant de pousser : `mvn test`, `pytest`, `npm run build`.
+4. Ouvrez une Pull Request : la CI doit être entièrement verte avant la fusion.
+
+**Conventions de code** :
+* Backend : architecture `controller → service → repository`, DTO en entrée/sortie, validation Jakarta, invalidation du cache Redis à chaque mutation.
+* Frontend : composants **standalone**, **signals** pour l'état, styles compatibles `body.light-theme`, responsive mobile-first.
+* Messages et libellés de l'interface en français (traductions anglaises via le sélecteur de langue).
 
 ---
 
