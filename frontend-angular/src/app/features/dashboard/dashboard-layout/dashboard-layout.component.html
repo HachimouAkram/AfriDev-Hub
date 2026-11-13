@@ -312,7 +312,7 @@
                    class="lang-menu-item notranslate" 
                    translate="no"
                    [class.active]="lang.code === currentLang().code"
-                   (click)="selectLanguage(lang)">
+                   (click)="selectLanguage(lang, $event)">
                 <div class="lang-info notranslate" translate="no">
                   <span class="lang-code-pill notranslate" translate="no">{{ lang.code.toUpperCase() }}</span>
                   <span class="lang-title notranslate" translate="no">{{ lang.label }}</span>

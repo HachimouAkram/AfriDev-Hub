@@ -112,9 +112,10 @@ export class DashboardLayoutComponent implements OnInit {
     this.isLangMenuOpen = !this.isLangMenuOpen;
   }
 
-  selectLanguage(lang: Language): void {
-    this.translationService.setLanguage(lang);
+  selectLanguage(lang: Language, event?: Event): void {
+    if (event) event.stopPropagation();
     this.isLangMenuOpen = false;
+    this.translationService.setLanguage(lang);
     this.speakVoice(lang);
   }
 

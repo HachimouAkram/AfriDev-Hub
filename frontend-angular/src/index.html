@@ -14,72 +14,48 @@
   <link href="https://cdn.jsdelivr.net/npm/remixicon@4.2.0/fonts/remixicon.css" rel="stylesheet" />
   <script src="https://accounts.google.com/gsi/client" async defer></script>
 
-  <!-- Script d'initialisation immédiate du cookie de langue (évite tout conflit ou décalage) -->
+  <!-- Script d'initialisation propre du cookie de langue (multi-domaines sans conflit) -->
   <script type="text/javascript">
     (function() {
       try {
         var saved = localStorage.getItem('afridev_lang');
-        var host = window.location.hostname;
+        var host = window.location.hostname || '';
+        var parts = host.split('.');
+        var rootDomain = parts.length >= 2 ? parts.slice(-2).join('.') : host;
+        var domains = ['', host, '.' + host, rootDomain, '.' + rootDomain];
+        var exp = 'expires=Thu, 01 Jan 1970 00:00:00 GMT';
+
+        for (var i = 0; i < domains.length; i++) {
+          var d = domains[i];
+          var domAttr = d ? '; domain=' + d : '';
+          document.cookie = 'googtrans=; ' + exp + domAttr + '; path=/';
+          document.cookie = 'googtrans=; ' + exp + domAttr;
+        }
+
         if (saved && saved !== 'fr') {
           var val = '/fr/' + saved;
-          document.cookie = 'googtrans=' + val + '; path=/;';
-          if (host && host !== 'localhost') {
-            document.cookie = 'googtrans=' + val + '; domain=.' + host + '; path=/;';
-            document.cookie = 'googtrans=' + val + '; domain=' + host + '; path=/;';
-          }
-        } else if (saved === 'fr') {
-          document.cookie = 'googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
-          document.cookie = 'googtrans=/fr/fr; path=/;';
-          if (host && host !== 'localhost') {
-            document.cookie = 'googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; domain=.' + host + '; path=/;';
-            document.cookie = 'googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; domain=' + host + '; path=/;';
-          }
+          document.cookie = 'googtrans=' + val + '; path=/; SameSite=Lax';
         }
       } catch (e) {}
     })();
   </script>
 </head>
 <body class="bg-dark text-light antialiased font-sans">
-  <div id="google_translate_element" style="display:none"></div>
+  <div id="google_translate_element" class="notranslate" translate="no" aria-hidden="true"></div>
   <script type="text/javascript">
     function googleTranslateElementInit() {
-      if (window.google && window.google.translate) {
-        new window.google.translate.TranslateElement({
-          pageLanguage: 'fr',
-          includedLanguages: 'fr,en,sw,wo',
-          autoDisplay: false,
-          layout: window.google.translate.TranslateElement.InlineLayout.SIMPLE
-        }, 'google_translate_element');
-      }
+      try {
+        if (window.google && window.google.translate && window.google.translate.TranslateElement) {
+          new window.google.translate.TranslateElement({
+            pageLanguage: 'fr',
+            includedLanguages: 'fr,en,sw,wo',
+            autoDisplay: false
+          }, 'google_translate_element');
+        }
+      } catch (e) {}
     }
-
-    // Masquage strict et permanent de la barre Google Translate
-    (function() {
-      function hideGoogleBar() {
-        if (document.body && document.body.style.top !== '0px') {
-          document.body.style.setProperty('top', '0px', 'important');
-          document.body.style.setProperty('position', 'static', 'important');
-        }
-        if (document.documentElement && document.documentElement.style.top !== '0px') {
-          document.documentElement.style.setProperty('top', '0px', 'important');
-        }
-        var banners = document.querySelectorAll('.goog-te-banner-frame, iframe.goog-te-banner-frame, [id*=":1.container"], [id*=":2.container"], #goog-gt-tt');
-        for (var i = 0; i < banners.length; i++) {
-          banners[i].style.setProperty('display', 'none', 'important');
-          banners[i].style.setProperty('visibility', 'hidden', 'important');
-          banners[i].style.setProperty('height', '0px', 'important');
-          banners[i].style.setProperty('width', '0px', 'important');
-          banners[i].style.setProperty('opacity', '0', 'important');
-          banners[i].style.setProperty('pointer-events', 'none', 'important');
-        }
-      }
-
-      setInterval(hideGoogleBar, 150);
-      window.addEventListener('DOMContentLoaded', hideGoogleBar);
-      window.addEventListener('load', hideGoogleBar);
-    })();
   </script>
-  <script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit" async defer></script>
+  <script type="text/javascript" src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit" async defer></script>
   <app-root></app-root>
 </body>
 </html>

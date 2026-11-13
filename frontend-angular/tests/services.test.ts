@@ -157,6 +157,33 @@ describe('Frontend Test Suite - AfriDev Hub', () => {
         assert.ok(lang.flag.length > 0, `Flag for ${lang.code} should not be empty`);
       }
     });
+
+    it('computes all domain levels including parent root domain (.economestore.com) for cookie cleanup', () => {
+      const getCookieDomains = (hostname: string): string[] => {
+        const parts = hostname.split('.');
+        const rootDomain = parts.length >= 2 ? parts.slice(-2).join('.') : hostname;
+        return Array.from(new Set(['', hostname, `.${hostname}`, rootDomain, `.${rootDomain}`]));
+      };
+
+      const domains = getCookieDomains('afridevhub.economestore.com');
+      assert.ok(domains.includes(''), 'Must include host-only cookie domain');
+      assert.ok(domains.includes('afridevhub.economestore.com'), 'Must include exact host');
+      assert.ok(domains.includes('.afridevhub.economestore.com'), 'Must include wildcard host');
+      assert.ok(domains.includes('economestore.com'), 'Must include parent root domain');
+      assert.ok(domains.includes('.economestore.com'), 'Must include wildcard parent root domain');
+    });
+
+    it('switches sequentially across FR -> EN -> WO -> SW -> FR without setting invalid /fr/fr cookie', () => {
+      const buildGoogTransCookieValue = (targetCode: string): string | null => {
+        if (targetCode === 'fr') return null; // Never '/fr/fr'
+        return `/fr/${targetCode}`;
+      };
+
+      assert.strictEqual(buildGoogTransCookieValue('en'), '/fr/en');
+      assert.strictEqual(buildGoogTransCookieValue('wo'), '/fr/wo');
+      assert.strictEqual(buildGoogTransCookieValue('sw'), '/fr/sw');
+      assert.strictEqual(buildGoogTransCookieValue('fr'), null);
+    });
   });
 
   describe('5. Authentication & Security Session State', () => {

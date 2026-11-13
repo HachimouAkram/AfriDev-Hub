@@ -165,7 +165,7 @@ import { Subscription } from 'rxjs';
                      class="lang-menu-item notranslate" 
                      translate="no"
                      [class.selected]="lang.code === currentLang().code"
-                     (click)="selectLanguage(lang)">
+                     (click)="selectLanguage(lang, $event)">
                   <div class="lang-item-left notranslate" translate="no">
                     <span class="lang-code-pill notranslate" translate="no">{{ lang.code.toUpperCase() }}</span>
                     <span class="lang-name notranslate" translate="no">{{ lang.label }}</span>
@@ -195,8 +195,8 @@ import { Subscription } from 'rxjs';
           </button>
 
           <!-- Logged out Buttons -->
-          <a *ngIf="!isLoggedIn()" routerLink="/login" routerLinkActive="active" class="nav-link nav-login-link">Connexion</a>
-          <a *ngIf="!isLoggedIn()" routerLink="/register" class="btn btn-emerald btn-sm nav-register-btn">S'inscrire</a>
+          <a *ngIf="!isLoggedIn()" routerLink="/login" routerLinkActive="active" class="nav-link nav-login-link notranslate" translate="no">{{ t('nav.login') }}</a>
+          <a *ngIf="!isLoggedIn()" routerLink="/register" class="btn btn-emerald btn-sm nav-register-btn notranslate" translate="no">{{ t('nav.register') }}</a>
 
           <!-- Logged in Profile Menu Dropdown -->
           <div *ngIf="isLoggedIn()" class="profile-dropdown-container">
@@ -295,7 +295,7 @@ import { Subscription } from 'rxjs';
                      class="lang-menu-item notranslate"
                      translate="no"
                      [class.selected]="lang.code === currentLang().code"
-                     (click)="selectLanguage(lang)">
+                     (click)="selectLanguage(lang, $event)">
                   <div class="lang-item-left notranslate" translate="no">
                     <span class="lang-code-pill notranslate" translate="no">{{ lang.code.toUpperCase() }}</span>
                     <span class="lang-name notranslate" translate="no">{{ lang.label }}</span>
@@ -333,16 +333,16 @@ import { Subscription } from 'rxjs';
       </div>
 
       <!-- Desktop Sub-Navbar Row (Lowered neatly under the Search Bar) -->
-      <div class="nav-sub-row desktop-only" *ngIf="!isDashboardPage()">
-        <div class="nav-center-pill">
-          <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" class="nav-link">{{ t('nav.home') }}</a>
-          <a routerLink="/projects" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" class="nav-link">{{ t('nav.projects') }}</a>
-          <a routerLink="/opportunities" routerLinkActive="active" class="nav-link">{{ t('nav.opportunities') }}</a>
-          <a routerLink="/network" routerLinkActive="active" class="nav-link">{{ t('nav.network') }}</a>
-          <a routerLink="/events" routerLinkActive="active" class="nav-link">{{ t('nav.events') }}</a>
-          <a routerLink="/communautes" routerLinkActive="active" class="nav-link">{{ t('nav.communities') }}</a>
-          <a routerLink="/resources" routerLinkActive="active" class="nav-link">{{ t('nav.resources') }}</a>
-          <a routerLink="/leaderboard" routerLinkActive="active" class="nav-link">{{ t('nav.leaderboard') }}</a>
+      <div class="nav-sub-row desktop-only notranslate" translate="no" *ngIf="!isDashboardPage()">
+        <div class="nav-center-pill notranslate" translate="no">
+          <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" class="nav-link notranslate" translate="no">{{ t('nav.home') }}</a>
+          <a routerLink="/projects" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" class="nav-link notranslate" translate="no">{{ t('nav.projects') }}</a>
+          <a routerLink="/opportunities" routerLinkActive="active" class="nav-link notranslate" translate="no">{{ t('nav.opportunities') }}</a>
+          <a routerLink="/network" routerLinkActive="active" class="nav-link notranslate" translate="no">{{ t('nav.network') }}</a>
+          <a routerLink="/events" routerLinkActive="active" class="nav-link notranslate" translate="no">{{ t('nav.events') }}</a>
+          <a routerLink="/communautes" routerLinkActive="active" class="nav-link notranslate" translate="no">{{ t('nav.communities') }}</a>
+          <a routerLink="/resources" routerLinkActive="active" class="nav-link notranslate" translate="no">{{ t('nav.resources') }}</a>
+          <a routerLink="/leaderboard" routerLinkActive="active" class="nav-link notranslate" translate="no">{{ t('nav.leaderboard') }}</a>
         </div>
       </div>
 
@@ -449,25 +449,25 @@ import { Subscription } from 'rxjs';
       </div>
 
       <!-- Mobile Navigation Drawer -->
-      <div class="mobile-drawer" [class.open]="isMobileMenuOpen">
-        <div class="mobile-drawer-links">
-          <a routerLink="/" (click)="closeAllMenus()" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" class="mobile-nav-link">{{ t('nav.home') }}</a>
-          <a routerLink="/projects" (click)="closeAllMenus()" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" class="mobile-nav-link">{{ t('nav.projects') }}</a>
-          <a routerLink="/opportunities" (click)="closeAllMenus()" routerLinkActive="active" class="mobile-nav-link">{{ t('nav.opportunities') }}</a>
-          <a routerLink="/network" (click)="closeAllMenus()" routerLinkActive="active" class="mobile-nav-link">{{ t('nav.network') }}</a>
-          <a routerLink="/events" (click)="closeAllMenus()" routerLinkActive="active" class="mobile-nav-link">{{ t('nav.events') }}</a>
-          <a routerLink="/communautes" (click)="closeAllMenus()" routerLinkActive="active" class="mobile-nav-link">{{ t('nav.communities') }}</a>
-          <a routerLink="/resources" (click)="closeAllMenus()" routerLinkActive="active" class="mobile-nav-link">{{ t('nav.resources') }}</a>
-          <a routerLink="/leaderboard" (click)="closeAllMenus()" routerLinkActive="active" class="mobile-nav-link">{{ t('nav.leaderboard') }}</a>
-          <a *ngIf="isLoggedIn()" routerLink="/messages" (click)="closeAllMenus()" routerLinkActive="active" class="mobile-nav-link">Messagerie</a>
-          <a *ngIf="isLoggedIn()" routerLink="/dashboard/profile" (click)="closeAllMenus()" routerLinkActive="active" class="mobile-nav-link">Mon Profil</a>
-          <a *ngIf="isLoggedIn()" routerLink="/dashboard" (click)="closeAllMenus()" routerLinkActive="active" class="mobile-nav-link">Tableau de bord</a>
-          <a *ngIf="isLoggedIn() && isAdmin()" routerLink="/admin" (click)="closeAllMenus()" routerLinkActive="active" class="mobile-nav-link">Admin</a>
-          <a *ngIf="!isLoggedIn()" routerLink="/login" (click)="closeAllMenus()" routerLinkActive="active" class="mobile-nav-link">Connexion</a>
-          <a *ngIf="!isLoggedIn()" routerLink="/register" (click)="closeAllMenus()" class="btn btn-emerald btn-block">S'inscrire</a>
+      <div class="mobile-drawer notranslate" translate="no" [class.open]="isMobileMenuOpen">
+        <div class="mobile-drawer-links notranslate" translate="no">
+          <a routerLink="/" (click)="closeAllMenus()" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" class="mobile-nav-link notranslate" translate="no">{{ t('nav.home') }}</a>
+          <a routerLink="/projects" (click)="closeAllMenus()" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" class="mobile-nav-link notranslate" translate="no">{{ t('nav.projects') }}</a>
+          <a routerLink="/opportunities" (click)="closeAllMenus()" routerLinkActive="active" class="mobile-nav-link notranslate" translate="no">{{ t('nav.opportunities') }}</a>
+          <a routerLink="/network" (click)="closeAllMenus()" routerLinkActive="active" class="mobile-nav-link notranslate" translate="no">{{ t('nav.network') }}</a>
+          <a routerLink="/events" (click)="closeAllMenus()" routerLinkActive="active" class="mobile-nav-link notranslate" translate="no">{{ t('nav.events') }}</a>
+          <a routerLink="/communautes" (click)="closeAllMenus()" routerLinkActive="active" class="mobile-nav-link notranslate" translate="no">{{ t('nav.communities') }}</a>
+          <a routerLink="/resources" (click)="closeAllMenus()" routerLinkActive="active" class="mobile-nav-link notranslate" translate="no">{{ t('nav.resources') }}</a>
+          <a routerLink="/leaderboard" (click)="closeAllMenus()" routerLinkActive="active" class="mobile-nav-link notranslate" translate="no">{{ t('nav.leaderboard') }}</a>
+          <a *ngIf="isLoggedIn()" routerLink="/messages" (click)="closeAllMenus()" routerLinkActive="active" class="mobile-nav-link notranslate" translate="no">{{ t('nav.messages') }}</a>
+          <a *ngIf="isLoggedIn()" routerLink="/dashboard/profile" (click)="closeAllMenus()" routerLinkActive="active" class="mobile-nav-link notranslate" translate="no">{{ t('nav.profile') }}</a>
+          <a *ngIf="isLoggedIn()" routerLink="/dashboard" (click)="closeAllMenus()" routerLinkActive="active" class="mobile-nav-link notranslate" translate="no">{{ t('nav.dashboard') }}</a>
+          <a *ngIf="isLoggedIn() && isAdmin()" routerLink="/admin" (click)="closeAllMenus()" routerLinkActive="active" class="mobile-nav-link notranslate" translate="no">{{ t('nav.admin') }}</a>
+          <a *ngIf="!isLoggedIn()" routerLink="/login" (click)="closeAllMenus()" routerLinkActive="active" class="mobile-nav-link notranslate" translate="no">{{ t('nav.login') }}</a>
+          <a *ngIf="!isLoggedIn()" routerLink="/register" (click)="closeAllMenus()" class="btn btn-emerald btn-block notranslate" translate="no">{{ t('nav.register') }}</a>
           
-          <button *ngIf="isLoggedIn()" (click)="logout(); closeAllMenus();" class="btn btn-outline btn-block logout-mobile-btn">
-            Se Déconnecter
+          <button *ngIf="isLoggedIn()" (click)="logout(); closeAllMenus();" class="btn btn-outline btn-block logout-mobile-btn notranslate" translate="no">
+            {{ t('nav.logout') }}
           </button>
         </div>
       </div>
@@ -2079,9 +2079,10 @@ export class AppComponent implements OnDestroy {
     this.isSearchOpen = false;
   }
 
-  selectLanguage(lang: Language): void {
-    this.translationService.setLanguage(lang);
+  selectLanguage(lang: Language, event?: Event): void {
+    if (event) event.stopPropagation();
     this.isLangMenuOpen = false;
+    this.translationService.setLanguage(lang);
     this.translationService.speakGreeting(lang);
   }
 

@@ -1025,35 +1025,38 @@ html, body {
 .goog-te-banner-frame,
 .goog-te-banner-frame.skiptranslate,
 iframe.goog-te-banner-frame,
+iframe.skiptranslate,
+body > .skiptranslate,
 iframe[id*=":1.container"],
 iframe[id*=":2.container"],
+#google_translate_element {
+  position: fixed !important;
+  top: -9999px !important;
+  left: -9999px !important;
+  width: 1px !important;
+  height: 1px !important;
+  max-height: 1px !important;
+  max-width: 1px !important;
+  overflow: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+  z-index: -99999 !important;
+  border: 0 !important;
+}
+
 #goog-gt-tt,
-.goog-te-balloon-frame {
+.goog-te-balloon-frame,
+.goog-te-spinner-pos {
   display: none !important;
   visibility: hidden !important;
   opacity: 0 !important;
-  height: 0px !important;
-  width: 0px !important;
-  max-height: 0px !important;
-  max-width: 0px !important;
   pointer-events: none !important;
-  position: absolute !important;
-  left: -9999px !important;
-  top: -9999px !important;
-  z-index: -99999 !important;
 }
 
 /* Protection absolue des éléments multilingues notranslate */
 .notranslate,
 [translate="no"] {
   -webkit-transform: translateZ(0);
-}
-
-#google_translate_element {
-  display: none !important;
-  position: absolute !important;
-  left: -9999px !important;
-  top: -9999px !important;
 }
 
 .goog-text-highlight {
@@ -1066,8 +1069,7 @@ font {
   box-shadow: none !important;
 }
 
-.goog-logo-link,
-.goog-te-gadget {
+.goog-logo-link {
   display: none !important;
 }
 
