@@ -916,42 +916,46 @@
     </div>
   </section>
 
-  <!-- ENTREPRISES PARTENAIRES SLIM RIBBON -->
-  <section class="partner-companies-section partner-companies-slim reveal-on-scroll" *ngIf="isLoadingPartners || partnerCompanies.length > 0">
-    <div class="partners-slim-wrapper">
-      <div class="partners-slim-badge">
+  <!-- SECTION NOS PARTENAIRES -->
+  <section class="partner-companies-section app-card-partners reveal-on-scroll" *ngIf="isLoadingPartners || partnerCompanies.length > 0">
+    <div class="partners-block-header">
+      <div class="partners-pulse-badge">
         <span class="partners-pulse-dot"></span>
-        <span class="partners-badge-text">Entreprises Partenaires</span>
+        <span class="partners-badge-text">Écosystème &amp; Partenaires</span>
       </div>
+      <h3 class="partners-title-main">Nos Partenaires</h3>
+    </div>
 
-      <div class="partners-slim-sep"></div>
-
-      <!-- Skeletons pendant le chargement -->
-      <div class="partners-slim-skeletons" *ngIf="isLoadingPartners">
-        <div class="partner-skeleton-pill" *ngFor="let _ of [1,2,3,4]">
-          <div class="skeleton-pill-avatar"></div>
-          <div class="skeleton-pill-text"></div>
+    <!-- Skeletons pendant le chargement -->
+    <div class="partners-skeletons-row" *ngIf="isLoadingPartners">
+      <div class="partner-skeleton-card-lg" *ngFor="let _ of [1,2,3,4,5]">
+        <div class="skeleton-avatar-lg"></div>
+        <div class="skeleton-text-group">
+          <div class="skeleton-name-lg"></div>
+          <div class="skeleton-loc-lg"></div>
         </div>
       </div>
+    </div>
 
-      <!-- Ruban défilant infini slim (cliquable directement vers le profil entreprise) -->
-      <div class="partners-marquee-container" *ngIf="!isLoadingPartners && partnerCompanies.length > 0">
-        <div class="partners-marquee-track">
-          <!-- Répété pour assurer un flux continu sans rupture visuelle -->
-          <ng-container *ngFor="let rep of (partnerCompanies.length < 5 ? [1, 2, 3, 4, 5, 6] : [1, 2])">
-            <a *ngFor="let comp of partnerCompanies"
-               [routerLink]="['/company', comp.slug]"
-               class="partner-chip-link"
-               [title]="comp.name + ' - Profil Entreprise'">
-              <div class="partner-chip-logo">
-                <img *ngIf="comp.logoUrl" [src]="resolveMedia(comp.logoUrl)" [alt]="comp.name" class="partner-img" loading="lazy" />
-                <span *ngIf="!comp.logoUrl" class="partner-fallback">{{ comp.name.charAt(0).toUpperCase() }}</span>
-              </div>
-              <span class="partner-chip-name">{{ comp.name }}</span>
-              <span class="partner-chip-location" *ngIf="comp.country">{{ comp.country }}</span>
-            </a>
-          </ng-container>
-        </div>
+    <!-- Ruban défilant spacieux avec logos agrandis et respiration -->
+    <div class="partners-carousel-viewport" *ngIf="!isLoadingPartners && partnerCompanies.length > 0">
+      <div class="partners-carousel-track">
+        <!-- Répété pour assurer un flux continu sans rupture visuelle -->
+        <ng-container *ngFor="let rep of (partnerCompanies.length < 5 ? [1, 2, 3, 4, 5, 6] : [1, 2, 3])">
+          <a *ngFor="let comp of partnerCompanies"
+             [routerLink]="['/company', comp.slug]"
+             class="partner-card-link"
+             [title]="comp.name + ' - Profil Entreprise'">
+            <div class="partner-card-logo">
+              <img *ngIf="comp.logoUrl" [src]="resolveMedia(comp.logoUrl)" [alt]="comp.name" class="partner-card-img" loading="lazy" />
+              <span *ngIf="!comp.logoUrl" class="partner-card-fallback">{{ comp.name.charAt(0).toUpperCase() }}</span>
+            </div>
+            <div class="partner-card-info">
+              <span class="partner-card-name">{{ comp.name }}</span>
+              <span class="partner-card-location" *ngIf="comp.country">{{ comp.country }}</span>
+            </div>
+          </a>
+        </ng-container>
       </div>
     </div>
   </section>
