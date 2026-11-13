@@ -58,6 +58,21 @@ class AdminServiceTest {
     private AuditLogRepository auditLogRepository;
 
     @Mock
+    private CompanyRepository companyRepository;
+
+    @Mock
+    private GroupRepository groupRepository;
+
+    @Mock
+    private ResourceRepository resourceRepository;
+
+    @Mock
+    private TechEventRepository techEventRepository;
+
+    @Mock
+    private ApplicationRepository applicationRepository;
+
+    @Mock
     private AuthService authService;
 
     @Mock
@@ -68,6 +83,12 @@ class AdminServiceTest {
 
     @Mock
     private ProjectService projectService;
+
+    @Mock
+    private UserAccountDeletionService userAccountDeletionService;
+
+    @Mock
+    private org.springframework.security.crypto.password.PasswordEncoder passwordEncoder;
 
     @InjectMocks
     private AdminService adminService;
@@ -143,8 +164,11 @@ class AdminServiceTest {
         when(projectRepository.count()).thenReturn(1L);
         when(opportunityRepository.count()).thenReturn(0L);
         when(profileRepository.findAll()).thenReturn(List.of(regularProfile));
+        when(companyRepository.findAll()).thenReturn(List.of());
+        when(groupRepository.findAll()).thenReturn(List.of());
+        when(opportunityRepository.findAll()).thenReturn(List.of());
+        when(resourceRepository.findAll()).thenReturn(List.of());
         when(projectRepository.countByAuthorId("user-id")).thenReturn(1L);
-        when(opportunityRepository.countByPublisherId("user-id")).thenReturn(0L);
 
         PlatformAdoptionSummaryDto result = adminService.getCountryAdoptionStats();
 
@@ -154,6 +178,55 @@ class AdminServiceTest {
         assertEquals("Sénégal", result.getCountries().get(0).getCountry());
 
         verify(redisCacheService, times(1)).set(eq("admin:analytics:countries"), any(PlatformAdoptionSummaryDto.class), any(Duration.class));
+    }
+
+    @Test
+    @DisplayName("getPlatformStats: retourne les stats en cache lorsque disponibles")
+    void getPlatformStats_CacheHit() {
+        AdminStatsDto cached = AdminStatsDto.builder()
+                .totalUsers(10)
+                .totalProjects(5)
+                .build();
+
+        when(redisCacheService.get(eq("admin:analytics:platform-stats"), eq(AdminStatsDto.class)))
+                .thenReturn(cached);
+
+        AdminStatsDto result = adminService.getPlatformStats();
+
+        assertNotNull(result);
+        assertEquals(10, result.getTotalUsers());
+        assertEquals(5, result.getTotalProjects());
+        verify(userRepository, never()).count();
+    }
+
+    @Test
+    @DisplayName("getPlatformStats: calcule et met en cache lorsque le cache est vide")
+    void getPlatformStats_CacheMiss() {
+        when(redisCacheService.get(eq("admin:analytics:platform-stats"), eq(AdminStatsDto.class)))
+                .thenReturn(null);
+
+        when(userRepository.count()).thenReturn(1L);
+        when(profileRepository.count()).thenReturn(1L);
+        when(projectRepository.count()).thenReturn(1L);
+        when(opportunityRepository.count()).thenReturn(0L);
+        when(evaluationRepository.count()).thenReturn(0L);
+        when(companyRepository.count()).thenReturn(0L);
+        when(resourceRepository.count()).thenReturn(0L);
+        when(groupRepository.count()).thenReturn(0L);
+        when(techEventRepository.count()).thenReturn(0L);
+        when(applicationRepository.count()).thenReturn(0L);
+
+        when(profileRepository.findAll()).thenReturn(List.of(regularProfile));
+        when(companyRepository.findAll()).thenReturn(List.of());
+        when(opportunityRepository.findAll()).thenReturn(List.of());
+        when(resourceRepository.findAll()).thenReturn(List.of());
+        when(groupRepository.findAll()).thenReturn(List.of());
+
+        AdminStatsDto result = adminService.getPlatformStats();
+
+        assertNotNull(result);
+        assertEquals(1L, result.getTotalUsers());
+        verify(redisCacheService, times(1)).set(eq("admin:analytics:platform-stats"), any(AdminStatsDto.class), any(Duration.class));
     }
 
     @Test
