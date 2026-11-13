@@ -122,9 +122,6 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
     this.initScrollReveal();
     this.initStageSectionObserver();
     this.initScrollReactiveVideo();
-    this.ngZone.runOutsideAngular(() => {
-      this.initMultiStageMotionCanvas();
-    });
   }
 
   ngOnDestroy(): void {
@@ -162,8 +159,13 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
     if (!video) return;
 
     video.muted = true;
+    video.defaultMuted = true;
     video.playsInline = true;
     video.loop = true;
+    video.setAttribute('muted', '');
+    video.setAttribute('playsinline', '');
+    video.setAttribute('loop', '');
+    video.setAttribute('autoplay', '');
 
     // Déclencheur automatique de lecture résistant aux restrictions navigateurs / mobiles
     const startPlay = () => {
@@ -172,8 +174,10 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
       }
     };
     startPlay();
-    document.addEventListener('touchstart', startPlay, { passive: true });
-    document.addEventListener('click', startPlay, { passive: true });
+    video.addEventListener('canplay', startPlay);
+    video.addEventListener('loadeddata', startPlay);
+    document.addEventListener('touchstart', startPlay, { passive: true, once: true });
+    document.addEventListener('click', startPlay, { passive: true, once: true });
     window.addEventListener('focus', startPlay);
 
     // Watchdogs pour assurer une boucle infinie permanente (ne s'arrête jamais)
@@ -183,7 +187,6 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
     });
 
     video.addEventListener('pause', () => {
-      // Si la vidéo est mise en pause intempestivement par le navigateur
       setTimeout(() => {
         if (video.paused) {
           video.play().catch(() => {});
@@ -191,16 +194,7 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
       }, 50);
     });
 
-    video.addEventListener('timeupdate', () => {
-      // Prévenir le blocage de fin de fragment en rebouclant sans à-coup 150ms avant la fin
-      if (video.duration && video.duration > 0.5 && video.currentTime >= video.duration - 0.15) {
-        video.currentTime = 0;
-        video.play().catch(() => {});
-      }
-    });
-
     video.addEventListener('error', () => {
-      // Recharger en cas de mini coupure réseau ou erreur de décodage
       setTimeout(() => {
         video.load();
         video.play().catch(() => {});
