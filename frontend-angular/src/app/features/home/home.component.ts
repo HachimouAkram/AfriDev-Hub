@@ -233,9 +233,9 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
       const progress = docHeight > 0 ? Math.min(Math.max(scrollY / docHeight, 0), 1) : 0;
 
       if (layer) {
-        const translateY = -scrollY * 0.11;
-        const scale = 1.02 + progress * 0.07;
-        layer.style.transform = `translate3d(0, ${translateY.toFixed(1)}px, 0) scale(${scale.toFixed(3)})`;
+        // Le fond reste 100% verrouillé plein écran de l'en-tête jusqu'au footer
+        const scale = 1.0 + progress * 0.05;
+        layer.style.transform = `scale(${scale.toFixed(3)})`;
       }
 
       if (!isTicking) {
