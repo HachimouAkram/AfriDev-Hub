@@ -386,6 +386,7 @@
   justify-content: space-between;
   align-items: center;
   margin-bottom: 0.25rem;
+  flex-shrink: 0;
 }
 
 .modal-header h3 {
@@ -397,6 +398,11 @@
   display: flex;
   flex-direction: column;
   gap: 1rem;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  flex: 1 1 auto;
+  min-height: 0;
 }
 
 .modal-info {
@@ -660,6 +666,11 @@
   justify-content: flex-end;
   gap: 0.75rem;
   margin-top: 0.5rem;
+  flex-shrink: 0;
+  position: sticky;
+  bottom: 0;
+  z-index: 10;
+  background: var(--bg-surface-card);
 }
 
 /* ────────── Radio Pill Group ────────── */
@@ -720,30 +731,35 @@
 }
 
 /* ────────── Responsive ────────── */
-@media (max-width: 768px) {
+@media (max-width: 992px), (max-height: 850px) {
   .modal-overlay {
-    padding: 0.5rem !important;
-    align-items: flex-end !important;
+    padding: clamp(0.35rem, 1.5vw, 0.75rem) !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch !important;
   }
 
   .modal-card,
   .modal-card-wide {
     width: 100% !important;
     max-width: 100% !important;
-    max-height: 92vh !important;
+    max-height: calc(100vh - 1rem) !important;
     max-height: calc(100dvh - 1rem) !important;
-    margin: 0 !important;
-    border-bottom-left-radius: 0 !important;
-    border-bottom-right-radius: 0 !important;
+    margin: auto !important;
+    display: flex !important;
+    flex-direction: column !important;
+    overflow: hidden !important;
   }
 
   .modal-header {
-    padding: 1rem 1.15rem !important;
+    padding: 0.85rem 1.15rem !important;
+    flex-shrink: 0 !important;
   }
 
   .modal-form {
     padding: 1rem 1.15rem !important;
-    max-height: calc(92vh - 130px) !important;
+    flex: 1 1 auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
     overflow-y: auto !important;
     -webkit-overflow-scrolling: touch !important;
   }
@@ -761,6 +777,11 @@
     padding: 0.85rem 1.15rem calc(0.85rem + env(safe-area-inset-bottom, 0px)) !important;
     flex-direction: row !important;
     gap: 0.65rem !important;
+    flex-shrink: 0 !important;
+    position: sticky !important;
+    bottom: 0 !important;
+    z-index: 50 !important;
+    background: var(--bg-surface-card) !important;
   }
 
   .modal-footer .btn {
@@ -769,6 +790,27 @@
     justify-content: center !important;
     font-size: 0.875rem !important;
   }
+
+  .opportunities-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 600px) {
+  .modal-overlay {
+    padding: 0 0 env(safe-area-inset-bottom, 0px) !important;
+    align-items: flex-end !important;
+  }
+
+  .modal-card,
+  .modal-card-wide {
+    border-bottom-left-radius: 0 !important;
+    border-bottom-right-radius: 0 !important;
+    max-height: 94dvh !important;
+    max-height: calc(100dvh - 0.5rem) !important;
+    margin: 0 !important;
+  }
+}
 
   .opportunities-grid {
     grid-template-columns: 1fr;

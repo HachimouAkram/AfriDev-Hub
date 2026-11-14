@@ -747,22 +747,31 @@ body.light-theme .bar-bg {
   inset: 0;
   background: rgba(0, 0, 0, 0.75);
   backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 2000;
-  padding: 1.5rem;
+  padding: clamp(0.5rem, 2vw, 1.25rem);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
 }
 
 .modal-card {
   width: 100%;
   max-width: 540px;
+  max-height: calc(100vh - 2rem);
+  max-height: calc(100dvh - 2rem);
+  margin: auto;
   background: var(--bg-surface-card);
   border: 1px solid var(--border-subtle);
   box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
   border-radius: 20px;
   display: flex;
   flex-direction: column;
+  overflow: hidden;
+  box-sizing: border-box;
 }
 
 .modal-header {
@@ -771,6 +780,7 @@ body.light-theme .bar-bg {
   align-items: center;
   padding: 1.25rem 1.5rem;
   border-bottom: 1px solid var(--border-subtle);
+  flex-shrink: 0;
 }
 
 .modal-header h3 {
@@ -794,6 +804,11 @@ body.light-theme .bar-bg {
   display: flex;
   flex-direction: column;
   gap: 1rem;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  flex: 1 1 auto;
+  min-height: 0;
 }
 
 .modal-footer {
@@ -802,10 +817,17 @@ body.light-theme .bar-bg {
   display: flex;
   justify-content: flex-end;
   gap: 0.75rem;
+  flex-shrink: 0;
+  position: sticky;
+  bottom: 0;
+  z-index: 10;
+  background: var(--bg-surface-card);
 }
 
 .chat-modal {
   max-width: 620px;
+  max-height: calc(100vh - 2rem);
+  max-height: calc(100dvh - 2rem);
 }
 
 .chat-messages-container {
@@ -868,5 +890,69 @@ body.light-theme .bar-bg {
   }
   .grid-3, .grid-2, .grid-4 {
     grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 992px), (max-height: 850px) {
+  .modal-overlay {
+    padding: clamp(0.35rem, 1.5vw, 0.75rem) !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+  }
+
+  .modal-card,
+  .chat-modal {
+    width: 100% !important;
+    max-width: 100% !important;
+    max-height: calc(100vh - 1rem) !important;
+    max-height: calc(100dvh - 1rem) !important;
+    margin: auto !important;
+    display: flex !important;
+    flex-direction: column !important;
+    overflow: hidden !important;
+  }
+
+  .modal-header {
+    padding: 0.85rem 1.15rem !important;
+    flex-shrink: 0 !important;
+  }
+
+  .modal-body {
+    padding: 1rem 1.15rem !important;
+    flex: 1 1 auto !important;
+    min-height: 0 !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+  }
+
+  .modal-footer {
+    padding: 0.85rem 1.15rem calc(0.85rem + env(safe-area-inset-bottom, 0px)) !important;
+    flex-shrink: 0 !important;
+    position: sticky !important;
+    bottom: 0 !important;
+    z-index: 50 !important;
+    background: var(--bg-surface-card) !important;
+  }
+
+  .modal-footer .btn {
+    flex: 1;
+    justify-content: center;
+    min-height: 44px;
+  }
+}
+
+@media (max-width: 600px) {
+  .modal-overlay {
+    padding: 0 0 env(safe-area-inset-bottom, 0px) !important;
+    align-items: flex-end !important;
+  }
+
+  .modal-card,
+  .chat-modal {
+    border-bottom-left-radius: 0 !important;
+    border-bottom-right-radius: 0 !important;
+    max-height: 94dvh !important;
+    max-height: calc(100dvh - 0.5rem) !important;
+    margin: 0 !important;
   }
 }

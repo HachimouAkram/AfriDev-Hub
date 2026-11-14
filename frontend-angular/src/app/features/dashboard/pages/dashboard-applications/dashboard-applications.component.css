@@ -428,8 +428,12 @@
   align-items: center;
   justify-content: center;
   z-index: 1050;
-  padding: 1rem;
+  padding: clamp(0.5rem, 2vw, 1.25rem);
   backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
 }
 
 .modal-pdf-overlay {
@@ -439,8 +443,8 @@
 .modal-pdf-card {
   max-width: 960px !important;
   width: 95vw !important;
-  height: 88vh !important;
-  max-height: 88vh !important;
+  max-height: calc(100vh - 2rem) !important;
+  max-height: calc(100dvh - 2rem) !important;
   display: flex !important;
   flex-direction: column !important;
   background: var(--bg-surface-card, #111827);
@@ -448,6 +452,8 @@
   border-radius: 16px;
   box-shadow: 0 25px 60px rgba(0, 0, 0, 0.6);
   overflow: hidden !important;
+  margin: auto;
+}
 }
 
 .modal-header {
@@ -551,13 +557,32 @@
   background: #525659;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 992px), (max-height: 850px) {
+  .modal-overlay {
+    padding: clamp(0.35rem, 1.5vw, 0.75rem) !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+  }
+
   .modal-pdf-card {
     width: 100% !important;
     max-width: 100% !important;
     height: 94dvh !important;
     max-height: 94dvh !important;
-    border-radius: 16px 16px 0 0 !important;
+    margin: auto !important;
+  }
+}
+
+@media (max-width: 600px) {
+  .modal-overlay {
+    padding: 0 0 env(safe-area-inset-bottom, 0px) !important;
+    align-items: flex-end !important;
+  }
+
+  .modal-pdf-card {
+    border-bottom-left-radius: 0 !important;
+    border-bottom-right-radius: 0 !important;
+    margin: 0 !important;
   }
 }
 

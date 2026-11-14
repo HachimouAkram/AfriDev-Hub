@@ -607,7 +607,8 @@ body.light-theme .hero-publish-hint {
 
 .video-modal-card {
   width: min(100%, 860px);
-  max-height: min(92vh, 880px);
+  max-height: calc(100vh - 2rem);
+  max-height: calc(100dvh - 2rem);
   background: var(--bg-surface-card);
   border: 1px solid var(--border-light);
   border-radius: 18px;
@@ -616,11 +617,13 @@ body.light-theme .hero-publish-hint {
   flex-direction: column;
   margin: auto;
   box-shadow: 0 25px 60px rgba(0, 0, 0, 0.45);
+  box-sizing: border-box;
 }
 
 .payment-modal-card {
   width: min(100%, 520px);
-  max-height: min(92vh, 850px);
+  max-height: calc(100vh - 2rem);
+  max-height: calc(100dvh - 2rem);
   background: var(--bg-surface-card);
   border: 1px solid var(--border-emerald);
   border-radius: 18px;
@@ -629,6 +632,7 @@ body.light-theme .hero-publish-hint {
   flex-direction: column;
   margin: auto;
   box-shadow: 0 25px 60px rgba(0, 0, 0, 0.45);
+  box-sizing: border-box;
 }
 
 .video-modal-card .modal-header {
@@ -1305,17 +1309,21 @@ body.light-theme .hero-publish-hint {
 /* ====================================================================
    Modals Responsiveness (All screens, mobiles, laptops, short heights)
    ==================================================================== */
-@media (max-width: 640px) {
+@media (max-width: 992px), (max-height: 850px) {
   .modal-backdrop {
-    padding: 0.4rem;
+    padding: clamp(0.35rem, 1.5vw, 0.75rem);
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
   }
 
   .video-modal-card,
   .publish-modal-card,
   .payment-modal-card {
     border-radius: 14px;
-    max-height: 96vh;
+    max-height: calc(100vh - 1rem);
+    max-height: calc(100dvh - 1rem);
     width: 100%;
+    margin: auto;
   }
 
   .video-modal-card .video-container {

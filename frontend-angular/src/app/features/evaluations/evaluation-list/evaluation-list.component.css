@@ -347,6 +347,7 @@ body.light-theme .dimensions-grid {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  flex-shrink: 0;
 }
 
 .modal-header h3 {
@@ -358,6 +359,11 @@ body.light-theme .dimensions-grid {
   display: flex;
   flex-direction: column;
   gap: 1rem;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  flex: 1 1 auto;
+  min-height: 0;
 }
 
 .slider-input {
@@ -397,6 +403,11 @@ body.light-theme .dimensions-grid {
   justify-content: flex-end;
   gap: 0.75rem;
   margin-top: 0.5rem;
+  flex-shrink: 0;
+  position: sticky;
+  bottom: 0;
+  z-index: 10;
+  background: var(--bg-surface-card);
 }
 
 .target-partner-card {

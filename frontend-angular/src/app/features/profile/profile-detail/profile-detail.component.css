@@ -493,6 +493,11 @@
 /* Modal Styling & Chat */
 .chat-modal {
   max-width: 580px;
+  max-height: calc(100vh - 2rem);
+  max-height: calc(100dvh - 2rem);
+  margin: auto;
+  display: flex;
+  flex-direction: column;
 }
 
 .chat-header-info {
@@ -590,6 +595,11 @@
   display: flex;
   flex-direction: column;
   gap: 1rem;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  flex: 1 1 auto;
+  min-height: 0;
 }
 
 .modal-footer {
@@ -597,6 +607,11 @@
   justify-content: flex-end;
   gap: 0.75rem;
   margin-top: 0.5rem;
+  flex-shrink: 0;
+  position: sticky;
+  bottom: 0;
+  z-index: 10;
+  background: var(--bg-surface-card);
 }
 
 .error-box {
@@ -1056,6 +1071,11 @@ body.light-theme .progress-bar {
 .edit-profile-modal {
   max-width: 720px;
   width: 100%;
+  max-height: calc(100vh - 2rem);
+  max-height: calc(100dvh - 2rem);
+  margin: auto;
+  display: flex;
+  flex-direction: column;
 }
 
 .edit-profile-form {
@@ -1078,6 +1098,15 @@ body.light-theme .progress-bar {
   justify-content: flex-end;
   gap: 0.75rem;
   padding-top: 1rem;
+  padding-bottom: max(0.5rem, env(safe-area-inset-bottom, 0px));
+  border-top: 1px solid var(--border-subtle);
+  margin-top: 0.5rem;
+  flex-shrink: 0;
+  position: sticky;
+  bottom: 0;
+  z-index: 10;
+  background: var(--bg-surface-card);
+}
   border-top: 1px solid var(--border-subtle);
   margin-top: 0.5rem;
 }
@@ -2180,14 +2209,41 @@ body.light-theme .xp-progress-bar-track {
   box-shadow: 0 8px 24px rgba(16, 185, 129, 0.12);
 }
 
-@media (max-width: 768px) {
+@media (max-width: 992px), (max-height: 850px) {
+  .chat-modal,
+  .edit-profile-modal,
   .modal-pdf-card {
     width: 100% !important;
     max-width: 100% !important;
+    max-height: calc(100vh - 1rem) !important;
+    max-height: calc(100dvh - 1rem) !important;
+    margin: auto !important;
+    display: flex !important;
+    flex-direction: column !important;
+    overflow: hidden !important;
+  }
+
+  .modal-pdf-card {
     height: 94dvh !important;
     max-height: 94dvh !important;
-    border-radius: 16px 16px 0 0 !important;
   }
+
+  .modal-actions-group span {
+    display: none;
+  }
+}
+
+@media (max-width: 600px) {
+  .chat-modal,
+  .edit-profile-modal,
+  .modal-pdf-card {
+    border-bottom-left-radius: 0 !important;
+    border-bottom-right-radius: 0 !important;
+    max-height: 94dvh !important;
+    max-height: calc(100dvh - 0.5rem) !important;
+    margin: 0 !important;
+  }
+}
 
   .modal-actions-group span {
     display: none;

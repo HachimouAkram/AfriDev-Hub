@@ -771,30 +771,36 @@ svg {
 /* ==========================================================================
    Modal Dialog System - Responsive & Scrollable Anti-Clipping Architecture
    ========================================================================== */
-.modal-overlay {
+.modal-overlay,
+.modal-backdrop,
+.modal-pdf-overlay {
   position: fixed;
+  inset: 0;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
   width: 100vw;
   height: 100vh;
+  height: 100dvh;
   background: rgba(4, 7, 13, 0.85);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
   z-index: 2000;
   display: flex;
   justify-content: center;
-  align-items: flex-start; /* CRITICAL: Prevents top clipping for tall modals */
-  padding: 2.5rem 1rem;
+  align-items: center;
+  padding: clamp(0.5rem, 2vw, 1.5rem);
   overflow-y: auto; /* Viewport backdrop scrolling fallback */
   overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
 }
 
 .modal-card {
   width: 100%;
   max-width: 560px;
-  max-height: min(90vh, calc(100vh - 4rem));
+  max-height: calc(100vh - 2rem);
+  max-height: calc(100dvh - 2rem);
   margin: auto; /* Vertically centers when modal fits inside screen; scrolls gracefully when larger */
   display: flex;
   flex-direction: column;
@@ -805,12 +811,15 @@ svg {
   overflow: hidden; /* Header and Footer stay fixed while body/form scrolls */
   animation: modalScaleIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
   padding: 0 !important;
+  box-sizing: border-box;
 }
 
 .modal-card-wide,
 .modal-card-lg,
 .modal-card-large {
   max-width: 820px !important;
+  max-height: calc(100vh - 2rem) !important;
+  max-height: calc(100dvh - 2rem) !important;
 }
 
 @keyframes modalScaleIn {
@@ -850,7 +859,9 @@ svg {
   gap: 1.25rem;
   padding: 1.5rem;
   overflow-y: auto; /* Internal scrolling for long content/forms */
-  flex: 1;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  flex: 1 1 auto;
   min-height: 0; /* Required for inner flex child scroll in modern browsers */
 }
 
@@ -861,19 +872,22 @@ svg {
   gap: 0.75rem;
   padding: 1rem 1.5rem;
   border-top: 1px solid var(--border-subtle);
-  background: rgba(255, 255, 255, 0.02);
+  background: var(--bg-surface-card);
   margin-top: auto;
   flex-shrink: 0;
+  position: sticky;
+  bottom: 0;
+  z-index: 10;
 }
 
 /* ==========================================================================
-   Mobile Responsive Anti-Clipping & Sticky Action Footer for ALL Modals
+   Mobile & Tablet Responsive Anti-Clipping & Sticky Action Footer for ALL Modals
    ========================================================================== */
-@media (max-width: 768px) {
+@media (max-width: 992px), (max-height: 850px) {
   .modal-overlay,
-  .modal-backdrop {
-    padding: 0 0 env(safe-area-inset-bottom, 0px) !important;
-    align-items: flex-end !important; /* Bottom-sheet style prevents top/bottom truncation */
+  .modal-backdrop,
+  .modal-pdf-overlay {
+    padding: clamp(0.35rem, 1.5vw, 0.75rem) !important;
     overflow-y: auto !important;
     -webkit-overflow-scrolling: touch !important;
   }
@@ -883,14 +897,14 @@ svg {
   .modal-card-lg,
   .modal-card-large,
   .detail-modal,
-  .chat-modal {
+  .chat-modal,
+  .modal-pdf-card,
+  .publish-modal-card {
     width: 100% !important;
     max-width: 100% !important;
-    max-height: 92dvh !important;
+    max-height: calc(100vh - 1rem) !important;
     max-height: calc(100dvh - 1rem) !important;
-    margin: 0 !important;
-    border-bottom-left-radius: 0 !important;
-    border-bottom-right-radius: 0 !important;
+    margin: auto !important;
     display: flex !important;
     flex-direction: column !important;
     overflow: hidden !important;
@@ -910,7 +924,8 @@ svg {
   .modal-form,
   .modal-content-form,
   .detail-body,
-  .chat-body-modal {
+  .chat-body-modal,
+  .detail-modal-body {
     padding: 1rem 1.15rem !important;
     flex: 1 1 auto !important;
     min-height: 0 !important;
@@ -934,7 +949,7 @@ svg {
 
   .modal-footer .btn,
   .modal-footer button {
-    flex: 1 1 0 !important;
+    flex: 1 1 auto !important;
     min-height: 44px !important;
     justify-content: center !important;
     text-align: center !important;
@@ -953,6 +968,26 @@ svg {
 
   .form-textarea {
     min-height: 80px;
+  }
+}
+
+@media (max-width: 600px) {
+  .modal-overlay,
+  .modal-backdrop {
+    padding: 0 0 env(safe-area-inset-bottom, 0px) !important;
+    align-items: flex-end !important; /* Bottom-sheet style on small mobile */
+  }
+
+  .modal-card,
+  .modal-card-wide,
+  .modal-card-lg,
+  .modal-card-large,
+  .publish-modal-card {
+    border-bottom-left-radius: 0 !important;
+    border-bottom-right-radius: 0 !important;
+    max-height: 94dvh !important;
+    max-height: calc(100dvh - 0.5rem) !important;
+    margin: 0 !important;
   }
 }
 

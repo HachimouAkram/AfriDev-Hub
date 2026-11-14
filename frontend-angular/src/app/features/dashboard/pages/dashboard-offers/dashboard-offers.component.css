@@ -525,17 +525,24 @@
   inset: 0;
   background: rgba(0, 0, 0, 0.7);
   backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
   z-index: 1000;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 1rem;
+  padding: clamp(0.5rem, 2vw, 1.25rem);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
   animation: fadeIn 0.15s ease-out;
 }
 
 .modal-card {
   width: 100%;
   max-width: 580px;
+  max-height: calc(100vh - 2rem);
+  max-height: calc(100dvh - 2rem);
+  margin: auto;
   background: var(--bg-surface-card);
   border: 1px solid var(--border-subtle);
   border-radius: 20px;
@@ -543,10 +550,13 @@
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  box-sizing: border-box;
 }
 
 .modal-card.modal-card-wide {
   max-width: 820px;
+  max-height: calc(100vh - 2rem);
+  max-height: calc(100dvh - 2rem);
 }
 
 .form-grid-2 {
@@ -563,8 +573,10 @@
 .modal-body {
   padding: 1.5rem;
   overflow-y: auto;
-  max-height: calc(88vh - 130px);
+  overscroll-behavior: contain;
   -webkit-overflow-scrolling: touch;
+  flex: 1 1 auto;
+  min-height: 0;
   display: flex;
   flex-direction: column;
   gap: 1.15rem;
@@ -787,6 +799,11 @@
   display: flex;
   justify-content: flex-end;
   gap: 0.75rem;
+  flex-shrink: 0;
+  position: sticky;
+  bottom: 0;
+  z-index: 10;
+  background: var(--bg-surface-card);
 }
 
 .form-group {
@@ -1122,10 +1139,11 @@
   border-radius: 10px;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 992px), (max-height: 850px) {
   .modal-overlay {
-    padding: 0.5rem !important;
-    align-items: flex-end !important;
+    padding: clamp(0.35rem, 1.5vw, 0.75rem) !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch !important;
   }
 
   .modal-card,
@@ -1133,20 +1151,26 @@
   .detail-offer-modal {
     width: 100% !important;
     max-width: 100% !important;
-    max-height: 92vh !important;
+    max-height: calc(100vh - 1rem) !important;
     max-height: calc(100dvh - 1rem) !important;
-    margin: 0 !important;
-    border-bottom-left-radius: 0 !important;
-    border-bottom-right-radius: 0 !important;
+    margin: auto !important;
+    display: flex !important;
+    flex-direction: column !important;
+    overflow: hidden !important;
   }
 
   .modal-header {
-    padding: 1rem 1.15rem !important;
+    padding: 0.85rem 1.15rem !important;
+    flex-shrink: 0 !important;
   }
 
   .modal-body {
     padding: 1rem 1.15rem !important;
-    max-height: calc(92vh - 130px) !important;
+    flex: 1 1 auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch !important;
   }
 
   .form-grid-2,
@@ -1163,6 +1187,12 @@
     padding: 0.85rem 1.15rem calc(0.85rem + env(safe-area-inset-bottom, 0px)) !important;
     flex-direction: row !important;
     gap: 0.65rem !important;
+    flex-shrink: 0 !important;
+    position: sticky !important;
+    bottom: 0 !important;
+    z-index: 50 !important;
+    background: var(--bg-surface-card) !important;
+    border-top: 1px solid var(--border-subtle) !important;
   }
 
   .modal-footer .btn {
@@ -1171,6 +1201,24 @@
     justify-content: center !important;
     font-size: 0.875rem !important;
   }
+}
+
+@media (max-width: 600px) {
+  .modal-overlay {
+    padding: 0 0 env(safe-area-inset-bottom, 0px) !important;
+    align-items: flex-end !important;
+  }
+
+  .modal-card,
+  .modal-card.modal-card-wide,
+  .detail-offer-modal {
+    border-bottom-left-radius: 0 !important;
+    border-bottom-right-radius: 0 !important;
+    max-height: 94dvh !important;
+    max-height: calc(100dvh - 0.5rem) !important;
+    margin: 0 !important;
+  }
+}
 
   .offers-table {
     min-width: 620px;

@@ -371,21 +371,32 @@
   inset: 0;
   background: rgba(0, 0, 0, 0.75);
   backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
   z-index: 200;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 1.5rem;
+  padding: clamp(0.5rem, 2vw, 1.5rem);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
 }
 
 .modal-card {
   width: 520px;
   max-width: 100%;
+  max-height: calc(100vh - 2rem);
+  max-height: calc(100dvh - 2rem);
+  margin: auto;
   background: var(--bg-surface-card, #0F172A);
   border: 1px solid var(--border-light, rgba(255, 255, 255, 0.12));
   border-radius: var(--radius-lg, 16px);
   padding: 1.75rem;
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-sizing: border-box;
 }
 
 .modal-header {
@@ -393,6 +404,7 @@
   align-items: flex-start;
   justify-content: space-between;
   margin-bottom: 1.25rem;
+  flex-shrink: 0;
 }
 
 .modal-title-row {
@@ -491,6 +503,11 @@
   justify-content: flex-end;
   gap: 0.75rem;
   margin-top: 1.5rem;
+  flex-shrink: 0;
+  position: sticky;
+  bottom: 0;
+  z-index: 10;
+  background: var(--bg-surface-card, #0F172A);
 }
 
 .loading-state {
@@ -519,6 +536,10 @@
 .modal-detail-card {
   width: 580px;
   max-width: 100%;
+  max-height: calc(100vh - 2rem);
+  max-height: calc(100dvh - 2rem);
+  display: flex;
+  flex-direction: column;
 }
 
 .detail-avatar {
@@ -539,6 +560,11 @@
   display: flex;
   flex-direction: column;
   gap: 1.15rem;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  flex: 1 1 auto;
+  min-height: 0;
 }
 
 .detail-badges-row {
@@ -625,6 +651,14 @@
   justify-content: space-between;
   gap: 1rem;
   flex-wrap: wrap;
+  flex-shrink: 0;
+  position: sticky;
+  bottom: 0;
+  z-index: 10;
+  background: var(--bg-surface-card, #0F172A);
+  margin-top: 1rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--border-light, rgba(255, 255, 255, 0.08));
 }
 
 .footer-mod-actions {
@@ -862,6 +896,58 @@ body.light-theme .auto-password-notice {
   vertical-align: middle;
   margin-right: 0.35rem;
   display: inline-block;
+}
+
+@media (max-width: 992px), (max-height: 850px) {
+  .modal-backdrop {
+    padding: clamp(0.35rem, 1.5vw, 0.75rem) !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+  }
+
+  .modal-card,
+  .modal-detail-card {
+    width: 100% !important;
+    max-width: 100% !important;
+    max-height: calc(100vh - 1rem) !important;
+    max-height: calc(100dvh - 1rem) !important;
+    padding: 1.25rem 1rem !important;
+    margin: auto !important;
+  }
+
+  .modal-footer {
+    position: sticky !important;
+    bottom: 0 !important;
+    padding-bottom: max(0.5rem, env(safe-area-inset-bottom, 0px)) !important;
+    background: var(--bg-surface-card, #0F172A) !important;
+  }
+}
+
+@media (max-width: 600px) {
+  .modal-backdrop {
+    padding: 0 0 env(safe-area-inset-bottom, 0px) !important;
+    align-items: flex-end !important;
+  }
+
+  .modal-card,
+  .modal-detail-card {
+    border-bottom-left-radius: 0 !important;
+    border-bottom-right-radius: 0 !important;
+    max-height: 94dvh !important;
+    max-height: calc(100dvh - 0.5rem) !important;
+    margin: 0 !important;
+  }
+
+  .detail-modal-footer {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .detail-modal-footer .btn,
+  .detail-modal-footer .footer-mod-actions {
+    width: 100%;
+    justify-content: center;
+  }
 }
 
 

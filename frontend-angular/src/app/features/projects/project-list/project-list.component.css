@@ -761,17 +761,23 @@ body.light-theme .skeleton-shimmer {
   inset: 0;
   background: rgba(0, 0, 0, 0.75);
   backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
   z-index: 1000;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 1rem;
+  padding: clamp(0.5rem, 2vw, 1.25rem);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
 }
 
 .modal-card {
   width: 100%;
   max-width: 600px;
-  max-height: 90vh;
+  max-height: calc(100vh - 2rem);
+  max-height: calc(100dvh - 2rem);
+  margin: auto;
   background: var(--bg-card);
   border: 1px solid var(--border-color);
   border-radius: 20px;
@@ -779,13 +785,15 @@ body.light-theme .skeleton-shimmer {
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  box-sizing: border-box;
 }
 
 .detail-modal {
   width: 95vw;
   max-width: 1200px;
-  height: 88vh;
-  max-height: 92vh;
+  max-height: calc(100vh - 2rem);
+  max-height: calc(100dvh - 2rem);
+  margin: auto;
 }
 
 .modal-header {
@@ -830,7 +838,9 @@ body.light-theme .modal-header {
   flex-direction: column;
   gap: 1.25rem;
   overflow-y: auto;
-  flex: 1;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  flex: 1 1 auto;
   min-height: 0;
 }
 
@@ -840,8 +850,11 @@ body.light-theme .modal-header {
   display: flex;
   justify-content: flex-end;
   gap: 0.75rem;
-  background: rgba(0, 0, 0, 0.15);
+  background: var(--bg-card);
   flex-shrink: 0;
+  position: sticky;
+  bottom: 0;
+  z-index: 10;
 }
 
 body.light-theme .modal-footer {
