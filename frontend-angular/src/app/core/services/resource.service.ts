@@ -16,12 +16,12 @@ export interface ResourceItem {
   level: SkillLevel;
   technology: string;
   language: string;
-  youtubeUrl?: string;
-  thumbnailUrl?: string;
-  contentMarkdown?: string;
-  pdfUrl?: string;
+  youtubeUrl?: string | null;
+  thumbnailUrl?: string | null;
+  contentMarkdown?: string | null;
+  pdfUrl?: string | null;
   isPaid: boolean;
-  price?: number;
+  price?: number | null;
   currency: string;
   durationMinutes: number;
   xpReward: number;

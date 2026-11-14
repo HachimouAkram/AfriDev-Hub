@@ -316,8 +316,7 @@ export class ProjectService {
     this.clearMemoryCache();
     return {
       success: true,
-      data: localProj,
-      message: 'Projet enregistré en mode hors-ligne. Il sera synchronisé dès le retour de votre connexion.'
+      data: localProj
     };
   }
 
