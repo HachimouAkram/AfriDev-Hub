@@ -36,6 +36,7 @@ public class ProjectService {
     private final AuthService authService;
     private final RedisCacheService redisCacheService;
     private final XpService xpService;
+    private final africa.afridev.repository.PaymentRepository paymentRepository;
 
     @Transactional
     public ProjectDto createProject(String userEmail, ProjectCreateRequest request) {
@@ -70,6 +71,7 @@ public class ProjectService {
                 .companyRole(request.getCompanyRole())
                 .youtubeUrl(request.getYoutubeUrl())
                 .documentationPdfUrl(request.getDocumentationPdfUrl())
+                .sourceCodeArchiveUrl(request.getSourceCodeArchiveUrl())
                 .maxMembers(request.getMaxMembers())
                 .recognitionsCount(0)
                 .status(ContentStatus.PUBLISHED)
@@ -327,6 +329,9 @@ public class ProjectService {
         project.setCompanyRole(request.getCompanyRole());
         project.setYoutubeUrl(request.getYoutubeUrl());
         project.setDocumentationPdfUrl(request.getDocumentationPdfUrl());
+        if (request.getSourceCodeArchiveUrl() != null) {
+            project.setSourceCodeArchiveUrl(request.getSourceCodeArchiveUrl());
+        }
         project.setMaxMembers(request.getMaxMembers());
 
         ProjectEntity saved = projectRepository.save(project);
@@ -559,11 +564,21 @@ public class ProjectService {
             }
         }
 
-        // Confidentiality check for Enterprise or For Sale repository URL
+        // Confidentiality check for Enterprise or Monetized repository URL
+        boolean isPurchased = isAuthor || (currentUser != null && paymentRepository.existsByBuyerIdAndTargetIdAndStatus(currentUser.getId(), project.getId(), africa.afridev.model.enums.PaymentStatus.COMPLETED));
+        boolean isMonetizedProject = Boolean.TRUE.equals(project.getIsMonetized()) || (project.getPrice() != null && project.getPrice().compareTo(BigDecimal.ZERO) > 0) || project.getSaleType() != null;
+
         String sanitizedRepoUrl = project.getRepoUrl();
-        if (project.getProjectType() == africa.afridev.model.enums.ProjectType.ENTERPRISE) {
+        if (project.getProjectType() == africa.afridev.model.enums.ProjectType.ENTERPRISE || (isMonetizedProject && !isOpenSource && !isPurchased)) {
             sanitizedRepoUrl = null;
         }
+
+        boolean hasArchive = project.getSourceCodeArchiveUrl() != null && !project.getSourceCodeArchiveUrl().isBlank();
+        String safeArchiveUrl = (isPurchased || isAuthor) ? project.getSourceCodeArchiveUrl() : null;
+
+        List<String> screenshotsList = (project.getScreenshots() != null && !project.getScreenshots().isEmpty())
+                ? project.getScreenshots()
+                : List.of(resolveDefaultProjectCover(project));
 
         return ProjectDto.builder()
                 .id(project.getId())
@@ -573,12 +588,12 @@ public class ProjectService {
                 .stack(project.getStack())
                 .repoUrl(sanitizedRepoUrl)
                 .demoUrl(project.getDemoUrl())
-                .screenshots(project.getScreenshots())
+                .screenshots(screenshotsList)
                 .isOpenSource(isOpenSource)
                 .projectType(project.getProjectType() != null ? project.getProjectType() : africa.afridev.model.enums.ProjectType.OPEN_SOURCE)
                 .price(project.getPrice())
                 .currency(project.getCurrency() != null ? project.getCurrency() : "XOF")
-                .isMonetized(Boolean.TRUE.equals(project.getIsMonetized()) || (project.getPrice() != null && project.getPrice().compareTo(BigDecimal.ZERO) > 0))
+                .isMonetized(isMonetizedProject)
                 .payoutPhoneNumber(project.getPayoutPhoneNumber())
                 .payoutOperator(project.getPayoutOperator())
                 .acceptedPaymentMethods(project.getAcceptedPaymentMethods())
@@ -590,6 +605,9 @@ public class ProjectService {
                 .companyRole(project.getCompanyRole())
                 .youtubeUrl(project.getYoutubeUrl())
                 .documentationPdfUrl(project.getDocumentationPdfUrl())
+                .sourceCodeArchiveUrl(safeArchiveUrl)
+                .hasSourceCodeArchive(hasArchive)
+                .isPurchasedByCurrentUser(isPurchased)
                 .maxMembers(project.getMaxMembers())
                 .recognitionsCount(recognitions)
                 .viewsCount(project.getViewsCount() != null ? project.getViewsCount() : 0)
@@ -601,5 +619,46 @@ public class ProjectService {
                 .matchedStack(matchedStack)
                 .isAuthorFollowed(isAuthorFollowed)
                 .build();
+    }
+
+    @Transactional(readOnly = true)
+    public String getSourceCodeDownloadUrl(String userEmail, String projectId) {
+        UserEntity user = userRepository.findByEmail(userEmail)
+                .orElseThrow(() -> new IllegalArgumentException("Utilisateur non trouvé."));
+        ProjectEntity project = projectRepository.findById(projectId)
+                .orElseThrow(() -> new IllegalArgumentException("Projet introuvable."));
+
+        boolean isAuthor = project.getAuthor().getId().equals(user.getId());
+        boolean hasPurchased = paymentRepository.existsByBuyerIdAndTargetIdAndStatus(user.getId(), projectId, africa.afridev.model.enums.PaymentStatus.COMPLETED);
+        boolean isAdmin = user.getRole() == africa.afridev.model.enums.Role.ADMIN || user.getRole() == africa.afridev.model.enums.Role.SUPER_ADMIN;
+
+        if (!isAuthor && !hasPurchased && !isAdmin) {
+            throw new IllegalStateException("Vous devez acheter ce projet pour accéder à son code source.");
+        }
+
+        if (project.getSourceCodeArchiveUrl() != null && !project.getSourceCodeArchiveUrl().isBlank()) {
+            return project.getSourceCodeArchiveUrl();
+        }
+        if (project.getRepoUrl() != null && !project.getRepoUrl().isBlank()) {
+            return project.getRepoUrl();
+        }
+        throw new IllegalStateException("Le créateur du projet n'a pas encore configuré d'archive de code source.");
+    }
+
+    public static String resolveDefaultProjectCover(ProjectEntity project) {
+        String stackLower = project.getStack() != null ? String.join(" ", project.getStack()).toLowerCase() : "";
+        if (stackLower.contains("ai") || stackLower.contains("llm") || stackLower.contains("python") || stackLower.contains("data") || stackLower.contains("intelligence")) {
+            return "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=1200&q=80";
+        } else if (stackLower.contains("mobile") || stackLower.contains("flutter") || stackLower.contains("react native") || stackLower.contains("android") || stackLower.contains("ios")) {
+            return "https://images.unsplash.com/photo-1551650975-87deedd944c3?auto=format&fit=crop&w=1200&q=80";
+        } else if (stackLower.contains("fintech") || stackLower.contains("money") || stackLower.contains("bank") || stackLower.contains("pay") || stackLower.contains("crypto")) {
+            return "https://images.unsplash.com/photo-1559526324-4b87b5e36e44?auto=format&fit=crop&w=1200&q=80";
+        } else if (stackLower.contains("cloud") || stackLower.contains("devops") || stackLower.contains("docker") || stackLower.contains("kubernetes") || stackLower.contains("aws")) {
+            return "https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=1200&q=80";
+        } else if (stackLower.contains("angular") || stackLower.contains("react") || stackLower.contains("vue") || stackLower.contains("frontend") || stackLower.contains("web")) {
+            return "https://images.unsplash.com/photo-1507238691740-187a5b1d37b8?auto=format&fit=crop&w=1200&q=80";
+        }
+        return "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?auto=format&fit=crop&w=1200&q=80";
+    }
     }
 }

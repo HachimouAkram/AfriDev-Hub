@@ -101,6 +101,9 @@ public class ProjectEntity {
     private String youtubeUrl;
     private String documentationPdfUrl;
 
+    @Column(name = "source_code_archive_url")
+    private String sourceCodeArchiveUrl;
+
     @Column(name = "max_members")
     private Integer maxMembers;
 

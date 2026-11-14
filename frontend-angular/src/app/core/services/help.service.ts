@@ -2,6 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { ApiResponse, User } from './auth.service';
+import { getUploadApiUrl, resolveUploadedMediaUrl } from '../utils/upload-helper';
 
 // ─────────────────────────────────────────────
 // Types & Interfaces
@@ -19,6 +20,7 @@ export interface HelpPost {
   description: string;
   type: HelpPostType;
   tags: string[];
+  screenshotUrls?: string[];
   niveauDemandeur?: DeveloperLevel;
   status: HelpPostStatus;
   visibility: HelpPostVisibility;
@@ -48,6 +50,7 @@ export interface HelpPostCreateRequest {
   description: string;
   type: HelpPostType;
   tags: string[];
+  screenshotUrls?: string[];
   niveauDemandeur?: DeveloperLevel;
   visibility: HelpPostVisibility;
 }
@@ -168,6 +171,18 @@ export class HelpService {
     return this.http.patch<ApiResponse<HelpComment>>(
       `${this.apiUrl}/${postId}/comments/${commentId}/accept`, {}
     );
+  }
+
+  // ── Screenshots & Images ─────────────────
+
+  uploadScreenshot(file: File): Observable<ApiResponse<{ url: string }>> {
+    const formData = new FormData();
+    formData.append('file', file);
+    return this.http.post<ApiResponse<{ url: string }>>(getUploadApiUrl('image'), formData);
+  }
+
+  resolveScreenshotUrl(url?: string | null): string {
+    return resolveUploadedMediaUrl(url);
   }
 }
 

@@ -83,6 +83,36 @@ import { AuthService } from '../../../core/services/auth.service';
           <p class="description-text">{{ post.description }}</p>
         </div>
 
+        <!-- Galerie de Captures d'écran avec zoom pour mentors -->
+        <div class="post-screenshots-section" *ngIf="post.screenshotUrls && post.screenshotUrls.length > 0">
+          <h3 class="screenshots-title">
+            <svg class="w-4 h-4 text-emerald" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+              <circle cx="8.5" cy="8.5" r="1.5"></circle>
+              <polyline points="21 15 16 10 5 21"></polyline>
+            </svg>
+            <span>Captures d'écran & Photos du problème ({{ post.screenshotUrls.length }})</span>
+          </h3>
+          <div class="screenshots-grid">
+            <div
+              *ngFor="let url of post.screenshotUrls; let i = index"
+              (click)="openLightbox(i)"
+              class="screenshot-thumb-box"
+              title="Cliquer pour zoomer en haute définition">
+              <img [src]="resolveUrl(url)" alt="Capture problème" class="screenshot-thumb" />
+              <div class="zoom-overlay">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="zoom-icon">
+                  <circle cx="11" cy="11" r="8"></circle>
+                  <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                  <line x1="11" y1="8" x2="11" y2="14"></line>
+                  <line x1="8" y1="11" x2="14" y2="11"></line>
+                </svg>
+                <span>Zoomer</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <!-- Tags -->
         <div class="post-tags" *ngIf="post.tags && post.tags.length > 0">
           <span class="tag-pill" *ngFor="let tag of post.tags">#{{ tag }}</span>
@@ -216,6 +246,60 @@ import { AuthService } from '../../../core/services/auth.service';
           <p>Aucune réponse pour l'instant. Soyez le premier à apporter votre aide !</p>
         </div>
       </section>
+
+      <!-- Lightbox Modale avec Zoom Interactif pour Mentors -->
+      <div class="lightbox-overlay animate-fade-in" *ngIf="lightboxOpen" (click)="closeLightbox()">
+        <div class="lightbox-modal" (click)="$event.stopPropagation()">
+          <div class="lightbox-toolbar">
+            <div class="lightbox-counter">
+              Capture {{ currentLightboxIndex + 1 }} sur {{ (post?.screenshotUrls?.length || 0) }}
+            </div>
+            <div class="lightbox-controls">
+              <button type="button" (click)="zoomIn()" class="btn-tool" title="Zoom avant (+)">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="tool-icon">
+                  <circle cx="11" cy="11" r="8"></circle>
+                  <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                  <line x1="11" y1="8" x2="11" y2="14"></line>
+                  <line x1="8" y1="11" x2="14" y2="11"></line>
+                </svg>
+              </button>
+              <button type="button" (click)="zoomOut()" class="btn-tool" title="Zoom arrière (-)">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="tool-icon">
+                  <circle cx="11" cy="11" r="8"></circle>
+                  <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                  <line x1="8" y1="11" x2="14" y2="11"></line>
+                </svg>
+              </button>
+              <button type="button" (click)="resetZoom()" class="btn-tool btn-zoom-reset" title="Réinitialiser zoom">
+                {{ zoomLevel }}%
+              </button>
+              <button type="button" (click)="closeLightbox()" class="btn-tool btn-close" title="Fermer">✕</button>
+            </div>
+          </div>
+
+          <div class="lightbox-image-viewport" (wheel)="onWheelZoom($event)">
+            <img
+              [src]="currentLightboxImage"
+              alt="Capture en grand"
+              class="lightbox-image"
+              [style.transform]="'scale(' + (zoomLevel / 100) + ')'"
+            />
+          </div>
+
+          <button
+            type="button"
+            *ngIf="(post?.screenshotUrls?.length || 0) > 1"
+            (click)="prevImage()"
+            class="lightbox-nav-btn prev"
+            title="Image précédente">‹</button>
+          <button
+            type="button"
+            *ngIf="(post?.screenshotUrls?.length || 0) > 1"
+            (click)="nextImage()"
+            class="lightbox-nav-btn next"
+            title="Image suivante">›</button>
+        </div>
+      </div>
     </div>
   `,
   styleUrls: ['./help-post-detail.component.css']
@@ -237,6 +321,68 @@ export class HelpPostDetailComponent implements OnInit {
   subReplyText = '';
 
   currentUserEmail: string | null = null;
+
+  // Lightbox & Zoom
+  lightboxOpen = false;
+  currentLightboxIndex = 0;
+  zoomLevel = 100;
+
+  resolveUrl(url?: string | null): string {
+    return this.helpService.resolveScreenshotUrl(url);
+  }
+
+  get currentLightboxImage(): string {
+    if (!this.post?.screenshotUrls || this.post.screenshotUrls.length === 0) return '';
+    return this.resolveUrl(this.post.screenshotUrls[this.currentLightboxIndex]);
+  }
+
+  openLightbox(index: number): void {
+    this.currentLightboxIndex = index;
+    this.zoomLevel = 100;
+    this.lightboxOpen = true;
+  }
+
+  closeLightbox(): void {
+    this.lightboxOpen = false;
+    this.zoomLevel = 100;
+  }
+
+  zoomIn(): void {
+    if (this.zoomLevel < 350) {
+      this.zoomLevel += 25;
+    }
+  }
+
+  zoomOut(): void {
+    if (this.zoomLevel > 50) {
+      this.zoomLevel -= 25;
+    }
+  }
+
+  resetZoom(): void {
+    this.zoomLevel = 100;
+  }
+
+  onWheelZoom(event: WheelEvent): void {
+    event.preventDefault();
+    if (event.deltaY < 0) {
+      this.zoomIn();
+    } else {
+      this.zoomOut();
+    }
+  }
+
+  prevImage(): void {
+    if (!this.post?.screenshotUrls || this.post.screenshotUrls.length === 0) return;
+    this.currentLightboxIndex = (this.currentLightboxIndex - 1 + this.post.screenshotUrls.length) % this.post.screenshotUrls.length;
+    this.zoomLevel = 100;
+  }
+
+  nextImage(): void {
+    if (!this.post?.screenshotUrls || this.post.screenshotUrls.length === 0) return;
+    this.currentLightboxIndex = (this.currentLightboxIndex + 1) % this.post.screenshotUrls.length;
+    this.zoomLevel = 100;
+  }
 
   ngOnInit(): void {
     const user = this.authService.currentUser();

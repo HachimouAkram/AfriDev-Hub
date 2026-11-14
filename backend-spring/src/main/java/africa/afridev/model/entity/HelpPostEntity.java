@@ -62,6 +62,13 @@ public class HelpPostEntity {
     @Builder.Default
     private List<String> tags = new ArrayList<>();
 
+    /** Captures d'écran / Photos d'erreurs (max 5) */
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(name = "help_post_screenshots", joinColumns = @JoinColumn(name = "help_post_id"))
+    @Column(name = "screenshot_url")
+    @Builder.Default
+    private List<String> screenshotUrls = new ArrayList<>();
+
     /** Niveau déclaré du demandeur */
     @Enumerated(EnumType.STRING)
     private DeveloperLevel niveauDemandeur;

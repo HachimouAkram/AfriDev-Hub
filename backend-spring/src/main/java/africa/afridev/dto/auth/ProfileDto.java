@@ -35,6 +35,8 @@ public class ProfileDto {
     private String avatarUrl;
     private String bannerUrl;
     private String cvUrl;
+    private String cvVisibility;
+    private Boolean isCvAccessible;
     private Integer completionScore;
     private Boolean mobileMoneyVerified;
     private Long xpPoints;

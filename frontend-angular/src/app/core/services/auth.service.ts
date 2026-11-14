@@ -35,6 +35,8 @@ export interface Profile {
   whatsappNumber?: string;
   preferredLanguage?: string;
   phone?: string;
+  cvVisibility?: 'PUBLIC' | 'APPLICATIONS_ONLY' | string;
+  isCvAccessible?: boolean;
 }
 
 export interface LoginSession {

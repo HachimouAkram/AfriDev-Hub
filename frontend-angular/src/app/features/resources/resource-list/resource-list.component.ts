@@ -186,6 +186,10 @@ export class ResourceListComponent implements OnInit {
   }
 
   openResource(r: ResourceItem): void {
+    if (r.isPaid && !r.isUnlockedByCurrentUser) {
+      this.openPayment(r);
+      return;
+    }
     this.selectedResource.set(r);
     this.activeVideoUrl.set(null);
     this.activeDirectVideoUrl.set(null);
@@ -649,12 +653,32 @@ export class ResourceListComponent implements OnInit {
 
   getTypeLabel(type: ResourceType): string {
     switch (type) {
-      case 'VIDEO': return '🎥 Vidéo';
-      case 'COURSE': return '🎓 Formation';
-      case 'TUTORIAL': return '🛠️ Tutoriel';
-      case 'ARTICLE': return '📝 Article';
-      case 'TECH_CHEATSHEET': return '📋 Antisèche';
-      default: return '📚 Cours';
+      case 'VIDEO': return 'Vidéo';
+      case 'COURSE': return 'Formation Complète';
+      case 'TUTORIAL': return 'Tutoriel Pratique';
+      case 'ARTICLE': return 'Article Technique';
+      case 'TECH_CHEATSHEET': return 'Antisèche / Guide';
+      default: return 'Ressource';
+    }
+  }
+
+  getActionLabel(item: ResourceItem): string {
+    const isUnlocked = !item.isPaid || item.isUnlockedByCurrentUser;
+    if (isUnlocked) {
+      switch (item.type) {
+        case 'VIDEO': return 'Regarder la vidéo';
+        case 'COURSE': return item.isUnlockedByCurrentUser ? 'Accéder à la formation' : 'S\'inscrire à la formation';
+        case 'TUTORIAL': return 'Consulter le tutoriel';
+        case 'ARTICLE': return 'Lire l\'article';
+        case 'TECH_CHEATSHEET': return 'Télécharger l\'antisèche';
+        default: return 'Accéder au contenu';
+      }
+    } else {
+      switch (item.type) {
+        case 'VIDEO': return `Acheter la vidéo · ${item.price} ${item.currency}`;
+        case 'COURSE': return `S\'inscrire · ${item.price} ${item.currency}`;
+        default: return `Débloquer l'accès · ${item.price} ${item.currency}`;
+      }
     }
   }
 

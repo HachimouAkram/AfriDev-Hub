@@ -249,15 +249,10 @@
       <!-- Photo de Couverture / Hero Banner en haut de la card -->
       <div class="card-cover-banner">
         <img 
-          *ngIf="p.screenshots && p.screenshots.length > 0" 
-          [src]="getMediaUrl(p.screenshots[0])" 
+          [src]="getCoverImage(p)" 
           [alt]="p.title" 
           loading="lazy"
           class="cover-banner-img" />
-        <div *ngIf="!p.screenshots || p.screenshots.length === 0" class="cover-banner-fallback">
-          <div class="cover-pattern"></div>
-          <span class="cover-monogram">{{ p.title.charAt(0).toUpperCase() }}</span>
-        </div>
 
         <!-- Badges flottants sur la couverture -->
         <div class="cover-overlay-badges">

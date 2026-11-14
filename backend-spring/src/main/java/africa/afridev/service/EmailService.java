@@ -371,6 +371,118 @@ public class EmailService {
         sendHtmlEmail(toEmail, subject, body);
     }
 
+    // ── Reçu d'achat et livraison du Code Source Projet ──
+    @Async
+    public void sendProjectPurchaseReceipt(String toEmail, String buyerName, String projectTitle,
+                                           String orderNumber, String amount, String currency, String downloadUrl) {
+        String subject = "✅ Reçu d'achat & Accès Code Source – Projet « " + projectTitle + " »";
+        String body = """
+            <div style="font-family: Inter, Arial, sans-serif; max-width: 540px; margin: auto; background: #0F1828; color: #E2E8F0; border-radius: 16px; overflow: hidden; border: 1px solid rgba(255,255,255,0.08);">
+              <div style="background: linear-gradient(135deg, #10B981, #059669); padding: 30px; text-align: center;">
+                <h1 style="margin: 0; color: #fff; font-size: 24px; font-weight: 800;">AfriDev Hub</h1>
+                <p style="margin: 8px 0 0; color: rgba(255,255,255,0.9); font-size: 14px;">Confirmation de commande & Livraison</p>
+              </div>
+              <div style="padding: 32px;">
+                <h2 style="font-size: 20px; color: #F8FAFC; margin-bottom: 12px;">🎉 Merci pour votre achat !</h2>
+                <p style="color: #94A3B8; font-size: 15px;">Bonjour <strong style="color: #E2E8F0;">%s</strong>,</p>
+                <p style="color: #94A3B8; font-size: 14px; line-height: 1.6;">
+                  Votre paiement a été validé avec succès. Vous disposez désormais d'un accès complet et permanent au code source du projet <strong style="color: #34D399;">« %s »</strong>.
+                </p>
+                <div style="background: rgba(16,185,129,0.1); border-radius: 12px; padding: 20px; margin: 20px 0; border-left: 4px solid #10B981;">
+                  <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                    <span style="color: #94A3B8; font-size: 13px;">N° Commande :</span>
+                    <strong style="color: #E2E8F0; font-size: 13px;">%s</strong>
+                  </div>
+                  <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                    <span style="color: #94A3B8; font-size: 13px;">Montant réglé :</span>
+                    <strong style="color: #34D399; font-size: 14px;">%s %s</strong>
+                  </div>
+                  <div style="display: flex; justify-content: space-between;">
+                    <span style="color: #94A3B8; font-size: 13px;">Statut :</span>
+                    <span style="color: #34D399; font-weight: 700; font-size: 13px;">✓ Confirmé & Disponible</span>
+                  </div>
+                </div>
+                <div style="margin: 28px 0 20px; text-align: center;">
+                  <a href="%s" 
+                     style="display: inline-block; padding: 14px 28px; background: #10B981; color: #fff; border-radius: 10px; text-decoration: none; font-weight: 700; font-size: 15px; box-shadow: 0 4px 14px rgba(16,185,129,0.35);">
+                    📥 Télécharger le Code Source (Archive ZIP)
+                  </a>
+                </div>
+                <p style="color: #64748B; font-size: 12px; text-align: center; margin-top: 12px;">
+                  Ce fichier et les mises à jour sont également accessibles à tout moment depuis votre tableau de bord dans l'application.
+                </p>
+              </div>
+              <div style="background: #0B1120; padding: 16px; text-align: center;">
+                <p style="margin: 0; color: #475569; font-size: 12px;">© 2026 AfriDev Hub · Plateforme Panafricaine des Développeurs</p>
+              </div>
+            </div>
+            """.formatted(
+                buyerName != null ? buyerName : toEmail,
+                projectTitle,
+                orderNumber,
+                amount,
+                currency != null ? currency : "XOF",
+                downloadUrl != null ? downloadUrl : "https://afridevhub.economestore.com/dashboard/orders"
+            );
+
+        sendHtmlEmail(toEmail, subject, body);
+    }
+
+    // ── Reçu d'achat et accès Formation / Vidéo ──
+    @Async
+    public void sendResourcePurchaseReceipt(String toEmail, String buyerName, String resourceTitle,
+                                            String resourceType, String orderNumber, String amount, String currency, String accessUrl) {
+        String subject = "✅ Reçu d'achat & Accès – Formation « " + resourceTitle + " »";
+        String body = """
+            <div style="font-family: Inter, Arial, sans-serif; max-width: 540px; margin: auto; background: #0F1828; color: #E2E8F0; border-radius: 16px; overflow: hidden; border: 1px solid rgba(255,255,255,0.08);">
+              <div style="background: linear-gradient(135deg, #10B981, #059669); padding: 30px; text-align: center;">
+                <h1 style="margin: 0; color: #fff; font-size: 24px; font-weight: 800;">AfriDev Hub</h1>
+                <p style="margin: 8px 0 0; color: rgba(255,255,255,0.9); font-size: 14px;">Confirmation d'inscription & Accès aux cours</p>
+              </div>
+              <div style="padding: 32px;">
+                <h2 style="font-size: 20px; color: #F8FAFC; margin-bottom: 12px;">🎓 Inscription confirmée !</h2>
+                <p style="color: #94A3B8; font-size: 15px;">Bonjour <strong style="color: #E2E8F0;">%s</strong>,</p>
+                <p style="color: #94A3B8; font-size: 14px; line-height: 1.6;">
+                  Votre inscription à la ressource (%s) <strong style="color: #34D399;">« %s »</strong> est maintenant active. Vous avez un accès illimité aux vidéos et supports pédagogiques.
+                </p>
+                <div style="background: rgba(16,185,129,0.1); border-radius: 12px; padding: 20px; margin: 20px 0; border-left: 4px solid #10B981;">
+                  <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                    <span style="color: #94A3B8; font-size: 13px;">N° Commande :</span>
+                    <strong style="color: #E2E8F0; font-size: 13px;">%s</strong>
+                  </div>
+                  <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                    <span style="color: #94A3B8; font-size: 13px;">Montant réglé :</span>
+                    <strong style="color: #34D399; font-size: 14px;">%s %s</strong>
+                  </div>
+                  <div style="display: flex; justify-content: space-between;">
+                    <span style="color: #94A3B8; font-size: 13px;">Accès :</span>
+                    <span style="color: #34D399; font-weight: 700; font-size: 13px;">✓ Illimité & Permanent</span>
+                  </div>
+                </div>
+                <div style="margin: 28px 0 20px; text-align: center;">
+                  <a href="%s" 
+                     style="display: inline-block; padding: 14px 28px; background: #10B981; color: #fff; border-radius: 10px; text-decoration: none; font-weight: 700; font-size: 15px; box-shadow: 0 4px 14px rgba(16,185,129,0.35);">
+                    🚀 Accéder à la Formation maintenant
+                  </a>
+                </div>
+              </div>
+              <div style="background: #0B1120; padding: 16px; text-align: center;">
+                <p style="margin: 0; color: #475569; font-size: 12px;">© 2026 AfriDev Hub · Plateforme Panafricaine des Développeurs</p>
+              </div>
+            </div>
+            """.formatted(
+                buyerName != null ? buyerName : toEmail,
+                resourceType != null ? resourceType : "Formation",
+                resourceTitle,
+                orderNumber,
+                amount,
+                currency != null ? currency : "XOF",
+                accessUrl != null ? accessUrl : "https://afridevhub.economestore.com/resources"
+            );
+
+        sendHtmlEmail(toEmail, subject, body);
+    }
+
     // ── Generic fire-and-forget (errors logged, not propagated) ───────────────
     private void sendHtmlEmail(String to, String subject, String htmlBody) {
         try {

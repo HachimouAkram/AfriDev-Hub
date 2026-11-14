@@ -40,8 +40,12 @@ public class ProfileController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse<ProfileDto>> getProfileById(@PathVariable String id) {
-        ProfileDto profile = profileService.getProfileById(id);
+    public ResponseEntity<ApiResponse<ProfileDto>> getProfileById(
+            @PathVariable String id,
+            Authentication authentication
+    ) {
+        String viewerEmail = authentication != null ? authentication.getName() : null;
+        ProfileDto profile = profileService.getProfileById(id, viewerEmail);
         return ResponseEntity.ok(ApiResponse.ok(profile));
     }
 

@@ -48,6 +48,7 @@ public class PaymentService {
     private final UnitechPayGateway unitechPayGateway;
     private final StripeGateway stripeGateway;
     private final XpService xpService;
+    private final EmailService emailService;
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Value("${app.payment.platform-fee-percent:5.0}")
@@ -376,6 +377,7 @@ public class PaymentService {
 
                     // Récompenser l'acheteur en XP
                     xpService.awardXp(payment.getBuyer(), 30, XpSourceType.PROJECT_PUBLISHED, payment.getId(), "Achat soutenu sur AfriDev Hub");
+                    sendPurchaseFulfillment(payment);
                     log.info("Paiement #{} complété avec succès via UnitechPay", payment.getOrderNumber());
                     return true;
                 }
@@ -488,6 +490,7 @@ public class PaymentService {
                     if (payment.getBuyer() != null) {
                         xpService.awardXp(payment.getBuyer(), 30, XpSourceType.PROJECT_PUBLISHED, payment.getId(), "Achat soutenu sur AfriDev Hub");
                     }
+                    sendPurchaseFulfillment(payment);
 
                     log.info("Paiement SasPay #{} validé et complété avec succès", payment.getOrderNumber());
                     return true;
@@ -548,6 +551,53 @@ public class PaymentService {
                 .createdAt(p.getCreatedAt())
                 .completedAt(p.getCompletedAt())
                 .build();
+    }
+
+    private void sendPurchaseFulfillment(PaymentEntity payment) {
+        try {
+            if (payment == null || payment.getBuyer() == null) return;
+            String buyerEmail = payment.getBuyer().getEmail();
+            String buyerName = payment.getBuyer().getProfile() != null && payment.getBuyer().getProfile().getFullName() != null
+                    ? payment.getBuyer().getProfile().getFullName()
+                    : buyerEmail;
+
+            String originBase = resolveFrontendBaseUrl();
+
+            if (payment.getTargetType() == PaymentTargetType.PROJECT) {
+                ProjectEntity project = projectRepository.findById(payment.getTargetId()).orElse(null);
+                String projectTitle = project != null ? project.getTitle() : payment.getTargetTitle();
+                String downloadUrl = originBase + "/projects/" + payment.getTargetId();
+                if (project != null && project.getSourceCodeArchiveUrl() != null && !project.getSourceCodeArchiveUrl().isBlank()) {
+                    downloadUrl = project.getSourceCodeArchiveUrl();
+                }
+                emailService.sendProjectPurchaseReceipt(
+                        buyerEmail,
+                        buyerName,
+                        projectTitle,
+                        payment.getOrderNumber(),
+                        payment.getTotalBuyerAmount() != null ? payment.getTotalBuyerAmount().toPlainString() : "0",
+                        payment.getCurrency(),
+                        downloadUrl
+                );
+            } else if (payment.getTargetType() == PaymentTargetType.COURSE) {
+                ResourceEntity resource = resourceRepository.findById(payment.getTargetId()).orElse(null);
+                String resourceTitle = resource != null ? resource.getTitle() : payment.getTargetTitle();
+                String resourceType = resource != null && resource.getType() != null ? resource.getType().name() : "Formation";
+                String accessUrl = originBase + "/resources";
+                emailService.sendResourcePurchaseReceipt(
+                        buyerEmail,
+                        buyerName,
+                        resourceTitle,
+                        resourceType,
+                        payment.getOrderNumber(),
+                        payment.getTotalBuyerAmount() != null ? payment.getTotalBuyerAmount().toPlainString() : "0",
+                        payment.getCurrency(),
+                        accessUrl
+                );
+            }
+        } catch (Exception e) {
+            log.error("Erreur lors de l'envoi de l'email de confirmation d'achat #{}: {}", payment.getOrderNumber(), e.getMessage());
+        }
     }
 }
 

@@ -61,6 +61,7 @@ public class HelpService {
                 .description(request.getDescription().trim())
                 .type(request.getType() != null ? request.getType() : HelpPostType.ORIENTATION)
                 .tags(request.getTags() != null ? request.getTags() : List.of())
+                .screenshotUrls(request.getScreenshotUrls() != null ? request.getScreenshotUrls().stream().limit(5).toList() : List.of())
                 .niveauDemandeur(request.getNiveauDemandeur())
                 .status(HelpPostStatus.OUVERTE)
                 .visibility(request.getVisibility() != null ? request.getVisibility() : HelpPostVisibility.PUBLIQUE)
@@ -141,6 +142,7 @@ public class HelpService {
         post.setDescription(request.getDescription().trim());
         if (request.getType() != null) post.setType(request.getType());
         if (request.getTags() != null) post.setTags(request.getTags());
+        if (request.getScreenshotUrls() != null) post.setScreenshotUrls(request.getScreenshotUrls().stream().limit(5).toList());
         if (request.getNiveauDemandeur() != null) post.setNiveauDemandeur(request.getNiveauDemandeur());
         if (request.getVisibility() != null) post.setVisibility(request.getVisibility());
 
@@ -352,6 +354,7 @@ public class HelpService {
                 .description(post.getDescription())
                 .type(post.getType())
                 .tags(post.getTags())
+                .screenshotUrls(post.getScreenshotUrls() != null ? post.getScreenshotUrls() : List.of())
                 .niveauDemandeur(post.getNiveauDemandeur())
                 .status(post.getStatus())
                 .visibility(post.getVisibility())

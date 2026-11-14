@@ -44,6 +44,9 @@ public class ProjectDto {
     private String companyRole;
     private String youtubeUrl;
     private String documentationPdfUrl;
+    private String sourceCodeArchiveUrl;
+    private Boolean hasSourceCodeArchive;
+    private Boolean isPurchasedByCurrentUser;
     private Integer maxMembers;
 
     private Integer recognitionsCount;

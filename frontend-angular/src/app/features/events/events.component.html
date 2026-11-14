@@ -113,13 +113,13 @@
             <i class="ri-broadcast-line"></i> En ligne
           </span>
           <span *ngIf="event.matchPercentage && event.matchPercentage > 0" class="badge-match" [class.badge-match-high]="event.matchPercentage >= 70">
-            <i class="ri-magic-line"></i> {{ event.matchPercentage }}% Match
+            {{ event.matchPercentage }}% Match
           </span>
           <span *ngIf="event.isOrganizerFollowed" class="badge-organizer-followed">
-            <i class="ri-user-follow-line"></i> Suivi
+            Suivi
           </span>
           <a *ngIf="isMyEvent(event)" routerLink="/dashboard/events" class="my-event-badge" title="Gérer ou modifier dans mon tableau de bord">
-            <i class="ri-user-settings-line"></i> Mon événement
+            Mon événement
           </a>
         </div>
 
@@ -138,7 +138,9 @@
 
           <!-- Suggestion Reason -->
           <div *ngIf="event.suggestionReason" class="event-reason-row">
-            <i class="ri-sparkling-fill sparkle-icon"></i>
+            <svg class="w-3.5 h-3.5 text-emerald-600 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 18v-5.25m0 0a6.01 6.01 0 001.5-.189m-1.5.189a6.01 6.01 0 01-1.5-.189m3.75 7.478a12.06 12.06 0 01-4.5 0m3.75 2.383a14.406 14.406 0 01-3 0M14.25 18v-.192c0-.983.658-1.823 1.508-2.316a7.5 7.5 0 10-7.516 0c.85.493 1.508 1.333 1.508 2.316V18" />
+            </svg>
             <span>{{ event.suggestionReason }}</span>
           </div>
 
@@ -148,7 +150,7 @@
           <!-- Tags -->
           <div *ngIf="event.tags && event.tags.length > 0" class="event-tags">
             <span *ngFor="let tag of event.tags" class="tag" [class.badge-tag-matched]="isMatchedTag(tag, event)">
-              <i *ngIf="isMatchedTag(tag, event)" class="ri-check-line tag-icon-match"></i>#{{ tag }}
+              <span *ngIf="isMatchedTag(tag, event)" class="tag-icon-match">✓ </span>#{{ tag }}
             </span>
           </div>
 

@@ -28,6 +28,8 @@ public class HelpPostCreateRequest {
 
     private List<String> tags = new ArrayList<>();
 
+    private List<String> screenshotUrls = new ArrayList<>();
+
     private DeveloperLevel niveauDemandeur;
 
     private HelpPostVisibility visibility = HelpPostVisibility.PUBLIQUE;

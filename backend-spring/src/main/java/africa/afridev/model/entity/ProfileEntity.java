@@ -79,6 +79,10 @@ public class ProfileEntity {
     private String bannerUrl;
     private String cvUrl;
 
+    @Column(name = "cv_visibility", length = 32)
+    @Builder.Default
+    private String cvVisibility = "PUBLIC";
+
     @Column(columnDefinition = "TEXT")
     private String githubStatsJson;
 

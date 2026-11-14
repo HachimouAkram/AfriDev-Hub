@@ -41,6 +41,12 @@ public class FileUploadController {
         return ResponseEntity.ok(ApiResponse.ok(Map.of("url", fileUrl)));
     }
 
+    @PostMapping("/archive")
+    public ResponseEntity<ApiResponse<Map<String, String>>> uploadArchive(@RequestParam("file") MultipartFile file) {
+        String fileUrl = fileStorageService.storeArchive(file);
+        return ResponseEntity.ok(ApiResponse.ok(Map.of("url", fileUrl)));
+    }
+
     @GetMapping("/files/{filename:.+}")
     public ResponseEntity<Resource> getFile(@PathVariable String filename) {
         Resource resource = fileStorageService.loadFileAsResource(filename);

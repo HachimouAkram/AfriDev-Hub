@@ -38,6 +38,9 @@ export interface Project {
   companyRole?: string;
   youtubeUrl?: string;
   documentationPdfUrl?: string;
+  sourceCodeArchiveUrl?: string;
+  hasSourceCodeArchive?: boolean;
+  isPurchasedByCurrentUser?: boolean;
   maxMembers?: number;
   payoutPhoneNumber?: string;
   payoutOperator?: string;
@@ -200,6 +203,39 @@ export class ProjectService {
     const formData = new FormData();
     formData.append('file', file);
     return this.http.post<ApiResponse<{ url: string }>>(getUploadApiUrl('pdf'), formData);
+  }
+
+  uploadArchive(file: File): Observable<ApiResponse<{ url: string }>> {
+    const formData = new FormData();
+    formData.append('file', file);
+    return this.http.post<ApiResponse<{ url: string }>>(getUploadApiUrl('archive'), formData);
+  }
+
+  downloadSourceCode(id: string): Observable<ApiResponse<{ downloadUrl: string }>> {
+    return this.http.get<ApiResponse<{ downloadUrl: string }>>(`${this.apiUrl}/${id}/source-code`);
+  }
+
+  getProjectCoverUrl(project: Project | null | undefined): string {
+    if (project?.screenshots && project.screenshots.length > 0) {
+      return project.screenshots[0];
+    }
+    const stack = (project?.stack || []).join(' ').toLowerCase();
+    if (stack.includes('ai') || stack.includes('python') || stack.includes('data') || stack.includes('llm') || stack.includes('intelligence')) {
+      return 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=1200&q=80';
+    }
+    if (stack.includes('mobile') || stack.includes('flutter') || stack.includes('react native') || stack.includes('android') || stack.includes('ios')) {
+      return 'https://images.unsplash.com/photo-1551650975-87deedd944c3?auto=format&fit=crop&w=1200&q=80';
+    }
+    if (stack.includes('fintech') || stack.includes('pay') || stack.includes('bank') || stack.includes('crypto')) {
+      return 'https://images.unsplash.com/photo-1559526324-4b87b5e36e44?auto=format&fit=crop&w=1200&q=80';
+    }
+    if (stack.includes('cloud') || stack.includes('devops') || stack.includes('docker') || stack.includes('aws') || stack.includes('kubernetes')) {
+      return 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=1200&q=80';
+    }
+    if (stack.includes('angular') || stack.includes('react') || stack.includes('vue') || stack.includes('web') || stack.includes('frontend')) {
+      return 'https://images.unsplash.com/photo-1507238691740-187a5b1d37b8?auto=format&fit=crop&w=1200&q=80';
+    }
+    return 'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?auto=format&fit=crop&w=1200&q=80';
   }
 }
 

@@ -4,7 +4,11 @@
     <div class="header-text">
       <div class="header-badge-inline">
         <span class="badge-dot"></span>
-        <span>AfriDev Academy 🎓</span>
+        <svg class="icon-svg icon-svg-xs" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l9-5-9-5-9 5 9 5z" />
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z" />
+        </svg>
+        <span>AfriDev Academy</span>
       </div>
       <h1>{{ t('resources.title') }}</h1>
       <p>{{ t('resources.subtitle') }}</p>
@@ -38,16 +42,16 @@
         Toutes les langues
       </button>
       <button class="tab-btn" [class.active]="selectedLang() === 'fr'" (click)="setFilterLang('fr')">
-        🇫🇷 Français
+        Français
       </button>
       <button class="tab-btn" [class.active]="selectedLang() === 'en'" (click)="setFilterLang('en')">
-        🇬🇧 English
+        English
       </button>
       <button class="tab-btn" [class.active]="selectedLang() === 'wo'" (click)="setFilterLang('wo')">
-        🇸🇳 Wolof
+        Wolof
       </button>
       <button class="tab-btn" [class.active]="selectedLang() === 'sw'" (click)="setFilterLang('sw')">
-        🇹🇿 Kiswahili
+        Kiswahili
       </button>
     </div>
 
@@ -113,7 +117,11 @@
 
     <!-- Empty State -->
     <div *ngIf="!isLoading() && resources().length === 0" class="empty-state">
-      <div class="empty-icon">📚</div>
+      <div class="empty-icon">
+        <svg viewBox="0 0 24 24" width="40" height="40" fill="none" stroke="currentColor" stroke-width="1.8">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+        </svg>
+      </div>
       <h3>Aucune ressource trouvée pour ces filtres</h3>
       <p>Essayez de réinitialiser vos filtres ou publiez la première formation sur ce sujet.</p>
       <div class="empty-actions">
@@ -150,8 +158,22 @@
         <!-- Body -->
         <div class="card-body">
           <div class="card-meta">
-            <span class="meta-item">⏱️ {{ item.durationMinutes }} min</span>
-            <span class="meta-item">👥 {{ item.completionsCount }} certifiés</span>
+            <span class="meta-item">
+              <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 4px;">
+                <circle cx="12" cy="12" r="10"></circle>
+                <polyline points="12 6 12 12 16 14"></polyline>
+              </svg>
+              {{ item.durationMinutes }} min
+            </span>
+            <span class="meta-item">
+              <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 4px;">
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                <circle cx="9" cy="7" r="4"></circle>
+                <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+              </svg>
+              {{ item.completionsCount }} certifiés
+            </span>
           </div>
           <h3 class="card-title">{{ item.title }}</h3>
           <p class="author-chip">Par <strong>{{ item.authorName || 'Communauté AfriDev' }}</strong></p>
@@ -162,17 +184,26 @@
         <div class="card-footer">
           <ng-container *ngIf="!item.isPaid || item.isUnlockedByCurrentUser">
             <button class="btn btn-emerald btn-sm w-full" (click)="openResource(item)">
-              ▶️ {{ t('resources.watch_video') }}
+              <svg *ngIf="item.type === 'VIDEO'" viewBox="0 0 24 24" width="14" height="14" fill="currentColor" style="margin-right: 6px;">
+                <polygon points="5 3 19 12 5 21 5 3"></polygon>
+              </svg>
+              <svg *ngIf="item.type === 'COURSE'" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 6px;">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 14l9-5-9-5-9 5 9 5z" />
+              </svg>
+              <svg *ngIf="item.type !== 'VIDEO' && item.type !== 'COURSE'" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 6px;">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>
+              <span>{{ getActionLabel(item) }}</span>
             </button>
           </ng-container>
 
           <ng-container *ngIf="item.isPaid && !item.isUnlockedByCurrentUser">
             <button class="btn btn-primary btn-sm w-full" (click)="openPayment(item)">
-              <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 6px;">
+              <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 6px;">
                 <rect x="2" y="5" width="20" height="14" rx="2"></rect>
                 <line x1="2" y1="10" x2="22" y2="10"></line>
               </svg>
-              <span>{{ t('action.enroll') }} · {{ item.price }} {{ item.currency }} (SasPay)</span>
+              <span>{{ getActionLabel(item) }}</span>
             </button>
           </ng-container>
         </div>
@@ -246,11 +277,11 @@
           <div class="form-group">
             <label>Type de contenu *</label>
             <select [(ngModel)]="publishForm.type" class="form-input">
-              <option value="VIDEO">🎥 Vidéo</option>
-              <option value="COURSE">🎓 Formation Complète</option>
-              <option value="TUTORIAL">🛠️ Tutoriel Pratique</option>
-              <option value="ARTICLE">📝 Article Technique</option>
-              <option value="TECH_CHEATSHEET">📋 Antisèche / Guide</option>
+              <option value="VIDEO">Vidéo</option>
+              <option value="COURSE">Formation Complète</option>
+              <option value="TUTORIAL">Tutoriel Pratique</option>
+              <option value="ARTICLE">Article Technique</option>
+              <option value="TECH_CHEATSHEET">Antisèche / Guide</option>
             </select>
           </div>
         </div>
@@ -309,10 +340,10 @@
           <div class="form-group">
             <label>Langue *</label>
             <select [(ngModel)]="publishForm.language" class="form-input">
-              <option value="fr">🇫🇷 Français</option>
-              <option value="en">🇬🇧 English</option>
-              <option value="wo">🇸🇳 Wolof</option>
-              <option value="sw">🇹🇿 Kiswahili</option>
+              <option value="fr">Français</option>
+              <option value="en">English</option>
+              <option value="wo">Wolof</option>
+              <option value="sw">Kiswahili</option>
             </select>
           </div>
         </div>
@@ -322,10 +353,17 @@
           <label>Source Vidéo (MP4/WebM/MOV jusqu'à 50 Mo ou lien YouTube / Vimeo)</label>
           <div class="mode-switch-row">
             <button type="button" class="mode-pill" [class.active]="videoSourceMode() === 'UPLOAD'" (click)="videoSourceMode.set('UPLOAD')">
-              📁 Importer une vidéo
+              <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 5px;">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"></path>
+              </svg>
+              Importer une vidéo
             </button>
             <button type="button" class="mode-pill" [class.active]="videoSourceMode() === 'URL'" (click)="videoSourceMode.set('URL')">
-              🔗 Lien YouTube / URL Vidéo
+              <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 5px;">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
+                <path stroke-linecap="round" stroke-linejoin="round" d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
+              </svg>
+              Lien YouTube / URL Vidéo
             </button>
           </div>
 
@@ -354,7 +392,7 @@
               <input type="file" accept="image/*" (change)="onThumbFileSelected($event)" class="hidden-file-input" />
               <span *ngIf="isUploadingThumb()">Upload miniature...</span>
               <span *ngIf="!isUploadingThumb() && uploadedThumbFileName()">✓ {{ uploadedThumbFileName() }}</span>
-              <span *ngIf="!isUploadingThumb() && !uploadedThumbFileName()">🖼️ Choisir une image</span>
+              <span *ngIf="!isUploadingThumb() && !uploadedThumbFileName()">Choisir une image</span>
             </label>
           </div>
 
@@ -364,7 +402,7 @@
               <input type="file" accept="application/pdf,.pdf" (change)="onPdfFileSelected($event)" class="hidden-file-input" />
               <span *ngIf="isUploadingPdf()">Upload PDF...</span>
               <span *ngIf="!isUploadingPdf() && uploadedPdfFileName()">✓ {{ uploadedPdfFileName() }}</span>
-              <span *ngIf="!isUploadingPdf() && !uploadedPdfFileName()">📄 Joindre un PDF</span>
+              <span *ngIf="!isUploadingPdf() && !uploadedPdfFileName()">Joindre un PDF</span>
             </label>
           </div>
         </div>
@@ -374,11 +412,11 @@
           <label>Tarification & Monétisation</label>
           <div class="pricing-toggle-grid">
             <button type="button" class="pricing-choice" [class.active]="!publishForm.isPaid" (click)="publishForm.isPaid = false; publishForm.price = 0">
-              <span class="choice-title">🎁 Ressource Gratuite</span>
+              <span class="choice-title">Ressource Gratuite</span>
               <span class="choice-desc">Accès libre pour toute la communauté</span>
             </button>
             <button type="button" class="pricing-choice" [class.active]="publishForm.isPaid" (click)="publishForm.isPaid = true; publishForm.price = publishForm.price || 5000">
-              <span class="choice-title">💳 Formation Payante · SasPay</span>
+              <span class="choice-title">Formation Payante · SasPay</span>
               <span class="choice-desc">Encaissement Wave, Orange Money & Carte</span>
             </button>
           </div>
@@ -443,14 +481,14 @@
         <div class="form-group">
           <label>Pays de facturation :</label>
           <select [(ngModel)]="country" class="form-select">
-            <option value="SN">🇸🇳 Sénégal</option>
-            <option value="CI">🇨🇮 Côte d'Ivoire</option>
-            <option value="GN">🇬🇳 Guinée</option>
-            <option value="ML">🇲🇱 Mali</option>
-            <option value="BF">🇧🇫 Burkina Faso</option>
-            <option value="TG">🇹🇬 Togo</option>
-            <option value="BJ">🇧🇯 Bénin</option>
-            <option value="CM">🇨🇲 Cameroun</option>
+            <option value="SN">Sénégal</option>
+            <option value="CI">Côte d'Ivoire</option>
+            <option value="GN">Guinée</option>
+            <option value="ML">Mali</option>
+            <option value="BF">Burkina Faso</option>
+            <option value="TG">Togo</option>
+            <option value="BJ">Bénin</option>
+            <option value="CM">Cameroun</option>
           </select>
         </div>
 
@@ -481,7 +519,12 @@
 
       <!-- Payment Launched State -->
       <div class="modal-body text-center" *ngIf="paymentSuccessData()">
-        <div class="success-icon">⏳</div>
+        <div class="success-icon">
+          <svg viewBox="0 0 24 24" width="44" height="44" fill="none" stroke="#10b981" stroke-width="2">
+            <circle cx="12" cy="12" r="10"></circle>
+            <polyline points="12 6 12 12 16 14"></polyline>
+          </svg>
+        </div>
         <h4>Session SasPay initiée !</h4>
         <p>Commande <strong>#{{ paymentSuccessData()?.orderNumber }}</strong></p>
 

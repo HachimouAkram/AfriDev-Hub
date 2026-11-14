@@ -72,6 +72,7 @@ export class ProjectDetailComponent implements OnInit, OnDestroy {
   // Purchase & Payment
   readonly paymentLogos = PAYMENT_LOGOS;
   isProcessingPurchase = false;
+  isDownloadingSource = false;
 
   // Toast
   toastMessage: string | null = null;
@@ -150,6 +151,46 @@ export class ProjectDetailComponent implements OnInit, OnDestroy {
         }
       });
     }
+  }
+
+  getCoverImage(project?: Project | null): string {
+    if (!project) return 'https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&w=1200&q=80';
+    return this.projectService.getProjectCoverUrl(project);
+  }
+
+  hasPurchasedOrIsAuthor(): boolean {
+    if (!this.project) return false;
+    const currentUserId = this.authService.currentUser()?.id;
+    if (currentUserId && this.project.author?.id === currentUserId) return true;
+    return !!this.project.isPurchasedByCurrentUser;
+  }
+
+  downloadSourceCode(): void {
+    if (!this.project) return;
+    if (!this.isLoggedIn()) {
+      this.showToast('Veuillez vous connecter pour télécharger le code source.');
+      return;
+    }
+
+    this.isDownloadingSource = true;
+    this.projectService.downloadSourceCode(this.project.id).subscribe({
+      next: (res) => {
+        this.isDownloadingSource = false;
+        if (res.success && res.data?.downloadUrl) {
+          const directUrl = res.data.downloadUrl.startsWith('http') 
+            ? res.data.downloadUrl 
+            : `/api/v1${res.data.downloadUrl}`;
+          window.open(directUrl, '_blank');
+          this.showToast('Téléchargement du code source démarré !');
+        } else {
+          this.showToast('Lien de téléchargement prêt.');
+        }
+      },
+      error: (err) => {
+        this.isDownloadingSource = false;
+        this.showToast(err.error?.error?.message || 'Code source non disponible ou achat requis.');
+      }
+    });
   }
 
   isLoggedIn(): boolean {

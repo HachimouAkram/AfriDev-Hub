@@ -76,6 +76,45 @@ import {
           </div>
         </div>
 
+        <!-- Photos / Captures d'écran du problème (Max 5 photos, au-dessus de la description) -->
+        <div class="form-group photos-upload-group">
+          <div class="photos-label-row">
+            <label>
+              Captures d'écran ou photos du problème
+              <span class="label-badge">{{ (formData.screenshotUrls?.length || 0) }}/5 photos max</span>
+            </label>
+            <span class="upload-hint-sub">Ajoutez jusqu'à 5 photos pour que les mentors puissent zoomer et analyser l'erreur</span>
+          </div>
+
+          <!-- Grille des photos déjà ajoutées -->
+          <div class="photos-preview-grid" *ngIf="formData.screenshotUrls && formData.screenshotUrls.length > 0">
+            <div *ngFor="let url of formData.screenshotUrls; let i = index" class="photo-preview-item">
+              <img [src]="resolveUrl(url)" alt="Capture problème" class="preview-img" />
+              <button type="button" (click)="removePhoto(i)" class="btn-remove-photo" title="Supprimer cette photo">×</button>
+            </div>
+          </div>
+
+          <!-- Zone d'upload -->
+          <div class="upload-dropzone" *ngIf="(formData.screenshotUrls?.length || 0) < 5">
+            <input
+              type="file"
+              id="problemPhotosInput"
+              accept="image/*"
+              multiple
+              (change)="onPhotosSelected($event)"
+              class="hidden-file-input"
+              #photosInput
+            />
+            <label for="problemPhotosInput" class="upload-dropzone-label">
+              <svg class="upload-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
+              </svg>
+              <span *ngIf="!isUploadingPhoto">Ajouter des photos / captures ({{ 5 - (formData.screenshotUrls?.length || 0) }} restante{{ 5 - (formData.screenshotUrls?.length || 0) > 1 ? 's' : '' }})</span>
+              <span *ngIf="isUploadingPhoto">Téléversement de la photo en cours...</span>
+            </label>
+          </div>
+        </div>
+
         <!-- Description (Markdown) -->
         <div class="form-group">
           <label for="description">
@@ -176,13 +215,61 @@ export class CreateHelpPostComponent {
     description: '',
     type: 'ORIENTATION',
     tags: [],
+    screenshotUrls: [],
     visibility: 'PUBLIQUE'
   };
 
   newTag = '';
   isSubmitting = false;
+  isUploadingPhoto = false;
   errorMessage = '';
   successMessage = '';
+
+  resolveUrl(url?: string | null): string {
+    return this.helpService.resolveScreenshotUrl(url);
+  }
+
+  onPhotosSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (!input.files || input.files.length === 0) return;
+
+    if (!this.formData.screenshotUrls) {
+      this.formData.screenshotUrls = [];
+    }
+
+    const availableSlots = 5 - this.formData.screenshotUrls.length;
+    if (availableSlots <= 0) {
+      this.errorMessage = 'Vous avez déjà atteint la limite de 5 photos.';
+      input.value = '';
+      return;
+    }
+
+    const filesToUpload = Array.from(input.files).slice(0, availableSlots);
+    input.value = '';
+
+    filesToUpload.forEach(file => {
+      if (!file.type.startsWith('image/')) return;
+      this.isUploadingPhoto = true;
+      this.helpService.uploadScreenshot(file).subscribe({
+        next: (res) => {
+          this.isUploadingPhoto = false;
+          if (res.success && res.data?.url) {
+            this.formData.screenshotUrls?.push(res.data.url);
+          }
+        },
+        error: () => {
+          this.isUploadingPhoto = false;
+          this.errorMessage = 'Impossible de téléverser l\'image.';
+        }
+      });
+    });
+  }
+
+  removePhoto(index: number): void {
+    if (this.formData.screenshotUrls) {
+      this.formData.screenshotUrls.splice(index, 1);
+    }
+  }
 
   addTag(event: Event): void {
     event.preventDefault();

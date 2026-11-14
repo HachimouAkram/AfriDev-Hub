@@ -25,6 +25,7 @@ public class ProfileService {
     private final UserRepository userRepository;
     private final AuthService authService;
     private final RedisCacheService redisCacheService;
+    private final africa.afridev.repository.ApplicationRepository applicationRepository;
 
     private final RestTemplate restTemplate = new RestTemplate();
     @org.springframework.beans.factory.annotation.Value("${app.fastapi.url:http://localhost:8000}")
@@ -32,11 +33,37 @@ public class ProfileService {
 
     @Transactional(readOnly = true)
     public ProfileDto getProfileById(String id) {
+        return getProfileById(id, null);
+    }
+
+    @Transactional(readOnly = true)
+    public ProfileDto getProfileById(String id, String viewerEmail) {
         ProfileEntity profile = profileRepository.findById(id)
                 .or(() -> profileRepository.findByUserId(id))
                 .or(() -> userRepository.findByEmail(id).map(UserEntity::getProfile))
                 .orElseThrow(() -> new IllegalArgumentException("Profil introuvable avec l'identifiant: " + id));
-        return authService.mapToProfileDto(profile);
+
+        ProfileDto dto = authService.mapToProfileDto(profile);
+
+        // Vérification de la visibilité du CV
+        boolean isOwner = viewerEmail != null && profile.getUser() != null && viewerEmail.equalsIgnoreCase(profile.getUser().getEmail());
+        boolean isPublic = "PUBLIC".equalsIgnoreCase(profile.getCvVisibility()) || profile.getCvVisibility() == null;
+        boolean hasAppliedToRecruiter = false;
+
+        if (viewerEmail != null && !isOwner && !isPublic && profile.getUser() != null) {
+            UserEntity viewer = userRepository.findByEmail(viewerEmail).orElse(null);
+            if (viewer != null) {
+                hasAppliedToRecruiter = applicationRepository.existsByRecruiterIdAndApplicantId(viewer.getId(), profile.getUser().getId());
+            }
+        }
+
+        boolean canAccessCv = isOwner || isPublic || hasAppliedToRecruiter;
+        dto.setIsCvAccessible(canAccessCv);
+        if (!canAccessCv) {
+            dto.setCvUrl(null); // Masque l'URL directe du fichier PDF
+        }
+
+        return dto;
     }
 
     @Transactional(readOnly = true)
@@ -71,6 +98,7 @@ public class ProfileService {
         if (request.getPortfolioUrl() != null) profile.setPortfolioUrl(request.getPortfolioUrl());
         if (request.getAvatarUrl() != null) profile.setAvatarUrl(request.getAvatarUrl());
         if (request.getCvUrl() != null) profile.setCvUrl(request.getCvUrl());
+        if (request.getCvVisibility() != null) profile.setCvVisibility(request.getCvVisibility());
         if (request.getPreferredLanguage() != null) profile.setPreferredLanguage(request.getPreferredLanguage());
         if (request.getWhatsappEnabled() != null) profile.setWhatsappEnabled(request.getWhatsappEnabled());
         if (request.getWhatsappNumber() != null) profile.setWhatsappNumber(request.getWhatsappNumber());

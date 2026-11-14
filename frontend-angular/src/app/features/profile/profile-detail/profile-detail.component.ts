@@ -541,7 +541,8 @@ export class ProfileDetailComponent implements OnInit {
     zindiUrl: '',
     portfolioUrl: '',
     whatsappEnabled: false,
-    whatsappNumber: ''
+    whatsappNumber: '',
+    cvVisibility: 'PUBLIC'
   };
 
   openEditModal(): void {
@@ -563,7 +564,8 @@ export class ProfileDetailComponent implements OnInit {
       zindiUrl: this.profile.zindiUrl || '',
       portfolioUrl: this.profile.portfolioUrl || '',
       whatsappEnabled: (this.profile as any).whatsappEnabled || false,
-      whatsappNumber: (this.profile as any).whatsappNumber || ''
+      whatsappNumber: (this.profile as any).whatsappNumber || '',
+      cvVisibility: (this.profile as any).cvVisibility || 'PUBLIC'
     };
     this.editSuccessMessage = '';
     this.editErrorMessage = '';
@@ -682,7 +684,8 @@ export class ProfileDetailComponent implements OnInit {
       zindiUrl: this.editForm.zindiUrl,
       portfolioUrl: this.editForm.portfolioUrl,
       whatsappEnabled: this.editForm.whatsappEnabled,
-      whatsappNumber: this.editForm.whatsappNumber
+      whatsappNumber: this.editForm.whatsappNumber,
+      cvVisibility: this.editForm.cvVisibility
     };
 
     this.profileService.updateProfile(payload).subscribe({
@@ -909,6 +912,47 @@ export class ProfileDetailComponent implements OnInit {
     const name = profile?.fullName || 'Développeur';
     const msg = encodeURIComponent(`Bonjour ${name}, j'ai vu votre profil sur AfriDev Hub et je souhaite entrer en contact avec vous !`);
     return `https://wa.me/${cleanPhone}?text=${msg}`;
+  }
+
+  getAvailabilityLabel(avail?: string): string {
+    switch (avail) {
+      case 'OPEN': return 'Disponible';
+      case 'FULL_TIME': return 'À l’écoute (CDI)';
+      case 'PART_TIME': return 'Temps partiel';
+      case 'FREELANCE_ONLY': return 'Freelance / Missions';
+      case 'NOT_AVAILABLE': return 'Non disponible';
+      default: return 'Disponible';
+    }
+  }
+
+  getAvailabilityClass(avail?: string): string {
+    switch (avail) {
+      case 'OPEN':
+      case 'FREELANCE_ONLY':
+        return 'badge-avail-open';
+      case 'FULL_TIME':
+      case 'PART_TIME':
+        return 'badge-avail-listening';
+      case 'NOT_AVAILABLE':
+        return 'badge-avail-busy';
+      default:
+        return 'badge-avail-open';
+    }
+  }
+
+  getAvailabilityDotClass(avail?: string): string {
+    switch (avail) {
+      case 'OPEN':
+      case 'FREELANCE_ONLY':
+        return 'dot-emerald';
+      case 'FULL_TIME':
+      case 'PART_TIME':
+        return 'dot-blue';
+      case 'NOT_AVAILABLE':
+        return 'dot-slate';
+      default:
+        return 'dot-emerald';
+    }
   }
 }
 

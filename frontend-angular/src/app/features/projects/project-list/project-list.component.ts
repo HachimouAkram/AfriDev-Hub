@@ -784,6 +784,13 @@ export class ProjectListComponent implements OnInit {
     return `/api/v1/uploads/files/${url}`;
   }
 
+  getCoverImage(p: Project): string {
+    if (p.screenshots && p.screenshots.length > 0) {
+      return this.getMediaUrl(p.screenshots[0]);
+    }
+    return this.projectService.getProjectCoverUrl(p);
+  }
+
   submitApplication(): void {
     if (!this.selectedProject || !this.applyRole.trim()) return;
 

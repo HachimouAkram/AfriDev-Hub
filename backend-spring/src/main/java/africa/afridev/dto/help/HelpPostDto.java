@@ -24,6 +24,7 @@ public class HelpPostDto {
     private String description;
     private HelpPostType type;
     private List<String> tags;
+    private List<String> screenshotUrls;
     private DeveloperLevel niveauDemandeur;
     private HelpPostStatus status;
     private HelpPostVisibility visibility;

@@ -19,4 +19,7 @@ public interface ApplicationRepository extends JpaRepository<ApplicationEntity, 
 
     @org.springframework.data.jpa.repository.Query("SELECT a.opportunity.id FROM ApplicationEntity a WHERE a.applicant.id = :applicantId")
     java.util.Set<String> findAppliedOpportunityIdsByApplicantId(@org.springframework.data.repository.query.Param("applicantId") String applicantId);
+
+    @org.springframework.data.jpa.repository.Query("SELECT COUNT(a) > 0 FROM ApplicationEntity a WHERE (a.opportunity.publisher.id = :recruiterId OR a.opportunity.company.owner.id = :recruiterId) AND a.applicant.id = :applicantId")
+    boolean existsByRecruiterIdAndApplicantId(@org.springframework.data.repository.query.Param("recruiterId") String recruiterId, @org.springframework.data.repository.query.Param("applicantId") String applicantId);
 }

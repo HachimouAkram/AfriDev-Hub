@@ -725,6 +725,8 @@ public class AuthService {
                 .avatarUrl(profile.getAvatarUrl())
                 .bannerUrl(profile.getBannerUrl())
                 .cvUrl(profile.getCvUrl())
+                .cvVisibility(profile.getCvVisibility() != null ? profile.getCvVisibility() : "PUBLIC")
+                .isCvAccessible(true)
                 .completionScore(profile.getCompletionScore())
                 .mobileMoneyVerified(profile.getMobileMoneyVerified())
                 .xpPoints(profile.getXpPoints())

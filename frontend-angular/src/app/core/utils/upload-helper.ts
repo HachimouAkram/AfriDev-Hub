@@ -7,7 +7,7 @@
  * When hosted on Vercel (*.vercel.app), direct uploads to the Spring Boot backend
  * bypass Vercel's 4.5 MB serverless proxy request entity limit (HTTP 413).
  */
-export function getUploadApiUrl(endpoint: 'image' | 'pdf' | 'video'): string {
+export function getUploadApiUrl(endpoint: 'image' | 'pdf' | 'video' | 'archive'): string {
   if (typeof window !== 'undefined' && window.location && window.location.hostname.includes('vercel.app')) {
     return `https://afridev-hub-711d9935.platform-systalink.com/api/v1/uploads/${endpoint}`;
   }

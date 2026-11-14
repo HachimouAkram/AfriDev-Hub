@@ -58,6 +58,19 @@ public class ProjectController {
         return ResponseEntity.ok(ApiResponse.ok(project));
     }
 
+    @GetMapping("/{id}/source-code")
+    public ResponseEntity<ApiResponse<Map<String, String>>> downloadProjectSourceCode(
+            @PathVariable String id,
+            Authentication authentication
+    ) {
+        if (authentication == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(ApiResponse.error("Veuillez vous connecter pour télécharger le code source."));
+        }
+        String downloadUrl = projectService.getSourceCodeDownloadUrl(authentication.getName(), id);
+        return ResponseEntity.ok(ApiResponse.ok(Map.of("downloadUrl", downloadUrl)));
+    }
+
     @PostMapping
     public ResponseEntity<ApiResponse<ProjectDto>> createProject(
             Authentication authentication,
