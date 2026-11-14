@@ -73,6 +73,31 @@ export class OfflineSyncService {
     this.pendingCount.set(this.getQueue().length);
   }
 
+  setCachedData<T>(key: string, data: T): void {
+    if (typeof window === 'undefined') return;
+    try {
+      localStorage.setItem(key, JSON.stringify({ timestamp: Date.now(), data }));
+    } catch (e) {
+      console.warn('[OfflineSync] Échec mise en cache locale:', e);
+    }
+  }
+
+  getCachedData<T>(key: string): T | null {
+    if (typeof window === 'undefined') return null;
+    try {
+      const raw = localStorage.getItem(key);
+      if (!raw) return null;
+      const parsed = JSON.parse(raw);
+      return (parsed && parsed.data !== undefined) ? parsed.data : parsed;
+    } catch {
+      return null;
+    }
+  }
+
+  isNetworkAvailable(): boolean {
+    return this.isOnline() && (typeof navigator === 'undefined' || navigator.onLine);
+  }
+
   triggerAutoSync(): void {
     const q = this.getQueue();
     if (q.length === 0 || this.isSyncing()) return;
@@ -85,6 +110,9 @@ export class OfflineSyncService {
         localStorage.removeItem(this.QUEUE_KEY);
         this.refreshPendingCount();
         this.lastSyncMessage.set('Synchronisation automatique réussie ✓');
+        if (typeof window !== 'undefined') {
+          window.dispatchEvent(new CustomEvent('afridev_sync_completed'));
+        }
         setTimeout(() => this.lastSyncMessage.set(''), 4000);
       },
       error: (err) => {

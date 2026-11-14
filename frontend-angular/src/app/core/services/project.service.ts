@@ -1,7 +1,10 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable, tap } from 'rxjs';
+import { Observable, of, tap } from 'rxjs';
+import { map, catchError } from 'rxjs/operators';
 import { ApiResponse, User } from './auth.service';
+import { AuthService } from './auth.service';
+import { OfflineSyncService } from './offline-sync.service';
 import { getUploadApiUrl } from '../utils/upload-helper';
 
 export type ProjectType = 'OPEN_SOURCE' | 'FOR_SALE' | 'SAAS' | 'PORTFOLIO' | 'ENTERPRISE' | 'COLLABORATIVE';
@@ -55,6 +58,7 @@ export interface Project {
   suggestionReason?: string;
   matchedStack?: string[];
   isAuthorFollowed?: boolean;
+  isOfflinePending?: boolean;
 }
 
 @Injectable({
@@ -62,6 +66,8 @@ export interface Project {
 })
 export class ProjectService {
   private http = inject(HttpClient);
+  private offlineSync = inject(OfflineSyncService);
+  private authService = inject(AuthService);
   private apiUrl = '/api/v1/projects';
 
   // Cache mémoire réactif (Stale-While-Revalidate) pour chargement instantané (0 ms)
@@ -72,6 +78,11 @@ export class ProjectService {
   getProjects(page = 0, size = 20, projectType?: string, sort?: string, forceRefresh = false): Observable<ApiResponse<any>> {
     const cacheKey = `p_${page}_s_${size}_t_${projectType || 'ALL'}_sort_${sort || 'DEFAULT'}`;
     const cached = this.projectsCache.get(cacheKey);
+    const offlinePublic = this.offlineSync.getCachedData<any>('afridev_offline_projects_all');
+
+    if (!this.offlineSync.isNetworkAvailable() && offlinePublic) {
+      return of({ success: true, data: offlinePublic });
+    }
 
     let params = new HttpParams()
       .set('page', page.toString())
@@ -89,15 +100,23 @@ export class ProjectService {
       tap((res) => {
         if (res && res.success) {
           this.projectsCache.set(cacheKey, { timestamp: Date.now(), data: res });
+          this.offlineSync.setCachedData('afridev_offline_projects_all', res.data);
           const items: Project[] = res?.data?.content || res?.data || [];
           if (Array.isArray(items)) {
             items.forEach(p => {
               if (p && p.id) {
                 this.singleProjectCache.set(p.id, { timestamp: Date.now(), data: { success: true, data: p } });
+                this.offlineSync.setCachedData(`afridev_offline_proj_${p.id}`, p);
               }
             });
           }
         }
+      }),
+      catchError(() => {
+        if (offlinePublic) {
+          return of({ success: true, data: offlinePublic });
+        }
+        return of({ success: true, data: { content: [], totalElements: 0, totalPages: 0 } });
       })
     );
 
@@ -125,11 +144,27 @@ export class ProjectService {
 
   getProjectById(id: string, forceRefresh = false): Observable<ApiResponse<Project>> {
     const cached = this.singleProjectCache.get(id);
+    const offlineProj = this.offlineSync.getCachedData<Project>(`afridev_offline_proj_${id}`);
+
+    if (!this.offlineSync.isNetworkAvailable() && offlineProj) {
+      return of({ success: true, data: offlineProj });
+    }
+
     const network$ = this.http.get<ApiResponse<Project>>(`${this.apiUrl}/${id}`).pipe(
       tap((res) => {
-        if (res && res.success) {
+        if (res && res.success && res.data) {
           this.singleProjectCache.set(id, { timestamp: Date.now(), data: res });
+          this.offlineSync.setCachedData(`afridev_offline_proj_${id}`, res.data);
         }
+      }),
+      catchError(() => {
+        if (offlineProj) {
+          return of({ success: true, data: offlineProj });
+        }
+        return of({
+          success: false,
+          error: { code: 'NOT_FOUND', message: 'Projet non disponible hors-ligne' }
+        } as any);
       })
     );
 
@@ -150,15 +185,140 @@ export class ProjectService {
   }
 
   getMyProjects(page = 0, size = 50): Observable<ApiResponse<any>> {
+    const offlineMyProjects = this.offlineSync.getCachedData<any>('afridev_offline_my_projects');
+
+    if (!this.offlineSync.isNetworkAvailable() && offlineMyProjects) {
+      return of({ success: true, data: this.formatMyProjectsWithPending(offlineMyProjects) });
+    }
+
     const params = new HttpParams()
       .set('page', page.toString())
       .set('size', size.toString());
 
-    return this.http.get<ApiResponse<any>>(`${this.apiUrl}/my-projects`, { params });
+    return this.http.get<ApiResponse<any>>(`${this.apiUrl}/my-projects`, { params }).pipe(
+      tap((res) => {
+        if (res && res.success) {
+          this.offlineSync.setCachedData('afridev_offline_my_projects', res.data);
+        }
+      }),
+      map((res) => {
+        return {
+          ...res,
+          data: this.formatMyProjectsWithPending(res.data)
+        };
+      }),
+      catchError(() => {
+        if (offlineMyProjects) {
+          return of({
+            success: true,
+            data: this.formatMyProjectsWithPending(offlineMyProjects)
+          });
+        }
+        return of({
+          success: true,
+          data: this.formatMyProjectsWithPending([])
+        });
+      })
+    );
+  }
+
+  private formatMyProjectsWithPending(data: any): any {
+    const pending = this.offlineSync.getCachedData<Project[]>('afridev_offline_pending_projects') || [];
+    let items: Project[] = [];
+    let isPage = false;
+
+    if (Array.isArray(data)) {
+      items = [...data];
+    } else if (data && Array.isArray(data.content)) {
+      items = [...data.content];
+      isPage = true;
+    }
+
+    // Fusionner les projets en attente sans doublon
+    if (pending.length > 0) {
+      pending.forEach(p => {
+        if (!items.some(existing => existing.id === p.id)) {
+          items.unshift(p);
+        }
+      });
+    }
+
+    if (isPage) {
+      return { ...data, content: items, totalElements: items.length };
+    }
+    return items;
   }
 
   createProject(data: any): Observable<ApiResponse<Project>> {
-    return this.http.post<ApiResponse<Project>>(this.apiUrl, data).pipe(tap(() => this.clearMemoryCache()));
+    if (!this.offlineSync.isNetworkAvailable()) {
+      return of(this.saveProjectLocally(data));
+    }
+
+    return this.http.post<ApiResponse<Project>>(this.apiUrl, data).pipe(
+      tap(() => this.clearMemoryCache()),
+      catchError((err) => {
+        if (!navigator.onLine || err.status === 0 || err.status === 504) {
+          return of(this.saveProjectLocally(data));
+        }
+        throw err;
+      })
+    );
+  }
+
+  private saveProjectLocally(data: any): ApiResponse<Project> {
+    const localId = 'local_proj_' + Date.now();
+    const user = this.authService.currentUser();
+    const localProj: Project = {
+      ...data,
+      id: localId,
+      author: user || {
+        id: 'local_user',
+        email: 'local@afridev.hub',
+        role: 'DEVELOPER' as any
+      },
+      screenshots: data.screenshots || [],
+      stack: Array.isArray(data.stack) ? data.stack : (data.stackInput ? data.stackInput.split(',').map((s: string) => s.trim()) : []),
+      isOpenSource: Boolean(data.isOpenSource),
+      recognitionsCount: 0,
+      recognizedByCurrentUser: false,
+      status: 'PUBLISHED',
+      createdAt: new Date().toISOString(),
+      isOfflinePending: true
+    };
+
+    // 1. Ajouter aux projets en attente
+    const pending = this.offlineSync.getCachedData<Project[]>('afridev_offline_pending_projects') || [];
+    pending.unshift(localProj);
+    this.offlineSync.setCachedData('afridev_offline_pending_projects', pending);
+
+    // 2. Mettre en file d'attente de synchronisation
+    this.offlineSync.queueAction('CREATE_PROJECT', data);
+
+    // 3. Mettre à jour la liste des projets personnels en cache
+    const myProjects = this.offlineSync.getCachedData<any>('afridev_offline_my_projects') || [];
+    if (Array.isArray(myProjects)) {
+      myProjects.unshift(localProj);
+      this.offlineSync.setCachedData('afridev_offline_my_projects', myProjects);
+    }
+
+    // 4. Ajouter également au cache public pour consultation immédiate
+    const publicCached = this.offlineSync.getCachedData<any>('afridev_offline_projects_all');
+    if (publicCached) {
+      if (Array.isArray(publicCached)) {
+        publicCached.unshift(localProj);
+        this.offlineSync.setCachedData('afridev_offline_projects_all', publicCached);
+      } else if (publicCached.content && Array.isArray(publicCached.content)) {
+        publicCached.content.unshift(localProj);
+        this.offlineSync.setCachedData('afridev_offline_projects_all', publicCached);
+      }
+    }
+
+    this.clearMemoryCache();
+    return {
+      success: true,
+      data: localProj,
+      message: 'Projet enregistré en mode hors-ligne. Il sera synchronisé dès le retour de votre connexion.'
+    };
   }
 
   updateProject(id: string, data: any): Observable<ApiResponse<Project>> {

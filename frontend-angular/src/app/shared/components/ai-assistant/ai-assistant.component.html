@@ -1,15 +1,18 @@
-<!-- Floating AI Button (Icon-only circular FAB) -->
+<!-- Floating AI Button (Assistant IA AfriDev) -->
 <button 
   *ngIf="!isAssistantPage()"
   class="ai-fab-btn" 
   (click)="toggleChat()" 
-  title="Assistant IA AfriDev Hub"
-  aria-label="Ouvrir l'Assistant IA">
+  title="Assistant IA AfriDev Hub (Gemini)"
+  aria-label="Ouvrir l'Assistant IA AfriDev">
   <span class="ai-fab-icon">
-    <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-      <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/>
+    <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+      <path d="M12 2L13.85 7.65L19.5 9.5L13.85 11.35L12 17L10.15 11.35L4.5 9.5L10.15 7.65L12 2Z"/>
+      <path d="M19 15L20.08 17.92L23 19L20.08 20.08L19 23L17.92 20.08L15 19L17.92 17.92L19 15Z" opacity="0.85"/>
+      <circle cx="5.5" cy="18.5" r="1.5" opacity="0.8"/>
     </svg>
   </span>
+  <span class="ai-fab-badge-text">IA</span>
 </button>
 
 <!-- Chat Window Overlay / Card -->

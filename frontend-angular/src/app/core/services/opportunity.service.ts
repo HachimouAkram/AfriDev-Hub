@@ -1,7 +1,9 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable, tap } from 'rxjs';
+import { Observable, of, tap } from 'rxjs';
+import { catchError } from 'rxjs/operators';
 import { ApiResponse, User } from './auth.service';
+import { OfflineSyncService } from './offline-sync.service';
 
 export interface Opportunity {
   id: string;
@@ -55,6 +57,7 @@ export interface Application {
 })
 export class OpportunityService {
   private http = inject(HttpClient);
+  private offlineSync = inject(OfflineSyncService);
   private apiUrl = '/api/v1/opportunities';
 
   private oppsCache = new Map<string, { timestamp: number; data: ApiResponse<any> }>();
@@ -63,6 +66,11 @@ export class OpportunityService {
   getOpportunities(type?: string, page = 0, size = 20, sort = 'SUGGESTED', forceRefresh = false): Observable<ApiResponse<any>> {
     const cacheKey = `o_${type || 'ALL'}_p_${page}_s_${size}_sort_${sort}`;
     const cached = this.oppsCache.get(cacheKey);
+    const offlineOpps = this.offlineSync.getCachedData<any>('afridev_offline_opportunities_all');
+
+    if (!this.offlineSync.isNetworkAvailable() && offlineOpps) {
+      return of({ success: true, data: offlineOpps });
+    }
 
     let params = new HttpParams()
       .set('sort', sort)
@@ -73,9 +81,16 @@ export class OpportunityService {
 
     const network$ = this.http.get<ApiResponse<any>>(this.apiUrl, { params }).pipe(
       tap((res) => {
-        if (res && res.success) {
+        if (res && res.success && res.data) {
           this.oppsCache.set(cacheKey, { timestamp: Date.now(), data: res });
+          this.offlineSync.setCachedData('afridev_offline_opportunities_all', res.data);
         }
+      }),
+      catchError(() => {
+        if (offlineOpps) {
+          return of({ success: true, data: offlineOpps });
+        }
+        return of({ success: true, data: { content: [], totalElements: 0, totalPages: 0 } });
       })
     );
 
@@ -91,7 +106,24 @@ export class OpportunityService {
   }
 
   getOpportunityById(id: string): Observable<ApiResponse<Opportunity>> {
-    return this.http.get<ApiResponse<Opportunity>>(`${this.apiUrl}/${id}`);
+    const offlineItem = this.offlineSync.getCachedData<Opportunity>(`afridev_offline_opp_${id}`);
+    if (!this.offlineSync.isNetworkAvailable() && offlineItem) {
+      return of({ success: true, data: offlineItem });
+    }
+
+    return this.http.get<ApiResponse<Opportunity>>(`${this.apiUrl}/${id}`).pipe(
+      tap(res => {
+        if (res && res.success && res.data) {
+          this.offlineSync.setCachedData(`afridev_offline_opp_${id}`, res.data);
+        }
+      }),
+      catchError(() => {
+        if (offlineItem) {
+          return of({ success: true, data: offlineItem });
+        }
+        throw new Error('Opportunité non disponible hors-ligne');
+      })
+    );
   }
 
   createOpportunity(data: any): Observable<ApiResponse<Opportunity>> {

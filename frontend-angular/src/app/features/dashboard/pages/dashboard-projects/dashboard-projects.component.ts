@@ -188,6 +188,11 @@ export class DashboardProjectsComponent implements OnInit {
         }, 400);
       }
     });
+    if (typeof window !== 'undefined') {
+      window.addEventListener('afridev_sync_completed', () => {
+        this.loadMyProjects();
+      });
+    }
     this.loadMyProjects();
   }
 

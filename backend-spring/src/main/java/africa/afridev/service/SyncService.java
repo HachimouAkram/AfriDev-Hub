@@ -1,9 +1,12 @@
 package africa.afridev.service;
 
+import africa.afridev.dto.project.ProjectCreateRequest;
+import africa.afridev.dto.resource.ResourceCreateRequest;
 import africa.afridev.dto.sync.SyncBatchRequest;
 import africa.afridev.dto.sync.SyncBatchResponse;
 import africa.afridev.model.entity.UserEntity;
 import africa.afridev.repository.UserRepository;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -22,7 +25,9 @@ public class SyncService {
     private final UserRepository userRepository;
     private final ProjectService projectService;
     private final ProjectCommentService commentService;
+    private final ResourceService resourceService;
     private final RedisCacheService redisCacheService;
+    private final ObjectMapper objectMapper;
 
     // Cache local des actions déjà exécutées pour garantir l'idempotence
     private final Map<String, Boolean> processedActionIds = new ConcurrentHashMap<>();
@@ -54,7 +59,16 @@ public class SyncService {
                     Map<String, Object> payload = item.getPayload() != null ? item.getPayload() : Map.of();
                     String createdServerId = null;
 
-                    if ("RECOGNIZE_PROJECT".equals(actionType)) {
+                    if ("CREATE_PROJECT".equals(actionType)) {
+                        ProjectCreateRequest pReq = objectMapper.convertValue(payload, ProjectCreateRequest.class);
+                        var p = projectService.createProject(userEmail, pReq);
+                        createdServerId = p.getId();
+                        redisCacheService.evictProjectsCache();
+                    } else if ("CREATE_RESOURCE".equals(actionType)) {
+                        ResourceCreateRequest rReq = objectMapper.convertValue(payload, ResourceCreateRequest.class);
+                        var r = resourceService.createResource(userEmail, rReq);
+                        createdServerId = r.getId();
+                    } else if ("RECOGNIZE_PROJECT".equals(actionType)) {
                         String projectId = (String) payload.get("projectId");
                         if (projectId != null) {
                             projectService.recognizeProject(userEmail, projectId);

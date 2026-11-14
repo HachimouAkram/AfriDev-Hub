@@ -194,7 +194,11 @@
 
             <!-- Status Badge -->
             <td class="col-status">
-              <span class="status-badge" [ngClass]="proj.status === 'PUBLISHED' ? 'status-published' : 'status-disabled'">
+              <span *ngIf="proj.isOfflinePending" class="status-badge" style="background: rgba(245, 158, 11, 0.15); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.4);">
+                <span class="dot" style="background: #f59e0b; box-shadow: 0 0 6px #f59e0b;"></span>
+                <span>En attente de sync</span>
+              </span>
+              <span *ngIf="!proj.isOfflinePending" class="status-badge" [ngClass]="proj.status === 'PUBLISHED' ? 'status-published' : 'status-disabled'">
                 <span class="dot"></span>
                 <span>{{ proj.status === 'PUBLISHED' ? 'Publié' : 'Désactivé' }}</span>
               </span>

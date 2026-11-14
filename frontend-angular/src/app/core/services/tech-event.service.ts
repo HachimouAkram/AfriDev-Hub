@@ -1,7 +1,9 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable, tap } from 'rxjs';
+import { Observable, of, tap } from 'rxjs';
+import { catchError } from 'rxjs/operators';
 import { ApiResponse } from './auth.service';
+import { OfflineSyncService } from './offline-sync.service';
 
 export type TechEventType = 'MEETUP' | 'CONFERENCE' | 'HACKATHON' | 'WORKSHOP' | 'WEBINAR';
 export type VoteType = 'AGREE' | 'DISAGREE';
@@ -46,6 +48,7 @@ export interface PageResponse<T> {
 })
 export class TechEventService {
   private http = inject(HttpClient);
+  private offlineSync = inject(OfflineSyncService);
   private apiUrl = '/api/v1/events';
   private cache = new Map<string, { timestamp: number; data: ApiResponse<PageResponse<TechEvent>> }>();
   private CACHE_TTL_MS = 5 * 60 * 1000;
@@ -53,6 +56,11 @@ export class TechEventService {
   getEvents(type?: TechEventType, page: number = 0, size: number = 20, sort: string = 'SUGGESTED', forceRefresh = false): Observable<ApiResponse<PageResponse<TechEvent>>> {
     const cacheKey = `ev_${type || 'ALL'}_${page}_${size}_${sort}`;
     const cached = this.cache.get(cacheKey);
+    const offlineEvents = this.offlineSync.getCachedData<PageResponse<TechEvent>>('afridev_offline_events_all');
+
+    if (!this.offlineSync.isNetworkAvailable() && offlineEvents) {
+      return of({ success: true, data: offlineEvents });
+    }
 
     let params = new HttpParams()
       .set('sort', sort)
@@ -65,9 +73,16 @@ export class TechEventService {
 
     const network$ = this.http.get<ApiResponse<PageResponse<TechEvent>>>(this.apiUrl, { params }).pipe(
       tap((res) => {
-        if (res && res.success) {
+        if (res && res.success && res.data) {
           this.cache.set(cacheKey, { timestamp: Date.now(), data: res });
+          this.offlineSync.setCachedData('afridev_offline_events_all', res.data);
         }
+      }),
+      catchError(() => {
+        if (offlineEvents) {
+          return of({ success: true, data: offlineEvents });
+        }
+        return of({ success: true, data: { content: [], totalElements: 0, totalPages: 0, number: 0, size: 20 } });
       })
     );
 
@@ -83,7 +98,24 @@ export class TechEventService {
   }
 
   getEventById(id: string): Observable<ApiResponse<TechEvent>> {
-    return this.http.get<ApiResponse<TechEvent>>(`${this.apiUrl}/${id}`);
+    const offlineItem = this.offlineSync.getCachedData<TechEvent>(`afridev_offline_ev_${id}`);
+    if (!this.offlineSync.isNetworkAvailable() && offlineItem) {
+      return of({ success: true, data: offlineItem });
+    }
+
+    return this.http.get<ApiResponse<TechEvent>>(`${this.apiUrl}/${id}`).pipe(
+      tap(res => {
+        if (res && res.success && res.data) {
+          this.offlineSync.setCachedData(`afridev_offline_ev_${id}`, res.data);
+        }
+      }),
+      catchError(() => {
+        if (offlineItem) {
+          return of({ success: true, data: offlineItem });
+        }
+        throw new Error('Événement non disponible hors-ligne');
+      })
+    );
   }
 
   createEvent(data: {

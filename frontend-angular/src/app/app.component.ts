@@ -560,20 +560,15 @@ import { resolveUploadedMediaUrl } from './core/utils/upload-helper';
       </div>
     </nav>
 
-    <!-- Offline banner & sync toast -->
-    <div class="offline-banner" *ngIf="!offlineSync.isOnline()">
-      <div class="offline-badge-pill">
-        <span class="offline-pulse-dot"></span>
-        <svg class="offline-svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3l18 18M10.5 10.677a2 2 0 012.823 2.823M16.24 7.76a6 6 0 011.66 4.24m-12.72 0a6 6 0 011.11-3.41M12 4a10 10 0 018.66 5M3.34 9A10 10 0 0112 4" />
-        </svg>
-        <span>Mode Hors-Ligne actif</span>
-      </div>
-      <span class="offline-text-info">
-        Vous naviguez sur les données locales en cache. Vos actions seront synchronisées dès le retour de votre connexion.
-      </span>
+    <!-- Offline compact floating badge (Discret et non-bloquant) -->
+    <div class="offline-floating-pill" *ngIf="!offlineSync.isOnline()" role="status" aria-live="polite" title="Mode Hors-Ligne : navigation fluide sur données locales en cache.">
+      <span class="offline-pulse-dot"></span>
+      <svg class="offline-svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3l18 18M10.5 10.677a2 2 0 012.823 2.823M16.24 7.76a6 6 0 011.66 4.24m-12.72 0a6 6 0 011.11-3.41M12 4a10 10 0 018.66 5M3.34 9A10 10 0 0112 4" />
+      </svg>
+      <span>Hors-Ligne</span>
       <span class="offline-queue-count" *ngIf="offlineSync.pendingCount() > 0">
-        {{ offlineSync.pendingCount() }} action(s) en attente
+        {{ offlineSync.pendingCount() }} en attente
       </span>
     </div>
     <div class="sync-toast-banner" *ngIf="offlineSync.lastSyncMessage()">
@@ -681,37 +676,36 @@ import { resolveUploadedMediaUrl } from './core/utils/upload-helper';
     <app-cgu-modal *ngIf="isCguModalOpen" (close)="closeCguModal()"></app-cgu-modal>
   `,
   styles: [`
-    .offline-banner {
+    .offline-floating-pill {
       position: fixed;
-      top: 72px;
-      left: 0;
-      right: 0;
-      background: rgba(15, 23, 42, 0.95);
-      border-bottom: 2px solid #f59e0b;
+      top: 80px;
+      right: 20px;
+      z-index: 9999;
+      background: rgba(15, 23, 42, 0.9);
+      border: 1px solid rgba(245, 158, 11, 0.5);
       backdrop-filter: blur(12px);
       -webkit-backdrop-filter: blur(12px);
-      color: #f8fafc;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-wrap: wrap;
-      gap: 0.75rem;
-      padding: 0.55rem 1.25rem;
-      font-size: 0.84rem;
-      z-index: 1001;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.4);
-    }
-    .offline-badge-pill {
+      color: #fbbf24;
       display: inline-flex;
       align-items: center;
-      gap: 0.4rem;
-      background: rgba(245, 158, 11, 0.18);
-      color: #fbbf24;
-      border: 1px solid rgba(245, 158, 11, 0.35);
-      padding: 0.2rem 0.6rem;
+      gap: 0.5rem;
+      padding: 0.35rem 0.85rem;
       border-radius: 9999px;
       font-size: 0.78rem;
       font-weight: 700;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.35), 0 0 0 1px rgba(245, 158, 11, 0.2);
+      animation: fadeInSlide 0.3s ease-out;
+    }
+    @keyframes fadeInSlide {
+      from { opacity: 0; transform: translateY(-6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    :host-context(body.light-theme) .offline-floating-pill,
+    :host-context(.light-theme) .offline-floating-pill {
+      background: rgba(255, 255, 255, 0.96);
+      border-color: #f59e0b;
+      color: #d97706;
+      box-shadow: 0 4px 16px rgba(217, 119, 6, 0.2);
     }
     .offline-pulse-dot {
       width: 7px;
@@ -725,16 +719,20 @@ import { resolveUploadedMediaUrl } from './core/utils/upload-helper';
       width: 14px;
       height: 14px;
     }
-    .offline-text-info {
-      color: #cbd5e1;
-      font-weight: 500;
-    }
     .offline-queue-count {
-      background: rgba(255, 255, 255, 0.1);
-      padding: 0.15rem 0.5rem;
-      border-radius: 6px;
-      font-size: 0.75rem;
-      color: #94a3b8;
+      background: rgba(245, 158, 11, 0.2);
+      border: 1px solid rgba(245, 158, 11, 0.35);
+      padding: 0.1rem 0.45rem;
+      border-radius: 9999px;
+      font-size: 0.72rem;
+      color: #fbbf24;
+      font-weight: 600;
+    }
+    :host-context(body.light-theme) .offline-queue-count,
+    :host-context(.light-theme) .offline-queue-count {
+      color: #b45309;
+      background: #fef3c7;
+      border-color: #fde68a;
     }
     .sync-toast-banner {
       position: fixed;
