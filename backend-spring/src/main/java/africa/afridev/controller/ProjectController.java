@@ -65,7 +65,7 @@ public class ProjectController {
     ) {
         if (authentication == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body(ApiResponse.error("Veuillez vous connecter pour télécharger le code source."));
+                    .body(ApiResponse.error("UNAUTHORIZED", "Veuillez vous connecter pour télécharger le code source."));
         }
         String downloadUrl = projectService.getSourceCodeDownloadUrl(authentication.getName(), id);
         return ResponseEntity.ok(ApiResponse.ok(Map.of("downloadUrl", downloadUrl)));
