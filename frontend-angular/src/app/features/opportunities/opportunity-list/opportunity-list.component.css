@@ -67,14 +67,34 @@
 /* ────────── Cards Grid ────────── */
 .opportunities-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
   gap: 1.5rem;
+  align-items: stretch;
+}
+
+@media (min-width: 1024px) {
+  .opportunities-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 1023px) and (min-width: 641px) {
+  .opportunities-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 640px) {
+  .opportunities-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 /* ────────── Opt Card ────────── */
 .opt-card {
   display: flex;
   flex-direction: column;
+  justify-content: space-between;
   gap: 1rem;
   padding: 1.5rem;
   background: var(--bg-surface-card);
@@ -84,6 +104,7 @@
   transition: transform 0.22s cubic-bezier(0.4,0,0.2,1), box-shadow 0.22s cubic-bezier(0.4,0,0.2,1), border-color 0.22s ease;
   position: relative;
   overflow: hidden;
+  height: 100%;
 }
 
 .opt-card::before {
@@ -790,10 +811,6 @@
     justify-content: center !important;
     font-size: 0.875rem !important;
   }
-
-  .opportunities-grid {
-    grid-template-columns: 1fr;
-  }
 }
 
 @media (max-width: 600px) {
@@ -809,11 +826,6 @@
     max-height: 94dvh !important;
     max-height: calc(100dvh - 0.5rem) !important;
     margin: 0 !important;
-  }
-}
-
-  .opportunities-grid {
-    grid-template-columns: 1fr;
   }
 
   .form-row {
