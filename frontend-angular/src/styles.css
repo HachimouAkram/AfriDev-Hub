@@ -290,6 +290,88 @@ body.light-theme .modal-card {
   box-shadow: 0 20px 40px -12px rgba(0, 0, 0, 0.15);
 }
 
+/* CGU Modal Light Theme Overrides */
+body.light-theme .cgu-dialog {
+  background: #FFFFFF !important;
+  border-color: rgba(15, 23, 42, 0.12) !important;
+  box-shadow: 0 25px 50px -12px rgba(15, 23, 42, 0.18), 0 0 0 1px rgba(16, 185, 129, 0.25) !important;
+}
+
+body.light-theme .cgu-header,
+body.light-theme .cgu-footer {
+  background: #F8FAFC !important;
+  border-color: #E2E8F0 !important;
+}
+
+body.light-theme .cgu-title {
+  color: #0F172A !important;
+}
+
+body.light-theme .cgu-subtitle,
+body.light-theme .last-update {
+  color: #64748B !important;
+}
+
+body.light-theme .cgu-icon-badge {
+  background: rgba(16, 185, 129, 0.12) !important;
+  border-color: rgba(16, 185, 129, 0.25) !important;
+  color: #059669 !important;
+}
+
+body.light-theme .btn-close {
+  background: #F1F5F9 !important;
+  border-color: #E2E8F0 !important;
+  color: #64748B !important;
+}
+
+body.light-theme .btn-close:hover {
+  background: #FEE2E2 !important;
+  border-color: #FCA5A5 !important;
+  color: #DC2626 !important;
+}
+
+body.light-theme .cgu-body {
+  color: #334155 !important;
+}
+
+body.light-theme .cgu-alert-ban {
+  background: #FEF2F2 !important;
+  border: 1px solid #FECACA !important;
+  border-left: 4px solid #DC2626 !important;
+  color: #991B1B !important;
+}
+
+body.light-theme .cgu-alert-ban .ban-icon {
+  color: #DC2626 !important;
+}
+
+body.light-theme .cgu-alert-ban strong {
+  color: #991B1B !important;
+}
+
+body.light-theme .cgu-alert-ban p {
+  color: #7F1D1D !important;
+}
+
+body.light-theme .cgu-alert-ban p strong {
+  color: #7F1D1D !important;
+}
+
+body.light-theme .cgu-section h3 {
+  color: #059669 !important;
+}
+
+body.light-theme .cgu-section p,
+body.light-theme .cgu-section ul,
+body.light-theme .cgu-section ol,
+body.light-theme .cgu-section li {
+  color: #334155 !important;
+}
+
+body.light-theme .cgu-section strong {
+  color: #0F172A !important;
+}
+
 /* Global Navbar Light Mode Overrides */
 body.light-theme .app-nav {
   background: rgba(255, 255, 255, 0.94) !important;

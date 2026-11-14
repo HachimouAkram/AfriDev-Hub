@@ -318,27 +318,113 @@ import { CommonModule } from '@angular/common';
       transform: translateY(-1px);
     }
 
-    :host-context(body.light-theme) .cgu-dialog {
+    /* ────────── Light Theme Adaptations ────────── */
+    :host-context(body.light-theme) .cgu-dialog,
+    :host-context(.light-theme) .cgu-dialog {
       background: #ffffff;
-      border-color: rgba(0, 0, 0, 0.1);
+      border-color: rgba(15, 23, 42, 0.12);
+      box-shadow: 0 25px 50px -12px rgba(15, 23, 42, 0.2), 0 0 0 1px rgba(16, 185, 129, 0.25);
     }
 
     :host-context(body.light-theme) .cgu-header,
-    :host-context(body.light-theme) .cgu-footer {
+    :host-context(.light-theme) .cgu-header,
+    :host-context(body.light-theme) .cgu-footer,
+    :host-context(.light-theme) .cgu-footer {
       background: #f8fafc;
       border-color: #e2e8f0;
     }
 
-    :host-context(body.light-theme) .cgu-title {
+    :host-context(body.light-theme) .cgu-title,
+    :host-context(.light-theme) .cgu-title {
       color: #0f172a;
     }
 
-    :host-context(body.light-theme) .cgu-body {
+    :host-context(body.light-theme) .cgu-subtitle,
+    :host-context(.light-theme) .cgu-subtitle {
+      color: #64748b;
+    }
+
+    :host-context(body.light-theme) .cgu-icon-badge,
+    :host-context(.light-theme) .cgu-icon-badge {
+      background: rgba(16, 185, 129, 0.12);
+      border-color: rgba(16, 185, 129, 0.3);
+      color: #059669;
+    }
+
+    :host-context(body.light-theme) .btn-close,
+    :host-context(.light-theme) .btn-close {
+      background: #f1f5f9;
+      border-color: #e2e8f0;
+      color: #64748b;
+    }
+
+    :host-context(body.light-theme) .btn-close:hover,
+    :host-context(.light-theme) .btn-close:hover {
+      background: #fee2e2;
+      border-color: #fca5a5;
+      color: #dc2626;
+    }
+
+    :host-context(body.light-theme) .cgu-body,
+    :host-context(.light-theme) .cgu-body {
       color: #334155;
     }
 
-    :host-context(body.light-theme) .cgu-section p {
-      color: #475569;
+    :host-context(body.light-theme) .cgu-alert-ban,
+    :host-context(.light-theme) .cgu-alert-ban {
+      background: #fef2f2;
+      border: 1px solid #fecaca;
+      border-left: 4px solid #dc2626;
+      color: #991b1b;
+    }
+
+    :host-context(body.light-theme) .cgu-alert-ban .ban-icon,
+    :host-context(.light-theme) .cgu-alert-ban .ban-icon {
+      color: #dc2626;
+    }
+
+    :host-context(body.light-theme) .cgu-alert-ban strong,
+    :host-context(.light-theme) .cgu-alert-ban strong {
+      color: #991b1b;
+      font-weight: 700;
+    }
+
+    :host-context(body.light-theme) .cgu-alert-ban p,
+    :host-context(.light-theme) .cgu-alert-ban p {
+      color: #7f1d1d;
+    }
+
+    :host-context(body.light-theme) .cgu-alert-ban p strong,
+    :host-context(.light-theme) .cgu-alert-ban p strong {
+      color: #7f1d1d;
+      font-weight: 800;
+    }
+
+    :host-context(body.light-theme) .cgu-section h3,
+    :host-context(.light-theme) .cgu-section h3 {
+      color: #059669;
+    }
+
+    :host-context(body.light-theme) .cgu-section p,
+    :host-context(.light-theme) .cgu-section p {
+      color: #334155;
+    }
+
+    :host-context(body.light-theme) .cgu-section ul,
+    :host-context(.light-theme) .cgu-section ul,
+    :host-context(body.light-theme) .cgu-section ol,
+    :host-context(.light-theme) .cgu-section ol {
+      color: #334155;
+    }
+
+    :host-context(body.light-theme) .cgu-section li,
+    :host-context(.light-theme) .cgu-section li {
+      color: #334155;
+    }
+
+    :host-context(body.light-theme) .last-update,
+    :host-context(.light-theme) .last-update {
+      color: #64748b;
     }
 
     @media (max-width: 640px) {
