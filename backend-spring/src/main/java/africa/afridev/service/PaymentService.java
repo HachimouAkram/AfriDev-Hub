@@ -54,8 +54,8 @@ public class PaymentService {
     @Value("${app.payment.platform-fee-percent:5.0}")
     private double platformFeePercent = 5.0;
 
-    @Value("${app.frontend-url:https://afridevhub.economestore.com}")
-    private String frontendBaseUrl = "https://afridevhub.economestore.com";
+    @Value("${app.frontend-url:http://localhost:4200}")
+    private String frontendBaseUrl = "http://localhost:4200";
 
     private String resolveFrontendBaseUrl() {
         try {
@@ -68,7 +68,7 @@ public class PaymentService {
         } catch (Exception ignored) {}
         String base = (frontendBaseUrl != null && !frontendBaseUrl.isBlank())
                 ? frontendBaseUrl.trim()
-                : "https://afridevhub.economestore.com";
+                : "http://localhost:4200";
         return base.endsWith("/") ? base.substring(0, base.length() - 1) : base;
     }
 
