@@ -30,6 +30,12 @@ remove_emojis.py
 .env.*
 *.env
 !.env.example
+application-local.yml
+application-local.properties
+application-dev.yml
+application-dev.properties
+application-prod.yml
+application-prod.properties
 
 # Scratch & Local temporary deployment scripts
 scratch/
