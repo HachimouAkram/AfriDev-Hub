@@ -24,8 +24,16 @@ remove_emojis.py
 # IDE & OS
 .idea/
 .vscode/
-# Environment variables & secrets
+
+# Environment variables & secrets (Jamais poussés sur Git)
 .env
+.env.*
 *.env
 !.env.example
+
+# Scratch & Local temporary deployment scripts
+scratch/
+*.exp
+*.sql
+
 

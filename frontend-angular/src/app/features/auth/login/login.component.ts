@@ -45,6 +45,15 @@ export class LoginComponent implements OnInit, AfterViewInit, OnDestroy {
   showNewPassword = false;
   tempUser: any = null;
 
+  // Forgot Password State
+  isForgotPasswordMode = false;
+  forgotStep: 1 | 2 | 3 = 1; // 1: Email, 2: Code OTP, 3: Nouveau Mot de passe
+  forgotEmail = '';
+  forgotOtpCode = '';
+  forgotNewPassword = '';
+  forgotConfirmNewPassword = '';
+  showForgotNewPassword = false;
+
   // Rate limiting / Lockout state
   isLocked = false;
   lockRemainingSeconds = 0;
@@ -207,6 +216,124 @@ export class LoginComponent implements OnInit, AfterViewInit, OnDestroy {
     this.otpCode = '';
     this.errorMessage = '';
     this.twoFactorMessage = '';
+  }
+
+  openForgotPassword(): void {
+    this.isForgotPasswordMode = true;
+    this.forgotStep = 1;
+    this.forgotEmail = this.email || '';
+    this.forgotOtpCode = '';
+    this.forgotNewPassword = '';
+    this.forgotConfirmNewPassword = '';
+    this.errorMessage = '';
+    this.successMessage = '';
+  }
+
+  cancelForgotPassword(): void {
+    this.isForgotPasswordMode = false;
+    this.forgotStep = 1;
+    this.errorMessage = '';
+    this.successMessage = '';
+  }
+
+  onSendResetCode(): void {
+    if (!this.forgotEmail || !this.forgotEmail.trim()) {
+      this.errorMessage = 'Veuillez saisir votre adresse email.';
+      return;
+    }
+
+    this.isLoading = true;
+    this.errorMessage = '';
+    this.successMessage = '';
+
+    this.authService.forgotPassword(this.forgotEmail.trim()).subscribe({
+      next: (res) => {
+        this.isLoading = false;
+        this.forgotStep = 2;
+        this.successMessage = res.data?.message || 'Un code de sécurité à 6 chiffres a été envoyé à votre adresse email.';
+      },
+      error: (err) => {
+        this.isLoading = false;
+        const msg = err.error?.error?.message || err.error?.message;
+        if (err.status === 404 || err.error?.error?.code === 'EMAIL_NOT_FOUND') {
+          this.errorMessage = 'Cette adresse email n\'existe pas.';
+        } else {
+          this.errorMessage = msg || 'Impossible d\'envoyer le code de réinitialisation.';
+        }
+      }
+    });
+  }
+
+  onVerifyResetCode(): void {
+    if (!this.forgotEmail) {
+      this.errorMessage = 'Adresse email manquante.';
+      return;
+    }
+    if (!this.forgotOtpCode || this.forgotOtpCode.trim().length !== 6) {
+      this.errorMessage = 'Veuillez saisir le code de sécurité à 6 chiffres reçu par email.';
+      return;
+    }
+
+    this.isLoading = true;
+    this.errorMessage = '';
+    this.successMessage = '';
+
+    this.authService.verifyResetCode(this.forgotEmail.trim(), this.forgotOtpCode.trim()).subscribe({
+      next: (res) => {
+        this.isLoading = false;
+        this.forgotStep = 3;
+        this.successMessage = res.data?.message || 'Code validé avec succès ! Définissez maintenant votre nouveau mot de passe.';
+      },
+      error: (err) => {
+        this.isLoading = false;
+        const msg = err.error?.error?.message || err.error?.message;
+        this.errorMessage = msg || 'Code de sécurité invalide ou expiré (valable 10 minutes).';
+      }
+    });
+  }
+
+  onResetPassword(): void {
+    if (!this.forgotEmail) {
+      this.errorMessage = 'Adresse email manquante.';
+      return;
+    }
+    if (!this.forgotOtpCode || this.forgotOtpCode.trim().length !== 6) {
+      this.errorMessage = 'Code de sécurité manquant.';
+      this.forgotStep = 2;
+      return;
+    }
+    if (!this.forgotNewPassword || this.forgotNewPassword.length < 8) {
+      this.errorMessage = 'Le nouveau mot de passe doit comporter au moins 8 caractères.';
+      return;
+    }
+    if (this.forgotNewPassword !== this.forgotConfirmNewPassword) {
+      this.errorMessage = 'Les deux mots de passe ne correspondent pas.';
+      return;
+    }
+
+    this.isLoading = true;
+    this.errorMessage = '';
+    this.successMessage = '';
+
+    this.authService.resetPassword({
+      email: this.forgotEmail.trim(),
+      otpCode: this.forgotOtpCode.trim(),
+      newPassword: this.forgotNewPassword
+    }).subscribe({
+      next: (res) => {
+        this.isLoading = false;
+        this.isForgotPasswordMode = false;
+        this.forgotStep = 1;
+        this.email = this.forgotEmail.trim();
+        this.password = '';
+        this.successMessage = res.data?.message || 'Votre mot de passe a été réinitialisé avec succès ! Vous pouvez maintenant vous connecter.';
+      },
+      error: (err) => {
+        this.isLoading = false;
+        const msg = err.error?.error?.message || err.error?.message;
+        this.errorMessage = msg || 'Code de sécurité invalide ou expiré (valable 10 minutes).';
+      }
+    });
   }
 
   onRequestOtp(): void {

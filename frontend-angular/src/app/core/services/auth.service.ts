@@ -235,6 +235,18 @@ export class AuthService {
     return this.http.post<ApiResponse<any>>(`${this.apiUrl}/email/request-otp`, { email });
   }
 
+  forgotPassword(email: string): Observable<ApiResponse<{ message: string }>> {
+    return this.http.post<ApiResponse<{ message: string }>>(`${this.apiUrl}/forgot-password`, { email });
+  }
+
+  verifyResetCode(email: string, otpCode: string): Observable<ApiResponse<{ message: string }>> {
+    return this.http.post<ApiResponse<{ message: string }>>(`${this.apiUrl}/verify-reset-code`, { email, otpCode });
+  }
+
+  resetPassword(data: { email: string; otpCode: string; newPassword: string }): Observable<ApiResponse<{ message: string }>> {
+    return this.http.post<ApiResponse<{ message: string }>>(`${this.apiUrl}/reset-password`, data);
+  }
+
   getDeletionImpact(): Observable<ApiResponse<AccountDeletionImpact>> {
     return this.http.get<ApiResponse<AccountDeletionImpact>>(`${this.profileUrl}/me/deletion-impact`);
   }

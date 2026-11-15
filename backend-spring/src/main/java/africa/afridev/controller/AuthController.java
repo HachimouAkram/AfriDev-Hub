@@ -102,4 +102,43 @@ public class AuthController {
         authService.changeInitialPassword(authentication.getName(), request);
         return ResponseEntity.ok(ApiResponse.ok(Map.of("message", "Mot de passe mis à jour avec succès.")));
     }
+
+    @PostMapping("/forgot-password")
+    public ResponseEntity<ApiResponse<Map<String, String>>> forgotPassword(@Valid @RequestBody ForgotPasswordRequest request) {
+        try {
+            authService.forgotPassword(request);
+            return ResponseEntity.ok(ApiResponse.ok(Map.of(
+                    "message", "Un code de réinitialisation de sécurité a été envoyé à votre adresse email."
+            )));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(ApiResponse.error("EMAIL_NOT_FOUND", e.getMessage()));
+        }
+    }
+
+    @PostMapping("/verify-reset-code")
+    public ResponseEntity<ApiResponse<Map<String, String>>> verifyResetCode(@Valid @RequestBody VerifyResetCodeRequest request) {
+        try {
+            authService.verifyResetCode(request.getEmail(), request.getOtpCode());
+            return ResponseEntity.ok(ApiResponse.ok(Map.of(
+                    "message", "Code validé avec succès."
+            )));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(ApiResponse.error("INVALID_OTP", e.getMessage()));
+        }
+    }
+
+    @PostMapping("/reset-password")
+    public ResponseEntity<ApiResponse<Map<String, String>>> resetPassword(@Valid @RequestBody ResetPasswordRequest request) {
+        try {
+            authService.resetPassword(request);
+            return ResponseEntity.ok(ApiResponse.ok(Map.of(
+                    "message", "Votre mot de passe a été réinitialisé avec succès. Vous pouvez maintenant vous connecter."
+            )));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(ApiResponse.error("INVALID_REQUEST", e.getMessage()));
+        }
+    }
 }

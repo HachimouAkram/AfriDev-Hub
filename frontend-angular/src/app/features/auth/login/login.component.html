@@ -143,8 +143,148 @@
       </form>
     </div>
 
-    <!-- Mode Selector Tabs (Hidden when 2FA or Password Change is active) -->
-    <ng-container *ngIf="!is2faRequired && !isChangeInitialPasswordRequired">
+    <!-- Mot de Passe Oublié Screen -->
+    <div *ngIf="isForgotPasswordMode" class="auth-form two-factor-box">
+      <div class="two-factor-banner">
+        <div class="two-factor-shield-icon">
+          <svg class="icon-svg icon-svg-xl text-emerald" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.75 5.25a3 3 0 013 3m3 0a6 6 0 01-7.029 5.912c-.563-.097-1.159.026-1.563.43L10.5 17.25H8.25v2.25H6v2.25H2.25v-2.818c0-.597.237-1.17.659-1.591l6.499-6.499c.404-.404.527-1 .43-1.563A6 6 0 1121.75 8.25z" />
+          </svg>
+        </div>
+        <h3 class="two-factor-title">
+          <span *ngIf="forgotStep === 1">Mot de passe oublié</span>
+          <span *ngIf="forgotStep === 2">Vérification du Code</span>
+          <span *ngIf="forgotStep === 3">Nouveau mot de passe</span>
+        </h3>
+        <p class="two-factor-desc" *ngIf="forgotStep === 1">
+          Saisissez votre adresse email. Si elle existe dans notre base, vous recevrez un code de sécurité à 6 chiffres pour réinitialiser votre mot de passe.
+        </p>
+        <p class="two-factor-desc" *ngIf="forgotStep === 2">
+          Un code de sécurité à 6 chiffres a été envoyé à <strong>{{ forgotEmail }}</strong>. Saisissez ce code pour continuer.
+        </p>
+        <p class="two-factor-desc" *ngIf="forgotStep === 3">
+          Votre code a été validé avec succès ! Saisissez maintenant votre nouveau mot de passe pour sécuriser votre compte.
+        </p>
+      </div>
+
+      <!-- Étape 1 : Saisie de l'email -->
+      <form *ngIf="forgotStep === 1" (ngSubmit)="onSendResetCode()" class="auth-form">
+        <div class="form-group">
+          <label for="forgotEmail">Adresse Email de votre compte</label>
+          <input 
+            type="email" 
+            id="forgotEmail" 
+            [(ngModel)]="forgotEmail" 
+            name="forgotEmail" 
+            placeholder="nom@domaine.africa" 
+            required 
+            class="form-control">
+        </div>
+
+        <button type="submit" [disabled]="isLoading || !forgotEmail" class="btn btn-emerald btn-full">
+          <svg *ngIf="!isLoading" class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5" />
+          </svg>
+          <span *ngIf="!isLoading">Envoyer le code de réinitialisation</span>
+          <span *ngIf="isLoading">Vérification de l'email...</span>
+        </button>
+
+        <div class="two-factor-actions">
+          <button type="button" class="btn-cancel-2fa" (click)="cancelForgotPassword()">
+            ← Revenir à la connexion
+          </button>
+        </div>
+      </form>
+
+      <!-- Étape 2 : Saisie UNIQUEMENT du code OTP (6 chiffres) -->
+      <form *ngIf="forgotStep === 2" (ngSubmit)="onVerifyResetCode()" class="auth-form">
+        <div class="form-group">
+          <label for="forgotOtpCode">Code de Sécurité (6 chiffres)</label>
+          <input 
+            type="text" 
+            id="forgotOtpCode" 
+            [(ngModel)]="forgotOtpCode" 
+            name="forgotOtpCode" 
+            placeholder="123456" 
+            maxlength="6" 
+            required 
+            autocomplete="one-time-code"
+            class="form-control otp-input text-center">
+        </div>
+
+        <button type="submit" [disabled]="isLoading || !forgotOtpCode || forgotOtpCode.length < 6" class="btn btn-emerald btn-full">
+          <svg *ngIf="!isLoading" class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <span *ngIf="!isLoading">Vérifier le code &amp; Continuer →</span>
+          <span *ngIf="isLoading">Validation du code...</span>
+        </button>
+
+        <div class="two-factor-actions" style="display: flex; justify-content: space-between; align-items: center; gap: 10px;">
+          <button type="button" class="btn-cancel-2fa" (click)="forgotStep = 1">
+            ← Modifier l'email
+          </button>
+          <button type="button" class="btn-cancel-2fa" (click)="cancelForgotPassword()">
+            Annuler
+          </button>
+        </div>
+      </form>
+
+      <!-- Étape 3 : Saisie du Nouveau Mot de Passe -->
+      <form *ngIf="forgotStep === 3" (ngSubmit)="onResetPassword()" class="auth-form">
+        <div class="form-group">
+          <label for="forgotNewPwd">Nouveau mot de passe (min. 8 car.)</label>
+          <div class="password-input-wrapper">
+            <input 
+              [type]="showForgotNewPassword ? 'text' : 'password'" 
+              id="forgotNewPwd" 
+              [(ngModel)]="forgotNewPassword" 
+              name="forgotNewPassword" 
+              placeholder="••••••••" 
+              required 
+              class="form-control">
+            <button type="button" class="pwd-eye-btn" (click)="showForgotNewPassword = !showForgotNewPassword" tabindex="-1">
+              <svg *ngIf="!showForgotNewPassword" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.964-7.178z" />
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+              </svg>
+              <svg *ngIf="showForgotNewPassword" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.242 4.242L9.88 9.88" />
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="forgotConfirmNewPwd">Confirmer le nouveau mot de passe</label>
+          <input 
+            type="password" 
+            id="forgotConfirmNewPwd" 
+            [(ngModel)]="forgotConfirmNewPassword" 
+            name="forgotConfirmNewPassword" 
+            placeholder="••••••••" 
+            required 
+            class="form-control">
+        </div>
+
+        <button type="submit" [disabled]="isLoading" class="btn btn-emerald btn-full">
+          <svg *ngIf="!isLoading" class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <span *ngIf="!isLoading">Enregistrer mon nouveau mot de passe</span>
+          <span *ngIf="isLoading">Enregistrement en cours...</span>
+        </button>
+
+        <div class="two-factor-actions">
+          <button type="button" class="btn-cancel-2fa" (click)="cancelForgotPassword()">
+            ← Annuler et revenir
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Mode Selector Tabs (Hidden when 2FA, Password Change or Forgot Password is active) -->
+    <ng-container *ngIf="!is2faRequired && !isChangeInitialPasswordRequired && !isForgotPasswordMode">
       <div class="tabs-nav">
         <button 
           class="tab-nav-btn" 
@@ -176,7 +316,12 @@
           </div>
 
           <div class="form-group">
-            <label for="password">Mot de passe</label>
+            <div class="label-with-link">
+              <label for="password">Mot de passe</label>
+              <button type="button" class="btn-forgot-pwd" (click)="openForgotPassword()" tabindex="-1">
+                Mot de passe oublié ?
+              </button>
+            </div>
             <div class="password-input-wrapper">
               <input 
                 [type]="showPassword ? 'text' : 'password'" 

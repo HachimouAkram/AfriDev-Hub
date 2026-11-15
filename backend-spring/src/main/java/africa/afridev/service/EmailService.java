@@ -54,6 +54,42 @@ public class EmailService {
         sendHtmlEmailChecked(toEmail, subject, body);
     }
 
+    // ── Password Reset Email ────────────────────────────────────────────────
+    public void sendPasswordResetEmail(String toEmail, String otpCode) throws Exception {
+        String subject = "\uD83D\uDD11 Réinitialisation de votre mot de passe AfriDev Hub";
+        String body = """
+            <div style="font-family: Inter, Arial, sans-serif; max-width: 520px; margin: auto; background: #0F1828; color: #E2E8F0; border-radius: 16px; overflow: hidden; border: 1px solid rgba(255,255,255,0.08);">
+              <div style="background: linear-gradient(135deg, #10B981, #059669); padding: 32px; text-align: center;">
+                <h1 style="margin: 0; color: #fff; font-size: 24px; font-weight: 800;">AfriDev Hub</h1>
+                <p style="margin: 8px 0 0; color: rgba(255,255,255,0.9); font-size: 14px;">Sécurité & Récupération de Compte</p>
+              </div>
+              <div style="padding: 32px;">
+                <div style="background: rgba(16, 185, 129, 0.1); border-left: 4px solid #10B981; padding: 12px 16px; border-radius: 8px; margin-bottom: 20px;">
+                  <h3 style="margin: 0; color: #34D399; font-size: 16px; font-weight: 700;">Réinitialisation de mot de passe</h3>
+                </div>
+                <p style="color: #94A3B8; font-size: 14px; line-height: 1.6; margin-bottom: 20px;">
+                  Vous avez demandé la réinitialisation du mot de passe associé à votre compte AfriDev Hub.
+                  Saisissez le code de sécurité temporaire ci-dessous pour définir votre nouveau mot de passe :
+                </p>
+                <div style="background: #1E293B; border-radius: 12px; padding: 24px; text-align: center; margin-bottom: 24px; border: 1px solid #334155;">
+                  <span style="font-size: 40px; font-weight: 900; letter-spacing: 12px; color: #10B981; font-family: monospace;">%s</span>
+                </div>
+                <p style="color: #94A3B8; font-size: 13px; text-align: center; margin-bottom: 12px;">
+                  Ce code est strictement confidentiel et reste valable pendant <strong style="color: #34D399;">10 minutes</strong>.
+                </p>
+                <p style="color: #EF4444; font-size: 12px; text-align: center; margin-bottom: 0;">
+                  ⚠️ Si vous n'êtes pas à l'origine de cette demande, veuillez ignorer ce message. Votre mot de passe actuel reste inchangé.
+                </p>
+              </div>
+              <div style="background: #0B1120; padding: 16px; text-align: center;">
+                <p style="margin: 0; color: #475569; font-size: 12px;">© 2026 AfriDev Hub · Plateforme Panafricaine des Développeurs</p>
+              </div>
+            </div>
+            """.formatted(otpCode);
+
+        sendHtmlEmailChecked(toEmail, subject, body);
+    }
+
     // ── Security OTP Email (2FA / Nouvel Appareil) ──────────────────────────
     public void sendSecurityOtpEmail(String toEmail, String otpCode, String deviceName, String ipAddress, boolean isNewDevice) throws Exception {
         String alertTitle = isNewDevice ? "Connexion sur un nouvel appareil détectée" : "Code d'authentification à deux facteurs (2FA)";

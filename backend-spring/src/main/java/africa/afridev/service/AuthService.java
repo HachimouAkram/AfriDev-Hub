@@ -236,6 +236,59 @@ public class AuthService {
         log.info("[AUTH] Mot de passe initial mis à jour avec succès pour {}", email);
     }
 
+    public void forgotPassword(ForgotPasswordRequest request) {
+        String email = request.getEmail() != null ? request.getEmail().trim().toLowerCase() : "";
+        UserEntity user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new IllegalArgumentException("Cette adresse email n'existe pas."));
+
+        String code = otpService.generateAndSaveOtp(user.getEmail());
+        try {
+            emailService.sendPasswordResetEmail(user.getEmail(), code);
+            log.info("[AUTH FORGOT PWD] Code de réinitialisation envoyé à {}", user.getEmail());
+        } catch (Exception e) {
+            log.warn("[AUTH FORGOT PWD] Échec d'envoi de l'email de réinitialisation à {}: {}", user.getEmail(), e.getMessage());
+        }
+    }
+
+    public void verifyResetCode(String email, String otpCode) {
+        String cleanEmail = email != null ? email.trim().toLowerCase() : "";
+        UserEntity user = userRepository.findByEmail(cleanEmail)
+                .orElseThrow(() -> new IllegalArgumentException("Cette adresse email n'existe pas."));
+
+        boolean valid = otpService.checkOtpValid(cleanEmail, otpCode);
+        if (!valid) {
+            throw new IllegalArgumentException("Code de sécurité invalide ou expiré (valable 10 minutes).");
+        }
+        log.info("[AUTH FORGOT PWD] Code OTP vérifié avec succès pour {}", cleanEmail);
+    }
+
+    @Transactional
+    public void resetPassword(ResetPasswordRequest request) {
+        String email = request.getEmail() != null ? request.getEmail().trim().toLowerCase() : "";
+        UserEntity user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new IllegalArgumentException("Cette adresse email n'existe pas."));
+
+        boolean valid = otpService.verifyOtp(email, request.getOtpCode());
+        if (!valid) {
+            throw new IllegalArgumentException("Code de sécurité invalide ou expiré (valable 10 minutes).");
+        }
+
+        if (request.getNewPassword() == null || request.getNewPassword().length() < 8) {
+            throw new IllegalArgumentException("Le nouveau mot de passe doit comporter au moins 8 caractères.");
+        }
+
+        user.setPasswordHash(passwordEncoder.encode(request.getNewPassword()));
+        user.setMustChangePassword(false);
+        userRepository.save(user);
+
+        // Déverrouiller les tentatives de connexion échouées dans Redis
+        try {
+            redisCacheService.clearFailedLoginAttempts(email);
+        } catch (Exception ignored) {}
+
+        log.info("[AUTH RESET PWD] Mot de passe réinitialisé avec succès pour {}", email);
+    }
+
     @Transactional
     public AuthResponse verify2fa(TwoFactorVerifyRequest request, HttpServletRequest httpRequest) {
         boolean valid = otpService.verifyOtp(request.getEmail(), request.getOtpCode());

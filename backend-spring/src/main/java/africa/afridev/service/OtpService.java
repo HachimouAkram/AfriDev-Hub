@@ -107,4 +107,32 @@ public class OtpService {
         }
         return isValid;
     }
+
+    public boolean checkOtpValid(String rawEmail, String rawCode) {
+        if (rawEmail == null || rawCode == null) {
+            return false;
+        }
+        String email = rawEmail.trim().toLowerCase();
+        String code = rawCode.trim();
+
+        OtpData data = otpStorage.get(email);
+        if (data == null) {
+            log.warn("[OTP CHECK] Aucun OTP actif trouvé pour l'email {}", email);
+            return false;
+        }
+
+        if (Instant.now().getEpochSecond() > data.expiresAt) {
+            log.warn("[OTP CHECK] OTP expiré pour l'email {}", email);
+            otpStorage.remove(email);
+            return false;
+        }
+
+        boolean match = data.code.equals(code);
+        if (match) {
+            log.info("[OTP CHECK] Code OTP pré-validé avec succès pour {}", email);
+        } else {
+            log.warn("[OTP CHECK] Code incorrect pour {} : saisi={}", email, code);
+        }
+        return match;
+    }
 }

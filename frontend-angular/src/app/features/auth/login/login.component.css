@@ -440,6 +440,33 @@
   transition: color 0.2s ease;
 }
 
+.label-with-link {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.label-with-link label {
+  margin-bottom: 0;
+}
+
+.btn-forgot-pwd {
+  background: none;
+  border: none;
+  color: var(--emerald, #10b981);
+  font-size: 0.8rem;
+  font-weight: 500;
+  cursor: pointer;
+  padding: 0;
+  transition: opacity 0.2s, text-decoration 0.2s;
+}
+
+.btn-forgot-pwd:hover {
+  text-decoration: underline;
+  opacity: 0.85;
+}
+
 .btn-cancel-2fa:hover {
   color: var(--emerald);
   text-decoration: underline;
